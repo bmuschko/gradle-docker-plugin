@@ -1,0 +1,119 @@
+/*buildscript {
+    repositories {
+        maven { url 'http://jcenter.bintray.com' }
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+    }
+}*/
+
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'maven-publish'
+//apply plugin: 'bintray'
+
+group = 'org.gradle.api.plugins'
+version = '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile localGroovy()
+    compile gradleApi()
+    testCompile 'org.spockframework:spock-core:0.6-groovy-1.8'
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Docker plugin',
+                   'Implementation-Version': version,
+                   'Built-By': System.getProperty('user.name'),
+                   'Built-Date': new Date(),
+                   'Built-JDK': System.getProperty('java.version'),
+                   'Built-Gradle': gradle.gradleVersion
+    }
+}
+
+idea.project {
+    jdkName = '1.6'
+
+    ipr.withXml { provider ->
+        def node = provider.asNode()
+
+        // Use GIT
+        def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
+        vcsConfig.mapping[0].'@vcs' = 'Git'
+
+        // Set Gradle home
+        def gradleSettings = node.appendNode('component', [name: 'GradleSettings'])
+        gradleSettings.appendNode('option', [name: 'SDK_HOME', value: gradle.gradleHomeDir])
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+    classifier 'groovydoc'
+    from groovydoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives groovydocJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact groovydocJar
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', 'Gradle Docker plugin')
+                root.appendNode('description', 'Gradle plugin for building, publishing and running Vagrant boxes.')
+                root.appendNode('inceptionYear', '2014')
+
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                license.appendNode('distribution', 'repo')
+
+                def developers = root.appendNode('developers')
+                def bmuschko = developers.appendNode('developer')
+                bmuschko.appendNode('id', 'bmuschko')
+                bmuschko.appendNode('name', 'Benjamin Muschko')
+                bmuschko.appendNode('email', 'benjamin.muschko@gmail.com')
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url "$buildDir/repo"
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.11'
+}
+
+/*bintray {
+    user = project.hasProperty('bintrayUser') ? project.getProperty('bintrayUser') : null
+    key =  project.hasProperty('bintrayKey') ? project.getProperty('bintrayKey') : null
+    publications = ['mavenJava']
+
+    pkg {
+        repo = 'gradle-plugins'
+        name = 'gradle-vagrant-plugin'
+        licenses = ['Apache-2.0']
+    }
+} */
