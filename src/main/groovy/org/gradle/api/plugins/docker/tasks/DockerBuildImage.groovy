@@ -27,6 +27,10 @@ class DockerBuildImage extends AbstractDockerTask {
     @Optional
     String tag
 
+    @Input
+    @Optional
+    Boolean noCache = Boolean.FALSE
+
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
         logger.quiet "Building image from folder ${getInputDir()}."
@@ -36,7 +40,7 @@ class DockerBuildImage extends AbstractDockerTask {
             dockerClient.build(getInputDir())
         }
         else {
-            dockerClient.build(getInputDir(), getTag())
+            dockerClient.build(getInputDir(), getTag(), getNoCache())
         }
     }
 }

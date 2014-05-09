@@ -62,7 +62,7 @@ class DockerStartContainer extends AbstractDockerTask {
         containerId = container.id
     }
 
-    def createContainerConfig(URLClassLoader classLoader) {
+    private createContainerConfig(URLClassLoader classLoader) {
         Class containerConfigClass = classLoader.loadClass('com.kpelykh.docker.client.model.ContainerConfig')
         def containerConfig = containerConfigClass.newInstance()
         containerConfig.image = getImageId()

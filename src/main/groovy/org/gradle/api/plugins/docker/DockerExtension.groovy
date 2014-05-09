@@ -16,5 +16,5 @@
 package org.gradle.api.plugins.docker
 
 class DockerExtension {
-    
+    String serverUrl
 }
