@@ -27,7 +27,7 @@ class DockerRemoveImage extends AbstractDockerTask {
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Removing image with ID ${getImageId()}."
+        logger.quiet "Removing image with ID '${getImageId()}'."
         def dockerClient = getDockerClient(classLoader)
         dockerClient.removeImage(getImageId())
     }

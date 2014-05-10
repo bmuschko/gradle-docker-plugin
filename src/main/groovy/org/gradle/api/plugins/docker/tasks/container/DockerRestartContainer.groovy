@@ -35,7 +35,7 @@ class DockerRestartContainer extends AbstractDockerTask {
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Restarting container with ID ${getContainerId()}."
+        logger.quiet "Restarting container with ID '${getContainerId()}'."
         def dockerClient = getDockerClient(classLoader)
         dockerClient.restart(getContainerId(), getTimeout())
     }

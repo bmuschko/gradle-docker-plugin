@@ -27,7 +27,7 @@ class DockerStopContainer extends AbstractDockerTask {
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Stopping container with ID ${getContainerId()}."
+        logger.quiet "Stopping container with ID '${getContainerId()}'."
         def dockerClient = getDockerClient(classLoader)
         dockerClient.stopContainer(getContainerId())
     }

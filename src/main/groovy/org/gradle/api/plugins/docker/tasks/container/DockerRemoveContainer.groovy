@@ -27,7 +27,7 @@ class DockerRemoveContainer extends AbstractDockerTask {
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Removing container with ID ${getContainerId()}."
+        logger.quiet "Removing container with ID '${getContainerId()}'."
         def dockerClient = getDockerClient(classLoader)
         dockerClient.removeContainer(getContainerId())
     }

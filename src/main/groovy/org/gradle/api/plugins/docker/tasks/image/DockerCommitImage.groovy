@@ -20,21 +20,36 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerCommitImage extends AbstractDockerTask {
+    /**
+     * Name of the source container.
+     */
     @Input
     String container
 
+    /**
+     * Repository.
+     */
     @Input
     @Optional
-    String repo
+    String repository
 
+    /**
+     * Commit tag.
+     */
     @Input
     @Optional
     String tag
 
+    /**
+     * Commit message.
+     */
     @Input
     @Optional
     String message
 
+    /**
+     * Author of image e.g. Benjamin Muschko.
+     */
     @Input
     @Optional
     String author
@@ -45,18 +60,18 @@ class DockerCommitImage extends AbstractDockerTask {
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Commiting image for container ${getContainer()}."
+        logger.quiet "Commiting image for container '${getContainer()}'."
         def dockerClient = getDockerClient(classLoader)
         def commitConfig = createCommitConfig(classLoader)
         String commitId = dockerClient.commit(commitConfig)
-        logger.quiet "Created image with ID $commitId."
+        logger.quiet "Created image with ID '$commitId'."
     }
 
     private createCommitConfig(URLClassLoader classLoader) {
         Class commitConfigClass = classLoader.loadClass('com.kpelykh.docker.client.model.CommitConfig')
         def commitConfig = commitConfigClass.newInstance()
         commitConfig.container = getContainer()
-        commitConfig.repo = getRepo()
+        commitConfig.repo = getRepository()
         commitConfig.tag = getTag()
         commitConfig.message = getMessage()
         commitConfig.author = getAuthor()

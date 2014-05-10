@@ -27,7 +27,7 @@ class DockerKillContainer extends AbstractDockerTask {
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Killing container with ID ${getContainerId()}."
+        logger.quiet "Killing container with ID '${getContainerId()}'."
         def dockerClient = getDockerClient(classLoader)
         dockerClient.kill(getContainerId())
     }

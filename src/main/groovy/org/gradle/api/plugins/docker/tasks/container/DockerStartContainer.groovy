@@ -59,7 +59,7 @@ class DockerStartContainer extends AbstractDockerTask {
         def dockerClient = getDockerClient(classLoader)
         def container = dockerClient.createContainer(containerConfig)
         dockerClient.startContainer(container.id)
-        logger.quiet "Started container with ID $container.id."
+        logger.quiet "Started container with ID '$container.id'."
         containerId = container.id
     }
 
