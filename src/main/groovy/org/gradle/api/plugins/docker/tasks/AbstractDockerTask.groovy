@@ -26,9 +26,15 @@ import org.gradle.api.tasks.TaskAction
 import java.lang.reflect.Constructor
 
 abstract class AbstractDockerTask extends DefaultTask {
+    /**
+     * Classpath for Docker Java libraries.
+     */
     @InputFiles
     FileCollection classpath
 
+    /**
+     * Docker remote API server URL. Defaults to "http://localhost:4243".
+     */
     @Input
     String serverUrl = 'http://localhost:4243'
        

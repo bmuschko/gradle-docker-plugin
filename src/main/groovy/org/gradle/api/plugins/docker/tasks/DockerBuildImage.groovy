@@ -20,27 +20,30 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 
 class DockerBuildImage extends AbstractDockerTask {
+    /**
+     * Input directory containing Dockerfile. Defaults to "$projectDir/docker".
+     */
     @InputDirectory
-    File inputDir
+    File inputDir = project.file('docker')
 
+    /**
+     * Tag for image.
+     */
     @Input
     @Optional
     String tag
 
-    @Input
-    @Optional
-    Boolean noCache = Boolean.FALSE
-
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Building image from folder ${getInputDir()}."
         def dockerClient = getDockerClient(classLoader)
 
         if(!getTag()) {
+            logger.quiet "Building image from folder '${getInputDir()}'."
             dockerClient.build(getInputDir())
         }
         else {
-            dockerClient.build(getInputDir(), getTag(), getNoCache())
+            logger.quiet "Building image from folder '${getInputDir()}' with tag '${getTag()}'."
+            dockerClient.build(getInputDir(), getTag())
         }
     }
 }

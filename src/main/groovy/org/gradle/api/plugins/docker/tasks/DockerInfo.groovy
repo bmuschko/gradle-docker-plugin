@@ -37,6 +37,5 @@ class DockerInfo extends AbstractDockerTask {
         logger.quiet "NFd                  : $info.NFd"
         logger.quiet "NGoroutines          : $info.NGoroutines"
         logger.quiet "Swap Limit           : $info.swapLimit"
-
     }
 }
