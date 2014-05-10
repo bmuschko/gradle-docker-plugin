@@ -13,29 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.api.plugins.docker.tasks
+package org.gradle.api.plugins.docker.tasks.image
 
+import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 
-class DockerRestartContainer extends AbstractDockerTask {
+class DockerRemoveImage extends AbstractDockerTask {
     /**
-     * Container ID to be restarted.
+     * Image ID to be removed.
      */
     @Input
-    String containerId
-
-    /**
-     * Restart timeout. Defaults to 10000 ms.
-     */
-    @Input
-    @Optional
-    Integer timeout = 10000
+    String imageId
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Restarting container with ID ${getContainerId()}."
+        logger.quiet "Removing image with ID ${getImageId()}."
         def dockerClient = getDockerClient(classLoader)
-        dockerClient.restart(getContainerId(), getTimeout())
+        dockerClient.removeImage(getImageId())
     }
 }

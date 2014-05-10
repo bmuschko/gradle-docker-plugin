@@ -13,37 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.api.plugins.docker.tasks
+package org.gradle.api.plugins.docker.tasks.container
 
+import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 
-class DockerBuildImage extends AbstractDockerTask {
+class DockerRestartContainer extends AbstractDockerTask {
     /**
-     * Input directory containing Dockerfile. Defaults to "$projectDir/docker".
+     * Container ID to be restarted.
      */
-    @InputDirectory
-    File inputDir = project.file('docker')
+    @Input
+    String containerId
 
     /**
-     * Tag for image.
+     * Restart timeout. Defaults to 10000 ms.
      */
     @Input
     @Optional
-    String tag
+    Integer timeout = 10000
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
+        logger.quiet "Restarting container with ID ${getContainerId()}."
         def dockerClient = getDockerClient(classLoader)
-
-        if(!getTag()) {
-            logger.quiet "Building image from folder '${getInputDir()}'."
-            dockerClient.build(getInputDir())
-        }
-        else {
-            logger.quiet "Building image from folder '${getInputDir()}' with tag '${getTag()}'."
-            dockerClient.build(getInputDir(), getTag())
-        }
+        dockerClient.restart(getContainerId(), getTimeout())
     }
 }

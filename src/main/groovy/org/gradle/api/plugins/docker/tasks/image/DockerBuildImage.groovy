@@ -13,21 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.api.plugins.docker.tasks
+package org.gradle.api.plugins.docker.tasks.image
 
+import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 
-class DockerKillContainer extends AbstractDockerTask {
+class DockerBuildImage extends AbstractDockerTask {
     /**
-     * Container ID to be killed.
+     * Input directory containing Dockerfile. Defaults to "$projectDir/docker".
+     */
+    @InputDirectory
+    File inputDir = project.file('docker')
+
+    /**
+     * Tag for image.
      */
     @Input
-    String containerId
+    @Optional
+    String tag
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Killing container with ID ${getContainerId()}."
         def dockerClient = getDockerClient(classLoader)
-        dockerClient.kill(getContainerId())
+
+        if(!getTag()) {
+            logger.quiet "Building image from folder '${getInputDir()}'."
+            dockerClient.build(getInputDir())
+        }
+        else {
+            logger.quiet "Building image from folder '${getInputDir()}' with tag '${getTag()}'."
+            dockerClient.build(getInputDir(), getTag())
+        }
     }
 }

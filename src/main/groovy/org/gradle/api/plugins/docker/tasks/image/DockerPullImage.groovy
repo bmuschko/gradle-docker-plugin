@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.api.plugins.docker.tasks
+package org.gradle.api.plugins.docker.tasks.image
 
+import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 import org.gradle.api.tasks.Input
 
-class DockerRemoveImage extends AbstractDockerTask {
+class DockerPullImage extends AbstractDockerTask {
     /**
-     * Image ID to be removed.
+     * Image ID to be pulled.
      */
     @Input
     String imageId
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Removing image with ID ${getImageId()}."
+        logger.quiet "Pulling image ID '${getImageId()}'."
         def dockerClient = getDockerClient(classLoader)
-        dockerClient.removeImage(getImageId())
+        dockerClient.pull(getImageId())
     }
 }
