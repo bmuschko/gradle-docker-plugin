@@ -19,9 +19,14 @@ import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 import org.gradle.api.tasks.Input
 
 abstract class DockerExistingContainer extends AbstractDockerTask {
-    /**
-     * Id of existing container.
-     */
-    @Input
     String containerId
+
+    void targetContainerId(Closure containerId) {
+        conventionMapping.containerId = containerId
+    }
+
+    @Input
+    String getContainerId() {
+        containerId
+    }
 }
