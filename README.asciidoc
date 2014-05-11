@@ -30,6 +30,8 @@ apply plugin: 'docker'
 
 === Custom task types
 
+==== Misc
+
 The plugin provides the following misc custom task types:
 
 [options="header"]
@@ -38,6 +40,9 @@ The plugin provides the following misc custom task types:
 |DockerInfo     |Displays system-wide information.
 |DockerVersion  |Show the docker version information.
 |=======
+
+
+==== Images
 
 The plugin provides the following custom task types for managing images:
 
@@ -49,6 +54,9 @@ The plugin provides the following custom task types for managing images:
 |DockerPullImage    |Pulls an image from the registry.
 |DockerRemoveImage  |Removes an image from the filesystem.
 |=======
+
+
+==== Containers
 
 The plugin provides the following custom task types for managing containers:
 
@@ -77,6 +85,9 @@ The plugin defines the following extension properties in the `docker` closure:
 
 
 === Example
+
+The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this
+image and exercises functional tests agains the running container. At the end of this operation, the container is stopped.
 
 [source,groovy]
 ----
@@ -108,7 +119,7 @@ task stopMyAppContainer(type: DockerStopContainer) {
     targetContainerId { createMyAppContainer.getContainerId() }
 }
 
-task integrationTestMyApp(type: Test) {
+task functionalTestMyApp(type: Test) {
     dependsOn startMyAppContainer
     finalizedBy stopMyAppContainer
 }
