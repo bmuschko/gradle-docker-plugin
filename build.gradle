@@ -1,4 +1,4 @@
-/*buildscript {
+buildscript {
     repositories {
         maven { url 'http://jcenter.bintray.com' }
     }
@@ -6,12 +6,12 @@
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
     }
-}*/
+}
 
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
-//apply plugin: 'bintray'
+apply plugin: 'bintray'
 
 group = 'org.gradle.api.plugins'
 version = '0.1'
@@ -94,26 +94,20 @@ publishing {
             }
         }
     }
-
-    repositories {
-        maven {
-            url "$buildDir/repo"
-        }
-    }
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.11'
 }
 
-/*bintray {
+bintray {
     user = project.hasProperty('bintrayUser') ? project.getProperty('bintrayUser') : null
     key =  project.hasProperty('bintrayKey') ? project.getProperty('bintrayKey') : null
     publications = ['mavenJava']
 
     pkg {
         repo = 'gradle-plugins'
-        name = 'gradle-vagrant-plugin'
+        name = 'gradle-docker-plugin'
         licenses = ['Apache-2.0']
     }
-} */
+}
