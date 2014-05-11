@@ -1,0 +1,115 @@
+Gradle Docker plugin
+====================
+
+image:https://www.docker.io/static/img/docker-top-logo.png[Docker Logo]
+
+Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
+link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
+Docker remote API is handled by the link:https://github.com/kpelykh/docker-java[Docker Java library]. Currently,
+version 0.8.1 is used which assumes Docker's client API v1.8.
+
+== Usage
+
+To use the plugin, include in your build script:
+
+[source,groovy]
+----
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-docker-plugin:0.1'
+    }
+}
+
+apply plugin: 'docker'
+----
+
+
+=== Custom task types
+
+The plugin provides the following misc custom task types:
+
+[options="header"]
+|=======
+|Type           |Description
+|DockerInfo     |Displays system-wide information.
+|DockerVersion  |Show the docker version information.
+|=======
+
+The plugin provides the following custom task types for managing images:
+
+[options="header"]
+|=======
+|Type               |Description
+|DockerBuildImage   |Builds an image from a Dockerfile.
+|DockerCommitImage  |Creates a new image from a container's changes.
+|DockerPullImage    |Pulls an image from the registry.
+|DockerRemoveImage  |Removes an image from the filesystem.
+|=======
+
+The plugin provides the following custom task types for managing containers:
+
+[options="header"]
+|=======
+|Type                    |Description
+|DockerCreateContainer   |Creates a container.
+|DockerKillContainer     |Kills the container for a given id.
+|DockerRemoveContainer   |Removes the container for a given id from the filesystem.
+|DockerRestartContainer  |Restarts the container for a given id.
+|DockerStartContainer    |Starts the container for a given id.
+|DockerStopContainer     |Stops the container for a given id.
+|DockerWaitContainer     |Blocks until container for a given id stops, then returns the exit code.
+|=======
+
+
+=== Extension properties
+
+The plugin defines the following extension properties in the `docker` closure:
+
+[options="header"]
+|=======
+|Property name   |Type      |Default value    |Description
+|`serverUrl`     |String    |null             |The server URL to connect to via Docker's remote API.
+|=======
+
+
+=== Example
+
+[source,groovy]
+----
+import org.gradle.api.plugins.docker.tasks.container.*
+import org.gradle.api.plugins.docker.tasks.image.*
+
+docker {
+    serverUrl = 'http://remote.docker.com:4243'
+}
+
+ext.imageTag = 'test/myapp'
+
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('docker/myapp')
+    tag = imageTag
+}
+
+task createMyAppContainer(type: DockerCreateContainer) {
+    dependsOn buildMyAppImage
+    imageId = imageTag
+}
+
+task startMyAppContainer(type: DockerStartContainer) {
+    dependsOn createMyAppContainer
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task stopMyAppContainer(type: DockerStopContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task integrationTestMyApp(type: Test) {
+    dependsOn startMyAppContainer
+    finalizedBy stopMyAppContainer
+}
+----
