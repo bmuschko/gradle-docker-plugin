@@ -32,7 +32,7 @@ apply plugin: 'docker'
 
 ==== Misc
 
-The plugin provides the following misc custom task types:
+The plugin provides the following general purpose custom task types:
 
 [options="header"]
 |=======
