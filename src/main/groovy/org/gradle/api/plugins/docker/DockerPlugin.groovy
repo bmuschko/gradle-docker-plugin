@@ -17,17 +17,40 @@ package org.gradle.api.plugins.docker
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 
 class DockerPlugin implements Plugin<Project> {
+    static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
+    static final String DOCKER_JAVA_DEFAULT_VERSION = '0.8.1'
     static final String EXTENSION_NAME = 'docker'
-    
+
     @Override
     void apply(Project project) {
-        project.plugins.apply(DockerBasePlugin)
-        project.extensions.create(EXTENSION_NAME, DockerExtension)
-        addTasks(project)
+        project.configurations.create(DOCKER_JAVA_CONFIGURATION_NAME)
+               .setVisible(false)
+               .setTransitive(true)
+               .setDescription('The Docker Java libraries to be used for this project.')
+
+        def extension = project.extensions.create(EXTENSION_NAME, DockerExtension)
+
+        configureAbstractDockerTask(project, extension)
     }
-    
-    private void addTasks(Project project) {
+
+    private void configureAbstractDockerTask(Project project, extension) {
+        project.tasks.withType(AbstractDockerTask) {
+            conventionMapping.map('classpath') {
+                def config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
+
+                if(config.dependencies.empty) {
+                    project.dependencies {
+                        dockerJava "com.kpelykh:docker-java:$DOCKER_JAVA_DEFAULT_VERSION"
+                    }
+                }
+
+                config
+            }
+
+            conventionMapping.map('serverUrl') { extension.serverUrl }
+        }
     }
 }
