@@ -15,16 +15,7 @@
  */
 package org.gradle.api.plugins.docker.tasks.container
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
-import org.gradle.api.tasks.Input
-
-class DockerRemoveContainer extends AbstractDockerTask {
-    /**
-     * Container ID to be removed.
-     */
-    @Input
-    String containerId
-
+class DockerRemoveContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
         logger.quiet "Removing container with ID '${getContainerId()}'."

@@ -15,65 +15,12 @@
  */
 package org.gradle.api.plugins.docker.tasks.container
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
-
-class DockerStartContainer extends AbstractDockerTask {
-    @Input
-    String imageId
-
-    @Input
-    @Optional
-    String[] cmds
-
-    @Input
-    @Optional
-    Boolean stdin = Boolean.FALSE
-
-    @Input
-    @Optional
-    Boolean stderr = Boolean.FALSE
-
-    @Input
-    @Optional
-    Integer cpuShares
-
-    @Input
-    @Optional
-    Boolean stdout = Boolean.FALSE
-
-    String containerId
-
-    DockerStartContainer() {
-        ext {
-            getContainerId = {
-                containerId
-            }
-        }
-    }
-
+class DockerStartContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        def containerConfig = createContainerConfig(classLoader)
+        logger.quiet "Starting container with ID '${getContainerId()}'."
         def dockerClient = getDockerClient(classLoader)
-        def container = dockerClient.createContainer(containerConfig)
-        dockerClient.startContainer(container.id)
-        logger.quiet "Started container with ID '$container.id'."
-        containerId = container.id
-    }
-
-    private createContainerConfig(URLClassLoader classLoader) {
-        Class containerConfigClass = classLoader.loadClass('com.kpelykh.docker.client.model.ContainerConfig')
-        def containerConfig = containerConfigClass.newInstance()
-        containerConfig.image = getImageId()
-
-        if(getCmds()) {
-            containerConfig.cmd = getCmds()
-        }
-
-        logger.info "Container configuration: $containerConfig"
-        containerConfig
+        dockerClient.startContainer(getContainerId())
     }
 }
 

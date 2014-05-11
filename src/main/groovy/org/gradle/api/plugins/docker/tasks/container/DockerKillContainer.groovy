@@ -15,16 +15,7 @@
  */
 package org.gradle.api.plugins.docker.tasks.container
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
-import org.gradle.api.tasks.Input
-
-class DockerKillContainer extends AbstractDockerTask {
-    /**
-     * Container ID to be killed.
-     */
-    @Input
-    String containerId
-
+class DockerKillContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
         logger.quiet "Killing container with ID '${getContainerId()}'."

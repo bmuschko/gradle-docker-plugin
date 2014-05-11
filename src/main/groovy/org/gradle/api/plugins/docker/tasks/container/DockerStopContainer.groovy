@@ -15,20 +15,28 @@
  */
 package org.gradle.api.plugins.docker.tasks.container
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
-class DockerStopContainer extends AbstractDockerTask {
+class DockerStopContainer extends DockerExistingContainer {
     /**
-     * Container ID to be stopped.
+     * Stop timeout in seconds.
      */
     @Input
-    String containerId
+    @Optional
+    Integer timeout
 
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Stopping container with ID '${getContainerId()}'."
         def dockerClient = getDockerClient(classLoader)
-        dockerClient.stopContainer(getContainerId())
+
+        if(!getTimeout()) {
+            logger.quiet "Stopping container with ID '${getContainerId()}'."
+            dockerClient.stopContainer(getContainerId())
+        }
+        else {
+            logger.quiet "Stopping container with ID '${getContainerId()}' and timeout ${getTimeout()}s."
+            dockerClient.stopContainer(getContainerId(), getTimeout())
+        }
     }
 }

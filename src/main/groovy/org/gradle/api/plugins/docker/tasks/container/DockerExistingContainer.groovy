@@ -15,28 +15,13 @@
  */
 package org.gradle.api.plugins.docker.tasks.container
 
+import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 
-class DockerRestartContainer extends DockerExistingContainer {
+abstract class DockerExistingContainer extends AbstractDockerTask {
     /**
-     * Restart timeout in seconds.
+     * Id of existing container.
      */
     @Input
-    @Optional
-    Integer timeout
-
-    @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
-        def dockerClient = getDockerClient(classLoader)
-
-        if(!getTimeout()) {
-            logger.quiet "Restarting container with ID '${getContainerId()}'."
-            dockerClient.restart(getContainerId())
-        }
-        else {
-            logger.quiet "Restarting container with ID '${getContainerId()}' and timeout ${getTimeout()}s."
-            dockerClient.restart(getContainerId(), getTimeout())
-        }
-    }
+    String containerId
 }
