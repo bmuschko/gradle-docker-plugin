@@ -21,7 +21,7 @@ import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 
 class DockerPlugin implements Plugin<Project> {
     static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    static final String DOCKER_JAVA_DEFAULT_VERSION = '0.8.1'
+    static final String DOCKER_JAVA_DEFAULT_VERSION = '0.8.2'
     static final String EXTENSION_NAME = 'docker'
 
     @Override
@@ -43,7 +43,7 @@ class DockerPlugin implements Plugin<Project> {
 
                 if(config.dependencies.empty) {
                     project.dependencies {
-                        dockerJava "com.kpelykh:docker-java:$DOCKER_JAVA_DEFAULT_VERSION"
+                        dockerJava "com.github.docker-java:docker-java:$DOCKER_JAVA_DEFAULT_VERSION"
                     }
                 }
 
