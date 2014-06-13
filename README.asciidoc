@@ -52,6 +52,7 @@ The plugin provides the following custom task types for managing images:
 |DockerBuildImage   |Builds an image from a Dockerfile.
 |DockerCommitImage  |Creates a new image from a container's changes.
 |DockerPullImage    |Pulls an image from the registry.
+|DockerPushImage    |Pushes an image to a registry.
 |DockerRemoveImage  |Removes an image from the filesystem.
 |=======
 
