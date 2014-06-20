@@ -14,7 +14,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'bintray'
 
 group = 'org.gradle.api.plugins'
-version = '0.1'
+version = '0.2'
 
 repositories {
     mavenCentral()
