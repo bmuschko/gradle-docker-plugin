@@ -74,6 +74,7 @@ publishing {
             from components.java
             artifact sourcesJar
             artifact groovydocJar
+            artifactId 'gradle-docker-plugin'
 
             pom.withXml {
                 def root = asNode()
