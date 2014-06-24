@@ -25,6 +25,10 @@ class DockerCreateContainer extends AbstractDockerTask {
 
     @Input
     @Optional
+    String containerName
+    
+    @Input
+    @Optional
     String hostName
 
     @Input
@@ -122,6 +126,9 @@ class DockerCreateContainer extends AbstractDockerTask {
             getContainerId = {
                 containerId
             }
+            getContainerName = {
+                containerName
+            }
         }
     }
 
@@ -130,8 +137,28 @@ class DockerCreateContainer extends AbstractDockerTask {
         def containerConfig = createContainerConfig(classLoader)
         logger.info "Container configuration: $containerConfig"
         def dockerClient = getDockerClient(classLoader)
-        def container = dockerClient.createContainer(containerConfig)
-        logger.quiet "Created container with ID '$container.id'."
+        def container = null
+        try {
+            container = dockerClient.createContainer(containerConfig, containerName)
+            logger.quiet "Created container '$containerName' with ID '$container.id'"
+        } catch(e) {
+            logger.quiet "Container with name '$containerName' already exists. Fetching Container ID.. "
+            def cntrList = dockerClient.listContainers(true)
+            cntrList.any { c -> 
+                def names = c.getNames()
+                names.any { n ->
+                    if (n == "/$containerName") {
+                        container = c
+                        return true
+                    }
+                }
+                if (container && container.id) return true
+            }
+            if (!container) {
+                throw new org.gradle.api.tasks.TaskExecutionException("Error creating container: " + e.getMessage())
+            }
+            logger.quiet "Container '$containerName' has ID '$container.id'"
+        }
         containerId = container.id
     }
 
