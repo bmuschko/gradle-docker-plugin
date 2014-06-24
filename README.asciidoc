@@ -109,6 +109,7 @@ task buildMyAppImage(type: DockerBuildImage) {
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage
     imageId = imageTag
+    containerName = project.name // use a fixed container name, optional
 }
 
 task startMyAppContainer(type: DockerStartContainer) {
