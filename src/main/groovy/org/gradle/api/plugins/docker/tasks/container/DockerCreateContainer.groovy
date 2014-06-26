@@ -130,9 +130,23 @@ class DockerCreateContainer extends AbstractDockerTask {
         def containerConfig = createContainerConfig(classLoader)
         logger.info "Container configuration: $containerConfig"
         def dockerClient = getDockerClient(classLoader)
-        def container = dockerClient.createContainer(containerConfig)
-        logger.quiet "Created container with ID '$container.id'."
-        containerId = container.id
+        try {
+            def container = dockerClient.createContainer(containerConfig, containerId)
+            containerId = containerId ?: container.id
+            logger.quiet "Created container with ID '$containerId'"
+        } catch (Exception e) {
+            if (containerId && e.getCause() && e.getCause().getClass().toString() == "class com.sun.jersey.api.client.UniformInterfaceException") {
+                switch (e.getCause().getResponse().getStatus()) {
+                    case 409:
+                        logger.quiet "Container with ID '$containerId' already exists"
+                        break
+                    default:
+                        throw e
+                }
+            } else  {
+                throw e
+            }
+        }
     }
 
     private createContainerConfig(URLClassLoader classLoader) {

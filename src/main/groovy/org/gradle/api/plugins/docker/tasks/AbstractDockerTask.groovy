@@ -33,10 +33,10 @@ abstract class AbstractDockerTask extends DefaultTask {
     FileCollection classpath
 
     /**
-     * Docker remote API server URL. Defaults to "http://localhost:4243".
+     * Docker remote API server URL. Defaults to "http://localhost:2375".
      */
     @Input
-    String serverUrl = 'http://localhost:4243'
+    String serverUrl = 'http://localhost:2375'
        
     @TaskAction
     void start() {
