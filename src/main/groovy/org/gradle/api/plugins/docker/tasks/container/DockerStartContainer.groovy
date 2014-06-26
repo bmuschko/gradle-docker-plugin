@@ -15,12 +15,109 @@
  */
 package org.gradle.api.plugins.docker.tasks.container
 
+import java.util.Map;
+
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
+
 class DockerStartContainer extends DockerExistingContainer {
+    @Input
+    @Optional
+    String[] binds;
+
+    @Input
+    @Optional
+    String containerIDFile;
+
+// #TODO: implement
+//    @Input
+//    @Optional
+//    LxcConf[] lxcConf;
+
+    @Input
+    @Optional
+    String[] links
+
+    @Input
+    @Optional
+    ArrayList<Map<String, ?>> portBindings
+
+    @Input
+    @Optional
+    boolean privileged
+
+    @Input
+    @Optional
+    boolean publishAllPorts
+
+    @Input
+    @Optional
+    String dns
+
+    @Input
+    @Optional
+    String dnsSearch
+
+    @Input
+    @Optional
+    String volumesFrom
+
     @Override
     void runRemoteCommand(URLClassLoader classLoader) {
+        def hostConfig = createHostConfig(classLoader)
+        logger.info "Container configuration: $hostConfig"
         logger.quiet "Starting container with ID '${getContainerId()}'."
         def dockerClient = getDockerClient(classLoader)
-        dockerClient.startContainer(getContainerId())
+        dockerClient.startContainer(getContainerId(), hostConfig)
+    }
+
+    private createHostConfig(URLClassLoader classLoader) {
+        Class hostConfigClass = classLoader.loadClass('com.kpelykh.docker.client.model.HostConfig')
+        def hostConfig = hostConfigClass.newInstance()
+
+        if(getBinds()) {
+            hostConfig.binds = getBinds()
+        }
+
+        if(getContainerIDFile()) {
+            hostConfig.containerIDFile = getContainerIDFile()
+        }
+
+        if(getLinks()) {
+            hostConfig.links = getLinks()
+        }
+
+        if(getPortBindings()) {
+            Class portsClass = classLoader.loadClass('com.kpelykh.docker.client.model.Ports')
+            Class pClass = classLoader.loadClass('com.kpelykh.docker.client.model.Ports$Port')
+            def ports = portsClass.newInstance()
+            getPortBindings().each { p ->
+                ports.addPort(pClass.newInstance(p.scheme, p.port, p.hostIp, p.hostPort))
+            }
+            hostConfig.portBindings = ports
+        }
+
+        if(getPrivileged()) {
+            hostConfig.privileged = getPrivileged()
+        }
+
+        if(getPublishAllPorts()) {
+            hostConfig.publishAllPorts = getPublishAllPorts()
+        }
+
+        if(getDns()) {
+            hostConfig.dns = getDns()
+        }
+
+        if(getDnsSearch()) {
+            hostConfig.dnsSearch = getDnsSearch()
+        }
+
+        if(getVolumesFrom()) {
+            hostConfig.volumesFrom = getVolumesFrom()
+        }
+
+        hostConfig
     }
 }
 

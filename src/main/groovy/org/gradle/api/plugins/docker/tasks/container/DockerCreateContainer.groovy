@@ -85,6 +85,10 @@ class DockerCreateContainer extends AbstractDockerTask {
 
     @Input
     @Optional
+    List<String> volumes
+
+    @Input
+    @Optional
     String volumesFrom
 
     @Input
@@ -198,6 +202,11 @@ class DockerCreateContainer extends AbstractDockerTask {
 
         if(getImage()) {
             containerConfig.image = getImage()
+        }
+
+        if(getVolumes()) {
+            Class volumesConfigClass = classLoader.loadClass('com.kpelykh.docker.client.model.BoundHostVolumes')
+            containerConfig.volumes = volumesConfigClass.newInstance(getVolumes())
         }
 
         if(getVolumesFrom()) {
