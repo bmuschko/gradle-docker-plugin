@@ -24,7 +24,7 @@ buildscript {
     }
 }
 
-apply plugin: 'docker'
+apply plugin: 'docker-base'
 ----
 
 
