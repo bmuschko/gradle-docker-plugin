@@ -53,10 +53,6 @@ class DockerCreateContainer extends AbstractDockerTask {
 
     @Input
     @Optional
-    Integer cpuSwap
-
-    @Input
-    @Optional
     Boolean attachStdin
 
     @Input
@@ -89,31 +85,11 @@ class DockerCreateContainer extends AbstractDockerTask {
 
     @Input
     @Optional
-    String[] entrypoint
-
-    @Input
-    @Optional
-    Boolean networkDisabled
-
-    @Input
-    @Optional
-    Boolean privileged
-
-    @Input
-    @Optional
     String workingDir
 
     @Input
     @Optional
-    String domainName
-
-    @Input
-    @Optional
     Map<String, ?> exposedPorts
-
-    @Input
-    @Optional
-    String[] onBuild
 
     private String containerId
 
@@ -123,111 +99,81 @@ class DockerCreateContainer extends AbstractDockerTask {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        def containerConfig = createContainerConfig()
-        logger.info "Container configuration: $containerConfig"
-        def container = dockerClient.createContainerCmd(getImageId()).exec()
+        def containerCommand = dockerClient.createContainerCmd(getImageId())
+        setContainerCommandConfig(containerCommand)
+        def container = containerCommand.exec()
         logger.quiet "Created container with ID '$container.id'."
         containerId = container.id
     }
 
-    private createContainerConfig() {
-        Class containerConfigClass = Thread.currentThread().contextClassLoader.loadClass('com.github.dockerjava.client.model.ContainerConfig')
-        def containerConfig = containerConfigClass.newInstance()
-        containerConfig.image = getImageId()
-
+    private void setContainerCommandConfig(containerCommand) {
         if(getHostName()) {
-            containerConfig.hostName = getHostName()
+            containerCommand.withHostName(getHostName())
         }
 
         if(getPortSpecs()) {
-            containerConfig.portSpecs = getPortSpecs()
+            containerCommand.withPortSpecs(getPortSpecs())
         }
 
         if(getUser()) {
-            containerConfig.user = getUser()
+            containerCommand.withUser(getUser())
         }
 
         if(getStdinOpen()) {
-            containerConfig.stdinOpen = getStdinOpen()
+            containerCommand.withStdinOpen(getStdinOpen())
         }
 
         if(getStdinOnce()) {
-            containerConfig.stdinOnce = getStdinOnce()
+            containerCommand.withStdInOnce(getStdinOnce())
         }
 
         if(getMemoryLimit()) {
-            containerConfig.memoryLimit = getMemoryLimit()
+            containerCommand.withMemoryLimit(getMemoryLimit())
         }
 
         if(getMemorySwap()) {
-            containerConfig.memorySwap = getMemorySwap()
-        }
-
-        if(getCpuSwap()) {
-            containerConfig.cpuSwap = getCpuSwap()
+            containerCommand.withMemorySwap(getMemorySwap())
         }
 
         if(getAttachStdin()) {
-            containerConfig.attachStdin = getAttachStdin()
+            containerCommand.withAttachStdin(getAttachStdin())
         }
 
         if(getAttachStdout()) {
-            containerConfig.attachStdout = getAttachStdout()
+            containerCommand.withAttachStdout(getAttachStdout())
         }
 
         if(getAttachStderr()) {
-            containerConfig.attachStderr = getAttachStderr()
+            containerCommand.withAttachStderr(getAttachStderr())
         }
 
         if(getEnv()) {
-            containerConfig.env = getEnv()
+            containerCommand.withEnv(getEnv())
         }
 
         if(getCmd()) {
-            containerConfig.cmd = getCmd()
+            containerCommand.withCmd(getCmd())
         }
 
         if(getDns()) {
-            containerConfig.dns = getDns()
+            containerCommand.withDns(getDns())
         }
 
         if(getImage()) {
-            containerConfig.image = getImage()
+            containerCommand.withImage(getImage())
         }
 
         if(getVolumesFrom()) {
-            containerConfig.volumesFrom = getVolumesFrom()
-        }
-
-        if(getEntrypoint()) {
-            containerConfig.entrypoint = getEntrypoint()
-        }
-
-        if(getNetworkDisabled()) {
-            containerConfig.networkDisabled = getNetworkDisabled()
-        }
-
-        if(getPrivileged()) {
-            containerConfig.privileged = getPrivileged()
+            containerCommand.withVolumesFrom(getVolumesFrom())
         }
 
         if(getWorkingDir()) {
-            containerConfig.workingDir = getWorkingDir()
-        }
-
-        if(getDomainName()) {
-            containerConfig.domainName = getDomainName()
+            containerCommand.withWorkingDir(getWorkingDir())
         }
 
         if(getExposedPorts()) {
-            containerConfig.exposedPorts = getExposedPorts()
+            containerCommand.withExposedPorts(getExposedPorts())
         }
-
-        if(getOnBuild()) {
-            containerConfig.onBuild = getOnBuild()
-        }
-
-        containerConfig
     }
 }
 

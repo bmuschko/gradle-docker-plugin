@@ -34,13 +34,38 @@ class DockerBuildImage extends AbstractDockerTask {
     @Optional
     String tag
 
+    @Input
+    @Optional
+    Boolean noCache
+
+    @Input
+    @Optional
+    Boolean remove
+
+    @Input
+    @Optional
+    Boolean quiet
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Building image from folder '${getInputDir()}'."
         def buildImageCmd = dockerClient.buildImageCmd(getInputDir())
 
         if(getTag()) {
+            logger.quiet "Using tag '${getTag()}' for image."
             buildImageCmd.withTag(getTag())
+        }
+
+        if(getNoCache()) {
+            buildImageCmd.withNoCache(getNoCache())
+        }
+
+        if(getRemove()) {
+            buildImageCmd.withRemove(getRemove())
+        }
+
+        if(getQuiet()) {
+            buildImageCmd.withRemove(getQuiet())
         }
 
         buildImageCmd.exec()
