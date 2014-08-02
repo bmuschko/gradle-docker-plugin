@@ -16,15 +16,38 @@
 package org.gradle.api.plugins.docker.tasks.image
 
 import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 class DockerListImages extends AbstractDockerTask {
+    @Input
+    @Optional
+    Boolean showAll
+
+    @Input
+    @Optional
+    String filter
+
     @Override
     void runRemoteCommand(dockerClient) {
-        def info = dockerClient.infoCmd().exec()
-        logger.quiet "Listing images:"
+        def listImagesCmd = dockerClient.listImagesCmd()
 
-        info.images.each { image ->
-            logger.quiet image.repoTags + ", " + image.id + ", " + image.created + ", " + image.virtualSize
+        if(getShowAll()) {
+            listImagesCmd.withShowAll(getShowAll())
+        }
+
+        if(getFilter()) {
+            listImagesCmd.withFilter(getFilter())
+        }
+
+        def images = listImagesCmd.exec()
+
+        images.each { image ->
+            logger.quiet "Repository Tags : ${image.repoTags?.join(', ')}"
+            logger.quiet "Image ID        : $image.id"
+            logger.quiet "Created         : ${new Date(image.created * 1000)}"
+            logger.quiet "Virtual Size    : $image.virtualSize"
+            logger.quiet "-----------------------------------------------"
         }
     }
 }
