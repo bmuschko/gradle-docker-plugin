@@ -17,9 +17,8 @@ package org.gradle.api.plugins.docker.tasks.container
 
 class DockerRemoveContainer extends DockerExistingContainer {
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
+    void runRemoteCommand(dockerClient) {
         logger.quiet "Removing container with ID '${getContainerId()}'."
-        def dockerClient = getDockerClient(classLoader)
-        dockerClient.removeContainer(getContainerId())
+        dockerClient.removeContainerCmd(getContainerId()).exec()
     }
 }

@@ -26,9 +26,8 @@ class DockerPushImage extends AbstractDockerTask {
     String imageId
 
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
+    void runRemoteCommand(dockerClient) {
         logger.quiet "Pushing image ID '${getImageId()}'."
-        def dockerClient = getDockerClient(classLoader)
-        dockerClient.push(getImageId())
+        dockerClient.pushImageCmd(getImageId()).exec()
     }
 }

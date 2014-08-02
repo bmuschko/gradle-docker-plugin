@@ -21,10 +21,10 @@ import org.gradle.api.tasks.Optional
 
 class DockerCommitImage extends AbstractDockerTask {
     /**
-     * Name of the source container.
+     * Container ID.
      */
     @Input
-    String container
+    String containerId
 
     /**
      * Repository.
@@ -56,27 +56,56 @@ class DockerCommitImage extends AbstractDockerTask {
 
     @Input
     @Optional
-    String run
+    Boolean pause
 
-    @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
-        logger.quiet "Commiting image for container '${getContainer()}'."
-        def dockerClient = getDockerClient(classLoader)
-        def commitConfig = createCommitConfig(classLoader)
-        String commitId = dockerClient.commit(commitConfig)
-        logger.quiet "Created image with ID '$commitId'."
+    @Input
+    @Optional
+    Boolean attachStderr
+
+    @Input
+    @Optional
+    Boolean attachStdin
+
+    private String imageId
+
+    DockerCommitImage() {
+        ext.getImageId = { imageId }
     }
 
-    private createCommitConfig(URLClassLoader classLoader) {
-        Class commitConfigClass = classLoader.loadClass('com.kpelykh.docker.client.model.CommitConfig')
-        def commitConfig = commitConfigClass.newInstance()
-        commitConfig.container = getContainer()
-        commitConfig.repo = getRepository()
-        commitConfig.tag = getTag()
-        commitConfig.message = getMessage()
-        commitConfig.author = getAuthor()
-        commitConfig.run = getRun()
-        logger.info "Commit configuration: $commitConfig"
-        commitConfig
+    @Override
+    void runRemoteCommand(dockerClient) {
+        logger.quiet "Commiting image for container '${getContainerId()}'."
+        def commitCmd = dockerClient.commitCmd(getContainerId())
+
+        if(getRepository()) {
+            commitCmd.withRepository(getRepository())
+        }
+
+        if(getTag()) {
+            commitCmd.withTag(getTag())
+        }
+
+        if(getMessage()) {
+            commitCmd.withMessage(getMessage())
+        }
+
+        if(getAuthor()) {
+            commitCmd.withAuthor(getAuthor())
+        }
+
+        if(getPause()) {
+            commitCmd.withPause(getPause())
+        }
+
+        if(getAttachStderr()) {
+            commitCmd.withAttachStderr(getAttachStderr())
+        }
+
+        if(getAttachStdin()) {
+            commitCmd.withAttachStdin(getAttachStdin())
+        }
+
+        imageId = commitCmd.exec()
+        logger.quiet "Created image with ID '$imageId'."
     }
 }

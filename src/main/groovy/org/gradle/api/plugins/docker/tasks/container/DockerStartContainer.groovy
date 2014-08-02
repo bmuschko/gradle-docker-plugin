@@ -17,10 +17,9 @@ package org.gradle.api.plugins.docker.tasks.container
 
 class DockerStartContainer extends DockerExistingContainer {
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
+    void runRemoteCommand(dockerClient) {
         logger.quiet "Starting container with ID '${getContainerId()}'."
-        def dockerClient = getDockerClient(classLoader)
-        dockerClient.startContainer(getContainerId())
+        dockerClient.startContainerCmd(getContainerId()).exec()
     }
 }
 

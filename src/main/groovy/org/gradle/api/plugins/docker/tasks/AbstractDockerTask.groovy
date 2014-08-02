@@ -15,15 +15,14 @@
  */
 package org.gradle.api.plugins.docker.tasks
 
-import org.apache.tools.ant.AntClassLoader
 import org.gradle.api.DefaultTask
-import org.gradle.api.UncheckedIOException
 import org.gradle.api.file.FileCollection
+import org.gradle.api.plugins.docker.utils.DockerThreadContextClassLoader
+import org.gradle.api.plugins.docker.utils.ThreadContextClassLoader
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
-
-import java.lang.reflect.Constructor
 
 abstract class AbstractDockerTask extends DefaultTask {
     /**
@@ -33,58 +32,45 @@ abstract class AbstractDockerTask extends DefaultTask {
     FileCollection classpath
 
     /**
-     * Docker remote API server URL. Defaults to "http://localhost:4243".
+     * Docker remote API server URL. Defaults to "http://localhost:2375".
      */
     @Input
-    String serverUrl = 'http://localhost:4243'
-       
+    String serverUrl = 'http://localhost:2375'
+
+    /**
+     * Repository username needed to push containers. Defaults to null.
+     */
+    @Input
+    @Optional
+    String username
+
+    /**
+     * Repository password needed to push containers. Defaults to null.
+     */
+    @Input
+    @Optional
+    String password
+
+    /**
+     * Repository email address needed to push containers. Defaults to null.
+     */
+    @Input
+    @Optional
+    String email
+
+    ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader()
+
     @TaskAction
     void start() {
-        withDockerJavaClassLoader { URLClassLoader classLoader ->
-            runRemoteCommand(classLoader)
-        }
-    }
-
-    private void withDockerJavaClassLoader(Closure c) {
-        ClassLoader originalClassLoader = getClass().classLoader
-        URLClassLoader dockerJavaClassloader = createCargoDaemonClassLoader()
-
-        try {
-            Thread.currentThread().contextClassLoader = dockerJavaClassloader
-            c(dockerJavaClassloader)
-        }
-        finally {
-            Thread.currentThread().contextClassLoader = originalClassLoader
-        }
-    }
-
-    private URLClassLoader createCargoDaemonClassLoader() {
-        ClassLoader rootClassLoader = new AntClassLoader(getClass().classLoader, false)
-        new URLClassLoader(toURLArray(getClasspath().files), rootClassLoader)
-    }
-
-    private URL[] toURLArray(Collection<File> files) {
-        List<URL> urls = new ArrayList<URL>(files.size())
-
-        for(File file : files) {
-            try {
-                urls.add(file.toURI().toURL())
+        threadContextClassLoader.withClasspath(getClasspath().files, getServerUrl()) { dockerClient ->
+            if(getUsername() && getPassword() && getEmail()) {
+                dockerClient.setCredentials(getUsername(), getPassword(), getEmail())
             }
-            catch(MalformedURLException e) {
-                throw new UncheckedIOException(e)
-            }
+
+            runRemoteCommand(dockerClient)
         }
-
-        urls.toArray(new URL[urls.size()])
     }
 
-
-    protected getDockerClient(URLClassLoader classLoader) {
-        Class dockerClientClass = classLoader.loadClass('com.kpelykh.docker.client.DockerClient')
-        Constructor constructor = dockerClientClass.getConstructor(String)
-        constructor.newInstance(getServerUrl())
-    }
-
-    abstract void runRemoteCommand(URLClassLoader classLoader)
+    abstract void runRemoteCommand(dockerClient)
 }
 

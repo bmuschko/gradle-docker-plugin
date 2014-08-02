@@ -17,11 +17,12 @@ package org.gradle.api.plugins.docker
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 
 class DockerPlugin implements Plugin<Project> {
     static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    static final String DOCKER_JAVA_DEFAULT_VERSION = '0.8.2'
+    static final String DOCKER_JAVA_DEFAULT_VERSION = '0.9.1'
     static final String EXTENSION_NAME = 'docker'
 
     @Override
@@ -31,26 +32,31 @@ class DockerPlugin implements Plugin<Project> {
                .setTransitive(true)
                .setDescription('The Docker Java libraries to be used for this project.')
 
-        def extension = project.extensions.create(EXTENSION_NAME, DockerExtension)
+        DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension)
 
         configureAbstractDockerTask(project, extension)
     }
 
-    private void configureAbstractDockerTask(Project project, extension) {
+    private void configureAbstractDockerTask(Project project, DockerExtension extension) {
         project.tasks.withType(AbstractDockerTask) {
-            conventionMapping.map('classpath') {
-                def config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
+            def config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
 
+            config.incoming.beforeResolve {
                 if(config.dependencies.empty) {
-                    project.dependencies {
-                        dockerJava "com.github.docker-java:docker-java:$DOCKER_JAVA_DEFAULT_VERSION"
-                    }
+                    Dependency dockerJavaDependency = project.dependencies.create("com.github.docker-java:docker-java:$DOCKER_JAVA_DEFAULT_VERSION")
+                    config.dependencies.add(dockerJavaDependency)
+                    Dependency log4jOverSlf4jDependency = project.dependencies.create('org.slf4j:slf4j-simple:1.7.5')
+                    config.dependencies.add(log4jOverSlf4jDependency)
                 }
-
-                config
             }
 
-            conventionMapping.map('serverUrl') { extension.serverUrl }
+            conventionMapping.with {
+                classpath = { config }
+                serverUrl = { extension.serverUrl }
+                username = { extension.credentials?.username }
+                password = { extension.credentials?.password }
+                email = { extension.credentials?.email }
+            }
         }
     }
 }

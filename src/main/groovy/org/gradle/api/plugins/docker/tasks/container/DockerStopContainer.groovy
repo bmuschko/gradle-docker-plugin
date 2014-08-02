@@ -27,16 +27,14 @@ class DockerStopContainer extends DockerExistingContainer {
     Integer timeout
 
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
-        def dockerClient = getDockerClient(classLoader)
+    void runRemoteCommand(dockerClient) {
+        logger.quiet "Stopping container with ID '${getContainerId()}'."
+        def stopContainerCmd = dockerClient.stopContainerCmd(getContainerId())
 
-        if(!getTimeout()) {
-            logger.quiet "Stopping container with ID '${getContainerId()}'."
-            dockerClient.stopContainer(getContainerId())
+        if(getTimeout()) {
+            stopContainerCmd.withTimeout(getTimeout())
         }
-        else {
-            logger.quiet "Stopping container with ID '${getContainerId()}' and timeout ${getTimeout()}s."
-            dockerClient.stopContainer(getContainerId(), getTimeout())
-        }
+
+        stopContainerCmd.exec()
     }
 }

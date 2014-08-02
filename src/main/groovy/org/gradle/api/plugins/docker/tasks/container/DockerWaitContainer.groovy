@@ -17,9 +17,8 @@ package org.gradle.api.plugins.docker.tasks.container
 
 class DockerWaitContainer extends DockerExistingContainer {
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
+    void runRemoteCommand(dockerClient) {
         logger.quiet "Waiting for container with ID '${getContainerId()}'."
-        def dockerClient = getDockerClient(classLoader)
-        dockerClient.waitContainer(getContainerId())
+        dockerClient.waitContainerCmd(getContainerId()).exec()
     }
 }

@@ -17,10 +17,9 @@ package org.gradle.api.plugins.docker.tasks
 
 class DockerVersion extends AbstractDockerTask {
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
+    void runRemoteCommand(dockerClient) {
         logger.quiet "Retrieving Docker version."
-        def dockerClient = getDockerClient(classLoader)
-        def version = dockerClient.version()
+        def version = dockerClient.versionCmd().exec()
         logger.quiet "Version          : $version.version"
         logger.quiet "Git Commit       : $version.gitCommit"
         logger.quiet "Go Version       : $version.goVersion"

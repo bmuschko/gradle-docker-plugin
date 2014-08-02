@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.api.plugins.docker.tasks.container
+package org.gradle.api.plugins.docker.utils
 
-class DockerKillContainer extends DockerExistingContainer {
-    @Override
-    void runRemoteCommand(dockerClient) {
-        logger.quiet "Killing container with ID '${getContainerId()}'."
-        dockerClient.killContainerCmd(getContainerId()).exec()
-    }
+interface ThreadContextClassLoader {
+    /**
+     * Performs the closure with local thread context classloader.
+     *
+     * @param classpathFiles Classpath files
+     * @param serverUrl Docker server URL
+     * @param closure the given closure
+     */
+    void withClasspath(Set<File> classpathFiles, String serverUrl, Closure closure)
 }

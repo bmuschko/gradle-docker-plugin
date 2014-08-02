@@ -6,7 +6,7 @@ image:http://www.docker.com/static/img/nav/docker-logo-loggedout.png[Docker Logo
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
 Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Currently,
-version 0.8.2 is used which assumes Docker's client API v1.12.
+version 0.9.1 is used which assumes Docker's client API v1.13.
 
 == Usage
 
@@ -20,7 +20,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.gradle.api.plugins:gradle-docker-plugin:0.2'
+        classpath 'org.gradle.api.plugins:gradle-docker-plugin:0.3'
     }
 }
 
@@ -84,6 +84,17 @@ The plugin defines the following extension properties in the `docker` closure:
 |`serverUrl`     |String    |null             |The server URL to connect to via Docker's remote API.
 |=======
 
+For pushing an image to the Docker Hub registry or to a self-hosted one, you will also need to provide credentials in
+the `credentials` closure:
+
+ [options="header"]
+ |=======
+ |Property name   |Type      |Default value    |Description
+ |`username`      |String    |null             |The registry username.
+ |`password`      |String    |null             |The registry password.
+ |`email`         |String    |null             |The registry email address.
+ |=======
+
 
 === Example
 
@@ -96,7 +107,13 @@ import org.gradle.api.plugins.docker.tasks.container.*
 import org.gradle.api.plugins.docker.tasks.image.*
 
 docker {
-    serverUrl = 'http://remote.docker.com:4243'
+    serverUrl = 'http://remote.docker.com:2375'
+
+    credentials {
+        username = 'bmuschko'
+        password = 'pwd'
+        email = 'benjamin.muschko@gmail.com
+    }
 }
 
 ext.imageTag = 'test/myapp'

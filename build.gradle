@@ -11,10 +11,10 @@ buildscript {
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
-apply plugin: 'bintray'
+//apply plugin: 'bintray'
 
 group = 'org.gradle.api.plugins'
-version = '0.2'
+version = '0.3'
 
 repositories {
     mavenCentral()
@@ -23,8 +23,29 @@ repositories {
 dependencies {
     compile localGroovy()
     compile gradleApi()
-    testCompile 'org.spockframework:spock-core:0.6-groovy-1.8'
+    testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
+        exclude module: 'groovy-all'
+    }
 }
+
+sourceSets {
+    integrationTest {
+        groovy.srcDir file('src/integTest/groovy')
+        resources.srcDir file('src/integTest/resources')
+        compileClasspath = sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    mustRunAfter test
+}
+
+check.dependsOn integrationTest
 
 jar {
     manifest {
@@ -51,6 +72,10 @@ idea.project {
         def gradleSettings = node.appendNode('component', [name: 'GradleSettings'])
         gradleSettings.appendNode('option', [name: 'SDK_HOME', value: gradle.gradleHomeDir])
     }
+}
+
+idea.module {
+    testSourceDirs += file('src/integTest/groovy')
 }
 
 task sourcesJar(type: Jar) {
@@ -94,13 +119,19 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            url "$buildDir/repo"
+        }
+    }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
+    gradleVersion = '2.0'
 }
 
-bintray {
+/*bintray {
     user = project.hasProperty('bintrayUser') ? project.getProperty('bintrayUser') : null
     key =  project.hasProperty('bintrayKey') ? project.getProperty('bintrayKey') : null
     publications = ['mavenJava']
@@ -110,4 +141,4 @@ bintray {
         name = 'gradle-docker-plugin'
         licenses = ['Apache-2.0']
     }
-}
+} */

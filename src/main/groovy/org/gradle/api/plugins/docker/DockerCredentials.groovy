@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.api.plugins.docker.tasks.container
+package org.gradle.api.plugins.docker
 
-class DockerKillContainer extends DockerExistingContainer {
-    @Override
-    void runRemoteCommand(dockerClient) {
-        logger.quiet "Killing container with ID '${getContainerId()}'."
-        dockerClient.killContainerCmd(getContainerId()).exec()
-    }
+class DockerCredentials {
+    String username
+    String password
+    String email
 }

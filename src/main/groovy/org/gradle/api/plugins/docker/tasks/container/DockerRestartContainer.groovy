@@ -27,16 +27,14 @@ class DockerRestartContainer extends DockerExistingContainer {
     Integer timeout
 
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
-        def dockerClient = getDockerClient(classLoader)
+    void runRemoteCommand(dockerClient) {
+        logger.quiet "Restarting container with ID '${getContainerId()}'."
+        def restartContainerCmd = dockerClient.restartContainerCmd(getContainerId())
 
-        if(!getTimeout()) {
-            logger.quiet "Restarting container with ID '${getContainerId()}'."
-            dockerClient.restart(getContainerId())
+        if(getTimeout()) {
+            restartContainerCmd.withtTimeout(getTimeout())
         }
-        else {
-            logger.quiet "Restarting container with ID '${getContainerId()}' and timeout ${getTimeout()}s."
-            dockerClient.restart(getContainerId(), getTimeout())
-        }
+
+        restartContainerCmd.exec()
     }
 }

@@ -17,10 +17,9 @@ package org.gradle.api.plugins.docker.tasks
 
 class DockerInfo extends AbstractDockerTask {
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
+    void runRemoteCommand(dockerClient) {
         logger.quiet "Retrieving Docker info."
-        def dockerClient = getDockerClient(classLoader)
-        def info = dockerClient.info()
+        def info = dockerClient.infoCmd().exec()
         logger.quiet "Debug                : $info.debug"
         logger.quiet "Containers           : $info.containers"
         logger.quiet "Driver               : $info.driver"
@@ -31,11 +30,12 @@ class DockerInfo extends AbstractDockerTask {
         logger.quiet "Init Path            : $info.initPath"
         logger.quiet "Init SHA1            : $info.initSha1"
         logger.quiet "Kernel Version       : $info.kernelVersion"
-        logger.quiet "LXC Version          : $info.lxcVersion"
+        logger.quiet "Sockets              : $info.sockets"
         logger.quiet "Memory Limit         : $info.memoryLimit"
         logger.quiet "nEvent Listener      : $info.nEventListener"
         logger.quiet "NFd                  : $info.NFd"
         logger.quiet "NGoroutines          : $info.NGoroutines"
         logger.quiet "Swap Limit           : $info.swapLimit"
+        logger.quiet "Execution Driver     : $info.executionDriver"
     }
 }

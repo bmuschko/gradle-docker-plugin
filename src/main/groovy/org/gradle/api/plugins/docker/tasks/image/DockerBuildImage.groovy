@@ -35,16 +35,14 @@ class DockerBuildImage extends AbstractDockerTask {
     String tag
 
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
-        def dockerClient = getDockerClient(classLoader)
+    void runRemoteCommand(dockerClient) {
+        logger.quiet "Building image from folder '${getInputDir()}'."
+        def buildImageCmd = dockerClient.buildImageCmd(getInputDir())
 
-        if(!getTag()) {
-            logger.quiet "Building image from folder '${getInputDir()}'."
-            dockerClient.build(getInputDir())
+        if(getTag()) {
+            buildImageCmd.withTag(getTag())
         }
-        else {
-            logger.quiet "Building image from folder '${getInputDir()}' with tag '${getTag()}'."
-            dockerClient.build(getInputDir(), getTag())
-        }
+
+        buildImageCmd.exec()
     }
 }

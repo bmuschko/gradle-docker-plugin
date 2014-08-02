@@ -15,6 +15,14 @@
  */
 package org.gradle.api.plugins.docker
 
+import org.gradle.util.ConfigureUtil
+
 class DockerExtension {
-    String serverUrl
+    String serverUrl = 'http://localhost:2375'
+    DockerCredentials credentials
+
+    void credentials(Closure closure) {
+        credentials = new DockerCredentials()
+        ConfigureUtil.configure(closure, credentials)
+    }
 }

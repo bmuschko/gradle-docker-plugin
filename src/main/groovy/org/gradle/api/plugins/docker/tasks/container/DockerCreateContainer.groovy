@@ -115,28 +115,23 @@ class DockerCreateContainer extends AbstractDockerTask {
     @Optional
     String[] onBuild
 
-    String containerId
+    private String containerId
 
     DockerCreateContainer() {
-        ext {
-            getContainerId = {
-                containerId
-            }
-        }
+        ext.getContainerId = { containerId }
     }
 
     @Override
-    void runRemoteCommand(URLClassLoader classLoader) {
-        def containerConfig = createContainerConfig(classLoader)
+    void runRemoteCommand(dockerClient) {
+        def containerConfig = createContainerConfig()
         logger.info "Container configuration: $containerConfig"
-        def dockerClient = getDockerClient(classLoader)
-        def container = dockerClient.createContainer(containerConfig)
+        def container = dockerClient.createContainerCmd(getImageId()).exec()
         logger.quiet "Created container with ID '$container.id'."
         containerId = container.id
     }
 
-    private createContainerConfig(URLClassLoader classLoader) {
-        Class containerConfigClass = classLoader.loadClass('com.kpelykh.docker.client.model.ContainerConfig')
+    private createContainerConfig() {
+        Class containerConfigClass = Thread.currentThread().contextClassLoader.loadClass('com.github.dockerjava.client.model.ContainerConfig')
         def containerConfig = containerConfigClass.newInstance()
         containerConfig.image = getImageId()
 
