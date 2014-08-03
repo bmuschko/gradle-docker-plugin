@@ -55,6 +55,7 @@ The plugin provides the following custom task types for managing images:
 |DockerPullImage    |Pulls an image from the registry.
 |DockerPushImage    |Pushes an image to a registry.
 |DockerRemoveImage  |Removes an image from the filesystem.
+|DockerTagImage     |Tags an image in registry.
 |=======
 
 
