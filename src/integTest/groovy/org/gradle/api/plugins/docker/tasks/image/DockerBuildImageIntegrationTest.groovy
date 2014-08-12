@@ -15,25 +15,30 @@
  */
 package org.gradle.api.plugins.docker.tasks.image
 
+import org.apache.commons.io.FileUtils
 import org.gradle.api.Task
 import org.gradle.api.plugins.docker.tasks.DockerTaskIntegrationTest
-import org.gradle.mvn3.org.codehaus.plexus.util.FileUtils
 
 class DockerBuildImageIntegrationTest extends DockerTaskIntegrationTest {
+    File dockerInputDir
+
+    def setup() {
+        dockerInputDir = createDir(new File(projectDir, 'docker'))
+        createDockerfile()
+    }
+
     @Override
     Task createAndConfigureTask() {
         project.task('buildImage', type: DockerBuildImage) {
-            inputDir = createDockerfile()
+            inputDir = dockerInputDir
             tag = 'bmuschko/myImage'
         }
     }
 
     private File createDockerfile() {
-        File dockerInputDir = new File(projectDir, 'docker')
-        dockerInputDir.mkdirs()
         File dockerFile = new File(dockerInputDir, 'Dockerfile')
 
-        FileUtils.fileWrite(dockerFile, """
+        FileUtils.writeStringToFile(dockerFile, """
 FROM ubuntu:12.04
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """)

@@ -31,7 +31,7 @@ abstract class DockerTaskIntegrationTest extends Specification {
 
     def setup() {
         deleteProjectDir()
-        projectDir.mkdirs()
+        projectDir = createDir(projectDir)
 
         project = ProjectBuilder.builder().withProjectDir(projectDir).build()
 
@@ -50,6 +50,22 @@ abstract class DockerTaskIntegrationTest extends Specification {
         deleteProjectDir()
     }
 
+    protected File createDir(String dir) {
+        createDir(new File(dir))
+    }
+
+    protected File createDir(File dir) {
+        if(!dir.exists()) {
+            boolean success = dir.mkdirs()
+
+            if(!success) {
+                throw new IOException("Failed to create directory '$dir.canonicalPath'")
+            }
+        }
+
+        dir
+    }
+
     private void deleteProjectDir() {
         if(projectDir.exists()) {
             FileUtils.deleteDirectory(projectDir)
@@ -58,9 +74,15 @@ abstract class DockerTaskIntegrationTest extends Specification {
 
     static boolean isServerUrlReachable() {
         URL url = new URL("$SERVER_URL/info")
-        HttpURLConnection connection = url.openConnection()
-        connection.requestMethod = 'GET'
-        connection.responseCode == HttpURLConnection.HTTP_OK
+
+        try {
+            HttpURLConnection connection = url.openConnection()
+            connection.requestMethod = 'GET'
+            return connection.responseCode == HttpURLConnection.HTTP_OK
+        }
+        catch(IOException e) {
+            return false
+        }
     }
 
     @IgnoreIf({ DockerTaskIntegrationTest.isServerUrlReachable() })

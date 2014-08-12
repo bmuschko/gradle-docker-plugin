@@ -17,6 +17,7 @@ package org.gradle.api.plugins.docker
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
 
@@ -39,14 +40,12 @@ class DockerBasePlugin implements Plugin<Project> {
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
         project.tasks.withType(AbstractDockerTask) {
-            def config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
+            Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
 
             config.incoming.beforeResolve {
                 if(config.dependencies.empty) {
-                    Dependency dockerJavaDependency = project.dependencies.create("com.github.docker-java:docker-java:$DOCKER_JAVA_DEFAULT_VERSION")
-                    config.dependencies.add(dockerJavaDependency)
-                    Dependency log4jOverSlf4jDependency = project.dependencies.create('org.slf4j:slf4j-simple:1.7.5')
-                    config.dependencies.add(log4jOverSlf4jDependency)
+                    addDependency(project, config, "com.github.docker-java:docker-java:$DOCKER_JAVA_DEFAULT_VERSION")
+                    addDependency(project, config, 'org.slf4j:slf4j-simple:1.7.5')
                 }
             }
 
@@ -58,5 +57,10 @@ class DockerBasePlugin implements Plugin<Project> {
                 email = { extension.credentials?.email }
             }
         }
+    }
+
+    private void addDependency(Project project, Configuration config, String coordinates) {
+        Dependency dockerJavaDependency = project.dependencies.create(coordinates)
+        config.dependencies.add(dockerJavaDependency)
     }
 }
