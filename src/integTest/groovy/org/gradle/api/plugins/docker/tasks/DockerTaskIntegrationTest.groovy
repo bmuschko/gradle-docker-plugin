@@ -18,7 +18,7 @@ package org.gradle.api.plugins.docker.tasks
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.docker.DockerBasePlugin
+import org.gradle.api.plugins.docker.DockerRemoteApiPlugin
 import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.IgnoreIf
@@ -35,7 +35,7 @@ abstract class DockerTaskIntegrationTest extends Specification {
 
         project = ProjectBuilder.builder().withProjectDir(projectDir).build()
 
-        project.apply plugin: DockerBasePlugin
+        project.apply plugin: DockerRemoteApiPlugin
 
         project.repositories {
             mavenCentral()
@@ -48,10 +48,6 @@ abstract class DockerTaskIntegrationTest extends Specification {
 
     def cleanup() {
         deleteProjectDir()
-    }
-
-    protected File createDir(String dir) {
-        createDir(new File(dir))
     }
 
     protected File createDir(File dir) {

@@ -24,7 +24,7 @@ buildscript {
     }
 }
 
-apply plugin: 'docker-base'
+apply plugin: 'docker-remote-api'
 ----
 
 
