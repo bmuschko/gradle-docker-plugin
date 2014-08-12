@@ -23,6 +23,7 @@ repositories {
 dependencies {
     compile localGroovy()
     compile gradleApi()
+    testCompile 'commons-io:commons-io:2.4'
     testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
         exclude module: 'groovy-all'
     }
