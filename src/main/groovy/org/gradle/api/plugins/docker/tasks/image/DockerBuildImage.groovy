@@ -15,12 +15,12 @@
  */
 package org.gradle.api.plugins.docker.tasks.image
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
+import org.gradle.api.plugins.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 
-class DockerBuildImage extends AbstractDockerTask {
+class DockerBuildImage extends AbstractDockerRemoteApiTask {
     /**
      * Input directory containing Dockerfile. Defaults to "$projectDir/docker".
      */

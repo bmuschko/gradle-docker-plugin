@@ -15,10 +15,10 @@
  */
 package org.gradle.api.plugins.docker.tasks.image
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
+import org.gradle.api.plugins.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 
-class DockerPullImage extends AbstractDockerTask {
+class DockerPullImage extends AbstractDockerRemoteApiTask {
     /**
      * Image ID to be pulled.
      */

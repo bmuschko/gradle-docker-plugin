@@ -15,13 +15,13 @@
  */
 package org.gradle.api.plugins.docker.tasks.container
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
+import org.gradle.api.plugins.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 import java.lang.reflect.Constructor
 
-class DockerCreateContainer extends AbstractDockerTask {
+class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     String imageId
 

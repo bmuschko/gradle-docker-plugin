@@ -19,7 +19,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
+import org.gradle.api.plugins.docker.tasks.AbstractDockerRemoteApiTask
 
 class DockerRemoteApiPlugin implements Plugin<Project> {
     static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
@@ -39,7 +39,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
-        project.tasks.withType(AbstractDockerTask) {
+        project.tasks.withType(AbstractDockerRemoteApiTask) {
             Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
 
             config.incoming.beforeResolve {

@@ -24,7 +24,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-abstract class AbstractDockerTask extends DefaultTask {
+abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     /**
      * Classpath for Docker Java libraries.
      */

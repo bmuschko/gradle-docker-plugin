@@ -15,10 +15,10 @@
  */
 package org.gradle.api.plugins.docker.tasks.container
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
+import org.gradle.api.plugins.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 
-abstract class DockerExistingContainer extends AbstractDockerTask {
+abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
     /**
      * Container ID used to perform operation. The container for the provided ID has to be created first.
      */

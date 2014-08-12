@@ -15,11 +15,11 @@
  */
 package org.gradle.api.plugins.docker.tasks.image
 
-import org.gradle.api.plugins.docker.tasks.AbstractDockerTask
+import org.gradle.api.plugins.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-class DockerTagImage extends AbstractDockerTask {
+class DockerTagImage extends AbstractDockerRemoteApiTask {
     /**
      * Image ID to be tagged.
      */

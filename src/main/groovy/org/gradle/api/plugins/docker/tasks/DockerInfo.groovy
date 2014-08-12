@@ -15,7 +15,7 @@
  */
 package org.gradle.api.plugins.docker.tasks
 
-class DockerInfo extends AbstractDockerTask {
+class DockerInfo extends AbstractDockerRemoteApiTask {
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Retrieving Docker info."
