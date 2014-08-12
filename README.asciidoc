@@ -89,13 +89,13 @@ The plugin defines the following extension properties in the `docker` closure:
 For pushing an image to the Docker Hub registry or to a self-hosted one, you will also need to provide credentials in
 the `credentials` closure:
 
- [options="header"]
- |=======
- |Property name   |Type      |Default value    |Description
- |`username`      |String    |null             |The registry username.
- |`password`      |String    |null             |The registry password.
- |`email`         |String    |null             |The registry email address.
- |=======
+[options="header"]
+|=======
+|Property name   |Type      |Default value    |Description
+|`username`      |String    |null             |The registry username.
+|`password`      |String    |null             |The registry password.
+|`email`         |String    |null             |The registry email address.
+|=======
 
 
 === Example
