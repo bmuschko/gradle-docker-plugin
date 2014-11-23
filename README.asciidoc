@@ -20,11 +20,11 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.gradle.api.plugins:gradle-docker-plugin:0.3'
+        classpath 'com.bmuschko:gradle-docker-plugin:0.3'
     }
 }
 
-apply plugin: 'docker-remote-api'
+apply plugin: 'com.bmuschko.docker-remote-api'
 ----
 
 
@@ -105,8 +105,8 @@ image and exercises functional tests agains the running container. At the end of
 
 [source,groovy]
 ----
-import org.gradle.api.plugins.docker.tasks.container.*
-import org.gradle.api.plugins.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
 
 docker {
     serverUrl = 'http://remote.docker.com:2375'
