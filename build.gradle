@@ -141,7 +141,7 @@ bintray {
 
     pkg {
         repo = 'gradle-plugins'
-        name = 'gradle-docker-plugin'
+        name = 'com.bmuschko:gradle-docker-plugin'
         licenses = ['Apache-2.0']
     }
 }
