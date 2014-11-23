@@ -23,7 +23,7 @@ import org.gradle.api.plugins.docker.tasks.AbstractDockerRemoteApiTask
 
 class DockerRemoteApiPlugin implements Plugin<Project> {
     static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    static final String DOCKER_JAVA_DEFAULT_VERSION = '0.9.1'
+    static final String DOCKER_JAVA_DEFAULT_VERSION = '0.10.3'
     static final String EXTENSION_NAME = 'docker'
 
     @Override
@@ -45,6 +45,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             config.incoming.beforeResolve {
                 if(config.dependencies.empty) {
                     addDependency(project, config, "com.github.docker-java:docker-java:$DOCKER_JAVA_DEFAULT_VERSION")
+                    addDependency(project, config, 'commons-io:commons-io:2.4')
                     addDependency(project, config, 'org.slf4j:slf4j-simple:1.7.5')
                 }
             }

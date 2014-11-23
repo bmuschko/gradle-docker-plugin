@@ -22,7 +22,6 @@ import org.gradle.api.tasks.Optional
 import java.lang.reflect.Constructor
 
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
-    @Input
     String imageId
 
     @Input
@@ -97,7 +96,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     Map<String, Integer> exposedPorts
 
-    private String containerId
+    String containerId
 
     DockerCreateContainer() {
         ext.getContainerId = { containerId }
@@ -110,6 +109,15 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         def container = containerCommand.exec()
         logger.quiet "Created container with ID '$container.id'."
         containerId = container.id
+    }
+
+    void targetImageId(Closure imageId) {
+        conventionMapping.imageId = imageId
+    }
+
+    @Input
+    String getImageId() {
+        imageId
     }
 
     private void setContainerCommandConfig(containerCommand) {
@@ -189,25 +197,25 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     }
 
     def createVolume(String path) {
-        Class volumeClass = loadClass('com.github.dockerjava.client.model.Volume')
+        Class volumeClass = loadClass('com.github.dockerjava.api.model.Volume')
         Constructor constructor = volumeClass.getConstructor(String)
         constructor.newInstance(path)
     }
 
     def createVolumes(volumes) {
-        Class volumesClass = loadClass('com.github.dockerjava.client.model.Volumes')
+        Class volumesClass = loadClass('com.github.dockerjava.api.model.Volumes')
         Constructor constructor = volumesClass.getConstructor(Object[])
         constructor.newInstance(volumes)
     }
 
     def createExposedPort(String scheme, Integer port) {
-        Class exposedPortClass = loadClass('com.github.dockerjava.client.model.ExposedPort')
+        Class exposedPortClass = loadClass('com.github.dockerjava.api.model.ExposedPort')
         Constructor constructor = exposedPortClass.getConstructor(String, Integer)
         constructor.newInstance(scheme, port)
     }
 
     def createExposedPorts(exposedPorts) {
-        Class exposedPortsClass = loadClass('com.github.dockerjava.client.model.ExposedPorts')
+        Class exposedPortsClass = loadClass('com.github.dockerjava.api.model.ExposedPorts')
         Constructor constructor = exposedPortsClass.getConstructor(Object[])
         constructor.newInstance(exposedPorts)
     }

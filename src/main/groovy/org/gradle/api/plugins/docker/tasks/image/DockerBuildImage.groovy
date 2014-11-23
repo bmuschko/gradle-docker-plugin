@@ -20,6 +20,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 
+import java.lang.reflect.Method
+
+import static org.gradle.api.plugins.docker.utils.ResponseUtils.isSuccessfulBuildImageResponse
+import static org.gradle.api.plugins.docker.utils.ResponseUtils.parseImageIdFromBuildImageResponse
+
 class DockerBuildImage extends AbstractDockerRemoteApiTask {
     /**
      * Input directory containing Dockerfile. Defaults to "$projectDir/docker".
@@ -46,6 +51,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask {
     @Optional
     Boolean quiet
 
+    String imageId
+
+    DockerBuildImage() {
+        ext.getImageId = { imageId }
+    }
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Building image from folder '${getInputDir()}'."
@@ -65,9 +76,26 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask {
         }
 
         if(getQuiet()) {
-            buildImageCmd.withRemove(getQuiet())
+            buildImageCmd.withQuiet(getQuiet())
         }
 
-        buildImageCmd.exec()
+        InputStream response = buildImageCmd.exec()
+        handleResponse(response)
+    }
+
+    private void handleResponse(InputStream response) {
+        Class ioUtilsClass = loadClass('org.apache.commons.io.IOUtils')
+        Method toStringMethod = ioUtilsClass.getMethod('toString', InputStream, String)
+        String fullLog = toStringMethod.invoke(null, response, 'UTF-8')
+        logger.info fullLog
+
+        if(isSuccessfulBuildImageResponse(fullLog)) {
+            imageId = parseImageIdFromBuildImageResponse(fullLog)
+            logger.quiet "Created image with ID '$imageId'."
+        }
+    }
+
+    private Class loadClass(String clazz) {
+        Thread.currentThread().contextClassLoader.loadClass(clazz)
     }
 }

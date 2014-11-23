@@ -17,10 +17,10 @@ package org.gradle.api.plugins.docker.utils
 
 import org.gradle.api.UncheckedIOException
 
-import java.lang.reflect.Constructor
+import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
-    static final String DOCKER_CLIENT_CLASS = 'com.github.dockerjava.client.DockerClient'
+    static final String DOCKER_CLIENT_BUILDER_CLASS = 'com.github.dockerjava.core.DockerClientBuilder'
     /**
      * {@inheritDoc}
      */
@@ -76,8 +76,9 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @return DockerClient instance
      */
     private getDockerClient(ClassLoader classLoader, String serverUrl) {
-        Class dockerClientClass = classLoader.loadClass(DOCKER_CLIENT_CLASS)
-        Constructor constructor = dockerClientClass.getConstructor(String)
-        constructor.newInstance(serverUrl)
+        Class dockerClientBuilderClass = classLoader.loadClass(DOCKER_CLIENT_BUILDER_CLASS)
+        Method method = dockerClientBuilderClass.getMethod('getInstance', String)
+        def dockerClientBuilder = method.invoke(null, serverUrl)
+        dockerClientBuilder.build()
     }
 }
