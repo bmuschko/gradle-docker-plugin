@@ -1,3 +1,10 @@
+### Version 0.3 (November 23, 2014)
+
+* Usage of [docker-java library](https://github.com/docker-java/docker-java) version 0.10.3.
+* Changed package name to `com.bmuschko.gradle.docker`.
+* Changed group ID to `com.bmuschko`.
+* Adapted plugin IDs to be compatible with Gradle's plugin portal.
+
 ### Version 0.2 (June 19, 2014)
 
 * Usage of [docker-java library](https://github.com/docker-java/docker-java) version 0.8.2.
