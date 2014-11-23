@@ -13,7 +13,7 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 //apply plugin: 'bintray'
 
-group = 'org.gradle.api.plugins'
+group = 'com.bmuschko'
 version = '0.3'
 
 repositories {
@@ -24,7 +24,7 @@ dependencies {
     compile localGroovy()
     compile gradleApi()
     testCompile 'commons-io:commons-io:2.4'
-    testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
+    testCompile('org.spockframework:spock-core:0.7-groovy-1.8') {
         exclude module: 'groovy-all'
     }
 }
@@ -137,7 +137,7 @@ publishing {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.0'
+    gradleVersion = '1.12'
 }
 
 /*bintray {
