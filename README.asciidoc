@@ -114,11 +114,9 @@ docker {
     credentials {
         username = 'bmuschko'
         password = 'pwd'
-        email = 'benjamin.muschko@gmail.com
+        email = 'benjamin.muschko@gmail.com'
     }
 }
-
-ext.imageTag = 'test/myapp'
 
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('docker/myapp')
