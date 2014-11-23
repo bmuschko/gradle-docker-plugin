@@ -15,22 +15,24 @@
  */
 package com.bmuschko.gradle.docker.utils
 
+import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import org.gradle.api.UncheckedIOException
 
 import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
+    static final String DOCKER_CLIENT_CONFIG_CLASS = 'com.github.dockerjava.core.DockerClientConfig'
     static final String DOCKER_CLIENT_BUILDER_CLASS = 'com.github.dockerjava.core.DockerClientBuilder'
     /**
      * {@inheritDoc}
      */
     @Override
-    void withClasspath(Set<File> classpathFiles, String serverUrl, Closure closure) {
+    void withClasspath(Set<File> classpathFiles, DockerClientConfiguration dockerClientConfiguration, Closure closure) {
         ClassLoader originalClassLoader = getClass().classLoader
 
         try {
             Thread.currentThread().contextClassLoader = createClassLoader(classpathFiles)
-            closure(getDockerClient(Thread.currentThread().contextClassLoader, serverUrl))
+            closure(getDockerClient(Thread.currentThread().contextClassLoader, dockerClientConfiguration))
         }
         finally {
             Thread.currentThread().contextClassLoader = originalClassLoader
@@ -72,13 +74,24 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * Creates DockerClient from ClassLoader.
      *
      * @param classLoader ClassLoader
-     * @param serverUrl Docker server URL
+     * @param dockerClientConfiguration Docker client configuration
      * @return DockerClient instance
      */
-    private getDockerClient(ClassLoader classLoader, String serverUrl) {
+    private getDockerClient(ClassLoader classLoader, DockerClientConfiguration dockerClientConfiguration) {
+        // Create configuration
+        Class dockerClientConfigClass = classLoader.loadClass(DOCKER_CLIENT_CONFIG_CLASS)
+        Method dockerClientConfigMethod = dockerClientConfigClass.getMethod('createDefaultConfigBuilder')
+        def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
+        dockerClientConfigBuilder.withUri(dockerClientConfiguration.serverUrl)
+        dockerClientConfigBuilder.withUsername(dockerClientConfiguration.username)
+        dockerClientConfigBuilder.withPassword(dockerClientConfiguration.password)
+        dockerClientConfigBuilder.withEmail(dockerClientConfiguration.email)
+        def dockerClientConfig = dockerClientConfigBuilder.build()
+
+        // Create client
         Class dockerClientBuilderClass = classLoader.loadClass(DOCKER_CLIENT_BUILDER_CLASS)
-        Method method = dockerClientBuilderClass.getMethod('getInstance', String)
-        def dockerClientBuilder = method.invoke(null, serverUrl)
+        Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
+        def dockerClientBuilder = method.invoke(null, dockerClientConfig)
         dockerClientBuilder.build()
     }
 }

@@ -15,13 +15,15 @@
  */
 package com.bmuschko.gradle.docker.utils
 
+import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
+
 interface ThreadContextClassLoader {
     /**
      * Performs the closure with local thread context classloader.
      *
      * @param classpathFiles Classpath files
-     * @param serverUrl Docker server URL
+     * @param dockerClientConfiguration Docker client configuration
      * @param closure the given closure
      */
-    void withClasspath(Set<File> classpathFiles, String serverUrl, Closure closure)
+    void withClasspath(Set<File> classpathFiles, DockerClientConfiguration dockerClientConfiguration, Closure closure)
 }

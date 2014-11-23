@@ -62,13 +62,18 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
     @TaskAction
     void start() {
-        threadContextClassLoader.withClasspath(getClasspath().files, getServerUrl()) { dockerClient ->
-            if(getUsername() && getPassword() && getEmail()) {
-                dockerClient.setCredentials(getUsername(), getPassword(), getEmail())
-            }
-
+        threadContextClassLoader.withClasspath(getClasspath().files, createDockerClientConfig()) { dockerClient ->
             runRemoteCommand(dockerClient)
         }
+    }
+
+    private DockerClientConfiguration createDockerClientConfig() {
+        DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
+        dockerClientConfig.serverUrl = getServerUrl()
+        dockerClientConfig.username = getUsername()
+        dockerClientConfig.password = getPassword()
+        dockerClientConfig.email = getEmail()
+        dockerClientConfig
     }
 
     abstract void runRemoteCommand(dockerClient)
