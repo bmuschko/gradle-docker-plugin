@@ -15,7 +15,7 @@ abstract class DockerTaskIntegrationTest extends ProjectBuilderIntegrationTest {
 
         then:
         Throwable t = thrown(TaskExecutionException)
-        t.cause.message.contains("Connection to $ProjectBuilderIntegrationTest.SERVER_URL refused")
+        t.cause.message.contains("Connection refused")
     }
 
     abstract Task createAndConfigureTask()
