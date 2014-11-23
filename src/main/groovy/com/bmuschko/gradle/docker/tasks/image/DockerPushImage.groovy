@@ -15,16 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import org.gradle.api.tasks.Input
-
-class DockerPushImage extends AbstractDockerRemoteApiTask {
-    /**
-     * Image ID to be pulled.
-     */
-    @Input
-    String imageId
-
+class DockerPushImage extends DockerExistingImage {
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Pushing image ID '${getImageId()}'."

@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker
 
-class DockerRemoveImage extends DockerExistingImage {
-    @Override
-    void runRemoteCommand(dockerClient) {
-        logger.quiet "Removing image with ID '${getImageId()}'."
-        dockerClient.removeImageCmd(getImageId()).exec()
-    }
+import org.gradle.tooling.model.GradleProject
+
+class GradleInvocationResult {
+    GradleProject project
+    String output
 }

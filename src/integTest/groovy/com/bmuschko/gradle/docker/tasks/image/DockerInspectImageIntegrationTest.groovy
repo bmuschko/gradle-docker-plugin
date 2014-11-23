@@ -15,38 +15,14 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.bmuschko.gradle.docker.tasks.DockerTaskIntegrationTest
+import org.gradle.api.Task
 
-class DockerTagImage extends DockerExistingImage {
-    /**
-     * The repository to tag in.
-     */
-    @Input
-    String repository
-
-    /**
-     * Image name to be tagged.
-     */
-    @Input
-    String tag
-
-    /**
-     * Forces tagging.
-     */
-    @Input
-    @Optional
-    Boolean force
-
+class DockerInspectImageIntegrationTest extends DockerTaskIntegrationTest {
     @Override
-    void runRemoteCommand(dockerClient) {
-        logger.quiet "Tagging image with ID '${getImageId()}'."
-        def tagImageCmd = dockerClient.tagImageCmd(getImageId(), getRepository(), getTag())
-
-        if(getForce()) {
-            tagImageCmd.withForce(getForce())
+    Task createAndConfigureTask() {
+        project.task('inspectImage', type: DockerInspectImage) {
+            imageId = 'bmuschko/myImage'
         }
-
-        tagImageCmd.exec()
     }
 }

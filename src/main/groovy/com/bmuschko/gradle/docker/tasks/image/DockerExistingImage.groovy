@@ -15,38 +15,21 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 
-class DockerTagImage extends DockerExistingImage {
+abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
     /**
-     * The repository to tag in.
+     * Image ID used to perform operation. The image for the provided ID has to be created first.
      */
+    String imageId
+
+    void targetImageId(Closure imageId) {
+        conventionMapping.imageId = imageId
+    }
+
     @Input
-    String repository
-
-    /**
-     * Image name to be tagged.
-     */
-    @Input
-    String tag
-
-    /**
-     * Forces tagging.
-     */
-    @Input
-    @Optional
-    Boolean force
-
-    @Override
-    void runRemoteCommand(dockerClient) {
-        logger.quiet "Tagging image with ID '${getImageId()}'."
-        def tagImageCmd = dockerClient.tagImageCmd(getImageId(), getRepository(), getTag())
-
-        if(getForce()) {
-            tagImageCmd.withForce(getForce())
-        }
-
-        tagImageCmd.exec()
+    String getImageId() {
+        imageId
     }
 }
