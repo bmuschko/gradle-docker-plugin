@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
-//apply plugin: 'bintray'
+apply plugin: 'bintray'
 
 group = 'com.bmuschko'
 version = '0.3'
@@ -128,42 +128,20 @@ publishing {
             }
         }
     }
-
-    repositories {
-        maven {
-            url "$buildDir/repo"
-        }
-    }
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.12'
 }
 
-/*bintray {
+bintray {
     user = project.hasProperty('bintrayUser') ? project.getProperty('bintrayUser') : null
     key =  project.hasProperty('bintrayKey') ? project.getProperty('bintrayKey') : null
     publications = ['mavenJava']
 
     pkg {
         repo = 'gradle-plugins'
-        name = 'com.bmuschko:gradle-docker-plugin'
-        desc = 'Gradle plugin for managing Docker images and containers.'
-        websiteUrl = "https://github.com/bmuschko/${project.name}"
-        issueTrackerUrl = "https://github.com/bmuschko/${project.name}/issues"
-        vcsUrl = "https://github.com/bmuschko/${project.name}.git"
+        name = 'gradle-docker-plugin'
         licenses = ['Apache-2.0']
-        labels = ['gradle', 'docker', 'container', 'image', 'lightweight', 'vm', 'linux']
-        publicDownloadNumbers = true
-
-        version {
-            vcsTag = "v$project.version"
-            attributes = ['gradle-plugin': "com.bmuschko.docker:${project.group}:${project.name}"]
-
-            gpg {
-                sign = true
-                passphrase = project.hasProperty('gpgPassphrase') ? project.getProperty('gpgPassphrase') : null
-            }
-        }
     }
-}*/
+}
