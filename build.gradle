@@ -111,7 +111,7 @@ publishing {
             pom.withXml {
                 def root = asNode()
                 root.appendNode('name', 'Gradle Docker plugin')
-                root.appendNode('description', 'Gradle plugin for building, publishing and running Vagrant boxes.')
+                root.appendNode('description', 'Gradle plugin for managing Docker images and containers.')
                 root.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
                 root.appendNode('inceptionYear', '2014')
 
