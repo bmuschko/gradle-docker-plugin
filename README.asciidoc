@@ -1,7 +1,7 @@
 Gradle Docker plugin
 ====================
 
-image:http://www.docker.com/static/img/nav/docker-logo-loggedout.png[Docker Logo]
+image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout.png[Docker Logo]
 
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
