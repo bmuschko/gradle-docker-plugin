@@ -49,6 +49,7 @@ The plugin provides the following custom task types for managing images:
 [options="header"]
 |=======
 |Type               |Description
+|Dockerfile         |Creates a Dockerfile based on the provided instructions.
 |DockerBuildImage   |Builds an image from a Dockerfile.
 |DockerCommitImage  |Creates a new image from a container's changes.
 |DockerInspectImage |Returns low-level information on the image.

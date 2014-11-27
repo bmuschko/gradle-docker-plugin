@@ -39,6 +39,37 @@ task dockerInfo(type: DockerInfo)
         result.output.contains('Retrieving Docker info.')
     }
 
+    def "Can create Dockerfile and build an image from it"() {
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+
+task createDockerfile(type: Dockerfile) {
+    destFile = project.file('build/mydockerfile/Dockerfile')
+    from 'ubuntu:12.04'
+    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = "${createUniqueImageId()}"
+}
+
+task inspectImage(type: DockerInspectImage) {
+    dependsOn buildImage
+    targetImageId { buildImage.getImageId() }
+}
+"""
+        when:
+        GradleInvocationResult result = runTasks('inspectImage')
+
+        then:
+        new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+    }
+
     def "Can build and verify image"() {
         File imageDir = createDir(new File(projectDir, 'images/minimal'))
         createDockerfile(imageDir)
