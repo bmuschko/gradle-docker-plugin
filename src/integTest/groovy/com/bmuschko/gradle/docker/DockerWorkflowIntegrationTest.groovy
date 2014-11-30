@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks
+package com.bmuschko.gradle.docker
 
-import com.bmuschko.gradle.docker.AbstractIntegrationTest
-import com.bmuschko.gradle.docker.GradleInvocationResult
-import com.bmuschko.gradle.docker.ToolingApiIntegrationTest
 import org.apache.commons.io.FileUtils
 import spock.lang.IgnoreIf
 

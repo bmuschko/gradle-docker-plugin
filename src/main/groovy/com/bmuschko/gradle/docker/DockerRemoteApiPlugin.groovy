@@ -28,6 +28,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
     static final String DOCKER_JAVA_DEFAULT_VERSION = '0.10.3'
     static final String EXTENSION_NAME = 'docker'
+    static final String DEFAULT_TASK_GROUP = 'Docker'
 
     @Override
     void apply(Project project) {
@@ -52,6 +53,8 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
                     addDependency(project, config, 'org.slf4j:slf4j-simple:1.7.5')
                 }
             }
+
+            group = DEFAULT_TASK_GROUP
 
             conventionMapping.with {
                 classpath = { config }
