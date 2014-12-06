@@ -22,7 +22,7 @@ class DockerPushImageIntegrationTest extends DockerTaskIntegrationTest {
     @Override
     Task createAndConfigureTask() {
         project.task('pushImage', type: DockerPushImage) {
-            imageId = 'bmuschko/myImage'
+            imageName = 'bmuschko/myImage'
             username = 'bmuschko'
             password = 'pwd'
             email = 'benjamin.muschko@gmail.com'
