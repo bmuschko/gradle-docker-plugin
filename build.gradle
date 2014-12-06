@@ -14,7 +14,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'bintray'
 
 group = 'com.bmuschko'
-version = '0.4'
+version = '0.5'
 
 repositories {
     mavenCentral()

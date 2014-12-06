@@ -1,3 +1,7 @@
+### Version 0.5 (December 6, 2014)
+
+* Fixed implementations of tasks `DockerPushImage` and `DockerCommitImage` - [Issue 11](https://github.com/bmuschko/gradle-docker-plugin/issues/11).
+
 ### Version 0.4 (November 27, 2014)
 
 * Added task for creating a Dockerfile.

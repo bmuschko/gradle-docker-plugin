@@ -20,7 +20,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:0.4'
+        classpath 'com.bmuschko:gradle-docker-plugin:0.5'
     }
 }
 
