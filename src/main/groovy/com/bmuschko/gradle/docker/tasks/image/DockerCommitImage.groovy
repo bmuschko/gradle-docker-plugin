@@ -15,17 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-class DockerCommitImage extends AbstractDockerRemoteApiTask {
-    /**
-     * Container ID.
-     */
-    @Input
-    String containerId
-
+class DockerCommitImage extends DockerExistingContainer {
     /**
      * Repository.
      */
@@ -66,7 +60,7 @@ class DockerCommitImage extends AbstractDockerRemoteApiTask {
     @Optional
     Boolean attachStdin
 
-    private String imageId
+    String imageId
 
     DockerCommitImage() {
         ext.getImageId = { imageId }

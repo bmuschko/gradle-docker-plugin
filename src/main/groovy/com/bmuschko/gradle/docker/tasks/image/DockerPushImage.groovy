@@ -15,10 +15,27 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-class DockerPushImage extends DockerExistingImage {
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+
+class DockerPushImage extends AbstractDockerRemoteApiTask {
+    @Input
+    String imageName
+
+    @Input
+    @Optional
+    String tag
+
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Pushing image ID '${getImageId()}'."
-        dockerClient.pushImageCmd(getImageId()).exec()
+        logger.quiet "Pushing image with name '${getImageName()}'."
+        def pushImageCmd = dockerClient.pushImageCmd(getImageName())
+
+        if(getTag()) {
+            pushImageCmd.withTag(getTag())
+        }
+
+        pushImageCmd.exec()
     }
 }
