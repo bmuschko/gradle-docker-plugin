@@ -115,6 +115,11 @@ publishing {
                 root.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
                 root.appendNode('inceptionYear', '2014')
 
+                def scm = root.appendNode('scm')
+                scm.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
+                scm.appendNode('connection', 'scm:https://bmuschko@github.com/bmuschko/gradle-docker-plugin.git')
+                scm.appendNode('developerConnection', 'scm:git://github.com/bmuschko/gradle-docker-plugin.git')
+
                 def license = root.appendNode('licenses').appendNode('license')
                 license.appendNode('name', 'The Apache Software License, Version 2.0')
                 license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
