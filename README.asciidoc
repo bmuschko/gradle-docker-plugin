@@ -140,6 +140,8 @@ docker {
 
 === Usage examples
 
+The following usage examples demonstrate code for common use cases. More scenarios can be found in the [integration tests](https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/integTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowIntegrationTest.groovy).
+
 ==== Creating a Dockerfile and building an image
 
 A Dockerfile can be created by the `Dockerfile` custom tasks. The Dockerfile instructions need to be declare in the correct
@@ -255,6 +257,8 @@ docker {
 
 
 === Usage examples
+
+The following usage examples demonstrate code for common use cases. More scenarios can be found in the [integration tests](https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/integTest/groovy/com/bmuschko/gradle/docker/DockerJavaApplicationPluginIntegrationTest.groovy).
 
 [source,groovy]
 ----
