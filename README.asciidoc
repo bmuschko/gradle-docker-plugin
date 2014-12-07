@@ -20,10 +20,32 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:0.5'
+        classpath 'com.bmuschko:gradle-docker-plugin:0.6'
     }
 }
+----
 
+
+== Provided plugins
+
+The JAR file comes with two plugins:
+
+[options="header"]
+|=======
+|Plugin Identifier                    |Depends On                     |Type                                                                                                                                            |Description
+|com.bmuschko.docker-remote-api       |-                              |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerRemoteApiPlugin.html[DockerRemoteApiPlugin] |Provides custom tasks for interacting with Docker via its remote API.
+|com.bmuschko.docker-java-application |com.bmuschko.docker-remote-api |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerJavaApplication.html[DockerJavaApplication] |Creates and pushes a Docker image for a Java application.
+|=======
+
+== Remote API plugin
+
+The plugin `com.bmuschko.docker-remote-api` allows for interacting with Docker via its remote API. You can model any workflow
+imaginable by creating enhanced task of the custom task provided by the plugin. In its current state you will have to disable
+TLS on Docker. Future versions of the plugin will enable the communication via TLS. To use the plugin, include the following
+code snippet in your build script:
+
+[source,groovy]
+----
 apply plugin: 'com.bmuschko.docker-remote-api'
 ----
 
@@ -84,8 +106,8 @@ The plugin defines the following extension properties in the `docker` closure:
 
 [options="header"]
 |=======
-|Property name   |Type      |Default value    |Description
-|`serverUrl`     |String    |null             |The server URL to connect to via Docker's remote API.
+|Property name   |Type      |Default value            |Description
+|`serverUrl`     |String    |http://localhost:2375    |The server URL to connect to via Docker's remote API.
 |=======
 
 For pushing an image to the Docker Hub registry or to a self-hosted one, you will also need to provide credentials in
@@ -100,16 +122,10 @@ the `credentials` closure:
 |=======
 
 
-=== Example
-
-The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this
-image and exercises functional tests agains the running container. At the end of this operation, the container is stopped.
+==== Example
 
 [source,groovy]
 ----
-import com.bmuschko.gradle.docker.tasks.container.*
-import com.bmuschko.gradle.docker.tasks.image.*
-
 docker {
     serverUrl = 'http://remote.docker.com:2375'
 
@@ -119,6 +135,43 @@ docker {
         email = 'benjamin.muschko@gmail.com'
     }
 }
+----
+
+
+=== Usage examples
+
+==== Creating a Dockerfile and building an image
+
+A Dockerfile can be created by the `Dockerfile` custom tasks. The Dockerfile instructions need to be declare in the correct
+order.
+
+[source,groovy]
+----
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+task createDockerfile(type: Dockerfile) {
+    destFile = project.file('build/mydockerfile/Dockerfile')
+    from 'ubuntu:12.04'
+    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = 'bmuschko/myimage'
+}
+----
+
+==== Executing functional tests against a running container
+
+The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this
+image and exercises functional tests agains the running container. At the end of this operation, the container is stopped.
+
+[source,groovy]
+----
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
 
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('docker/myapp')
@@ -142,5 +195,89 @@ task stopMyAppContainer(type: DockerStopContainer) {
 task functionalTestMyApp(type: Test) {
     dependsOn startMyAppContainer
     finalizedBy stopMyAppContainer
+}
+----
+
+
+== Java application plugin
+
+The plugin `com.bmuschko.docker-java-application` is a highly opinonated plugin for projects applying the [application plugin](http://www.gradle.org/docs/current/userguide/application_plugin.html).
+Under the covers the plugin preconfigures tasks for creating and pushing Docker images for your Java application. The default
+configuration is tweakable via an exposed extension. To use the plugin, include the following code snippet in your build script:
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-java-application'
+----
+
+
+=== Extension properties
+
+The plugin defines the following extension properties in the `javaApplication` closure:
+
+[options="header"]
+|=======
+|Property name   |Type      |Default value                       |Description
+|`baseImage`     |String    |java                                |The Docker base image used for Java application.
+|`maintainer`    |String    |null                                |The name and email address of the image maintainer.
+|`port`          |Integer   |8080                                |The Docker image entry point port used for the Java application.
+|`tag`           |String    |<applicationName>:<projectVersion>  |The tag used for the Docker image.
+|=======
+
+
+=== Default tasks
+
+The plugin provides a set of tasks for your project and preconfigures them with sensible defaults.
+
+[options="header"]
+|=======
+|Task name            |Type               |Description
+|`dockerCopyDistTar`  |Copy               |Copies the Java application's TAR file to a temporary directory for image creation.
+|`dockerDistTar`      |Dockerfile         |Creates the Docker image for the Java application.
+|`dockerBuildImage`   |DockerBuildImage   |Builds the Docker image for the Java application.
+|`dockerPushImage`    |DockerPushImage    |Pushes created Docker image to the repository.
+|=======
+
+
+==== Example
+
+[source,groovy]
+----
+docker {
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jre'
+        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+        port = 9090
+        tag = 'jettyapp:1.115'
+    }
+}
+----
+
+
+=== Usage examples
+
+[source,groovy]
+----
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'docker-java-application'
+
+version = '1.0'
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
+}
+
+mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
+
+docker {
+    javaApplication {
+        maintainer = 'Jon Doe "jon.doe@gmail.com"'
+    }
 }
 ----
