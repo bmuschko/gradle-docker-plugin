@@ -1,3 +1,9 @@
+### Version 0.6 (December 7, 2014)
+
+* Usage of [docker-java library](https://github.com/docker-java/docker-java) version 0.10.4.
+* Added Docker Java application plugin.
+* Better documentation.
+
 ### Version 0.5 (December 6, 2014)
 
 * Fixed implementations of tasks `DockerPushImage` and `DockerCommitImage` - [Issue 11](https://github.com/bmuschko/gradle-docker-plugin/issues/11).
