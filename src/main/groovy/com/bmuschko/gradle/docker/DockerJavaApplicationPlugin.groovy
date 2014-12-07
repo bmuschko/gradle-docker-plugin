@@ -70,6 +70,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
     private Dockerfile createDockerfileTask(Project project, Tar tarTask, DockerJavaApplication dockerJavaApplication) {
         project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
+            description = "Copies the Java application's TAR file to a temporary directory for image creation."
             dependsOn tarTask
 
             doFirst {
@@ -89,6 +90,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
     private Copy createCopyTarTask(Project project, Tar tarTask, Dockerfile createDockerfileTask) {
         project.task(COPY_DIST_TAR_TASK_NAME, type: Copy) {
             group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
+            description = 'Creates the Docker image for the Java application.'
             dependsOn tarTask
             from { tarTask.archivePath }
             into { createDockerfileTask.destFile.parentFile }
@@ -102,6 +104,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
     private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
         project.task(BUILD_IMAGE_TASK_NAME, type: DockerBuildImage) {
+            description = 'Builds the Docker image for the Java application.'
             dependsOn createDockerfileTask
             conventionMapping.inputDir = { createDockerfileTask.destFile.parentFile }
             conventionMapping.tag = { determineImageTag(project, dockerJavaApplication) }
@@ -119,6 +122,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
     private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
         project.task(PUSH_IMAGE_TASK_NAME, type: DockerPushImage) {
+            description = 'Pushes created Docker image to the repository.'
             dependsOn dockerBuildImageTask
             conventionMapping.imageName = { dockerBuildImageTask.getTag() }
         }
