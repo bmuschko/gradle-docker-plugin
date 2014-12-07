@@ -37,8 +37,8 @@ The plugin provides the following general-purpose custom task types:
 [options="header"]
 |=======
 |Type           |Description
-|DockerInfo     |Displays system-wide information.
-|DockerVersion  |Show the docker version information.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerInfo.html[DockerInfo]       |Displays system-wide information.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerVersion.html[DockerVersion] |Show the docker version information.
 |=======
 
 
