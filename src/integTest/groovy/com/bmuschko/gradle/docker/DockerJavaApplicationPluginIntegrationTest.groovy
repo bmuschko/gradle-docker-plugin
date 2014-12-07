@@ -4,7 +4,42 @@ import spock.lang.IgnoreIf
 
 @IgnoreIf({ !AbstractIntegrationTest.isDockerServerInfoUrlReachable() })
 class DockerJavaApplicationPluginIntegrationTest extends ToolingApiIntegrationTest {
-    def "Can create image for Java application"() {
+    def "Can create image for Java application with default configuration"() {
+        createJettMainClass()
+        writeBuildFile()
+
+        when:
+        GradleInvocationResult result = runTasks('inspectImage')
+
+        then:
+        new File(projectDir, 'build/docker/Dockerfile').exists()
+        result.output.contains('Author           : ')
+    }
+
+    def "Can create image for Java application with user-driven configuration"() {
+        createJettMainClass()
+        writeBuildFile()
+
+        buildFile << """
+docker {
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jre'
+        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+        port = 9090
+        tag = 'jettyapp:1.115'
+    }
+}
+"""
+
+        when:
+        GradleInvocationResult result = runTasks('inspectImage')
+
+        then:
+        new File(projectDir, 'build/docker/Dockerfile').exists()
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+    }
+
+    private void createJettMainClass() {
         File packageDir = createDir(new File(projectDir, 'src/main/java/com/bmuschko/gradle/docker/application'))
         File jettyMainClass = createNewFile(packageDir, 'JettyMain.java')
         jettyMainClass << """
@@ -45,7 +80,9 @@ public class JettyMain extends AbstractHandler
     }
 }
 """
+    }
 
+    private void writeBuildFile() {
         buildFile << """
 apply plugin: 'java'
 apply plugin: 'application'
@@ -71,12 +108,5 @@ task inspectImage(type: DockerInspectImage) {
     targetImageId { dockerBuildImage.getImageId() }
 }
 """
-
-        when:
-        GradleInvocationResult result = runTasks('inspectImage')
-
-        then:
-        new File(projectDir, 'build/docker/Dockerfile').exists()
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 }

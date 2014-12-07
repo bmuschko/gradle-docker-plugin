@@ -23,6 +23,7 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Tar
+import org.gradle.util.ConfigureUtil
 
 /**
  * Opinonated Gradle plugin for creating and pushing a Docker image for a Java application.
@@ -35,26 +36,53 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        project.plugins.apply(DockerRemoteApiPlugin)
+        project.apply(plugin: DockerRemoteApiPlugin)
+
+        DockerExtension dockerExtension = project.extensions.getByType(DockerExtension)
+        DockerJavaApplication dockerJavaApplication = configureExtension(dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
             Tar tarTask = project.tasks.getByName(ApplicationPlugin.TASK_DIST_TAR_NAME)
 
-            Dockerfile createDockerfileTask = createDockerfileTask(project, tarTask)
+            Dockerfile createDockerfileTask = createDockerfileTask(project, tarTask, dockerJavaApplication)
             Copy copyTarTask = createCopyTarTask(project, tarTask, createDockerfileTask)
             createDockerfileTask.dependsOn copyTarTask
-            DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask)
+            DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerJavaApplication)
             createPushImageTask(project, dockerBuildImageTask)
         }
     }
 
-    private Dockerfile createDockerfileTask(Project project, Tar tarTask) {
+    /**
+     * Configure existing Docker extension by adding properties for Java-based application.
+     *
+     * @param dockerExtension Docker extension
+     * @return Java application configuration
+     */
+    private DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
+        DockerJavaApplication dockerJavaApplication = new DockerJavaApplication()
+        dockerExtension.metaClass.javaApplication = dockerJavaApplication
+        DockerExtension.metaClass.javaApplication = { Closure closure ->
+            ConfigureUtil.configure(closure, dockerJavaApplication)
+        }
+
+        dockerJavaApplication
+    }
+
+    private Dockerfile createDockerfileTask(Project project, Tar tarTask, DockerJavaApplication dockerJavaApplication) {
         project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
             dependsOn tarTask
-            from 'dockerfile/java'
-            addFile tarTask.archivePath.name, '/'
-            entryPoint determineEntryPoint(tarTask)
-            exposePort 8080
+
+            doFirst {
+                from dockerJavaApplication.baseImage
+
+                if(dockerJavaApplication.maintainer) {
+                    maintainer dockerJavaApplication.maintainer
+                }
+
+                addFile tarTask.archivePath.name, '/'
+                entryPoint determineEntryPoint(tarTask)
+                exposePort dockerJavaApplication.port
+            }
         }
     }
 
@@ -72,21 +100,27 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         "/$archiveNameWithoutFileExtension"
     }
 
-    private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask) {
+    private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
         project.task(BUILD_IMAGE_TASK_NAME, type: DockerBuildImage) {
             dependsOn createDockerfileTask
             conventionMapping.inputDir = { createDockerfileTask.destFile.parentFile }
-            conventionMapping.tag = {
-                String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-                "${project.applicationName}:${tagVersion}".toString()
-            }
+            conventionMapping.tag = { determineImageTag(project, dockerJavaApplication) }
         }
+    }
+
+    private String determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
+        if(dockerJavaApplication.tag) {
+            return dockerJavaApplication.tag
+        }
+
+        String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
+        "${project.applicationName}:${tagVersion}".toLowerCase().toString()
     }
 
     private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
         project.task(PUSH_IMAGE_TASK_NAME, type: DockerPushImage) {
             dependsOn dockerBuildImageTask
-            targetImageId { dockerBuildImageTask.imageId }
+            conventionMapping.imageName = { dockerBuildImageTask.getTag() }
         }
     }
 }
