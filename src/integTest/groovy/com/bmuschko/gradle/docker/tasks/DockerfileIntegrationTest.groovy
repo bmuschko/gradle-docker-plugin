@@ -47,6 +47,9 @@ class DockerfileIntegrationTest extends ProjectBuilderIntegrationTest {
 """FROM ubuntu:12.04
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
+        task.instructions.size() == 2
+        task.instructions[0] == 'FROM ubuntu:12.04'
+        task.instructions[1] == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
     }
 
     def "Can create minimal Dockerfile in custom location"() {
@@ -66,6 +69,9 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
                 """FROM ubuntu:12.04
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
+        task.instructions.size() == 2
+        task.instructions[0] == 'FROM ubuntu:12.04'
+        task.instructions[1] == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
     }
 
     def "Can create Dockerfile"() {
@@ -102,6 +108,18 @@ EXPOSE 8080
 VOLUME ["/jenkins"]
 CMD [""]
 """
+        task.instructions.size() == 11
+        task.instructions[0] == 'FROM ubuntu:14.04'
+        task.instructions[1] == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+        task.instructions[2] == 'RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
+        task.instructions[3] == 'RUN apt-get update && apt-get clean'
+        task.instructions[4] == 'RUN apt-get install -q -y openjdk-7-jre-headless && apt-get clean'
+        task.instructions[5] == 'ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
+        task.instructions[6] == 'RUN ln -sf /jenkins /root/.jenkins'
+        task.instructions[7] == 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
+        task.instructions[8] == 'EXPOSE 8080'
+        task.instructions[9] == 'VOLUME ["/jenkins"]'
+        task.instructions[10] == 'CMD [""]'
     }
 
 }

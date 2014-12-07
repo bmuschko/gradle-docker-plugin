@@ -67,6 +67,10 @@ class Dockerfile extends DefaultTask {
         builder.withOnBuild(instruction)
     }
 
+    List<String> getInstructions() {
+        builder.instructions
+    }
+
     private class DockerfileBuilder {
         private final List<String> instructions = []
 
@@ -140,6 +144,10 @@ class Dockerfile extends DefaultTask {
             if(!instructions[0].startsWith('FROM')) {
                 throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM')
             }
+        }
+
+        List<String> getInstructions() {
+            instructions
         }
     }
 }
