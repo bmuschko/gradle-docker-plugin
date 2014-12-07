@@ -248,11 +248,11 @@ The plugin provides a set of tasks for your project and preconfigures them with 
 
 [options="header"]
 |=======
-|Task name            |Type               |Description
-|`dockerCopyDistTar`  |Copy               |Copies the Java application's TAR file to a temporary directory for image creation.
-|`dockerDistTar`      |Dockerfile         |Creates the Docker image for the Java application.
-|`dockerBuildImage`   |DockerBuildImage   |Builds the Docker image for the Java application.
-|`dockerPushImage`    |DockerPushImage    |Pushes created Docker image to the repository.
+|Task name            |Depends On           |Type               |Description
+|`dockerCopyDistTar`  |`distTar`            |Copy               |Copies the Java application's TAR file to a temporary directory for image creation.
+|`dockerDistTar`      |`dockerCopyDistTar`  |Dockerfile         |Creates the Docker image for the Java application.
+|`dockerBuildImage`   |`dockerDistTar`      |DockerBuildImage   |Builds the Docker image for the Java application.
+|`dockerPushImage`    |`dockerBuildImage`   |DockerPushImage    |Pushes created Docker image to the repository.
 |=======
 
 
