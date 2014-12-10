@@ -264,7 +264,7 @@ The following usage examples demonstrate code for common use cases. More scenari
 ----
 apply plugin: 'java'
 apply plugin: 'application'
-apply plugin: 'docker-java-application'
+apply plugin: 'com.bmuschko.docker-java-application'
 
 version = '1.0'
 sourceCompatibility = 1.7
