@@ -5,4 +5,5 @@ class DockerClientConfiguration {
     String username
     String password
     String email
+    File certPath
 }

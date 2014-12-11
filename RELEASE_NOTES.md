@@ -1,3 +1,7 @@
+### Version 0.6.1 (December 11, 2014)
+
+* Allow for setting path to certificates for communicating with Docker over SSL - [Issue 10](https://github.com/bmuschko/gradle-docker-plugin/issues/10).
+
 ### Version 0.6 (December 7, 2014)
 
 * Usage of [docker-java library](https://github.com/docker-java/docker-java) version 0.10.4.

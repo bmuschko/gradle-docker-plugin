@@ -19,6 +19,7 @@ import org.gradle.util.ConfigureUtil
 
 class DockerExtension {
     String serverUrl = 'http://localhost:2375'
+    File certPath
     DockerCredentials credentials
 
     void credentials(Closure closure) {

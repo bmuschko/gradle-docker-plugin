@@ -20,7 +20,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:0.6'
+        classpath 'com.bmuschko:gradle-docker-plugin:0.6.1'
     }
 }
 ----
@@ -108,6 +108,7 @@ The plugin defines the following extension properties in the `docker` closure:
 |=======
 |Property name   |Type      |Default value            |Description
 |`serverUrl`     |String    |http://localhost:2375    |The server URL to connect to via Docker's remote API.
+|`certPath`      |File      |null                     |The path to certificates for communicating with link:https://docs.docker.com/articles/https/[Docker over SSL].
 |=======
 
 For pushing an image to the Docker Hub registry or to a self-hosted one, you will also need to provide credentials in
@@ -128,6 +129,7 @@ the `credentials` closure:
 ----
 docker {
     serverUrl = 'http://remote.docker.com:2375'
+    certPath = new File('/home/user/.docker')
 
     credentials {
         username = 'bmuschko'

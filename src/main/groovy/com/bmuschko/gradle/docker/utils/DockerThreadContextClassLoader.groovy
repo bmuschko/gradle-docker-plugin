@@ -23,6 +23,7 @@ import java.lang.reflect.Method
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     static final String DOCKER_CLIENT_CONFIG_CLASS = 'com.github.dockerjava.core.DockerClientConfig'
     static final String DOCKER_CLIENT_BUILDER_CLASS = 'com.github.dockerjava.core.DockerClientBuilder'
+
     /**
      * {@inheritDoc}
      */
@@ -86,6 +87,11 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         dockerClientConfigBuilder.withUsername(dockerClientConfiguration.username)
         dockerClientConfigBuilder.withPassword(dockerClientConfiguration.password)
         dockerClientConfigBuilder.withEmail(dockerClientConfiguration.email)
+
+        if(dockerClientConfiguration.certPath) {
+            dockerClientConfigBuilder.withDockerCertPath(dockerClientConfiguration.certPath.canonicalPath)
+        }
+
         def dockerClientConfig = dockerClientConfigBuilder.build()
 
         // Create client

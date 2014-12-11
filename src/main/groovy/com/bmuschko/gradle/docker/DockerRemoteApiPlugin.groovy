@@ -59,6 +59,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             conventionMapping.with {
                 classpath = { config }
                 serverUrl = { extension.serverUrl }
+                certPath = { extension.certPath }
                 username = { extension.credentials?.username }
                 password = { extension.credentials?.password }
                 email = { extension.credentials?.email }

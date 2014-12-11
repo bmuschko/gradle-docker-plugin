@@ -20,6 +20,7 @@ import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
@@ -58,6 +59,13 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     String email
 
+    /**
+     * Path to the <a href="https://docs.docker.com/articles/https/">Docker certificate and key</a>.
+     */
+    @InputDirectory
+    @Optional
+    File certPath
+
     ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader()
 
     @TaskAction
@@ -73,6 +81,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         dockerClientConfig.username = getUsername()
         dockerClientConfig.password = getPassword()
         dockerClientConfig.email = getEmail()
+        dockerClientConfig.certPath = getCertPath()
         dockerClientConfig
     }
 
