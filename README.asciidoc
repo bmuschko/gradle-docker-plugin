@@ -32,7 +32,7 @@ The JAR file comes with two plugins:
 
 [options="header"]
 |=======
-|Plugin Identifier                    |Depends On                     |Type                                                                                                                                                        |Description
+|Plugin Identifier                    |Applies                        |Type                                                                                                                                                        |Description
 |com.bmuschko.docker-remote-api       |-                              |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerRemoteApiPlugin.html[DockerRemoteApiPlugin]             |Provides custom tasks for interacting with Docker via its remote API.
 |com.bmuschko.docker-java-application |com.bmuschko.docker-remote-api |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerJavaApplicationPlugin.html[DockerJavaApplicationPlugin] |Creates and pushes a Docker image for a Java application.
 |=======
@@ -250,11 +250,11 @@ The plugin provides a set of tasks for your project and preconfigures them with 
 
 [options="header"]
 |=======
-|Task name            |Depends On           |Type               |Description
-|`dockerCopyDistTar`  |`distTar`            |Copy               |Copies the Java application's TAR file to a temporary directory for image creation.
-|`dockerDistTar`      |`dockerCopyDistTar`  |Dockerfile         |Creates the Docker image for the Java application.
-|`dockerBuildImage`   |`dockerDistTar`      |DockerBuildImage   |Builds the Docker image for the Java application.
-|`dockerPushImage`    |`dockerBuildImage`   |DockerPushImage    |Pushes created Docker image to the repository.
+|Task name                 |Depends On                |Type               |Description
+|`dockerCopyDistResources` |`distTar`                 |Copy               |Copies the resource files (like the Java application's TAR file) to a temporary directory for image creation.
+|`dockerDistTar`           |`dockerCopyDistResources` |Dockerfile         |Creates the Docker image for the Java application.
+|`dockerBuildImage`        |`dockerDistTar`           |DockerBuildImage   |Builds the Docker image for the Java application.
+|`dockerPushImage`         |`dockerBuildImage`        |DockerPushImage    |Pushes created Docker image to the repository.
 |=======
 
 

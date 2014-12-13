@@ -29,7 +29,7 @@ import org.gradle.util.ConfigureUtil
  * Opinonated Gradle plugin for creating and pushing a Docker image for a Java application.
  */
 class DockerJavaApplicationPlugin implements Plugin<Project> {
-    static final String COPY_DIST_TAR_TASK_NAME = 'dockerCopyDistTar'
+    static final String COPY_DIST_RESOURCES_TASK_NAME = 'dockerCopyDistResources'
     static final String DOCKERFILE_TASK_NAME = 'dockerDistTar'
     static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
     static final String PUSH_IMAGE_TASK_NAME = 'dockerPushImage'
@@ -45,7 +45,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             Tar tarTask = project.tasks.getByName(ApplicationPlugin.TASK_DIST_TAR_NAME)
 
             Dockerfile createDockerfileTask = createDockerfileTask(project, tarTask, dockerJavaApplication)
-            Copy copyTarTask = createCopyTarTask(project, tarTask, createDockerfileTask)
+            Copy copyTarTask = createDistCopyResourcesTask(project, tarTask, createDockerfileTask)
             createDockerfileTask.dependsOn copyTarTask
             DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerJavaApplication)
             createPushImageTask(project, dockerBuildImageTask)
@@ -70,7 +70,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
     private Dockerfile createDockerfileTask(Project project, Tar tarTask, DockerJavaApplication dockerJavaApplication) {
         project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
-            description = "Copies the Java application's TAR file to a temporary directory for image creation."
+            description = 'Creates the Docker image for the Java application.'
             dependsOn tarTask
 
             doFirst {
@@ -87,10 +87,10 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private Copy createCopyTarTask(Project project, Tar tarTask, Dockerfile createDockerfileTask) {
-        project.task(COPY_DIST_TAR_TASK_NAME, type: Copy) {
+    private Copy createDistCopyResourcesTask(Project project, Tar tarTask, Dockerfile createDockerfileTask) {
+        project.task(COPY_DIST_RESOURCES_TASK_NAME, type: Copy) {
             group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-            description = 'Creates the Docker image for the Java application.'
+            description = "Copies the distribution resources to a temporary directory for image creation."
             dependsOn tarTask
             from { tarTask.archivePath }
             into { createDockerfileTask.destFile.parentFile }
