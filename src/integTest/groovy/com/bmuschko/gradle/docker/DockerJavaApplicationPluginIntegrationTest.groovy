@@ -12,7 +12,15 @@ class DockerJavaApplicationPluginIntegrationTest extends ToolingApiIntegrationTe
         GradleInvocationResult result = runTasks('inspectImage')
 
         then:
-        new File(projectDir, 'build/docker/Dockerfile').exists()
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+"""FROM java
+MAINTAINER ${System.getProperty('user.name')}
+ADD integTest-1.0.tar /
+ENTRYPOINT ["/integTest-1.0"]
+EXPOSE 8080
+"""
         result.output.contains('Author           : ')
     }
 
@@ -35,7 +43,62 @@ docker {
         GradleInvocationResult result = runTasks('inspectImage')
 
         then:
-        new File(projectDir, 'build/docker/Dockerfile').exists()
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+"""FROM dockerfile/java:openjdk-7-jre
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+ADD integTest-1.0.tar /
+ENTRYPOINT ["/integTest-1.0"]
+EXPOSE 9090
+"""
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+    }
+
+    def "Can create image for Java application with additional files"() {
+        createNewFile(projectDir, 'file1.txt')
+        createNewFile(projectDir, 'file2.txt')
+        createJettMainClass()
+        writeBuildFile()
+
+        buildFile << """
+dockerCopyDistResources {
+    from file('file1.txt')
+    from file('file2.txt')
+}
+
+dockerDistTar {
+    addFile 'file1.txt', '/some/dir/file1.txt'
+    addFile 'file2.txt', '/other/dir/file2.txt'
+}
+
+docker {
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jre'
+        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+        port = 9090
+        tag = 'jettyapp:1.115'
+    }
+}
+"""
+
+        when:
+        GradleInvocationResult result = runTasks('inspectImage')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+"""FROM dockerfile/java:openjdk-7-jre
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+ADD integTest-1.0.tar /
+ENTRYPOINT ["/integTest-1.0"]
+EXPOSE 9090
+ADD file1.txt /some/dir/file1.txt
+ADD file2.txt /other/dir/file2.txt
+"""
+        new File(projectDir, 'build/docker/file1.txt').exists()
+        new File(projectDir, 'build/docker/file2.txt').exists()
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 

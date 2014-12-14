@@ -5,7 +5,7 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import org.apache.commons.lang.exception.ExceptionUtils
 import org.gradle.api.tasks.TaskExecutionException
 
-class DockerfileIntegrationTest extends ProjectBuilderIntegrationTest {
+class DockerfileProjectBuilderIntegrationTest extends ProjectBuilderIntegrationTest {
     def "Executing a Dockerfile task without specified instructions throws exception"() {
         when:
         Dockerfile task = project.task('dockerfile', type: Dockerfile)
@@ -48,8 +48,8 @@ class DockerfileIntegrationTest extends ProjectBuilderIntegrationTest {
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
         task.instructions.size() == 2
-        task.instructions[0] == 'FROM ubuntu:12.04'
-        task.instructions[1] == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+        task.instructions[0].build() == 'FROM ubuntu:12.04'
+        task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
     }
 
     def "Can create minimal Dockerfile in custom location"() {
@@ -70,8 +70,8 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
         task.instructions.size() == 2
-        task.instructions[0] == 'FROM ubuntu:12.04'
-        task.instructions[1] == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+        task.instructions[0].build() == 'FROM ubuntu:12.04'
+        task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
     }
 
     def "Can create Dockerfile"() {
@@ -109,17 +109,17 @@ VOLUME ["/jenkins"]
 CMD [""]
 """
         task.instructions.size() == 11
-        task.instructions[0] == 'FROM ubuntu:14.04'
-        task.instructions[1] == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
-        task.instructions[2] == 'RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
-        task.instructions[3] == 'RUN apt-get update && apt-get clean'
-        task.instructions[4] == 'RUN apt-get install -q -y openjdk-7-jre-headless && apt-get clean'
-        task.instructions[5] == 'ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
-        task.instructions[6] == 'RUN ln -sf /jenkins /root/.jenkins'
-        task.instructions[7] == 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
-        task.instructions[8] == 'EXPOSE 8080'
-        task.instructions[9] == 'VOLUME ["/jenkins"]'
-        task.instructions[10] == 'CMD [""]'
+        task.instructions[0].build() == 'FROM ubuntu:14.04'
+        task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+        task.instructions[2].build() == 'RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
+        task.instructions[3].build() == 'RUN apt-get update && apt-get clean'
+        task.instructions[4].build() == 'RUN apt-get install -q -y openjdk-7-jre-headless && apt-get clean'
+        task.instructions[5].build() == 'ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
+        task.instructions[6].build() == 'RUN ln -sf /jenkins /root/.jenkins'
+        task.instructions[7].build() == 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
+        task.instructions[8].build() == 'EXPOSE 8080'
+        task.instructions[9].build() == 'VOLUME ["/jenkins"]'
+        task.instructions[10].build() == 'CMD [""]'
     }
 
 }

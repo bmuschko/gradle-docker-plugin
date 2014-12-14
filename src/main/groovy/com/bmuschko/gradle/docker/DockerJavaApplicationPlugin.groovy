@@ -73,17 +73,11 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             description = 'Creates the Docker image for the Java application.'
             dependsOn tarTask
 
-            doFirst {
-                from dockerJavaApplication.baseImage
-
-                if(dockerJavaApplication.maintainer) {
-                    maintainer dockerJavaApplication.maintainer
-                }
-
-                addFile tarTask.archivePath.name, '/'
-                entryPoint determineEntryPoint(tarTask)
-                exposePort dockerJavaApplication.port
-            }
+            from { dockerJavaApplication.baseImage }
+            maintainer { dockerJavaApplication.maintainer }
+            addFile({ tarTask.archivePath.name }, { '/' })
+            entryPoint { determineEntryPoint(tarTask) }
+            exposePort { dockerJavaApplication.port }
         }
     }
 
@@ -99,7 +93,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
     private String determineEntryPoint(Tar tarTask) {
         String archiveNameWithoutFileExtension = tarTask.archiveName - ".${tarTask.extension}"
-        "/$archiveNameWithoutFileExtension"
+        "/$archiveNameWithoutFileExtension".toString()
     }
 
     private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
