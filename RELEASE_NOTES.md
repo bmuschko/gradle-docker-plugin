@@ -1,3 +1,8 @@
+### Version 0.7 (December 14, 2014)
+
+* Allow for properly add user-based instructions to Dockfile task with predefined instructions without messing up the order. - [Issue 12](https://github.com/bmuschko/gradle-docker-plugin/issues/12).
+* Renamed task `dockerCopyDistTar` to `dockerCopyDistResources` to better express intent.
+
 ### Version 0.6.1 (December 11, 2014)
 
 * Allow for setting path to certificates for communicating with Docker over SSL - [Issue 10](https://github.com/bmuschko/gradle-docker-plugin/issues/10).
