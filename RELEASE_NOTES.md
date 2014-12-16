@@ -1,3 +1,7 @@
+### Version 0.7.1 (December 16, 2014)
+
+* Fixed entry point definition of Dockerfile set by Java application plugin.
+
 ### Version 0.7 (December 14, 2014)
 
 * Allow for properly add user-based instructions to Dockfile task with predefined instructions without messing up the order. - [Issue 12](https://github.com/bmuschko/gradle-docker-plugin/issues/12).
