@@ -5,11 +5,11 @@ import spock.lang.IgnoreIf
 @IgnoreIf({ !AbstractIntegrationTest.isDockerServerInfoUrlReachable() })
 class DockerJavaApplicationPluginIntegrationTest extends ToolingApiIntegrationTest {
     def "Can create image for Java application with default configuration"() {
-        createJettMainClass()
+        createJettyMainClass()
         writeBuildFile()
 
         when:
-        GradleInvocationResult result = runTasks('inspectImage')
+        GradleInvocationResult result = runTasks('startContainer')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
@@ -18,14 +18,14 @@ class DockerJavaApplicationPluginIntegrationTest extends ToolingApiIntegrationTe
 """FROM java
 MAINTAINER ${System.getProperty('user.name')}
 ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0"]
+ENTRYPOINT ["/integTest-1.0/bin/integTest"]
 EXPOSE 8080
 """
         result.output.contains('Author           : ')
     }
 
     def "Can create image for Java application with user-driven configuration"() {
-        createJettMainClass()
+        createJettyMainClass()
         writeBuildFile()
 
         buildFile << """
@@ -40,7 +40,7 @@ docker {
 """
 
         when:
-        GradleInvocationResult result = runTasks('inspectImage')
+        GradleInvocationResult result = runTasks('startContainer')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
@@ -49,7 +49,7 @@ docker {
 """FROM dockerfile/java:openjdk-7-jre
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0"]
+ENTRYPOINT ["/integTest-1.0/bin/integTest"]
 EXPOSE 9090
 """
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
@@ -58,7 +58,7 @@ EXPOSE 9090
     def "Can create image for Java application with additional files"() {
         createNewFile(projectDir, 'file1.txt')
         createNewFile(projectDir, 'file2.txt')
-        createJettMainClass()
+        createJettyMainClass()
         writeBuildFile()
 
         buildFile << """
@@ -83,7 +83,7 @@ docker {
 """
 
         when:
-        GradleInvocationResult result = runTasks('inspectImage')
+        GradleInvocationResult result = runTasks('startContainer')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
@@ -92,7 +92,7 @@ docker {
 """FROM dockerfile/java:openjdk-7-jre
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0"]
+ENTRYPOINT ["/integTest-1.0/bin/integTest"]
 EXPOSE 9090
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
@@ -102,7 +102,7 @@ ADD file2.txt /other/dir/file2.txt
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
-    private void createJettMainClass() {
+    private void createJettyMainClass() {
         File packageDir = createDir(new File(projectDir, 'src/main/java/com/bmuschko/gradle/docker/application'))
         File jettyMainClass = createNewFile(packageDir, 'JettyMain.java')
         jettyMainClass << """
@@ -165,10 +165,22 @@ dependencies {
 mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
 
 import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 
 task inspectImage(type: DockerInspectImage) {
     dependsOn dockerBuildImage
     targetImageId { dockerBuildImage.getImageId() }
+}
+
+task createContainer(type: DockerCreateContainer) {
+    dependsOn inspectImage
+    targetImageId { dockerBuildImage.getImageId() }
+}
+
+task startContainer(type: DockerStartContainer) {
+    dependsOn createContainer
+    targetContainerId { createContainer.getContainerId() }
 }
 """
     }

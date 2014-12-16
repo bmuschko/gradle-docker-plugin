@@ -76,7 +76,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             from { dockerJavaApplication.baseImage }
             maintainer { dockerJavaApplication.maintainer }
             addFile({ tarTask.archivePath.name }, { '/' })
-            entryPoint { determineEntryPoint(tarTask) }
+            entryPoint { determineEntryPoint(project, tarTask) }
             exposePort { dockerJavaApplication.port }
         }
     }
@@ -91,9 +91,9 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private String determineEntryPoint(Tar tarTask) {
-        String archiveNameWithoutFileExtension = tarTask.archiveName - ".${tarTask.extension}"
-        "/$archiveNameWithoutFileExtension".toString()
+    private String determineEntryPoint(Project project, Tar tarTask) {
+        String installDir = tarTask.archiveName - ".${tarTask.extension}"
+        "/$installDir/bin/$project.applicationName".toString()
     }
 
     private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
