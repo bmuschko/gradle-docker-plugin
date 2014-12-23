@@ -124,7 +124,15 @@ the `credentials` closure:
 
 
 ==== Example
-
+local example with TLS enabled (standard)
+[source,groovy]
+----
+docker {
+    serverUrl = 'https://192.168.59.103:2376'
+    certPath = new File('/Users/user/.boot2docker/certs/boot2docker-vm')
+}
+----
+remote example without TLS and credentials
 [source,groovy]
 ----
 docker {
@@ -138,7 +146,6 @@ docker {
     }
 }
 ----
-
 
 === Usage examples
 
