@@ -78,16 +78,24 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
         when:
         Dockerfile task = project.task('dockerfile', type: Dockerfile) {
             from 'ubuntu:14.04'
+            from {'ubuntu:' + 16 }
             maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+            maintainer {'Benjamin Muschko'}
             runCommand 'echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
-            runCommand 'apt-get update && apt-get clean'
-            runCommand 'apt-get install -q -y openjdk-7-jre-headless && apt-get clean'
+            defaultCommand 'echo', 'some', 'command'
+            exposePort 8080, 14500
+            exposePort { '8081' + ' ' + '14501' }
+            environmentVariable 'ENV_VAR_KEY', 'envVarVal'
             addFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
-            runCommand 'ln -sf /jenkins /root/.jenkins'
+            addFile({'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war'}, {'/opt/jenkins.war'})
+            copyFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
+            copyFile({'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war'}, {'/opt/jenkins.war'})
             entryPoint 'java', '-jar', '/opt/jenkins.war'
-            exposePort 8080
-            volume '/jenkins'
-            defaultCommand ''
+            entryPoint {['java', '-jar', '/opt/jenkins.war']}
+            volume '/jenkins', '/myApp'
+            user 'root'
+            workingDir '/tmp'
+            onBuild 'RUN echo "Hello World"'
         }
 
         task.execute()
@@ -97,29 +105,47 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
         dockerfile.exists()
         dockerfile.text ==
 """FROM ubuntu:14.04
+FROM ubuntu:16
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+MAINTAINER Benjamin Muschko
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
-RUN apt-get update && apt-get clean
-RUN apt-get install -q -y openjdk-7-jre-headless && apt-get clean
+CMD ["echo", "some", "command"]
+EXPOSE 8080 14500
+EXPOSE 8081 14501
+ENV ENV_VAR_KEY envVarVal
 ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
-RUN ln -sf /jenkins /root/.jenkins
+ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
+COPY http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
+COPY http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
 ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]
-EXPOSE 8080
-VOLUME ["/jenkins"]
-CMD [""]
+ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]
+VOLUME ["/jenkins", "/myApp"]
+USER root
+WORKDIR /tmp
+ONBUILD RUN echo "Hello World"
 """
-        task.instructions.size() == 11
-        task.instructions[0].build() == 'FROM ubuntu:14.04'
-        task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
-        task.instructions[2].build() == 'RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
-        task.instructions[3].build() == 'RUN apt-get update && apt-get clean'
-        task.instructions[4].build() == 'RUN apt-get install -q -y openjdk-7-jre-headless && apt-get clean'
-        task.instructions[5].build() == 'ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
-        task.instructions[6].build() == 'RUN ln -sf /jenkins /root/.jenkins'
-        task.instructions[7].build() == 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
-        task.instructions[8].build() == 'EXPOSE 8080'
-        task.instructions[9].build() == 'VOLUME ["/jenkins"]'
-        task.instructions[10].build() == 'CMD [""]'
+
+        int i = 0
+        task.instructions.size() == 19
+        task.instructions[i++].build() == 'FROM ubuntu:14.04'
+        task.instructions[i++].build() == 'FROM ubuntu:16'
+        task.instructions[i++].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+        task.instructions[i++].build() == 'MAINTAINER Benjamin Muschko'
+        task.instructions[i++].build() == 'RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
+        task.instructions[i++].build() == 'CMD ["echo", "some", "command"]'
+        task.instructions[i++].build() == 'EXPOSE 8080 14500'
+        task.instructions[i++].build() == 'EXPOSE 8081 14501'
+        task.instructions[i++].build() == 'ENV ENV_VAR_KEY envVarVal'
+        task.instructions[i++].build() == 'ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
+        task.instructions[i++].build() == 'ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
+        task.instructions[i++].build() == 'COPY http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
+        task.instructions[i++].build() == 'COPY http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
+        task.instructions[i++].build() == 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
+        task.instructions[i++].build() == 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
+        task.instructions[i++].build() == 'VOLUME ["/jenkins", "/myApp"]'
+        task.instructions[i++].build() == 'USER root'
+        task.instructions[i++].build() == 'WORKDIR /tmp'
+        task.instructions[i++].build() == 'ONBUILD RUN echo "Hello World"'
     }
 
 }
