@@ -122,9 +122,9 @@ the `credentials` closure:
 |=======
 
 
-=== Usage examples
+==== Extension examples
 
-==== Working with a TLS-enabled Docker instance
+===== Working with a TLS-enabled Docker instance
 
 Starting with Docker version 1.3, TLS is enabled by default. Please consult the Docker documentation ["Running Docker
 with https"](https://docs.docker.com/articles/https/) to set up your certificate. The following example demonstrates
@@ -138,7 +138,7 @@ docker {
 }
 ----
 
-==== Working with a Docker instance without TLS
+===== Working with a Docker instance without TLS
 
 The following example assumes that you disabled TLS on your Docker instance. You can do so by setting `DOCKER_TLS=no` in the file
  `/var/lib/boot2docker/profile`. Additionally, this code snippet also shows how to set the credentials.
