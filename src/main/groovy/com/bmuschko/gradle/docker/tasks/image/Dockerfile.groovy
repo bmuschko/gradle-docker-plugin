@@ -418,7 +418,7 @@ class Dockerfile extends DefaultTask {
         final String value
 
         EnvironmentVariableInstruction(String key, String value) {
-            this.value = key
+            this.key = key
             this.value = value
         }
 
