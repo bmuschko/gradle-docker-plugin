@@ -1,6 +1,9 @@
 ### Version 0.7.2 (December 23, 2014)
 
 * `Dockerfile` task is always marked UP-TO-DATE after first execution - [Issue 13](https://github.com/bmuschko/gradle-docker-plugin/issues/13).
+* Improvements to `Dockerfile` task - [Pull request 16](https://github.com/bmuschko/gradle-docker-plugin/pull/16).
+    * Fixed wrong assignment of key field in  environment variable instruction.
+    * Allow for providing multiple ports to the expose instruction.
 
 ### Version 0.7.1 (December 16, 2014)
 
