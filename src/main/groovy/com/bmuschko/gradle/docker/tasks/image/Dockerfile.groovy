@@ -115,7 +115,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param port Port
      */
-    void exposePort(Integer port) {
+    void exposePort(Integer... port) {
         getInstructions() << new ExposePortInstruction(port)
     }
 
@@ -386,7 +386,7 @@ class Dockerfile extends DefaultTask {
         @Input
         final Object port
 
-        ExposePortInstruction(Integer port) {
+        ExposePortInstruction(Integer... port) {
             this.port = port
         }
 
@@ -401,8 +401,8 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(port instanceof Integer) {
-                "$keyword $port"
+            if(port instanceof Integer[]) {
+                "$keyword ${port.join(' ')}"
             }
             else if(port instanceof Closure) {
                 "$keyword ${port()}"
