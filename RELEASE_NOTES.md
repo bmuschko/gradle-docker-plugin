@@ -1,3 +1,7 @@
+### Version 0.7.2 (December 23, 2014)
+
+* `Dockerfile` task is always marked UP-TO-DATE after first execution - [Issue 13](https://github.com/bmuschko/gradle-docker-plugin/issues/13).
+
 ### Version 0.7.1 (December 16, 2014)
 
 * Fixed entry point definition of Dockerfile set by Java application plugin.

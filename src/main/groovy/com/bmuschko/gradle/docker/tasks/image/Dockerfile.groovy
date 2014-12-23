@@ -16,17 +16,18 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class Dockerfile extends DefaultTask {
-    @Nested
     List<Instruction> instructions = new ArrayList<Instruction>()
 
     @OutputFile
     File destFile = project.file("$project.buildDir/docker/Dockerfile")
+
+    Dockerfile() {
+        outputs.upToDateWhen { false }
+    }
 
     @TaskAction
     void create() {
@@ -44,7 +45,7 @@ class Dockerfile extends DefaultTask {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
-        if(!getInstructions()[0].build().startsWith('FROM')) {
+        if(!(getInstructions()[0] instanceof FromInstruction)) {
             throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM')
         }
     }
@@ -56,7 +57,7 @@ class Dockerfile extends DefaultTask {
      * @param image Base image name
      */
     void from(String image) {
-        getInstructions() << new FromInstruction(image)
+        instructions << new FromInstruction(image)
     }
 
     /**
@@ -66,7 +67,7 @@ class Dockerfile extends DefaultTask {
      * @param image Base image name
      */
     void from(Closure image) {
-        getInstructions() << new FromInstruction(image)
+        instructions << new FromInstruction(image)
     }
 
     /**
@@ -76,7 +77,7 @@ class Dockerfile extends DefaultTask {
      * @param maintainer Maintainer
      */
     void maintainer(String maintainer) {
-        getInstructions() << new MaintainerInstruction(maintainer)
+        instructions << new MaintainerInstruction(maintainer)
     }
 
     /**
@@ -86,7 +87,7 @@ class Dockerfile extends DefaultTask {
      * @param maintainer Maintainer
      */
     void maintainer(Closure maintainer) {
-        getInstructions() << new MaintainerInstruction(maintainer)
+        instructions << new MaintainerInstruction(maintainer)
     }
 
     /**
@@ -96,7 +97,7 @@ class Dockerfile extends DefaultTask {
      * @param command Command
      */
     void runCommand(String command) {
-        getInstructions() << new RunCommandInstruction(command)
+        instructions << new RunCommandInstruction(command)
     }
 
     /**
@@ -106,7 +107,7 @@ class Dockerfile extends DefaultTask {
      * @param command Command
      */
     void defaultCommand(String... command) {
-        getInstructions() << new DefaultCommandInstruction(command)
+        instructions << new DefaultCommandInstruction(command)
     }
 
     /**
@@ -116,7 +117,7 @@ class Dockerfile extends DefaultTask {
      * @param port Port
      */
     void exposePort(Integer port) {
-        getInstructions() << new ExposePortInstruction(port)
+        instructions << new ExposePortInstruction(port)
     }
 
     /**
@@ -126,7 +127,7 @@ class Dockerfile extends DefaultTask {
      * @param port Port
      */
     void exposePort(Closure port) {
-        getInstructions() << new ExposePortInstruction(port)
+        instructions << new ExposePortInstruction(port)
     }
 
     /**
@@ -137,7 +138,7 @@ class Dockerfile extends DefaultTask {
      * @param value Value
      */
     void environmentVariable(String key, String value) {
-        getInstructions() << new EnvironmentVariableInstruction(key, value)
+        instructions << new EnvironmentVariableInstruction(key, value)
     }
 
     /**
@@ -148,7 +149,7 @@ class Dockerfile extends DefaultTask {
      * @param dest Destination path
      */
     void addFile(String src, String dest) {
-        getInstructions() << new AddFileInstruction(src, dest)
+        instructions << new AddFileInstruction(src, dest)
     }
 
     /**
@@ -159,7 +160,7 @@ class Dockerfile extends DefaultTask {
      * @param dest Destination path
      */
     void addFile(Closure src, Closure dest) {
-        getInstructions() << new AddFileInstruction(src, dest)
+        instructions << new AddFileInstruction(src, dest)
     }
 
     /**
@@ -170,7 +171,7 @@ class Dockerfile extends DefaultTask {
      * @param dest Destination path
      */
     void copyFile(String src, String dest) {
-        getInstructions() << new CopyFileInstruction(src, dest)
+        instructions << new CopyFileInstruction(src, dest)
     }
 
     /**
@@ -181,7 +182,7 @@ class Dockerfile extends DefaultTask {
      * @param dest Destination path
      */
     void copyFile(Closure src, Closure dest) {
-        getInstructions() << new CopyFileInstruction(src, dest)
+        instructions << new CopyFileInstruction(src, dest)
     }
 
     /**
@@ -191,7 +192,7 @@ class Dockerfile extends DefaultTask {
      * @param entryPoint Entry point
      */
     void entryPoint(String... entryPoint) {
-        getInstructions() << new EntryPointInstruction(entryPoint)
+        instructions << new EntryPointInstruction(entryPoint)
     }
 
     /**
@@ -201,7 +202,7 @@ class Dockerfile extends DefaultTask {
      * @param entryPoint Entry point
      */
     void entryPoint(Closure entryPoint) {
-        getInstructions() << new EntryPointInstruction(entryPoint)
+        instructions << new EntryPointInstruction(entryPoint)
     }
 
     /**
@@ -211,7 +212,7 @@ class Dockerfile extends DefaultTask {
      * @param volume Volume
      */
     void volume(String... volume) {
-        getInstructions() << new VolumeInstruction(volume)
+        instructions << new VolumeInstruction(volume)
     }
 
     /**
@@ -221,7 +222,7 @@ class Dockerfile extends DefaultTask {
      * @param user User
      */
     void user(String user) {
-        getInstructions() << new UserInstruction(user)
+        instructions << new UserInstruction(user)
     }
 
     /**
@@ -231,7 +232,7 @@ class Dockerfile extends DefaultTask {
      * @param dir Directory
      */
     void workingDir(String dir) {
-        getInstructions() << new WorkDirInstruction(dir)
+        instructions << new WorkDirInstruction(dir)
     }
 
     /**
@@ -241,7 +242,7 @@ class Dockerfile extends DefaultTask {
      * @param instruction Instruction
      */
     void onBuild(String instruction) {
-        getInstructions() << new OnBuildInstruction(instruction)
+        instructions << new OnBuildInstruction(instruction)
     }
 
     static interface Instruction {
@@ -250,7 +251,6 @@ class Dockerfile extends DefaultTask {
     }
 
     static abstract class StringCommandInstruction implements Instruction {
-        @Input
         final Object command
 
         StringCommandInstruction(String command) {
@@ -273,7 +273,6 @@ class Dockerfile extends DefaultTask {
     }
 
     static abstract class StringArrayInstruction implements Instruction {
-        @Input
         final Object command
 
         StringArrayInstruction(String... command) {
@@ -303,10 +302,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static abstract class FileInstruction implements Instruction {
-        @Input
         final Object src
-
-        @Input
         final Object dest
 
         FileInstruction(String src, String dest) {
@@ -383,7 +379,6 @@ class Dockerfile extends DefaultTask {
     }
 
     static class ExposePortInstruction implements Instruction {
-        @Input
         final Object port
 
         ExposePortInstruction(Integer port) {
@@ -411,10 +406,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static class EnvironmentVariableInstruction implements Instruction {
-        @Input
         final String key
-
-        @Input
         final String value
 
         EnvironmentVariableInstruction(String key, String value) {

@@ -74,7 +74,7 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
         task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
     }
 
-    def "Can create Dockerfile"() {
+    def "Can create Dockerfile by calling exposed methods"() {
         when:
         Dockerfile task = project.task('dockerfile', type: Dockerfile) {
             from 'ubuntu:14.04'
@@ -122,4 +122,24 @@ CMD [""]
         task.instructions[10].build() == 'CMD [""]'
     }
 
+    def "Can create Dockerfile by adding instances of Instruction"() {
+        when:
+        Dockerfile task = project.task('dockerfile', type: Dockerfile) {
+            instructions = [new Dockerfile.FromInstruction('ubuntu:12.04'),
+                            new Dockerfile.MaintainerInstruction('Benjamin Muschko "benjamin.muschko@gmail.com"')]
+        }
+
+        task.execute()
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+                """FROM ubuntu:12.04
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+"""
+        task.instructions.size() == 2
+        task.instructions[0].build() == 'FROM ubuntu:12.04'
+        task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+    }
 }
