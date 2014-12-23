@@ -40,8 +40,7 @@ The JAR file comes with two plugins:
 == Remote API plugin
 
 The plugin `com.bmuschko.docker-remote-api` allows for interacting with Docker via its remote API. You can model any workflow
-imaginable by creating enhanced task of the custom task provided by the plugin. In its current state you will have to disable
-TLS on Docker. Future versions of the plugin will enable the communication via TLS. To use the plugin, include the following
+imaginable by creating enhanced task of the custom task provided by the plugin. To use the plugin, include the following
 code snippet in your build script:
 
 [source,groovy]
@@ -123,21 +122,31 @@ the `credentials` closure:
 |=======
 
 
-==== Example
-local example with TLS enabled (standard)
+=== Usage examples
+
+==== Working with a TLS-enabled Docker instance
+
+Starting with Docker version 1.3, TLS is enabled by default. Please consult the Docker documentation ["Running Docker
+with https"](https://docs.docker.com/articles/https/) to set up your certificate. The following example demonstrates
+how to configure the plugin to use those certifactes.
+
 [source,groovy]
 ----
 docker {
     serverUrl = 'https://192.168.59.103:2376'
-    certPath = new File('/Users/user/.boot2docker/certs/boot2docker-vm')
+    certPath = new File(System.properties['user.home'], '.boot2docker/certs/boot2docker-vm')
 }
 ----
-remote example without TLS and credentials
+
+==== Working with a Docker instance without TLS
+
+The following example assumes that you disabled TLS on your Docker instance. You can do so by setting `DOCKER_TLS=no` in the file
+ `/var/lib/boot2docker/profile`. Additionally, this code snippet also shows how to set the credentials.
+
 [source,groovy]
 ----
 docker {
-    serverUrl = 'http://remote.docker.com:2375'
-    certPath = new File('/home/user/.docker')
+    serverUrl = 'http://192.168.59.103:2375'
 
     credentials {
         username = 'bmuschko'
@@ -236,7 +245,7 @@ The plugin defines the following extension properties in the `javaApplication` c
 |=======
 
 
-==== Example
+=== Usage example
 
 [source,groovy]
 ----
