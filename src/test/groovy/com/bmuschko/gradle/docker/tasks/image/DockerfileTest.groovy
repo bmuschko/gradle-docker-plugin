@@ -1,0 +1,35 @@
+package com.bmuschko.gradle.docker.tasks.image
+
+import spock.lang.Specification
+import spock.lang.Unroll
+import static Dockerfile.*
+
+class DockerfileTest extends Specification {
+    @Unroll
+    def "#instructionInstance String representation is built correctly"() {
+        expect:
+        instructionInstance.build() == builtInstruction
+
+        where:
+        instructionInstance                                                 | keyword      | builtInstruction
+        new FromInstruction('ubuntu:14.04')                                 | 'FROM'       | 'FROM ubuntu:14.04'
+        new FromInstruction({ 'ubuntu:14.04' })                             | 'FROM'       | 'FROM ubuntu:14.04'
+        new MaintainerInstruction('John Doe "john.doe@gmail.com"')          | 'MAINTAINER' | 'MAINTAINER John Doe "john.doe@gmail.com"'
+        new MaintainerInstruction({ 'John Doe "john.doe@gmail.com"' })      | 'MAINTAINER' | 'MAINTAINER John Doe "john.doe@gmail.com"'
+        new RunCommandInstruction('apt-get update && apt-get clean')        | 'RUN'        | 'RUN apt-get update && apt-get clean'
+        new DefaultCommandInstruction('ping google.com')                    | 'CMD'        | 'CMD ["ping google.com"]'
+        new ExposePortInstruction(8080)                                     | 'EXPOSE'     | 'EXPOSE 8080'
+        new ExposePortInstruction({ 8080 })                                 | 'EXPOSE'     | 'EXPOSE 8080'
+        new EnvironmentVariableInstruction('OS', 'Linux')                   | 'ENV'        | 'ENV OS Linux'
+        new AddFileInstruction('config.xml', '/test')                       | 'ADD'        | 'ADD config.xml /test'
+        new AddFileInstruction({ 'config.xml' }, { '/test' })               | 'ADD'        | 'ADD config.xml /test'
+        new CopyFileInstruction('config.xml', '/test')                      | 'COPY'       | 'COPY config.xml /test'
+        new CopyFileInstruction({ 'config.xml' }, { '/test' })              | 'COPY'       | 'COPY config.xml /test'
+        new EntryPointInstruction('java', '-jar', '/opt/jenkins.war')       | 'ENTRYPOINT' | 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
+        new EntryPointInstruction({ ['java', '-jar', '/opt/jenkins.war'] }) | 'ENTRYPOINT' | 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
+        new VolumeInstruction('/jenkins')                                   | 'VOLUME'     | 'VOLUME ["/jenkins"]'
+        new UserInstruction('ENV JAVA_HOME /usr/java')                      | 'USER'       | 'USER ENV JAVA_HOME /usr/java'
+        new WorkDirInstruction('/some/dir')                                 | 'WORKDIR'    | 'WORKDIR /some/dir'
+        new OnBuildInstruction('ENV JAVA_HOME /usr/java')                   | 'ONBUILD'    | 'ONBUILD ENV JAVA_HOME /usr/java'
+    }
+}
