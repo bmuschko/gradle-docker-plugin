@@ -1,13 +1,13 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import spock.lang.Specification
-import spock.lang.Unroll
-import static Dockerfile.*
+
+import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.*
 
 class DockerfileTest extends Specification {
-    @Unroll
-    def "#instructionInstance String representation is built correctly"() {
+    def "Instruction String representation is built correctly"() {
         expect:
+        instructionInstance.keyword == keyword
         instructionInstance.build() == builtInstruction
 
         where:
@@ -20,6 +20,8 @@ class DockerfileTest extends Specification {
         new DefaultCommandInstruction('ping google.com')                    | 'CMD'        | 'CMD ["ping google.com"]'
         new ExposePortInstruction(8080)                                     | 'EXPOSE'     | 'EXPOSE 8080'
         new ExposePortInstruction({ 8080 })                                 | 'EXPOSE'     | 'EXPOSE 8080'
+        new ExposePortInstruction(8080, 9090)                               | 'EXPOSE'     | 'EXPOSE 8080 9090'
+        new ExposePortInstruction({ [8080, 9090] })                         | 'EXPOSE'     | 'EXPOSE 8080 9090'
         new EnvironmentVariableInstruction('OS', 'Linux')                   | 'ENV'        | 'ENV OS Linux'
         new AddFileInstruction('config.xml', '/test')                       | 'ADD'        | 'ADD config.xml /test'
         new AddFileInstruction({ 'config.xml' }, { '/test' })               | 'ADD'        | 'ADD config.xml /test'

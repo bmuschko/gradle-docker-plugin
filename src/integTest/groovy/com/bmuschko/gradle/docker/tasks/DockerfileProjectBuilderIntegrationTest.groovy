@@ -48,8 +48,6 @@ class DockerfileProjectBuilderIntegrationTest extends ProjectBuilderIntegrationT
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
         task.instructions.size() == 2
-        task.instructions[0].build() == 'FROM ubuntu:12.04'
-        task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
     }
 
     def "Can create minimal Dockerfile in custom location"() {
@@ -70,28 +68,20 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
         task.instructions.size() == 2
-        task.instructions[0].build() == 'FROM ubuntu:12.04'
-        task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
     }
 
     def "Can create Dockerfile by calling exposed methods"() {
         when:
         Dockerfile task = project.task('dockerfile', type: Dockerfile) {
             from 'ubuntu:14.04'
-            from {'ubuntu:' + 16 }
             maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
-            maintainer {'Benjamin Muschko'}
             runCommand 'echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
             defaultCommand 'echo', 'some', 'command'
             exposePort 8080, 14500
-            exposePort { '8081' + ' ' + '14501' }
             environmentVariable 'ENV_VAR_KEY', 'envVarVal'
             addFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
-            addFile({'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war'}, {'/opt/jenkins.war'})
-            copyFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
-            copyFile({'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war'}, {'/opt/jenkins.war'})
+            copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
             entryPoint 'java', '-jar', '/opt/jenkins.war'
-            entryPoint {['java', '-jar', '/opt/jenkins.war']}
             volume '/jenkins', '/myApp'
             user 'root'
             workingDir '/tmp'
@@ -105,19 +95,13 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
         dockerfile.exists()
         dockerfile.text ==
 """FROM ubuntu:14.04
-FROM ubuntu:16
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-MAINTAINER Benjamin Muschko
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
 CMD ["echo", "some", "command"]
 EXPOSE 8080 14500
-EXPOSE 8081 14501
 ENV ENV_VAR_KEY envVarVal
 ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
-ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
-COPY http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
-COPY http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
-ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]
+COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]
 VOLUME ["/jenkins", "/myApp"]
 USER root
@@ -125,27 +109,7 @@ WORKDIR /tmp
 ONBUILD RUN echo "Hello World"
 """
 
-        int i = 0
-        task.instructions.size() == 19
-        task.instructions[i++].build() == 'FROM ubuntu:14.04'
-        task.instructions[i++].build() == 'FROM ubuntu:16'
-        task.instructions[i++].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
-        task.instructions[i++].build() == 'MAINTAINER Benjamin Muschko'
-        task.instructions[i++].build() == 'RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
-        task.instructions[i++].build() == 'CMD ["echo", "some", "command"]'
-        task.instructions[i++].build() == 'EXPOSE 8080 14500'
-        task.instructions[i++].build() == 'EXPOSE 8081 14501'
-        task.instructions[i++].build() == 'ENV ENV_VAR_KEY envVarVal'
-        task.instructions[i++].build() == 'ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
-        task.instructions[i++].build() == 'ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
-        task.instructions[i++].build() == 'COPY http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
-        task.instructions[i++].build() == 'COPY http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war'
-        task.instructions[i++].build() == 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
-        task.instructions[i++].build() == 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
-        task.instructions[i++].build() == 'VOLUME ["/jenkins", "/myApp"]'
-        task.instructions[i++].build() == 'USER root'
-        task.instructions[i++].build() == 'WORKDIR /tmp'
-        task.instructions[i++].build() == 'ONBUILD RUN echo "Hello World"'
+        task.instructions.size() == 13
     }
 
     def "Can create Dockerfile by adding instances of Instruction"() {
@@ -165,7 +129,5 @@ ONBUILD RUN echo "Hello World"
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
         task.instructions.size() == 2
-        task.instructions[0].build() == 'FROM ubuntu:12.04'
-        task.instructions[1].build() == 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
     }
 }

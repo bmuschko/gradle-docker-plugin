@@ -400,7 +400,14 @@ class Dockerfile extends DefaultTask {
                 "$keyword ${ports.join(' ')}"
             }
             else if(ports instanceof Closure) {
-                "$keyword ${ports()}"
+                def evaluatedPorts = ports()
+
+                if(evaluatedPorts instanceof String || evaluatedPorts instanceof Integer) {
+                    "$keyword ${evaluatedPorts}"
+                }
+                else {
+                    "$keyword ${evaluatedPorts.join(' ')}"
+                }
             }
         }
     }
