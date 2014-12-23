@@ -114,20 +114,20 @@ class Dockerfile extends DefaultTask {
      * The <a href="https://docs.docker.com/reference/builder/#expose">EXPOSE instruction</a> informs Docker that the
      * container will listen on the specified network ports at runtime.
      *
-     * @param port Port
+     * @param ports Ports
      */
-    void exposePort(Integer port) {
-        instructions << new ExposePortInstruction(port)
+    void exposePort(Integer... ports) {
+        getInstructions() << new ExposePortInstruction(ports)
     }
 
     /**
      * The <a href="https://docs.docker.com/reference/builder/#expose">EXPOSE instruction</a> informs Docker that the
      * container will listen on the specified network ports at runtime.
      *
-     * @param port Port
+     * @param ports Ports
      */
-    void exposePort(Closure port) {
-        instructions << new ExposePortInstruction(port)
+    void exposePort(Closure ports) {
+        instructions << new ExposePortInstruction(ports)
     }
 
     /**
@@ -379,14 +379,14 @@ class Dockerfile extends DefaultTask {
     }
 
     static class ExposePortInstruction implements Instruction {
-        final Object port
+        final Object ports
 
-        ExposePortInstruction(Integer port) {
-            this.port = port
+        ExposePortInstruction(Integer... ports) {
+            this.ports = ports
         }
 
-        ExposePortInstruction(Closure port) {
-            this.port = port
+        ExposePortInstruction(Closure ports) {
+            this.ports = ports
         }
 
         @Override
@@ -396,11 +396,11 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(port instanceof Integer) {
-                "$keyword $port"
+            if(ports instanceof Integer[]) {
+                "$keyword ${ports.join(' ')}"
             }
-            else if(port instanceof Closure) {
-                "$keyword ${port()}"
+            else if(ports instanceof Closure) {
+                "$keyword ${ports()}"
             }
         }
     }
@@ -410,7 +410,7 @@ class Dockerfile extends DefaultTask {
         final String value
 
         EnvironmentVariableInstruction(String key, String value) {
-            this.value = key
+            this.key = key
             this.value = value
         }
 
