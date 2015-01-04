@@ -20,7 +20,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:0.7.2'
+        classpath 'com.bmuschko:gradle-docker-plugin:0.8'
     }
 }
 ----
@@ -106,19 +106,20 @@ The plugin defines the following extension properties in the `docker` closure:
 [options="header"]
 |=======
 |Property name   |Type      |Default value            |Description
-|`serverUrl`     |String    |http://localhost:2375    |The server URL to connect to via Docker's remote API.
+|`url`           |String    |http://localhost:2375    |The server URL to connect to via Docker's remote API.
 |`certPath`      |File      |null                     |The path to certificates for communicating with link:https://docs.docker.com/articles/https/[Docker over SSL].
 |=======
 
 For pushing an image to the Docker Hub registry or to a self-hosted one, you will also need to provide credentials in
-the `credentials` closure:
+the `registry` closure:
 
 [options="header"]
 |=======
-|Property name   |Type      |Default value    |Description
-|`username`      |String    |null             |The registry username.
-|`password`      |String    |null             |The registry password.
-|`email`         |String    |null             |The registry email address.
+|Property name   |Type      |Default value               |Description
+|`url`           |String    |https://index.docker.io/v1  |The registry URL.
+|`username`      |String    |null                        |The registry username.
+|`password`      |String    |null                        |The registry password.
+|`email`         |String    |null                        |The registry email address.
 |=======
 
 
@@ -127,14 +128,21 @@ the `credentials` closure:
 ===== Working with a TLS-enabled Docker instance
 
 Starting with Docker version 1.3, TLS is enabled by default. Please consult the Docker documentation link:https://docs.docker.com/articles/https/["Running Docker
-with https"] to set up your certificate. The following example demonstrates
-how to configure the plugin to use those certifactes.
+with https"] to set up your certificate. The following example demonstrates how to configure the plugin to use those certifactes.
+Additionally, this code snippet shows how to set the user credentials.
 
 [source,groovy]
 ----
 docker {
-    serverUrl = 'https://192.168.59.103:2376'
+    url = 'https://192.168.59.103:2376'
     certPath = new File(System.properties['user.home'], '.boot2docker/certs/boot2docker-vm')
+
+    registry {
+        url = 'https://index.docker.io/v1'
+        username = 'bmuschko'
+        password = 'pwd'
+        email = 'benjamin.muschko@gmail.com'
+    }
 }
 ----
 
@@ -146,13 +154,7 @@ The following example assumes that you disabled TLS on your Docker instance. You
 [source,groovy]
 ----
 docker {
-    serverUrl = 'http://192.168.59.103:2375'
-
-    credentials {
-        username = 'bmuschko'
-        password = 'pwd'
-        email = 'benjamin.muschko@gmail.com'
-    }
+    url = 'http://192.168.59.103:2375'
 }
 ----
 

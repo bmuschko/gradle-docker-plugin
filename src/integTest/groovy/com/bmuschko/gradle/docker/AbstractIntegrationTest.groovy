@@ -77,4 +77,20 @@ class AbstractIntegrationTest extends Specification {
             return false
         }
     }
+
+    static boolean hasDockerHubCredentials() {
+        File gradlePropsFile = new File(System.getProperty('user.home'), '.gradle/gradle.properties')
+
+        if(!gradlePropsFile.exists()) {
+            return false
+        }
+
+        Properties properties = new Properties()
+
+        gradlePropsFile.withInputStream {
+            properties.load(it)
+        }
+
+        properties['dockerHubUsername'] != null && properties['dockerHubPassword'] != null && properties['dockerHubEmail'] != null
+    }
 }

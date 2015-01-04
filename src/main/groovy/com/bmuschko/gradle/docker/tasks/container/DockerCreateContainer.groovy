@@ -197,31 +197,27 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     }
 
     def createVolume(String path) {
-        Class volumeClass = loadClass('com.github.dockerjava.api.model.Volume')
+        Class volumeClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.Volume')
         Constructor constructor = volumeClass.getConstructor(String)
         constructor.newInstance(path)
     }
 
     def createVolumes(volumes) {
-        Class volumesClass = loadClass('com.github.dockerjava.api.model.Volumes')
+        Class volumesClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.Volumes')
         Constructor constructor = volumesClass.getConstructor(Object[])
         constructor.newInstance(volumes)
     }
 
     def createExposedPort(String scheme, Integer port) {
-        Class exposedPortClass = loadClass('com.github.dockerjava.api.model.ExposedPort')
+        Class exposedPortClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.ExposedPort')
         Constructor constructor = exposedPortClass.getConstructor(String, Integer)
         constructor.newInstance(scheme, port)
     }
 
     def createExposedPorts(exposedPorts) {
-        Class exposedPortsClass = loadClass('com.github.dockerjava.api.model.ExposedPorts')
+        Class exposedPortsClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.ExposedPorts')
         Constructor constructor = exposedPortsClass.getConstructor(Object[])
         constructor.newInstance(exposedPorts)
-    }
-
-    private Class loadClass(String clazz) {
-        Thread.currentThread().contextClassLoader.loadClass(clazz)
     }
 }
 

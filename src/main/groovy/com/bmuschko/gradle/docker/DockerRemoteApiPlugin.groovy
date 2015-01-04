@@ -49,7 +49,6 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             config.incoming.beforeResolve {
                 if(config.dependencies.empty) {
                     addDependency(project, config, "com.github.docker-java:docker-java:$DOCKER_JAVA_DEFAULT_VERSION")
-                    addDependency(project, config, 'commons-io:commons-io:2.4')
                     addDependency(project, config, 'org.slf4j:slf4j-simple:1.7.5')
                 }
             }
@@ -58,11 +57,9 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
 
             conventionMapping.with {
                 classpath = { config }
-                serverUrl = { extension.serverUrl }
+                url = { extension.url }
                 certPath = { extension.certPath }
-                username = { extension.credentials?.username }
-                password = { extension.credentials?.password }
-                email = { extension.credentials?.email }
+                registry = { extension.registry }
             }
         }
     }

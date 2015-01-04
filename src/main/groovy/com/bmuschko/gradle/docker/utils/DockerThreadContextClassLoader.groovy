@@ -33,7 +33,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
         try {
             Thread.currentThread().contextClassLoader = createClassLoader(classpathFiles)
-            closure(getDockerClient(Thread.currentThread().contextClassLoader, dockerClientConfiguration))
+            closure(getDockerClient(dockerClientConfiguration))
         }
         finally {
             Thread.currentThread().contextClassLoader = originalClassLoader
@@ -74,30 +74,38 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     /**
      * Creates DockerClient from ClassLoader.
      *
-     * @param classLoader ClassLoader
      * @param dockerClientConfiguration Docker client configuration
      * @return DockerClient instance
      */
-    private getDockerClient(ClassLoader classLoader, DockerClientConfiguration dockerClientConfiguration) {
+    private getDockerClient(DockerClientConfiguration dockerClientConfiguration) {
         // Create configuration
-        Class dockerClientConfigClass = classLoader.loadClass(DOCKER_CLIENT_CONFIG_CLASS)
+        Class dockerClientConfigClass = loadClass(DOCKER_CLIENT_CONFIG_CLASS)
         Method dockerClientConfigMethod = dockerClientConfigClass.getMethod('createDefaultConfigBuilder')
         def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
-        dockerClientConfigBuilder.withUri(dockerClientConfiguration.serverUrl)
-        dockerClientConfigBuilder.withUsername(dockerClientConfiguration.username)
-        dockerClientConfigBuilder.withPassword(dockerClientConfiguration.password)
-        dockerClientConfigBuilder.withEmail(dockerClientConfiguration.email)
+        dockerClientConfigBuilder.withUri(dockerClientConfiguration.url)
 
         if(dockerClientConfiguration.certPath) {
             dockerClientConfigBuilder.withDockerCertPath(dockerClientConfiguration.certPath.canonicalPath)
         }
 
+        if(dockerClientConfiguration.registry) {
+            dockerClientConfigBuilder.withServerAddress(dockerClientConfiguration.registry.url)
+            dockerClientConfigBuilder.withUsername(dockerClientConfiguration.registry.username)
+            dockerClientConfigBuilder.withPassword(dockerClientConfiguration.registry.password)
+            dockerClientConfigBuilder.withEmail(dockerClientConfiguration.registry.email)
+        }
+
         def dockerClientConfig = dockerClientConfigBuilder.build()
 
         // Create client
-        Class dockerClientBuilderClass = classLoader.loadClass(DOCKER_CLIENT_BUILDER_CLASS)
+        Class dockerClientBuilderClass = loadClass(DOCKER_CLIENT_BUILDER_CLASS)
         Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
         def dockerClientBuilder = method.invoke(null, dockerClientConfig)
         dockerClientBuilder.build()
+    }
+
+    @Override
+    Class loadClass(String className) {
+        Thread.currentThread().contextClassLoader.loadClass(className)
     }
 }

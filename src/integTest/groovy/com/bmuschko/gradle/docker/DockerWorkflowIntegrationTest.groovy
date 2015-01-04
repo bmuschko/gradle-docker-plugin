@@ -153,6 +153,43 @@ task removeImage(type: DockerRemoveImage) {
         runTasks('removeImage')
     }
 
+    @IgnoreIf({ !AbstractIntegrationTest.hasDockerHubCredentials() })
+    def "Can push image to DockerHub"() {
+        buildFile << """
+
+docker {
+    registry {
+        username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
+        password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
+        email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
+    }
+}
+
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerCommitImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+task createContainer(type: DockerCreateContainer) {
+    imageId = 'busybox'
+    cmd = ['true'] as String[]
+}
+
+task commitImage(type: DockerCommitImage) {
+    dependsOn createContainer
+    repository = "\$docker.registry.username/busybox"
+    targetContainerId { createContainer.getContainerId() }
+}
+
+task pushImage(type: DockerPushImage) {
+    dependsOn commitImage
+    imageName = "\$docker.registry.username/busybox"
+}
+"""
+
+        expect:
+        runTasks('pushImage')
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
 

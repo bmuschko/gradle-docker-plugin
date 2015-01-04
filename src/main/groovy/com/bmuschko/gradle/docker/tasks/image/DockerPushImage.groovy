@@ -16,10 +16,14 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.response.PushImageResponseHandler
+import com.bmuschko.gradle.docker.response.ResponseHandler
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerPushImage extends AbstractDockerRemoteApiTask {
+    private final ResponseHandler<Void> responseHandler = new PushImageResponseHandler()
+
     @Input
     String imageName
 
@@ -36,6 +40,17 @@ class DockerPushImage extends AbstractDockerRemoteApiTask {
             pushImageCmd.withTag(getTag())
         }
 
-        pushImageCmd.exec()
+        if(getRegistry()) {
+            Class authConfigClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.AuthConfig')
+            def authConfig = authConfigClass.newInstance()
+            authConfig.serverAddress = getRegistry().url
+            authConfig.username = getRegistry().username
+            authConfig.password = getRegistry().password
+            authConfig.email = getRegistry().email
+            pushImageCmd.withAuthConfig(authConfig)
+        }
+
+        InputStream response = pushImageCmd.exec()
+        responseHandler.handle(response)
     }
 }

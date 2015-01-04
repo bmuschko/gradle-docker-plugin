@@ -15,8 +15,30 @@
  */
 package com.bmuschko.gradle.docker
 
-class DockerCredentials {
+import org.gradle.api.tasks.Input
+
+class DockerRegistry {
+    /**
+     * Registry URL needed to push containers. Defaults to "https://index.docker.io/v1/".
+     */
+    @Input
+    String url = 'https://index.docker.io/v1/'
+
+    /**
+     * Registry username needed to push containers. Defaults to null.
+     */
+    @Input
     String username
+
+    /**
+     * Registry password needed to push containers. Defaults to null.
+     */
+    @Input
     String password
+
+    /**
+     * Registry email address needed to push containers. Defaults to null.
+     */
+    @Input
     String email
 }

@@ -12,10 +12,12 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
     void runRemoteCommand(dockerClient) {
         assert dockerClient
         assert dockerClient.dockerClientConfig.uri == new URI('http://localhost:2375')
-        assert !dockerClient.dockerClientConfig.username
+        assert dockerClient.dockerClientConfig.dockerCertPath == "${System.properties['user.home']}/.docker"
+        assert dockerClient.dockerClientConfig.dockerCfgPath == "${System.properties['user.home']}/.dockercfg"
+        assert dockerClient.dockerClientConfig.serverAddress == 'https://index.docker.io/v1/'
+        assert dockerClient.dockerClientConfig.username == '${System.properties['user.name']}'
         assert !dockerClient.dockerClientConfig.password
         assert !dockerClient.dockerClientConfig.email
-        assert dockerClient.dockerClientConfig.dockerCertPath == "${System.properties['user.home']}/.docker"
     }
 }
 """
@@ -31,13 +33,14 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
         createDir(customCertPath)
         buildFile << """
 docker {
-    serverUrl = 'http://remote.docker.com:2375'
+    url = 'http://remote.docker.com:2375'
     certPath = new File('${customCertPath.canonicalPath}')
 
-    credentials {
-        username = 'bmuschko'
+    registry {
+        url = 'https://some.registry.com/'
+        username = 'johnny'
         password = 'pwd'
-        email = 'benjamin.muschko@gmail.com'
+        email = 'john.doe@gmail.com'
     }
 }
 
@@ -50,10 +53,11 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
     void runRemoteCommand(dockerClient) {
         assert dockerClient
         assert dockerClient.dockerClientConfig.uri == new URI('http://remote.docker.com:2375')
-        assert dockerClient.dockerClientConfig.username == 'bmuschko'
-        assert dockerClient.dockerClientConfig.password == 'pwd'
-        assert dockerClient.dockerClientConfig.email == 'benjamin.muschko@gmail.com'
         assert dockerClient.dockerClientConfig.dockerCertPath == '${customCertPath.canonicalPath}'
+        assert dockerClient.dockerClientConfig.serverAddress == 'https://some.registry.com/'
+        assert dockerClient.dockerClientConfig.username == 'johnny'
+        assert dockerClient.dockerClientConfig.password == 'pwd'
+        assert dockerClient.dockerClientConfig.email == 'john.doe@gmail.com'
     }
 }
 """

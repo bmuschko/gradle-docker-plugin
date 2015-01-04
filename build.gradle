@@ -16,7 +16,7 @@ apply plugin: 'bintray'
 apply plugin: 'github-pages'
 
 group = 'com.bmuschko'
-version = '0.7.2'
+version = '0.8'
 
 repositories {
     mavenCentral()
@@ -46,6 +46,10 @@ task integrationTest(type: Test) {
     testClassesDir = sourceSets.integrationTest.output.classesDir
     classpath = sourceSets.integrationTest.runtimeClasspath
     mustRunAfter test
+
+    testLogging {
+        events 'skipped'
+    }
 }
 
 check.dependsOn integrationTest

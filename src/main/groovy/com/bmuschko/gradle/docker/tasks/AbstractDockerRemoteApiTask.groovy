@@ -15,15 +15,12 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
+import com.bmuschko.gradle.docker.DockerRegistry
 import com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 
 abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     /**
@@ -36,28 +33,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      * Docker remote API server URL. Defaults to "http://localhost:2375".
      */
     @Input
-    String serverUrl = 'http://localhost:2375'
-
-    /**
-     * Repository username needed to push containers. Defaults to null.
-     */
-    @Input
-    @Optional
-    String username
-
-    /**
-     * Repository password needed to push containers. Defaults to null.
-     */
-    @Input
-    @Optional
-    String password
-
-    /**
-     * Repository email address needed to push containers. Defaults to null.
-     */
-    @Input
-    @Optional
-    String email
+    String url = 'http://localhost:2375'
 
     /**
      * Path to the <a href="https://docs.docker.com/articles/https/">Docker certificate and key</a>.
@@ -65,6 +41,13 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @InputDirectory
     @Optional
     File certPath
+
+    /**
+     * Docker registry for pushing containers.
+     */
+    @Nested
+    @Optional
+    DockerRegistry registry
 
     ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader()
 
@@ -77,11 +60,9 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
     private DockerClientConfiguration createDockerClientConfig() {
         DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
-        dockerClientConfig.serverUrl = getServerUrl()
-        dockerClientConfig.username = getUsername()
-        dockerClientConfig.password = getPassword()
-        dockerClientConfig.email = getEmail()
+        dockerClientConfig.url = getUrl()
         dockerClientConfig.certPath = getCertPath()
+        dockerClientConfig.registry = getRegistry()
         dockerClientConfig
     }
 

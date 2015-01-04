@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.bmuschko.gradle.docker.DockerRegistry
 import com.bmuschko.gradle.docker.tasks.DockerTaskIntegrationTest
 import org.gradle.api.Task
 
@@ -23,9 +24,8 @@ class DockerPushImageIntegrationTest extends DockerTaskIntegrationTest {
     Task createAndConfigureTask() {
         project.task('pushImage', type: DockerPushImage) {
             imageName = 'bmuschko/myImage'
-            username = 'bmuschko'
-            password = 'pwd'
-            email = 'benjamin.muschko@gmail.com'
+            registry = new DockerRegistry(url: 'https://index.docker.io/v1/', username: 'bmuschko',
+                                          password: 'pwd', email: 'benjamin.muschko@gmail.com')
         }
     }
 }
