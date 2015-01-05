@@ -27,15 +27,21 @@ import org.gradle.api.tasks.Optional
 class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryAware {
     private final ResponseHandler<Void> responseHandler = new PushImageResponseHandler()
 
+    /**
+     * The image name e.g. "bmuschko/busybox" or just "busybox" if you want to default.
+     */
     @Input
     String imageName
 
+    /**
+     * The image's tag.
+     */
     @Input
     @Optional
     String tag
 
     /**
-     * Docker registry for pushing containers.
+     * The target Docker registry for pushing image.
      */
     @Nested
     @Optional

@@ -15,10 +15,53 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-class DockerPullImage extends DockerExistingImage {
+import com.bmuschko.gradle.docker.DockerRegistry
+import com.bmuschko.gradle.docker.response.PullImageResponseHandler
+import com.bmuschko.gradle.docker.response.ResponseHandler
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.RegistryAware
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
+
+class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryAware {
+    private final ResponseHandler<Void> responseHandler = new PullImageResponseHandler()
+
+    /**
+     * The image repository.
+     */
+    @Input
+    String repository
+
+    /**
+     * The image's tag.
+     */
+    @Input
+    @Optional
+    String tag
+
+    /**
+     * The target Docker registry for pushing image.
+     */
+    @Nested
+    @Optional
+    DockerRegistry registry
+
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Pulling image ID '${getImageId()}'."
-        dockerClient.pullImageCmd(getImageId()).exec()
+        logger.quiet "Pulling repository '${getRepository()}'."
+        def pullImageCmd = dockerClient.pullImageCmd(getRepository())
+
+        if(getTag()) {
+            pullImageCmd.withTag(getTag())
+        }
+
+        if(getRegistry()) {
+            def authConfig = threadContextClassLoader.createAuthConfig(getRegistry())
+            pullImageCmd.withAuthConfig(authConfig)
+        }
+
+        InputStream response = pullImageCmd.exec()
+        responseHandler.handle(response)
     }
 }
