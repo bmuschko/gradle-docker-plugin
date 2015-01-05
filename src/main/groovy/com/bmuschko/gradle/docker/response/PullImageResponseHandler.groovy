@@ -30,7 +30,6 @@ class PullImageResponseHandler implements ResponseHandler<Void> {
         Reader reader = new InputStreamReader(response, StandardCharsets.UTF_8)
 
         reader.eachLine { line ->
-            logger.quiet line
             def json = slurper.parseText(line)
 
             if(line.contains('status')) {
