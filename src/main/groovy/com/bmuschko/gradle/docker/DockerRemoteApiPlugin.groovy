@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.RegistryAware
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -40,6 +41,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
         DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension)
 
         configureAbstractDockerTask(project, extension)
+        configureRegistryAwareTasks(project, extension)
     }
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
@@ -59,8 +61,13 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
                 classpath = { config }
                 url = { extension.url }
                 certPath = { extension.certPath }
-                registry = { extension.registry }
             }
+        }
+    }
+
+    private void configureRegistryAwareTasks(Project project, DockerExtension extension) {
+        project.tasks.withType(RegistryAware) {
+            conventionMapping.registry = { extension.registry }
         }
     }
 

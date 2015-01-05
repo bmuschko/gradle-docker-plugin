@@ -54,10 +54,11 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
         assert dockerClient
         assert dockerClient.dockerClientConfig.uri == new URI('http://remote.docker.com:2375')
         assert dockerClient.dockerClientConfig.dockerCertPath == '${customCertPath.canonicalPath}'
-        assert dockerClient.dockerClientConfig.serverAddress == 'https://some.registry.com/'
-        assert dockerClient.dockerClientConfig.username == 'johnny'
-        assert dockerClient.dockerClientConfig.password == 'pwd'
-        assert dockerClient.dockerClientConfig.email == 'john.doe@gmail.com'
+        assert dockerClient.dockerClientConfig.dockerCfgPath == "${System.properties['user.home']}/.dockercfg"
+        assert dockerClient.dockerClientConfig.serverAddress == 'https://index.docker.io/v1/'
+        assert dockerClient.dockerClientConfig.username == '${System.properties['user.name']}'
+        assert !dockerClient.dockerClientConfig.password
+        assert !dockerClient.dockerClientConfig.email
     }
 }
 """

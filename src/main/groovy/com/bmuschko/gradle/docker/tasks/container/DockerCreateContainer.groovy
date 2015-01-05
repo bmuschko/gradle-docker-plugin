@@ -19,8 +19,6 @@ import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-import java.lang.reflect.Constructor
-
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     String imageId
 
@@ -178,8 +176,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getVolumes()) {
-            def createdVolumes = getVolumes().collect { createVolume(it) }
-            containerCommand.withVolumes(createVolumes(createdVolumes))
+            def createdVolumes = getVolumes().collect { threadContextClassLoader.createVolume(it) }
+            containerCommand.withVolumes(threadContextClassLoader.createVolumes(createdVolumes))
         }
 
         if(getVolumesFrom()) {
@@ -191,33 +189,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getExposedPorts()) {
-            def createdExposedPorts = getExposedPorts().collect { createExposedPort(it.key, it.value) }
-            containerCommand.withExposedPorts(createExposedPorts(createdExposedPorts))
+            def createdExposedPorts = getExposedPorts().collect { threadContextClassLoader.createExposedPort(it.key, it.value) }
+            containerCommand.withExposedPorts(threadContextClassLoader.createExposedPorts(createdExposedPorts))
         }
-    }
-
-    def createVolume(String path) {
-        Class volumeClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.Volume')
-        Constructor constructor = volumeClass.getConstructor(String)
-        constructor.newInstance(path)
-    }
-
-    def createVolumes(volumes) {
-        Class volumesClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.Volumes')
-        Constructor constructor = volumesClass.getConstructor(Object[])
-        constructor.newInstance(volumes)
-    }
-
-    def createExposedPort(String scheme, Integer port) {
-        Class exposedPortClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.ExposedPort')
-        Constructor constructor = exposedPortClass.getConstructor(String, Integer)
-        constructor.newInstance(scheme, port)
-    }
-
-    def createExposedPorts(exposedPorts) {
-        Class exposedPortsClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.ExposedPorts')
-        Constructor constructor = exposedPortsClass.getConstructor(Object[])
-        constructor.newInstance(exposedPorts)
     }
 }
 

@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.utils
 
+import com.bmuschko.gradle.docker.DockerRegistry
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 
 interface ThreadContextClassLoader {
@@ -34,4 +35,45 @@ interface ThreadContextClassLoader {
      * @return Class
      */
     Class loadClass(String className)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/AuthConfig.java">AuthConfig</a>.
+     *
+     * @param registry Registry
+     * @return Instance
+     */
+    def createAuthConfig(DockerRegistry registry)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Volume.java">Volume</a>.
+     *
+     * @param path Path to volume
+     * @return Instance
+     */
+    def createVolume(String path)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Volumes.java">Volumes</a>.
+     *
+     * @param volumes List of Volumes
+     * @return Instance
+     */
+    def createVolumes(Object[] volumes)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/ExposedPort.java">ExposedPort</a>.
+     *
+     * @param scheme Scheme
+     * @param port Port
+     * @return Instance
+     */
+    def createExposedPort(String scheme, Integer port)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/ExposedPorts.java">ExposedPorts</a>.
+     *
+     * @param exposedPorts Exposed ports
+     * @return Instance
+     */
+    def createExposedPorts(Object[] exposedPorts)
 }

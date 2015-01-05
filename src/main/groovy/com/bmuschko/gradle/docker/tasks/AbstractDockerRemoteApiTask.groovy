@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.DockerRegistry
 import com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.DefaultTask
@@ -42,13 +41,6 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     File certPath
 
-    /**
-     * Docker registry for pushing containers.
-     */
-    @Nested
-    @Optional
-    DockerRegistry registry
-
     ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader()
 
     @TaskAction
@@ -62,7 +54,6 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
         dockerClientConfig.url = getUrl()
         dockerClientConfig.certPath = getCertPath()
-        dockerClientConfig.registry = getRegistry()
         dockerClientConfig
     }
 

@@ -15,13 +15,16 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.DockerRegistry
 import com.bmuschko.gradle.docker.response.PushImageResponseHandler
 import com.bmuschko.gradle.docker.response.ResponseHandler
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.RegistryAware
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
-class DockerPushImage extends AbstractDockerRemoteApiTask {
+class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryAware {
     private final ResponseHandler<Void> responseHandler = new PushImageResponseHandler()
 
     @Input
@@ -30,6 +33,13 @@ class DockerPushImage extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     String tag
+
+    /**
+     * Docker registry for pushing containers.
+     */
+    @Nested
+    @Optional
+    DockerRegistry registry
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -41,12 +51,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask {
         }
 
         if(getRegistry()) {
-            Class authConfigClass = threadContextClassLoader.loadClass('com.github.dockerjava.api.model.AuthConfig')
-            def authConfig = authConfigClass.newInstance()
-            authConfig.serverAddress = getRegistry().url
-            authConfig.username = getRegistry().username
-            authConfig.password = getRegistry().password
-            authConfig.email = getRegistry().email
+            def authConfig = threadContextClassLoader.createAuthConfig(getRegistry())
             pushImageCmd.withAuthConfig(authConfig)
         }
 

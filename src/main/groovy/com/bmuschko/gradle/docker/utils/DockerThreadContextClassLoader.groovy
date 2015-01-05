@@ -15,15 +15,14 @@
  */
 package com.bmuschko.gradle.docker.utils
 
+import com.bmuschko.gradle.docker.DockerRegistry
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import org.gradle.api.UncheckedIOException
 
+import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
-    static final String DOCKER_CLIENT_CONFIG_CLASS = 'com.github.dockerjava.core.DockerClientConfig'
-    static final String DOCKER_CLIENT_BUILDER_CLASS = 'com.github.dockerjava.core.DockerClientBuilder'
-
     /**
      * {@inheritDoc}
      */
@@ -79,7 +78,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     private getDockerClient(DockerClientConfiguration dockerClientConfiguration) {
         // Create configuration
-        Class dockerClientConfigClass = loadClass(DOCKER_CLIENT_CONFIG_CLASS)
+        Class dockerClientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
         Method dockerClientConfigMethod = dockerClientConfigClass.getMethod('createDefaultConfigBuilder')
         def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
         dockerClientConfigBuilder.withUri(dockerClientConfiguration.url)
@@ -88,24 +87,74 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             dockerClientConfigBuilder.withDockerCertPath(dockerClientConfiguration.certPath.canonicalPath)
         }
 
-        if(dockerClientConfiguration.registry) {
-            dockerClientConfigBuilder.withServerAddress(dockerClientConfiguration.registry.url)
-            dockerClientConfigBuilder.withUsername(dockerClientConfiguration.registry.username)
-            dockerClientConfigBuilder.withPassword(dockerClientConfiguration.registry.password)
-            dockerClientConfigBuilder.withEmail(dockerClientConfiguration.registry.email)
-        }
-
         def dockerClientConfig = dockerClientConfigBuilder.build()
 
         // Create client
-        Class dockerClientBuilderClass = loadClass(DOCKER_CLIENT_BUILDER_CLASS)
+        Class dockerClientBuilderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
         Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
         def dockerClientBuilder = method.invoke(null, dockerClientConfig)
         dockerClientBuilder.build()
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     Class loadClass(String className) {
         Thread.currentThread().contextClassLoader.loadClass(className)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createAuthConfig(DockerRegistry registry) {
+        Class authConfigClass = loadClass('com.github.dockerjava.api.model.AuthConfig')
+        def authConfig = authConfigClass.newInstance()
+        authConfig.serverAddress = registry.url
+        authConfig.username = registry.username
+        authConfig.password = registry.password
+        authConfig.email = registry.email
+        authConfig
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createVolume(String path) {
+        Class volumeClass = loadClass('com.github.dockerjava.api.model.Volume')
+        Constructor constructor = volumeClass.getConstructor(String)
+        constructor.newInstance(path)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createVolumes(Object[] volumes) {
+        Class volumesClass = loadClass('com.github.dockerjava.api.model.Volumes')
+        Constructor constructor = volumesClass.getConstructor(Object[])
+        constructor.newInstance(volumes)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createExposedPort(String scheme, Integer port) {
+        Class exposedPortClass = loadClass('com.github.dockerjava.api.model.ExposedPort')
+        Constructor constructor = exposedPortClass.getConstructor(String, Integer)
+        constructor.newInstance(scheme, port)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createExposedPorts(Object[] exposedPorts) {
+        Class exposedPortsClass = loadClass('com.github.dockerjava.api.model.ExposedPorts')
+        Constructor constructor = exposedPortsClass.getConstructor(Object[])
+        constructor.newInstance(exposedPorts)
     }
 }
