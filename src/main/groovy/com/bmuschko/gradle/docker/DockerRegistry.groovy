@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 class DockerRegistry {
     /**
@@ -28,17 +29,20 @@ class DockerRegistry {
      * Registry username needed to push containers. Defaults to null.
      */
     @Input
+    @Optional
     String username
 
     /**
      * Registry password needed to push containers. Defaults to null.
      */
     @Input
+    @Optional
     String password
 
     /**
      * Registry email address needed to push containers. Defaults to null.
      */
     @Input
+    @Optional
     String email
 }
