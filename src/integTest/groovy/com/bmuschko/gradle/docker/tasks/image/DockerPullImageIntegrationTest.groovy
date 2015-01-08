@@ -22,7 +22,7 @@ class DockerPullImageIntegrationTest extends DockerTaskIntegrationTest {
     @Override
     Task createAndConfigureTask() {
         project.task('pullImage', type: DockerPullImage) {
-            imageId = 'bmuschko/myImage'
+            repository = 'bmuschko/myImage'
         }
     }
 }
