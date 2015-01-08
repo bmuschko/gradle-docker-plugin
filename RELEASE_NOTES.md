@@ -1,6 +1,7 @@
-### Version 0.8 (January 8, 2014)
+### Version 0.8 (January 7, 2014)
 
 * Allow for pushing to Docker Hub - [Issue 18](https://github.com/bmuschko/gradle-docker-plugin/issues/18).
+* Better handling of API responses.
 * Note: Change to plugin extension. The property `docker.serverUrl` is now called `docker.url`. Instead of `docker.credentials`, you will need to use `docker.registry`.
 
 ### Version 0.7.2 (December 23, 2014)
