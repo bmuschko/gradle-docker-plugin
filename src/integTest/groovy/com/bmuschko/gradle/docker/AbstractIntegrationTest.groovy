@@ -70,7 +70,7 @@ class AbstractIntegrationTest extends Specification {
         try {
             HttpURLConnection connection = url.openConnection()
             connection.requestMethod = 'GET'
-            connection.connectTimeout = 5000
+            connection.connectTimeout = 3000
             return connection.responseCode == HttpURLConnection.HTTP_OK
         }
         catch(IOException e) {
