@@ -17,6 +17,8 @@ package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryAware
+import com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader
+import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -45,6 +47,8 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
+        ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader()
+
         project.tasks.withType(AbstractDockerRemoteApiTask) {
             Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
 
@@ -56,6 +60,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             }
 
             group = DEFAULT_TASK_GROUP
+            threadContextClassLoader = dockerClassLoader
 
             conventionMapping.with {
                 classpath = { config }

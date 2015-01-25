@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
@@ -41,7 +40,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     File certPath
 
-    ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader()
+    ThreadContextClassLoader threadContextClassLoader
 
     @TaskAction
     void start() {
