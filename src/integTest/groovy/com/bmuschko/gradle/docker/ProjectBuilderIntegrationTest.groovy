@@ -22,12 +22,28 @@ abstract class ProjectBuilderIntegrationTest extends AbstractIntegrationTest {
     Project project
 
     def setup() {
+        System.setOut(new FilteredPrintStream(System.out))
         project = ProjectBuilder.builder().withProjectDir(projectDir).build()
 
         project.apply plugin: DockerRemoteApiPlugin
 
         project.repositories {
             mavenCentral()
+        }
+    }
+
+    class FilteredPrintStream extends PrintStream {
+        FilteredPrintStream(PrintStream source) {
+            super(source)
+        }
+
+        @Override
+        void write(byte[] buf, int off, int len) {
+            String string = new String(buf)
+
+            if(!string.contains(" DEBUG ")) {
+                super.write(buf, off, len)
+            }
         }
     }
 }
