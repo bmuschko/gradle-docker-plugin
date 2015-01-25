@@ -15,8 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import org.gradle.api.Task
 import com.bmuschko.gradle.docker.tasks.DockerTaskIntegrationTest
+import org.gradle.api.Task
+import spock.lang.IgnoreIf
+
+import static com.bmuschko.gradle.docker.AbstractIntegrationTest.isDockerServerInfoUrlReachable
 
 class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
     @Override
@@ -26,6 +29,7 @@ class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
         }
     }
 
+    @IgnoreIf({ isDockerServerInfoUrlReachable() })
     def "Set exposed ports"() {
         when:
         DockerCreateContainer task = createAndConfigureTask()
@@ -36,6 +40,7 @@ class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
         task.containerId
     }
 
+    @IgnoreIf({ isDockerServerInfoUrlReachable() })
     def "Set volumes"() {
         when:
         DockerCreateContainer task = createAndConfigureTask()
