@@ -17,7 +17,6 @@ package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistry
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
-import org.gradle.api.UncheckedIOException
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
@@ -32,6 +31,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
         try {
             Thread.currentThread().contextClassLoader = createClassLoader(classpathFiles)
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure.delegate = this
             closure(getDockerClient(dockerClientConfiguration))
         }
         finally {
@@ -56,18 +57,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @return URL array
      */
     private URL[] toURLArray(Set<File> files) {
-        List<URL> urls = new ArrayList<URL>(files.size())
-
-        files.each { file ->
-            try {
-                urls << file.toURI().toURL()
-            }
-            catch(MalformedURLException e) {
-                throw new UncheckedIOException(e)
-            }
-        }
-
-        urls.toArray(new URL[urls.size()])
+        files.collect { file -> file.toURI().toURL() } as URL[]
     }
 
     /**
@@ -132,9 +122,9 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createVolumes(Object[] volumes) {
+    def createVolumes(List<Object> volumes) {
         Class volumesClass = loadClass('com.github.dockerjava.api.model.Volumes')
-        Constructor constructor = volumesClass.getConstructor(Object[])
+        Constructor constructor = volumesClass.getConstructor(List)
         constructor.newInstance(volumes)
     }
 
@@ -144,17 +134,31 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createExposedPort(String scheme, Integer port) {
         Class exposedPortClass = loadClass('com.github.dockerjava.api.model.ExposedPort')
-        Constructor constructor = exposedPortClass.getConstructor(String, Integer)
-        constructor.newInstance(scheme, port)
+        Constructor constructor = exposedPortClass.getConstructor(Integer.TYPE, loadInternetProtocolClass())
+        constructor.newInstance(port, createInternetProtocol(scheme))
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    def createExposedPorts(Object[] exposedPorts) {
+    def createInternetProtocol(String scheme) {
+        Class internetProtocolClass = loadInternetProtocolClass()
+        Method method = internetProtocolClass.getMethod('parse', String)
+        method.invoke(null, scheme)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createExposedPorts(List<Object> exposedPorts) {
         Class exposedPortsClass = loadClass('com.github.dockerjava.api.model.ExposedPorts')
-        Constructor constructor = exposedPortsClass.getConstructor(Object[])
+        Constructor constructor = exposedPortsClass.getConstructor(List)
         constructor.newInstance(exposedPorts)
+    }
+
+    private Class loadInternetProtocolClass() {
+        loadClass('com.github.dockerjava.api.model.InternetProtocol')
     }
 }

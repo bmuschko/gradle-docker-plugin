@@ -177,7 +177,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getVolumes()) {
             def createdVolumes = getVolumes().collect { threadContextClassLoader.createVolume(it) }
-            containerCommand.withVolumes(threadContextClassLoader.createVolumes(createdVolumes))
+            containerCommand.volumes = threadContextClassLoader.createVolumes(createdVolumes)
         }
 
         if(getVolumesFrom()) {
@@ -190,7 +190,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getExposedPorts()) {
             def createdExposedPorts = getExposedPorts().collect { threadContextClassLoader.createExposedPort(it.key, it.value) }
-            containerCommand.withExposedPorts(threadContextClassLoader.createExposedPorts(createdExposedPorts))
+            containerCommand.exposedPorts = threadContextClassLoader.createExposedPorts(createdExposedPorts)
         }
     }
 }

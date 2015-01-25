@@ -12,7 +12,6 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
     void runRemoteCommand(dockerClient) {
         assert dockerClient
         assert dockerClient.dockerClientConfig.uri == new URI('http://localhost:2375')
-        assert dockerClient.dockerClientConfig.dockerCertPath == "${System.properties['user.home']}/.docker"
         assert dockerClient.dockerClientConfig.dockerCfgPath == "${System.properties['user.home']}/.dockercfg"
         assert dockerClient.dockerClientConfig.serverAddress == 'https://index.docker.io/v1/'
         assert dockerClient.dockerClientConfig.username == '${System.properties['user.name']}'
@@ -53,7 +52,6 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
     void runRemoteCommand(dockerClient) {
         assert dockerClient
         assert dockerClient.dockerClientConfig.uri == new URI('http://remote.docker.com:2375')
-        assert dockerClient.dockerClientConfig.dockerCertPath == '${customCertPath.canonicalPath}'
         assert dockerClient.dockerClientConfig.dockerCfgPath == "${System.properties['user.home']}/.dockercfg"
         assert dockerClient.dockerClientConfig.serverAddress == 'https://index.docker.io/v1/'
         assert dockerClient.dockerClientConfig.username == '${System.properties['user.name']}'

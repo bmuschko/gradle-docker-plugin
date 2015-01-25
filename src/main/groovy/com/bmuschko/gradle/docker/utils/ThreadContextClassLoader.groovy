@@ -20,7 +20,7 @@ import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 
 interface ThreadContextClassLoader {
     /**
-     * Performs the closure with local thread context classloader.
+     * Performs the closure with thread context classloader.
      *
      * @param classpathFiles Classpath files
      * @param dockerClientConfiguration Docker client configuration
@@ -29,7 +29,7 @@ interface ThreadContextClassLoader {
     void withClasspath(Set<File> classpathFiles, DockerClientConfiguration dockerClientConfiguration, Closure closure)
 
     /**
-     * Loads Class from local thread context classloader.
+     * Loads class with given name from thread context classloader.
      *
      * @param className Class name
      * @return Class
@@ -37,7 +37,8 @@ interface ThreadContextClassLoader {
     Class loadClass(String className)
 
     /**
-     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/AuthConfig.java">AuthConfig</a>.
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/AuthConfig.java">AuthConfig</a>
+     * from the thread context classloader.
      *
      * @param registry Registry
      * @return Instance
@@ -45,7 +46,8 @@ interface ThreadContextClassLoader {
     def createAuthConfig(DockerRegistry registry)
 
     /**
-     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Volume.java">Volume</a>.
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Volume.java">Volume</a>
+     * from thread context classloader.
      *
      * @param path Path to volume
      * @return Instance
@@ -53,15 +55,26 @@ interface ThreadContextClassLoader {
     def createVolume(String path)
 
     /**
-     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Volumes.java">Volumes</a>.
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Volumes.java">Volumes</a>
+     * from thread context classloader.
      *
      * @param volumes List of Volumes
      * @return Instance
      */
-    def createVolumes(Object[] volumes)
+    def createVolumes(List<Object> volumes)
 
     /**
-     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/ExposedPort.java">ExposedPort</a>.
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/InternetProtocol.java">InternetProtocol</a>
+     * from thread context classloader.
+     *
+     * @param scheme Scheme
+     * @return Instance
+     */
+    def createInternetProtocol(String scheme)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/ExposedPort.java">ExposedPort</a>
+     * from thread context classloader.
      *
      * @param scheme Scheme
      * @param port Port
@@ -70,10 +83,11 @@ interface ThreadContextClassLoader {
     def createExposedPort(String scheme, Integer port)
 
     /**
-     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/ExposedPorts.java">ExposedPorts</a>.
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/ExposedPorts.java">ExposedPorts</a>
+     * from thread context classloader.
      *
      * @param exposedPorts Exposed ports
      * @return Instance
      */
-    def createExposedPorts(Object[] exposedPorts)
+    def createExposedPorts(List<Object> exposedPorts)
 }

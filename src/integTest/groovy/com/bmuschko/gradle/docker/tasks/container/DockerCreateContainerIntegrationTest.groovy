@@ -25,4 +25,24 @@ class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
             imageId = 'busybox'
         }
     }
+
+    def "Set exposed ports"() {
+        when:
+        DockerCreateContainer task = createAndConfigureTask()
+        task.exposedPorts = ['TCP': 80]
+        task.execute()
+
+        then:
+        task.containerId
+    }
+
+    def "Set volumes"() {
+        when:
+        DockerCreateContainer task = createAndConfigureTask()
+        task.volumes = ['/my/path']
+        task.execute()
+
+        then:
+        task.containerId
+    }
 }
