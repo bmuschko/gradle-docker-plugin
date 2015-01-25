@@ -29,7 +29,7 @@ class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
         }
     }
 
-    @IgnoreIf({ isDockerServerInfoUrlReachable() })
+    @IgnoreIf({ !isDockerServerInfoUrlReachable() })
     def "Set exposed ports"() {
         when:
         DockerCreateContainer task = createAndConfigureTask()
@@ -40,7 +40,7 @@ class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
         task.containerId
     }
 
-    @IgnoreIf({ isDockerServerInfoUrlReachable() })
+    @IgnoreIf({ !isDockerServerInfoUrlReachable() })
     def "Set volumes"() {
         when:
         DockerCreateContainer task = createAndConfigureTask()
