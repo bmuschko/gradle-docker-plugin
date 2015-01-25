@@ -1,3 +1,8 @@
+### Version 0.8.1 (January 24, 2014)
+
+* Usage of [docker-java library](https://github.com/docker-java/docker-java) version 0.10.5.
+* Correctly create model instances for create container task - [Issue 19](https://github.com/bmuschko/gradle-docker-plugin/issues/19).
+
 ### Version 0.8 (January 7, 2014)
 
 * Allow for pushing to Docker Hub - [Issue 18](https://github.com/bmuschko/gradle-docker-plugin/issues/18).

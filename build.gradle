@@ -16,7 +16,7 @@ apply plugin: 'bintray'
 apply plugin: 'github-pages'
 
 group = 'com.bmuschko'
-version = '0.8'
+version = '0.8.1'
 
 repositories {
     mavenCentral()
