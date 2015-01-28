@@ -130,4 +130,23 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
         task.instructions.size() == 2
     }
+
+    def "Can create Dockerfile by adding plain instruction"() {
+        when:
+        Dockerfile task = project.task('dockerfile', type: Dockerfile) {
+            instruction 'FROM ubuntu:12.04'
+            instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
+        }
+
+        task.execute()
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+                """FROM ubuntu:12.04
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+"""
+        task.instructions.size() == 2
+    }
 }

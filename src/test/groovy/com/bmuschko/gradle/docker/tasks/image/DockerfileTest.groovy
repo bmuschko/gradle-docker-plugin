@@ -12,6 +12,8 @@ class DockerfileTest extends Specification {
 
         where:
         instructionInstance                                                 | keyword      | builtInstruction
+        new GenericInstruction('FROM ubuntu:14.04')                         | 'FROM'       | 'FROM ubuntu:14.04'
+        new GenericInstruction({ 'FROM ubuntu:14.04' })                     | 'FROM'       | 'FROM ubuntu:14.04'
         new FromInstruction('ubuntu:14.04')                                 | 'FROM'       | 'FROM ubuntu:14.04'
         new FromInstruction({ 'ubuntu:14.04' })                             | 'FROM'       | 'FROM ubuntu:14.04'
         new MaintainerInstruction('John Doe "john.doe@gmail.com"')          | 'MAINTAINER' | 'MAINTAINER John Doe "john.doe@gmail.com"'

@@ -45,9 +45,45 @@ class Dockerfile extends DefaultTask {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
-        if(!(getInstructions()[0] instanceof FromInstruction)) {
+        if(!(getInstructions()[0].keyword == 'FROM')) {
             throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM')
         }
+    }
+
+    /**
+     * Adds a full instruction as String.
+     *
+     * Example:
+     *
+     * <pre>
+     * task createDockerfile(type: Dockerfile) {
+     *     instruction 'FROM ubuntu:14.04'
+     *     instruction 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+     * }
+     * </pre>
+     *
+     * @param instruction Instruction as String
+     */
+    void instruction(String instruction) {
+        instructions << new GenericInstruction(instruction)
+    }
+
+    /**
+     * Adds a full instruction as Closure with return type String.
+     *
+     * Example:
+     *
+     * <pre>
+     * task createDockerfile(type: Dockerfile) {
+     *     instruction { 'FROM ubuntu:14.04' }
+     *     instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
+     * }
+     * </pre>
+     *
+     * @param instruction Instruction as Closure
+     */
+    void instruction(Closure instruction) {
+        instructions << new GenericInstruction(instruction)
     }
 
     /**
@@ -248,6 +284,42 @@ class Dockerfile extends DefaultTask {
     static interface Instruction {
         String getKeyword()
         String build()
+    }
+
+    static class GenericInstruction implements Instruction {
+        final Object instruction
+
+        GenericInstruction(String instruction) {
+            this.instruction = instruction
+        }
+
+        GenericInstruction(Closure instruction) {
+            this.instruction = instruction
+        }
+
+        @Override
+        String getKeyword() {
+            if(instruction instanceof String) {
+                parseKeyword(instruction)
+            }
+            else if(instruction instanceof Closure) {
+                parseKeyword(instruction())
+            }
+        }
+
+        private String parseKeyword(String inst) {
+            inst.substring(0, inst.indexOf(' '))
+        }
+
+        @Override
+        String build() {
+            if(instruction instanceof String) {
+               instruction
+            }
+            else if(instruction instanceof Closure) {
+                instruction()
+            }
+        }
     }
 
     static abstract class StringCommandInstruction implements Instruction {
