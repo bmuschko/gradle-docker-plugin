@@ -6,7 +6,7 @@ image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
 Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Currently,
-version 0.10.4 is used which assumes Docker's client API v1.15.
+version 0.10.5 is used which assumes Docker's client API v1.16.
 
 link:https://snap-ci.com/bmuschko/gradle-docker-plugin/branch/master[image:https://snap-ci.com/bmuschko/gradle-docker-plugin/branch/master/build_image[Build Image]]
 
