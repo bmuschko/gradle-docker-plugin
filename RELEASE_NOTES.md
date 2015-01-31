@@ -1,4 +1,8 @@
-### Version 0.8.1 (January 24, 2014)
+### Version 0.8.2 (January 30, 2015)
+
+* Expose method for task `Dockerfile` for providing vanilla Docker instructions.
+
+### Version 0.8.1 (January 24, 2015)
 
 * Usage of [docker-java library](https://github.com/docker-java/docker-java) version 0.10.5.
 * Correctly create model instances for create container task - [Issue 19](https://github.com/bmuschko/gradle-docker-plugin/issues/19).
