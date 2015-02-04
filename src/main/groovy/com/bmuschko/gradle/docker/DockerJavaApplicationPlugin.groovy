@@ -59,7 +59,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
      * @param dockerExtension Docker extension
      * @return Java application configuration
      */
-    private static DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
+    private DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
         DockerJavaApplication dockerJavaApplication = new DockerJavaApplication()
         dockerExtension.metaClass.javaApplication = dockerJavaApplication
         DockerExtension.metaClass.javaApplication = { Closure closure ->
@@ -92,7 +92,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private static String determineEntryPoint(Project project, Tar tarTask) {
+    private String determineEntryPoint(Project project, Tar tarTask) {
         String installDir = tarTask.archiveName - ".${tarTask.extension}"
         "/$installDir/bin/$project.applicationName".toString()
     }
@@ -106,7 +106,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private static String determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
+    private String determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
         if(dockerJavaApplication.tag) {
             return dockerJavaApplication.tag
         }
@@ -114,9 +114,9 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
         String artifactAndVersion = "${project.applicationName}:${tagVersion}".toLowerCase().toString()
 
-        String group = project.property('group')
+        String group = project.group
         if (!Strings.isNullOrEmpty(group)){
-          group + '/' + artifactAndVersion
+          "$group/$artifactAndVersion"
         }
 
         artifactAndVersion
