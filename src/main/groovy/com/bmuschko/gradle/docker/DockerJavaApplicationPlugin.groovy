@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.google.common.base.Strings
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
@@ -58,7 +59,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
      * @param dockerExtension Docker extension
      * @return Java application configuration
      */
-    private DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
+    private static DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
         DockerJavaApplication dockerJavaApplication = new DockerJavaApplication()
         dockerExtension.metaClass.javaApplication = dockerJavaApplication
         DockerExtension.metaClass.javaApplication = { Closure closure ->
@@ -91,7 +92,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private String determineEntryPoint(Project project, Tar tarTask) {
+    private static String determineEntryPoint(Project project, Tar tarTask) {
         String installDir = tarTask.archiveName - ".${tarTask.extension}"
         "/$installDir/bin/$project.applicationName".toString()
     }
@@ -105,13 +106,20 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private String determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
+    private static String determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
         if(dockerJavaApplication.tag) {
             return dockerJavaApplication.tag
         }
 
         String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-        "${project.applicationName}:${tagVersion}".toLowerCase().toString()
+        String artifactAndVersion = "${project.applicationName}:${tagVersion}".toLowerCase().toString()
+
+        String group = project.property('group')
+        if (!Strings.isNullOrEmpty(group)){
+          group + '/' + artifactAndVersion
+        }
+
+        artifactAndVersion
     }
 
     private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
