@@ -4,19 +4,19 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
-        classpath 'org.ajoberstar:gradle-git:0.9.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
+        classpath 'org.ajoberstar:gradle-git:0.13.0'
     }
 }
 
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
-apply plugin: 'bintray'
-apply plugin: 'github-pages'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'org.ajoberstar.github-pages'
 
 group = 'com.bmuschko'
-version = '0.8.3'
+version = '2.0'
 
 repositories {
     mavenCentral()
@@ -26,7 +26,7 @@ dependencies {
     compile localGroovy()
     compile gradleApi()
     testCompile 'commons-io:commons-io:2.4'
-    testCompile('org.spockframework:spock-core:0.7-groovy-1.8') {
+    testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
         exclude module: 'groovy-all'
     }
 }
@@ -142,7 +142,7 @@ publishing {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
+    gradleVersion = '2.2.1'
 }
 
 bintray {
@@ -153,7 +153,24 @@ bintray {
     pkg {
         repo = 'gradle-plugins'
         name = 'com.bmuschko:gradle-docker-plugin'
+        desc = 'Gradle plugin for managing Docker images and containers.'
+        websiteUrl = "https://github.com/bmuschko/${project.name}"
+        issueTrackerUrl = "https://github.com/bmuschko/${project.name}/issues"
+        vcsUrl = "https://github.com/bmuschko/${project.name}.git"
         licenses = ['Apache-2.0']
+        labels = ['gradle', 'docker', 'container', 'image', 'lightweight', 'vm', 'linux']
+        publicDownloadNumbers = true
+
+        version {
+            vcsTag = "v$project.version"
+            attributes = ['gradle-plugin': ["com.bmuschko.docker-remote-api:${project.group}:${project.name}",
+                                            "com.bmuschko.docker-java-application:${project.group}:${project.name}"]]
+
+            gpg {
+                sign = true
+                passphrase = project.hasProperty('gpgPassphrase') ? project.getProperty('gpgPassphrase') : null
+            }
+        }
     }
 }
 
