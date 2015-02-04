@@ -241,11 +241,11 @@ The plugin defines the following extension properties in the `javaApplication` c
 
 [options="header"]
 |=======
-|Property name   |Type      |Default value                        |Description
-|`baseImage`     |String    |java                                 |The Docker base image used for Java application.
-|`maintainer`    |String    |Value of `user.home` system property |The name and email address of the image maintainer.
-|`port`          |Integer   |8080                                 |The Docker image entry point port used for the Java application.
-|`tag`           |String    |<applicationName>:<projectVersion>   |The tag used for the Docker image.
+|Property name   |Type      |Default value                                         |Description
+|`baseImage`     |String    |java                                                  |The Docker base image used for Java application.
+|`maintainer`    |String    |Value of `user.home` system property                  |The name and email address of the image maintainer.
+|`port`          |Integer   |8080                                                  |The Docker image entry point port used for the Java application.
+|`tag`           |String    |<project.group>/<applicationName>:<project.version>   |The tag used for the Docker image.
 |=======
 
 

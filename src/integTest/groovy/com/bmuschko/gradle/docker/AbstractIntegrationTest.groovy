@@ -56,9 +56,7 @@ class AbstractIntegrationTest extends Specification {
     }
 
     private void deleteProjectDir() {
-        if(projectDir.exists()) {
-            FileUtils.deleteDirectory(projectDir)
-        }
+        FileUtils.deleteDirectory(projectDir)
     }
 
     static boolean isDockerServerInfoUrlReachable() {

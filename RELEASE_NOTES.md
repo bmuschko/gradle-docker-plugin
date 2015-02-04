@@ -1,3 +1,7 @@
+### Version 0.8.3 (February 4, 2015)
+
+* Add project group to default tag built by Docker Java application plugin - [Issue 25](https://github.com/bmuschko/gradle-docker-plugin/issues/25).
+
 ### Version 0.8.2 (January 30, 2015)
 
 * Expose method for task `Dockerfile` for providing vanilla Docker instructions.

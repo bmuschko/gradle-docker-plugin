@@ -18,7 +18,6 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.google.common.base.Strings
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
@@ -113,13 +112,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
         String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
         String artifactAndVersion = "${project.applicationName}:${tagVersion}".toLowerCase().toString()
-
-        String group = project.group
-        if (group != null && !group.isEmpty()){
-          "$group/$artifactAndVersion"
-        }
-
-        artifactAndVersion
+        project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
     }
 
     private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
