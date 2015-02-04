@@ -115,7 +115,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         String artifactAndVersion = "${project.applicationName}:${tagVersion}".toLowerCase().toString()
 
         String group = project.group
-        if (!Strings.isNullOrEmpty(group)){
+        if (group != null && !group.isEmpty()){
           "$group/$artifactAndVersion"
         }
 
