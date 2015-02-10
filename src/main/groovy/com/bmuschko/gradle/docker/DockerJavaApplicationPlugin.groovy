@@ -61,7 +61,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
     private DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
         DockerJavaApplication dockerJavaApplication = new DockerJavaApplication()
         dockerExtension.metaClass.javaApplication = dockerJavaApplication
-        DockerExtension.metaClass.javaApplication = { Closure closure ->
+        dockerExtension.metaClass.javaApplication = { Closure closure ->
             ConfigureUtil.configure(closure, dockerJavaApplication)
         }
 
