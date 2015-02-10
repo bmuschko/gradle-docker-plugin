@@ -1,3 +1,7 @@
+### Version 2.0.1 (February 10, 2015)
+
+* Extension configuration method for `DockerJavaApplicationPlugin` needs to be registered via extension instance - [Issue 28](https://github.com/bmuschko/gradle-docker-plugin/issues/28).
+
 ### Version 2.0 (February 4, 2015)
 
 * Upgrade to Gradle 2.2.1 including all compatible plugins and libraries.
