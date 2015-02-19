@@ -31,6 +31,9 @@ dependencies {
     }
 }
 
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
+
 sourceSets {
     integrationTest {
         groovy.srcDir file('src/integTest/groovy')
@@ -67,6 +70,7 @@ jar {
 
 idea.project {
     jdkName = '1.6'
+    languageLevel = '1.6'
 
     ipr.withXml { provider ->
         def node = provider.asNode()
