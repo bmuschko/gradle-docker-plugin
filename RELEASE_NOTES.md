@@ -1,3 +1,7 @@
+### Version 2.0.2 (February 19, 2015)
+
+* Set source and target compatibility to Java 6 - [Issue 32](https://github.com/bmuschko/gradle-docker-plugin/issues/32).
+
 ### Version 2.0.1 (February 10, 2015)
 
 * Extension configuration method for `DockerJavaApplicationPlugin` needs to be registered via extension instance - [Issue 28](https://github.com/bmuschko/gradle-docker-plugin/issues/28).
