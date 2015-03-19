@@ -114,6 +114,7 @@ task createContainer(type: DockerCreateContainer) {
 task startContainer(type: DockerStartContainer) {
     dependsOn createContainer
     targetContainerId { createContainer.getContainerId() }
+    portBindings = ['8080:8080']
 }
 """
         expect:

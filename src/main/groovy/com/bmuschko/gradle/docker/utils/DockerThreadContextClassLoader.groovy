@@ -20,6 +20,7 @@ import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
+import java.lang.reflect.Array
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     /**
@@ -156,6 +157,35 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class exposedPortsClass = loadClass('com.github.dockerjava.api.model.ExposedPorts')
         Constructor constructor = exposedPortsClass.getConstructor(List)
         constructor.newInstance(exposedPorts)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createPortBinding(String portBinding) {
+        Class portBindingClass = loadClass('com.github.dockerjava.api.model.PortBinding')
+        Method method = portBindingClass.getMethod('parse', String)
+        method.invoke(null, portBinding)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createPorts(List<Object> portBindings) {
+        Class portsClass = loadClass('com.github.dockerjava.api.model.Ports')
+        Constructor constructor = portsClass.getConstructor()
+        def ports = constructor.newInstance()
+        if (!portBindings.isEmpty()) {
+            Class portBindingClass = portBindings[0].getClass()
+            def portBindingsArray = Array.newInstance(portBindingClass, portBindings.size())
+            def portBindingsArrayClass = portBindingsArray.getClass()
+            Object[] arguments = [ portBindings.toArray(portBindingsArray) ]
+            Method method = portsClass.getMethod('add', portBindingsArrayClass)
+            method.invoke(ports, arguments)
+        }
+        ports
     }
 
     private Class loadInternetProtocolClass() {

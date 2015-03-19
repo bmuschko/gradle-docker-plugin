@@ -17,6 +17,9 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import org.gradle.api.Task
 import com.bmuschko.gradle.docker.tasks.DockerTaskIntegrationTest
+import spock.lang.IgnoreIf
+
+import static com.bmuschko.gradle.docker.AbstractIntegrationTest.isDockerServerInfoUrlReachable
 
 class DockerStartContainerIntegrationTest extends DockerTaskIntegrationTest {
     @Override
@@ -24,5 +27,16 @@ class DockerStartContainerIntegrationTest extends DockerTaskIntegrationTest {
         project.task('startContainer', type: DockerStartContainer) {
             containerId = 'busybox'
         }
+    }
+
+    @IgnoreIf({ !isDockerServerInfoUrlReachable() })
+    def "Set port bindings"() {
+        when:
+        DockerStartContainer task = createAndConfigureTask()
+        task.portBindings = ['8080:80']
+        task.execute()
+
+        then:
+        task.containerId
     }
 }

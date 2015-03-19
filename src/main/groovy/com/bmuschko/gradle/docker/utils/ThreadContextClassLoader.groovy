@@ -90,4 +90,22 @@ interface ThreadContextClassLoader {
      * @return Instance
      */
     def createExposedPorts(List<Object> exposedPorts)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/PortBinding.java">PortBinding</a>
+     * from thread context classloader.
+     *
+     * @param portBinding Port binding
+     * @return Instance
+     */
+    def createPortBinding(String portBinding)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Ports.java">Ports</a>
+     * from thread context classloader.
+     *
+     * @param portBindings List of PortBindings
+     * @return Instance
+     */
+    def createPorts(List<Object> portBindings)
 }

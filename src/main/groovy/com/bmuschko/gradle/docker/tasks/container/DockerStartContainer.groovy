@@ -15,11 +15,27 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+
 class DockerStartContainer extends DockerExistingContainer {
+    @Input
+    @Optional
+    String[] portBindings
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Starting container with ID '${getContainerId()}'."
-        dockerClient.startContainerCmd(getContainerId()).exec()
+        def containerCommand = dockerClient.startContainerCmd(getContainerId())
+        setContainerCommandConfig(containerCommand)
+        containerCommand.exec()
+    }
+
+    private void setContainerCommandConfig(containerCommand) {
+        if (getPortBindings()) {
+            def createdPortBindings = getPortBindings().collect { threadContextClassLoader.createPortBinding(it) }
+            containerCommand.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
+        }
     }
 }
 
