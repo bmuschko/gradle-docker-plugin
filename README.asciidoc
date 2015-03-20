@@ -50,6 +50,16 @@ code snippet in your build script:
 apply plugin: 'com.bmuschko.docker-remote-api'
 ----
 
+The plugin automatically resolves the Docker Java library with the pre-configured version under the covers. The only
+configuration you will have to provide in your build script is the repository hosting the library and its transitive
+dependencies. One repository that hosts them all is Maven Central.
+
+[source,groovy]
+----
+repositories {
+    mavenCentral()
+}
+----
 
 === Custom task types
 
