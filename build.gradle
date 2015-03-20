@@ -16,7 +16,7 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'org.ajoberstar.github-pages'
 
 group = 'com.bmuschko'
-version = '2.0.2'
+version = '2.0.3'
 
 repositories {
     mavenCentral()
@@ -143,10 +143,6 @@ publishing {
             }
         }
     }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
 }
 
 bintray {

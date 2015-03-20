@@ -1,3 +1,9 @@
+### Version 2.0.3 (March 20, 2015)
+
+* Allow for specifying port bindings for container start command. - [Issue 30](https://github.com/bmuschko/gradle-docker-plugin/issues/30).
+* Throw an exception if an error response is encountered - [Issue 37](https://github.com/bmuschko/gradle-docker-plugin/issues/37).
+* Upgrade to Gradle 2.3.
+
 ### Version 2.0.2 (February 19, 2015)
 
 * Set source and target compatibility to Java 6 - [Issue 32](https://github.com/bmuschko/gradle-docker-plugin/issues/32).
