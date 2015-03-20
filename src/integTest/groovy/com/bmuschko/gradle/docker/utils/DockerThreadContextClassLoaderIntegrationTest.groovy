@@ -21,7 +21,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         }
     }
 
-    def "Can create of class of type Volume"() {
+    def "Can create class of type Volume"() {
         when:
         def instance
 
@@ -35,7 +35,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         instance.toString() == '/my/path'
     }
 
-    def "Can create of class of type Volumes"() {
+    def "Can create class of type Volumes"() {
         when:
         def instance
 
@@ -52,7 +52,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
     }
 
     @Unroll
-    def "Can create of class of type InternetProtocol with scheme #scheme"() {
+    def "Can create class of type InternetProtocol with scheme #scheme"() {
         when:
         def instance
 
@@ -81,7 +81,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         thrown(InvocationTargetException)
     }
 
-    def "Can create of class of type ExposedPort"() {
+    def "Can create class of type ExposedPort"() {
         when:
         def instance
 
@@ -109,5 +109,34 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         noExceptionThrown()
         instance
         instance.exposedPorts.length == 2
+    }
+
+    def "Can create class of type PortBinding"() {
+        when:
+        def instance
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createPortBinding('8080:80')
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+    }
+
+    def "Can create class of type Ports"() {
+        when:
+        def instance
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            def portBinding1 = createPortBinding('8080:80')
+            def portBinding2 = createPortBinding('9090:90')
+            instance = createPorts([portBinding1, portBinding2])
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+        instance.ports.size() == 2
     }
 }
