@@ -121,43 +121,9 @@ task startContainer(type: DockerStartContainer) {
         runTasks('startContainer')
     }
 
-    def "Can push latest container"() {
-        buildFile << """
-import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-import com.bmuschko.gradle.docker.tasks.image.DockerCommitImage
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
-import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
-
-task createContainer(type: DockerCreateContainer) {
-    imageId = 'busybox'
-    cmd = ['true'] as String[]
-}
-
-task commitImage(type: DockerCommitImage) {
-    dependsOn createContainer
-    repository = 'bmuschko/busybox'
-    targetContainerId { createContainer.getContainerId() }
-}
-
-task pushImage(type: DockerPushImage) {
-    dependsOn commitImage
-    imageName = 'bmuschko/busybox'
-}
-
-task removeImage(type: DockerRemoveImage) {
-    dependsOn pushImage
-    targetImageId { commitImage.getImageId() }
-}
-"""
-
-        expect:
-        runTasks('removeImage')
-    }
-
     @IgnoreIf({ !AbstractIntegrationTest.hasDockerHubCredentials() })
     def "Can push image to DockerHub and pull it afterward"() {
         buildFile << """
-
 docker {
     registry {
         username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
