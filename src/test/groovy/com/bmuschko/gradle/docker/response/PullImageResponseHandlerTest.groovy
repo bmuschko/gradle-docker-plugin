@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.response
 
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import spock.lang.Specification
 
@@ -54,6 +55,7 @@ class PullImageResponseHandlerTest extends Specification {
 
         then:
         1 * logger.quiet('Pulling repository bmuschko/busybox.')
-        1 * logger.error('Error: image bmuschko/busybox not found.')
+        Throwable t = thrown(GradleException)
+        t.message == 'Error: image bmuschko/busybox not found'
     }
 }

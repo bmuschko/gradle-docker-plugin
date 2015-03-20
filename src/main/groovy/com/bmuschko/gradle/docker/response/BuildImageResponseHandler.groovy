@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.response
 
 import groovy.json.JsonSlurper
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -44,7 +45,7 @@ class BuildImageResponseHandler implements ResponseHandler<String> {
                 }
             }
             else if(line.contains('error')) {
-                logger.error "${json.error}."
+                throw new GradleException(json.error)
             }
         }
     }

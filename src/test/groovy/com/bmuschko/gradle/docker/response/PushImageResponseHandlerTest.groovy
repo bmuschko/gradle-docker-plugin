@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.response
 
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import spock.lang.Specification
 
@@ -62,6 +63,7 @@ class PushImageResponseHandlerTest extends Specification {
         then:
         1 * logger.quiet('The push refers to a repository [bmuschko/busybox] (len: 2).')
         1 * logger.quiet('Sending image list.')
-        1 * logger.error('Error: Status 401 trying to push repository bmuschko/busybox: "".')
+        Throwable t = thrown(GradleException)
+        t.message == 'Error: Status 401 trying to push repository bmuschko/busybox: ""'
     }
 }

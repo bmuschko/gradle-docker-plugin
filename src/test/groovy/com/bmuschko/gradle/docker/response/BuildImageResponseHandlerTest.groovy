@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.response
 
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import spock.lang.Specification
 
@@ -82,7 +83,8 @@ class BuildImageResponseHandlerTest extends Specification {
         String imageId = responseHandler.handle(inputStream)
 
         then:
-        1 * logger.error('The command [/bin/sh -c apt-get install -q -y openjdk-7-jre-headless && apt-get clean] returned a non-zero code: 100.')
+        Throwable t = thrown(GradleException)
+        t.message == 'The command [/bin/sh -c apt-get install -q -y openjdk-7-jre-headless && apt-get clean] returned a non-zero code: 100'
         !imageId
     }
 }
