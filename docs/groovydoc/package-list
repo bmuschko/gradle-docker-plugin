@@ -1,0 +1,6 @@
+com.bmuschko.gradle.docker
+com.bmuschko.gradle.docker.response
+com.bmuschko.gradle.docker.tasks
+com.bmuschko.gradle.docker.tasks.container
+com.bmuschko.gradle.docker.tasks.image
+com.bmuschko.gradle.docker.utils
