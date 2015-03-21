@@ -102,6 +102,57 @@ ADD file2.txt /other/dir/file2.txt
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
+    @IgnoreIf({ !AbstractIntegrationTest.hasDockerHubCredentials() })
+    def "Can create image for Java application and push to DockerHub"() {
+        createJettyMainClass()
+        buildFile << """
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: com.bmuschko.gradle.docker.DockerJavaApplicationPlugin
+
+version = '1.0'
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
+}
+
+applicationName = 'javaapp'
+mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
+
+docker {
+    registry {
+        username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
+        password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
+        email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
+    }
+
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        tag = "\$docker.registry.username/javaapp"
+    }
+}
+"""
+
+        when:
+        runTasks('dockerPushImage')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+                """FROM dockerfile/java:openjdk-7-jdk
+MAINTAINER ${System.getProperty('user.name')}
+ADD javaapp-1.0.tar /
+ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
+EXPOSE 8080
+"""
+    }
+
     private void createJettyMainClass() {
         File packageDir = createDir(new File(projectDir, 'src/main/java/com/bmuschko/gradle/docker/application'))
         File jettyMainClass = createNewFile(packageDir, 'JettyMain.java')
