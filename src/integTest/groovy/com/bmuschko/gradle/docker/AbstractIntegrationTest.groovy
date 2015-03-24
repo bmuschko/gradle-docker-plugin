@@ -19,7 +19,6 @@ import org.apache.commons.io.FileUtils
 import spock.lang.Specification
 
 class AbstractIntegrationTest extends Specification {
-    static final String SERVER_URL = 'http://localhost:2375'
     File projectDir = new File('build/integTest')
 
     def setup() {
@@ -57,38 +56,5 @@ class AbstractIntegrationTest extends Specification {
 
     private void deleteProjectDir() {
         FileUtils.deleteDirectory(projectDir)
-    }
-
-    static boolean isDockerServerInfoUrlReachable() {
-        URL url = new URL("$SERVER_URL/info")
-        isUrlReachable(url)
-    }
-
-    static boolean isUrlReachable(URL url) {
-        try {
-            HttpURLConnection connection = url.openConnection()
-            connection.requestMethod = 'GET'
-            connection.connectTimeout = 3000
-            return connection.responseCode == HttpURLConnection.HTTP_OK
-        }
-        catch(IOException e) {
-            return false
-        }
-    }
-
-    static boolean hasDockerHubCredentials() {
-        File gradlePropsFile = new File(System.getProperty('user.home'), '.gradle/gradle.properties')
-
-        if(!gradlePropsFile.exists()) {
-            return false
-        }
-
-        Properties properties = new Properties()
-
-        gradlePropsFile.withInputStream {
-            properties.load(it)
-        }
-
-        properties['dockerHubUsername'] != null && properties['dockerHubPassword'] != null && properties['dockerHubEmail'] != null
     }
 }

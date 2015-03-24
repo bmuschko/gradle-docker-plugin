@@ -1,12 +1,13 @@
 package com.bmuschko.gradle.docker
 
-import spock.lang.IgnoreIf
+import spock.lang.Requires
 
-@IgnoreIf({ !AbstractIntegrationTest.isDockerServerInfoUrlReachable() })
+@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerJavaApplicationPluginIntegrationTest extends ToolingApiIntegrationTest {
     def "Can create image for Java application with default configuration"() {
         createJettyMainClass()
-        writeBuildFile()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
 
         when:
         GradleInvocationResult result = runTasks('startContainer')
@@ -26,7 +27,8 @@ EXPOSE 8080
 
     def "Can create image for Java application with user-driven configuration"() {
         createJettyMainClass()
-        writeBuildFile()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
 
         buildFile << """
 docker {
@@ -59,7 +61,8 @@ EXPOSE 9090
         createNewFile(projectDir, 'file1.txt')
         createNewFile(projectDir, 'file2.txt')
         createJettyMainClass()
-        writeBuildFile()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
 
         buildFile << """
 dockerCopyDistResources {
@@ -102,27 +105,12 @@ ADD file2.txt /other/dir/file2.txt
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
-    @IgnoreIf({ !AbstractIntegrationTest.hasDockerHubCredentials() })
+    @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
     def "Can create image for Java application and push to DockerHub"() {
         createJettyMainClass()
+        writeBasicSetupToBuildFile()
         buildFile << """
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: com.bmuschko.gradle.docker.DockerJavaApplicationPlugin
-
-version = '1.0'
-sourceCompatibility = 1.7
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
-}
-
 applicationName = 'javaapp'
-mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
 
 docker {
     registry {
@@ -151,6 +139,37 @@ ADD javaapp-1.0.tar /
 ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
 EXPOSE 8080
 """
+    }
+
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
+    def "Can create image for Java application and push to private registry"() {
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        buildFile << """
+applicationName = 'javaapp'
+
+docker {
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        tag = '$TestPrecondition.PRIVATE_REGISTRY/javaapp'
+    }
+}
+"""
+
+        when:
+        runTasks('dockerPushImage')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+                """FROM dockerfile/java:openjdk-7-jdk
+MAINTAINER ${System.getProperty('user.name')}
+ADD javaapp-1.0.tar /
+ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
+EXPOSE 8080
+"""
+        noExceptionThrown()
     }
 
     private void createJettyMainClass() {
@@ -196,7 +215,7 @@ public class JettyMain extends AbstractHandler
 """
     }
 
-    private void writeBuildFile() {
+    private void writeBasicSetupToBuildFile() {
         buildFile << """
 apply plugin: 'java'
 apply plugin: 'application'
@@ -214,7 +233,11 @@ dependencies {
 }
 
 mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
+"""
+    }
 
+    private void writeCustomTasksToBuildFile() {
+        buildFile << """
 import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer

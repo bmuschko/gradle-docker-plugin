@@ -16,9 +16,9 @@
 package com.bmuschko.gradle.docker
 
 import org.apache.commons.io.FileUtils
-import spock.lang.IgnoreIf
+import spock.lang.Requires
 
-@IgnoreIf({ !AbstractIntegrationTest.isDockerServerInfoUrlReachable() })
+@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerWorkflowIntegrationTest extends ToolingApiIntegrationTest {
     def "Can get Docker version and info"() {
         buildFile << """
@@ -121,7 +121,7 @@ task startContainer(type: DockerStartContainer) {
         runTasks('startContainer')
     }
 
-    @IgnoreIf({ !AbstractIntegrationTest.hasDockerHubCredentials() })
+    @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
     def "Can push image to DockerHub and pull it afterward"() {
         buildFile << """
 docker {
@@ -161,6 +161,38 @@ task pullImage(type: DockerPullImage) {
 
         expect:
         runTasks('pullImage')
+    }
+
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
+    def "Can build an image and push to private registry"() {
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+task createDockerfile(type: Dockerfile) {
+    destFile = project.file('build/mydockerfile/Dockerfile')
+    from 'ubuntu:12.04'
+    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = '$TestPrecondition.PRIVATE_REGISTRY/${createUniqueImageId()}'
+}
+
+task pushImage(type: DockerPushImage) {
+    dependsOn buildImage
+    conventionMapping.imageName = { buildImage.getTag() }
+}
+"""
+        when:
+        runTasks('pushImage')
+
+        then:
+        new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
+        noExceptionThrown()
     }
 
     private File createDockerfile(File imageDir) {
