@@ -122,7 +122,7 @@ The plugin defines the following extension properties in the `docker` closure:
 |`certPath`      |File      |null                     |The path to certificates for communicating with link:https://docs.docker.com/articles/https/[Docker over SSL].
 |=======
 
-Image pulling or pushing operations against the public Docker Hub registry or a private registry maybe require authentication.
+Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.
 You can provide those credentials in the `registryCredentials` closure:
 
 [options="header"]
