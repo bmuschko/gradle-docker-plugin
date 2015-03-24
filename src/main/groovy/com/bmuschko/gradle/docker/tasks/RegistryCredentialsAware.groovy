@@ -15,9 +15,9 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.DockerRegistry
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
 
-interface RegistryAware {
-    void setRegistry(DockerRegistry registry)
-    DockerRegistry getRegistry()
+interface RegistryCredentialsAware {
+    void setRegistryCredentials(DockerRegistryCredentials registryCredentials)
+    DockerRegistryCredentials getRegistryCredentials()
 }

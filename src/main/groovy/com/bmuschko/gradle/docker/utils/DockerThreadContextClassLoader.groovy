@@ -15,7 +15,7 @@
  */
 package com.bmuschko.gradle.docker.utils
 
-import com.bmuschko.gradle.docker.DockerRegistry
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 
 import java.lang.reflect.Constructor
@@ -99,13 +99,13 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createAuthConfig(DockerRegistry registry) {
+    def createAuthConfig(DockerRegistryCredentials registryCredentials) {
         Class authConfigClass = loadClass('com.github.dockerjava.api.model.AuthConfig')
         def authConfig = authConfigClass.newInstance()
-        authConfig.serverAddress = registry.url
-        authConfig.username = registry.username
-        authConfig.password = registry.password
-        authConfig.email = registry.email
+        authConfig.serverAddress = registryCredentials.url
+        authConfig.username = registryCredentials.username
+        authConfig.password = registryCredentials.password
+        authConfig.email = registryCredentials.email
         authConfig
     }
 

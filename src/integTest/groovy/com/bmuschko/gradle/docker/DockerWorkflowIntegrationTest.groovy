@@ -125,7 +125,7 @@ task startContainer(type: DockerStartContainer) {
     def "Can push image to DockerHub and pull it afterward"() {
         buildFile << """
 docker {
-    registry {
+    registryCredentials {
         username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
         password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
         email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
@@ -144,18 +144,18 @@ task createContainer(type: DockerCreateContainer) {
 
 task commitImage(type: DockerCommitImage) {
     dependsOn createContainer
-    repository = "\$docker.registry.username/busybox"
+    repository = "\$docker.registryCredentials.username/busybox"
     targetContainerId { createContainer.getContainerId() }
 }
 
 task pushImage(type: DockerPushImage) {
     dependsOn commitImage
-    imageName = "\$docker.registry.username/busybox"
+    imageName = "\$docker.registryCredentials.username/busybox"
 }
 
 task pullImage(type: DockerPullImage) {
     dependsOn pushImage
-    repository = "\$docker.registry.username/busybox"
+    repository = "\$docker.registryCredentials.username/busybox"
 }
 """
 

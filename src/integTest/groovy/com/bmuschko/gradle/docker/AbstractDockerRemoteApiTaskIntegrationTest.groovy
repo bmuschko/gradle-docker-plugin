@@ -35,8 +35,8 @@ docker {
     url = 'http://remote.docker.com:2375'
     certPath = new File('${customCertPath.canonicalPath}')
 
-    registry {
-        url = 'https://some.registry.com/'
+    registryCredentials {
+        url = 'https://some.registryCredentials.com/'
         username = 'johnny'
         password = 'pwd'
         email = 'john.doe@gmail.com'

@@ -18,7 +18,7 @@ package com.bmuschko.gradle.docker
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-class DockerRegistry {
+class DockerRegistryCredentials {
     /**
      * Registry URL needed to push images. Defaults to "https://index.docker.io/v1/".
      */

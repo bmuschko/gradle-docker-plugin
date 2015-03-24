@@ -20,10 +20,10 @@ import org.gradle.util.ConfigureUtil
 class DockerExtension {
     String url = 'http://localhost:2375'
     File certPath
-    DockerRegistry registry
+    DockerRegistryCredentials registryCredentials
 
-    void registry(Closure closure) {
-        registry = new DockerRegistry()
-        ConfigureUtil.configure(closure, registry)
+    void registryCredentials(Closure closure) {
+        registryCredentials = new DockerRegistryCredentials()
+        ConfigureUtil.configure(closure, registryCredentials)
     }
 }

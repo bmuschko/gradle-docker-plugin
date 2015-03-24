@@ -16,7 +16,7 @@
 package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.bmuschko.gradle.docker.tasks.RegistryAware
+import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.Plugin
@@ -71,8 +71,8 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureRegistryAwareTasks(Project project, DockerExtension extension) {
-        project.tasks.withType(RegistryAware) {
-            conventionMapping.registry = { extension.registry }
+        project.tasks.withType(RegistryCredentialsAware) {
+            conventionMapping.registryCredentials = { extension.registryCredentials }
         }
     }
 

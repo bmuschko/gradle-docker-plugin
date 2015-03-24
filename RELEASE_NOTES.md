@@ -1,3 +1,8 @@
+### Version 2.1 (March 24, 2015)
+
+* Renamed property `registry` to `registryCredentials` for plugin extension and tasks implementing `RegistryCredentialsAware` to better indicate its purpose.
+_Note:_ This is a breaking change.
+
 ### Version 2.0.3 (March 20, 2015)
 
 * Allow for specifying port bindings for container start command. - [Issue 30](https://github.com/bmuschko/gradle-docker-plugin/issues/30).

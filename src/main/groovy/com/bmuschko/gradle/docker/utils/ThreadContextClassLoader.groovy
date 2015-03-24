@@ -15,7 +15,7 @@
  */
 package com.bmuschko.gradle.docker.utils
 
-import com.bmuschko.gradle.docker.DockerRegistry
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 
 interface ThreadContextClassLoader {
@@ -40,10 +40,10 @@ interface ThreadContextClassLoader {
      * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/AuthConfig.java">AuthConfig</a>
      * from the thread context classloader.
      *
-     * @param registry Registry
+     * @param registryCredentials Registry credentials
      * @return Instance
      */
-    def createAuthConfig(DockerRegistry registry)
+    def createAuthConfig(DockerRegistryCredentials registryCredentials)
 
     /**
      * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Volume.java">Volume</a>

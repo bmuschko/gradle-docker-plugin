@@ -113,7 +113,7 @@ ADD file2.txt /other/dir/file2.txt
 applicationName = 'javaapp'
 
 docker {
-    registry {
+    registryCredentials {
         username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
         password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
         email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
@@ -121,7 +121,7 @@ docker {
 
     javaApplication {
         baseImage = 'dockerfile/java:openjdk-7-jdk'
-        tag = "\$docker.registry.username/javaapp"
+        tag = "\$docker.registryCredentials.username/javaapp"
     }
 }
 """
