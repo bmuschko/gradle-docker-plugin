@@ -96,10 +96,14 @@ task inspectImage(type: DockerInspectImage) {
         File imageDir = createDir(new File(projectDir, 'images/minimal'))
         createDockerfile(imageDir)
 
+        def uniqueContainerName = createUniqueContainerName()
+
         buildFile << """
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
 
 task buildImage(type: DockerBuildImage) {
     inputDir = file('images/minimal')
@@ -109,6 +113,7 @@ task buildImage(type: DockerBuildImage) {
 task createContainer(type: DockerCreateContainer) {
     dependsOn buildImage
     targetImageId { buildImage.getImageId() }
+    containerName = "$uniqueContainerName"
 }
 
 task startContainer(type: DockerStartContainer) {
@@ -116,9 +121,15 @@ task startContainer(type: DockerStartContainer) {
     targetContainerId { createContainer.getContainerId() }
     portBindings = ['8080:8080']
 }
+
+task inspectContainer(type: DockerInspectContainer) {
+    dependsOn startContainer
+    targetContainerId { startContainer.getContainerId() }
+}
 """
         expect:
-        runTasks('startContainer')
+        GradleInvocationResult result = runTasks('startContainer', 'inspectContainer')
+        result.output.contains("Name     : /$uniqueContainerName")
     }
 
     @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
