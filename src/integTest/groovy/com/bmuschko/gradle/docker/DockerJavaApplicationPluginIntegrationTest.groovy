@@ -172,6 +172,37 @@ EXPOSE 8080
         noExceptionThrown()
     }
 
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
+    def "Can create image with tag for Java application and push to private registry"() {
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        buildFile << """
+applicationName = 'javaapp'
+
+docker {
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        tag = '$TestPrecondition.PRIVATE_REGISTRY/javaapp:1.0'
+    }
+}
+"""
+
+        when:
+        runTasks('dockerPushImage')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+                """FROM dockerfile/java:openjdk-7-jdk
+MAINTAINER ${System.getProperty('user.name')}
+ADD javaapp-1.0.tar /
+ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
+EXPOSE 8080
+"""
+        noExceptionThrown()
+    }
+
     private void createJettyMainClass() {
         File packageDir = createDir(new File(projectDir, 'src/main/java/com/bmuschko/gradle/docker/application'))
         File jettyMainClass = createNewFile(packageDir, 'JettyMain.java')
