@@ -318,3 +318,26 @@ docker {
     }
 }
 ----
+
+== FAQ
+
+=== Executing the plugin's test suite with custom configuration
+
+Integration and functional tests that are executed against a Docker instance assume a specific setup. This setup
+uses the Docker server URL `http://localhost:2375` with TLS being disabled. The default setup can be configured with the
+help of system properties shown in the table below:
+
+[options="header"]
+|=======
+|Description                 |System property
+|Docker server URL           |dockerServerUrl
+|Docker cert path            |dockerCertPath
+|Docker private registry URL |dockerPrivateRegistryUrl
+|=======
+
+The following usage example demonstrates running the tests against a Docker instance using HTTPS:
+
+[source,groovy]
+----
+./gradlew build -DdockerServerUrl=https://192.168.59.103:2376 -DdockerCertPath=/Users/ben/.boot2docker/certs/boot2docker-vm
+----

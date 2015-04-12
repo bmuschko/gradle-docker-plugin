@@ -57,6 +57,29 @@ task integrationTest(type: Test) {
 
 check.dependsOn integrationTest
 
+tasks.withType(Test) { task ->
+    def dockerServerUrl = System.properties['dockerServerUrl']
+
+    if(dockerServerUrl) {
+        logger.quiet "Using Docker server URL '$dockerServerUrl' for executing tests with task '$task.name'."
+        systemProperty 'dockerServerUrl', dockerServerUrl
+    }
+
+    def dockerCertPath = System.properties['dockerCertPath']
+
+    if(dockerCertPath) {
+        logger.quiet "Using Docker cert path '$dockerCertPath' for executing tests with task '$task.name'."
+        systemProperty 'dockerCertPath', dockerCertPath
+    }
+
+    def dockerPrivateRegistryUrl = System.properties['dockerPrivateRegistryUrl']
+
+    if(dockerPrivateRegistryUrl) {
+        logger.quiet "Using Docker private registry URL '$dockerPrivateRegistryUrl' for executing tests with task '$task.name'."
+        systemProperty 'dockerPrivateRegistryUrl', dockerPrivateRegistryUrl
+    }
+}
+
 jar {
     manifest {
         attributes 'Implementation-Title': 'Gradle Docker plugin',

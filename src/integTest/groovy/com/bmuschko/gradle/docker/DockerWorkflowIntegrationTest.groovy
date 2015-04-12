@@ -179,7 +179,7 @@ task createDockerfile(type: Dockerfile) {
 task buildImage(type: DockerBuildImage) {
     dependsOn createDockerfile
     inputDir = createDockerfile.destFile.parentFile
-    tag = '$TestPrecondition.PRIVATE_REGISTRY/${createUniqueImageId()}'
+    tag = '${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}'
 }
 
 task pushImage(type: DockerPushImage) {

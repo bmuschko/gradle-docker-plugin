@@ -30,6 +30,36 @@ abstract class ProjectBuilderIntegrationTest extends AbstractIntegrationTest {
         project.repositories {
             mavenCentral()
         }
+
+        setupDockerServerUrl()
+        setupDockerCertPath()
+        setupDockerPrivateRegistryUrl()
+    }
+
+    private void setupDockerServerUrl() {
+        String dockerServerUrl = TestConfiguration.dockerServerUrl
+
+        if(dockerServerUrl) {
+            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).url = dockerServerUrl
+        }
+    }
+
+    private void setupDockerCertPath() {
+        File dockerCertPath = TestConfiguration.dockerCertPath
+
+        if(dockerCertPath) {
+            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).certPath = dockerCertPath
+        }
+    }
+
+    private void setupDockerPrivateRegistryUrl() {
+        String dockerPrivateRegistryUrl = TestConfiguration.dockerPrivateRegistryUrl
+
+        if(dockerPrivateRegistryUrl) {
+            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).registryCredentials {
+                url = dockerPrivateRegistryUrl
+            }
+        }
     }
 
     class FilteredPrintStream extends PrintStream {
