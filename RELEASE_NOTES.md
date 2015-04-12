@@ -1,3 +1,7 @@
+### Version 2.2 (April 12, 2015)
+
+* Usage of [docker-java library](https://github.com/docker-java/docker-java) version 1.1.0.
+
 ### Version 2.1 (March 24, 2015)
 
 * Renamed property `registry` to `registryCredentials` for plugin extension and tasks implementing `RegistryCredentialsAware` to better indicate its purpose.

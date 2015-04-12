@@ -16,7 +16,7 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'org.ajoberstar.github-pages'
 
 group = 'com.bmuschko'
-version = '2.1'
+version = '2.2'
 
 repositories {
     mavenCentral()
