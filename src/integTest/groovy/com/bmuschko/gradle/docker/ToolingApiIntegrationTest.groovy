@@ -49,7 +49,9 @@ repositories {
         String dockerServerUrl = TestConfiguration.dockerServerUrl
 
         if(dockerServerUrl) {
-            buildFile << "docker.url = '$dockerServerUrl'"
+            buildFile << """
+docker.url = '$dockerServerUrl'
+"""
         }
     }
 
@@ -57,7 +59,9 @@ repositories {
         File dockerCertPath = TestConfiguration.dockerCertPath
 
         if(dockerCertPath) {
-            buildFile << "docker.certPath = new File('$dockerCertPath.canonicalPath')"
+            buildFile << """
+docker.certPath = new File('$dockerCertPath.canonicalPath')
+"""
         }
     }
 

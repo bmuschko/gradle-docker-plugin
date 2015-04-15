@@ -329,10 +329,10 @@ help of system properties shown in the table below:
 
 [options="header"]
 |=======
-|Description                 |System property
-|Docker server URL           |dockerServerUrl
-|Docker cert path            |dockerCertPath
-|Docker private registry URL |dockerPrivateRegistryUrl
+|Description                 |System property          |Default Value
+|Docker server URL           |dockerServerUrl          |http://localhost:2375
+|Docker cert path            |dockerCertPath           |null
+|Docker private registry URL |dockerPrivateRegistryUrl |http://localhost:5000
 |=======
 
 The following usage example demonstrates running the tests against a Docker instance using HTTPS:
