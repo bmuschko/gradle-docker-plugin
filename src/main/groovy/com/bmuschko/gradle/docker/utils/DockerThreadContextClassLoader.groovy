@@ -133,6 +133,40 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
+    def createLink(String link) {
+        Class linkClass = loadClass('com.github.dockerjava.api.model.Link')
+        Method method = linkClass.getMethod("parse", String)
+        method.invoke(null, link)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createLinks(List<Object> links) {
+        Class linksClass = loadClass('com.github.dockerjava.api.model.Links')
+        Constructor constructor = linksClass.getConstructor(List.class)
+        constructor.newInstance(links)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createHostConfig(Map hostConfigProperties) {
+        Class hostConfigClass = loadClass('com.github.dockerjava.api.model.HostConfig')
+        Constructor constructor = hostConfigClass.getConstructor()
+        def hostConfig = constructor.newInstance()
+        hostConfigProperties.each {
+            hostConfig."${it.key}" = it.value
+        }
+        hostConfig
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     def createExposedPort(String scheme, Integer port) {
         Class exposedPortClass = loadClass('com.github.dockerjava.api.model.ExposedPort')
         Constructor constructor = exposedPortClass.getConstructor(Integer.TYPE, loadInternetProtocolClass())

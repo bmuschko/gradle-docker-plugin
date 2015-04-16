@@ -22,6 +22,8 @@ import org.gradle.api.tasks.Optional
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     String imageId
 
+    List<String> links
+
     @Input
     @Optional
     String containerName
@@ -113,6 +115,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         containerId = container.id
     }
 
+    void links (Closure links) {
+        conventionMapping.links = links
+    }
+
     void targetImageId(Closure imageId) {
         conventionMapping.imageId = imageId
     }
@@ -186,6 +192,11 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if(getVolumes()) {
             def createdVolumes = getVolumes().collect { threadContextClassLoader.createVolume(it) }
             containerCommand.volumes = threadContextClassLoader.createVolumes(createdVolumes)
+        }
+
+        if (getLinks()) {
+            def createdLinks = getLinks().collect( { threadContextClassLoader.createLink(it) })
+            containerCommand.withHostConfig(threadContextClassLoader.createHostConfig(["links":createdLinks]))
         }
 
         if(getVolumesFrom()) {

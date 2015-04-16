@@ -20,7 +20,8 @@ class DockerInspectContainer extends DockerExistingContainer {
     void runRemoteCommand(dockerClient) {
         logger.quiet "Inspecting container with ID '${getContainerId()}'."
         def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
-        logger.quiet "Image ID : $container.imageId"
-        logger.quiet "Name     : $container.name"
+        logger.quiet "Image ID   : $container.imageId"
+        logger.quiet "Name       : $container.name"
+        logger.quiet "Links      : $container.hostConfig.links"
     }
 }

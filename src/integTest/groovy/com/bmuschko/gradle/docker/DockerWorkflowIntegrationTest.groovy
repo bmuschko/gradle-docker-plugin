@@ -129,8 +129,52 @@ task inspectContainer(type: DockerInspectContainer) {
 """
         expect:
         GradleInvocationResult result = runTasks('startContainer', 'inspectContainer')
-        result.output.contains("Name     : /$uniqueContainerName")
+        result.output.contains("Name       : /$uniqueContainerName")
     }
+
+    def "Can build an image, create and link a container"() {
+        File imageDir = createDir(new File(projectDir, 'images/minimal'))
+        createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+
+task buildImage(type: DockerBuildImage) {
+    inputDir = file('images/minimal')
+    tag = "${createUniqueImageId()}"
+}
+
+task createContainer1(type: DockerCreateContainer) {
+    dependsOn buildImage
+    targetImageId { buildImage.getImageId() }
+    containerName = "${uniqueContainerName}1"
+}
+
+task createContainer2(type: DockerCreateContainer) {
+    dependsOn createContainer1
+    targetImageId { buildImage.getImageId() }
+    containerName = "${uniqueContainerName}2"
+
+    links {
+        ["${uniqueContainerName}1:container1"]
+    }
+}
+
+task inspectContainer(type: DockerInspectContainer) {
+    dependsOn createContainer2
+    targetContainerId { createContainer2.getContainerId() }
+}
+"""
+        expect:
+        GradleInvocationResult result = runTasks('createContainer2', 'inspectContainer')
+        result.output.contains("Links      : [${uniqueContainerName}1:container1]")
+    }
+
 
     @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
     def "Can push image to DockerHub and pull it afterward"() {
