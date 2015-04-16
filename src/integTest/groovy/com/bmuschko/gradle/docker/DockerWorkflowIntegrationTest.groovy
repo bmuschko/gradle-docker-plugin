@@ -96,7 +96,7 @@ task inspectImage(type: DockerInspectImage) {
         File imageDir = createDir(new File(projectDir, 'images/minimal'))
         createDockerfile(imageDir)
 
-        def uniqueContainerName = createUniqueContainerName()
+        String uniqueContainerName = createUniqueContainerName()
 
         buildFile << """
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
