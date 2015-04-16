@@ -24,6 +24,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String containerName
+
+    @Input
+    @Optional
     String hostName
 
     @Input
@@ -119,6 +123,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     }
 
     private void setContainerCommandConfig(containerCommand) {
+        if (getContainerName()) {
+            containerCommand.withName(getContainerName())
+        }
+
         if(getHostName()) {
             containerCommand.withHostName(getHostName())
         }

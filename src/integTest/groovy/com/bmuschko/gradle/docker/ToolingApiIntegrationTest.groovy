@@ -95,4 +95,8 @@ docker.registryCredentials {
     protected String createUniqueImageId() {
         "gradle/${UUID.randomUUID().toString().replaceAll('-', '')}"
     }
+
+    protected String createUniqueContainerName() {
+        UUID.randomUUID().toString().replaceAll('-', '')
+    }
 }
