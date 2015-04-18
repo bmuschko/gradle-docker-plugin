@@ -22,6 +22,8 @@ import org.gradle.api.tasks.Optional
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     String imageId
 
+    @Input
+    @Optional
     List<String> links
 
     @Input
@@ -113,10 +115,6 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         def container = containerCommand.exec()
         logger.quiet "Created container with ID '$container.id'."
         containerId = container.id
-    }
-
-    void links (Closure links) {
-        conventionMapping.links = links
     }
 
     void targetImageId(Closure imageId) {

@@ -153,12 +153,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createHostConfig(Map hostConfigProperties) {
+    def createHostConfig(Map<String, String> hostConfigProperties) {
         Class hostConfigClass = loadClass('com.github.dockerjava.api.model.HostConfig')
         Constructor constructor = hostConfigClass.getConstructor()
         def hostConfig = constructor.newInstance()
-        hostConfigProperties.each {
-            hostConfig."${it.key}" = it.value
+        hostConfigProperties.each { key, value ->
+            hostConfig."${key}" = value
         }
         hostConfig
     }

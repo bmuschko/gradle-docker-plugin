@@ -143,7 +143,6 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
-
 task buildImage(type: DockerBuildImage) {
     inputDir = file('images/minimal')
     tag = "${createUniqueImageId()}"
@@ -159,10 +158,7 @@ task createContainer2(type: DockerCreateContainer) {
     dependsOn createContainer1
     targetImageId { buildImage.getImageId() }
     containerName = "${uniqueContainerName}2"
-
-    links {
-        ["${uniqueContainerName}1:container1"]
-    }
+    links = ["${uniqueContainerName}1:container1"]
 }
 
 task inspectContainer(type: DockerInspectContainer) {
@@ -174,7 +170,6 @@ task inspectContainer(type: DockerInspectContainer) {
         GradleInvocationResult result = runTasks('createContainer2', 'inspectContainer')
         result.output.contains("Links      : [${uniqueContainerName}1:container1]")
     }
-
 
     @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
     def "Can push image to DockerHub and pull it afterward"() {

@@ -88,7 +88,7 @@ interface ThreadContextClassLoader {
      * @param hostConfigProperties a map containing all HostConfig properties to be set. The map entry key is the property name while the map entry value is the property value.
      * @return Instance
      */
-    def createHostConfig(Map hostConfigProperties)
+    def createHostConfig(Map<String, String> hostConfigProperties)
 
     /**
      * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/InternetProtocol.java">InternetProtocol</a>
