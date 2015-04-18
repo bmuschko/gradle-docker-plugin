@@ -1,4 +1,4 @@
-### Version 2.3
+### Version 2.3 (April 18, 2015)
 
 * Added task `DockerInspectContainer` - [Pull request 44](https://github.com/bmuschko/gradle-docker-plugin/pull/44).
 * Added property `containerName` to task `DockerCreateContainer` - [Pull request 44](https://github.com/bmuschko/gradle-docker-plugin/pull/44).
