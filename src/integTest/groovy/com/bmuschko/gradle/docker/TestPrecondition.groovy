@@ -1,8 +1,6 @@
 package com.bmuschko.gradle.docker
 
 final class TestPrecondition {
-    public static final String SERVER_URL = 'http://localhost:2375'
-    public static final String PRIVATE_REGISTRY = 'localhost:5000'
     public static final boolean DOCKER_SERVER_INFO_URL_REACHABLE = isDockerServerInfoUrlReachable()
     public static final boolean DOCKER_PRIVATE_REGISTRY_REACHABLE = isPrivateDockerRegistryReachable()
     public static final boolean DOCKERHUB_CREDENTIALS_AVAILABLE = hasDockerHubCredentials()
@@ -10,11 +8,11 @@ final class TestPrecondition {
     private TestPrecondition() {}
 
     private static boolean isDockerServerInfoUrlReachable() {
-        isUrlReachable(new URL("$SERVER_URL/info"))
+        isUrlReachable(new URL("${TestConfiguration.dockerServerUrl}/info"))
     }
 
     private static boolean isPrivateDockerRegistryReachable() {
-        isUrlReachable(new URL("http://$PRIVATE_REGISTRY"))
+        isUrlReachable(new URL(TestConfiguration.dockerPrivateRegistryUrl))
     }
 
     private static boolean isUrlReachable(URL url) {

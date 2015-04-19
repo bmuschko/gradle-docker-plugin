@@ -139,4 +139,47 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         instance
         instance.ports.size() == 2
     }
+
+    def "Can create class of type Link"() {
+        when:
+        def instance = null
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createLink('name:alias')
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+    }
+
+    def "Can create class of type Links"() {
+        when:
+        def instance = null
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            def link = createLink('name:alias')
+            def link2 = createLink('name2:alias2')
+            instance = createLinks([link, link2])
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+        instance.links.size() == 2
+    }
+
+    def "Can create class of type HostConfig"() {
+        when:
+        def instance = null
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createHostConfig(["links": []])
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+        instance.links.links.size() == 0
+    }
 }

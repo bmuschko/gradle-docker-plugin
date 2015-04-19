@@ -15,7 +15,7 @@ abstract class DockerTaskIntegrationTest extends ProjectBuilderIntegrationTest {
 
         then:
         Throwable t = thrown(TaskExecutionException)
-        t.cause.message.contains("Connection refused")
+        t.cause.message.contains("Connection refused") || t.cause.message.contains("https protocol is not supported")
     }
 
     abstract Task createAndConfigureTask()

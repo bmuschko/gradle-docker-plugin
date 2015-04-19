@@ -6,7 +6,8 @@ image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
 Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Currently,
-version 0.10.5 is used which assumes Docker's client API v1.16.
+version 1.2.0. Please refer to the library's documentation for more information on the supported Docker's client API
+and Docker server version.
 
 link:https://snap-ci.com/bmuschko/gradle-docker-plugin/branch/master[image:https://snap-ci.com/bmuschko/gradle-docker-plugin/branch/master/build_image[Build Image]]
 
@@ -22,7 +23,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:2.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:2.3'
     }
 }
 ----
@@ -102,6 +103,7 @@ The plugin provides the following custom task types for managing containers:
 |=======
 |Type                                                                                                                                                              |Description
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCreateContainer.html[DockerCreateContainer]   |Creates a container.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html[DockerInspectContainer] |Returns low-level information on the container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerKillContainer.html[DockerKillContainer]       |Kills the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRemoveContainer.html[DockerRemoveContainer]   |Removes the container for a given id from the filesystem.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRestartContainer.html[DockerRestartContainer] |Restarts the container for a given id.
@@ -317,4 +319,27 @@ docker {
         maintainer = 'Jon Doe "jon.doe@gmail.com"'
     }
 }
+----
+
+== FAQ
+
+=== Executing the plugin's test suite with custom configuration
+
+Integration and functional tests that are executed against a Docker instance assume a specific setup. This setup
+uses the Docker server URL `http://localhost:2375` with TLS being disabled. The default setup can be configured with the
+help of system properties shown in the table below:
+
+[options="header"]
+|=======
+|Description                 |System property          |Default Value
+|Docker server URL           |dockerServerUrl          |http://localhost:2375
+|Docker cert path            |dockerCertPath           |null
+|Docker private registry URL |dockerPrivateRegistryUrl |http://localhost:5000
+|=======
+
+The following usage example demonstrates running the tests against a Docker instance using HTTPS:
+
+[source,groovy]
+----
+./gradlew build -DdockerServerUrl=https://192.168.59.103:2376 -DdockerCertPath=/Users/ben/.boot2docker/certs/boot2docker-vm
 ----

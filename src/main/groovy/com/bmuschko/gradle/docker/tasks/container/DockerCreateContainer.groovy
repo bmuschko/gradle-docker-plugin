@@ -24,6 +24,14 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    List<String> links
+
+    @Input
+    @Optional
+    String containerName
+
+    @Input
+    @Optional
     String hostName
 
     @Input
@@ -119,6 +127,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     }
 
     private void setContainerCommandConfig(containerCommand) {
+        if (getContainerName()) {
+            containerCommand.withName(getContainerName())
+        }
+
         if(getHostName()) {
             containerCommand.withHostName(getHostName())
         }
@@ -178,6 +190,11 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if(getVolumes()) {
             def createdVolumes = getVolumes().collect { threadContextClassLoader.createVolume(it) }
             containerCommand.volumes = threadContextClassLoader.createVolumes(createdVolumes)
+        }
+
+        if (getLinks()) {
+            def createdLinks = getLinks().collect( { threadContextClassLoader.createLink(it) })
+            containerCommand.withHostConfig(threadContextClassLoader.createHostConfig(["links":createdLinks]))
         }
 
         if(getVolumesFrom()) {

@@ -39,6 +39,41 @@ repositories {
     mavenCentral()
 }
 """
+
+        setupDockerServerUrl()
+        setupDockerCertPath()
+        setupDockerPrivateRegistryUrl()
+    }
+
+    private void setupDockerServerUrl() {
+        String dockerServerUrl = TestConfiguration.dockerServerUrl
+
+        if(dockerServerUrl) {
+            buildFile << """
+docker.url = '$dockerServerUrl'
+"""
+        }
+    }
+
+    private void setupDockerCertPath() {
+        File dockerCertPath = TestConfiguration.dockerCertPath
+
+        if(dockerCertPath) {
+            buildFile << """
+docker.certPath = new File('$dockerCertPath.canonicalPath')
+"""
+        }
+    }
+
+    private void setupDockerPrivateRegistryUrl() {
+        String dockerPrivateRegistryUrl = TestConfiguration.dockerPrivateRegistryUrl
+
+        if(dockerPrivateRegistryUrl) {
+            buildFile << """
+docker.registryCredentials {
+    url = '$dockerPrivateRegistryUrl'
+}"""
+        }
     }
 
     protected GradleInvocationResult runTasks(String... tasks) {
@@ -58,6 +93,14 @@ repositories {
     }
 
     protected String createUniqueImageId() {
-        "gradle/${UUID.randomUUID().toString().replaceAll('-', '')}"
+        "gradle/${generateRandomUUID()}"
+    }
+
+    protected String createUniqueContainerName() {
+        generateRandomUUID()
+    }
+
+    private String generateRandomUUID() {
+        UUID.randomUUID().toString().replaceAll('-', '')
     }
 }

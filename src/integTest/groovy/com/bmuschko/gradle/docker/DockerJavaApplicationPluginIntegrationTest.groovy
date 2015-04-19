@@ -151,7 +151,7 @@ applicationName = 'javaapp'
 docker {
     javaApplication {
         baseImage = 'dockerfile/java:openjdk-7-jdk'
-        tag = '$TestPrecondition.PRIVATE_REGISTRY/javaapp'
+        tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
     }
 }
 """
