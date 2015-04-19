@@ -23,6 +23,10 @@ class DockerStartContainer extends DockerExistingContainer {
     @Optional
     String[] portBindings
 
+    @Input
+    @Optional
+    Map<String,String> binds
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Starting container with ID '${getContainerId()}'."
@@ -36,6 +40,11 @@ class DockerStartContainer extends DockerExistingContainer {
             def createdPortBindings = getPortBindings().collect { threadContextClassLoader.createPortBinding(it) }
             containerCommand.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
         }
+        if(getBinds()) {
+            def createdBinds = getBinds().collect { threadContextClassLoader.createBind(it) }
+            containerCommand.withBinds(createdBinds)
+        }
+
     }
 }
 

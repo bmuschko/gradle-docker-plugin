@@ -108,4 +108,14 @@ interface ThreadContextClassLoader {
      * @return Instance
      */
     def createPorts(List<Object> portBindings)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Bind.java">Bind</a>
+     * from thread context classloader.
+     *
+     * @param path The path on the local host to bind to the given volume.
+     * @param volume The path to the volume of the container to bind to.
+     * @return Instance
+     */
+    def createBind(String path, String volume)
 }
