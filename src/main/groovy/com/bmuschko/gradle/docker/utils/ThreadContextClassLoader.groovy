@@ -145,4 +145,14 @@ interface ThreadContextClassLoader {
      * @return Instance
      */
     def createBind(String path, String volume)
+
+    /**
+     * Creates an array of instances of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Bind.java">Bind</a>
+     * from thread context classloader.
+     *
+     * @param binds A map of the binds to create. The keys are the path on the local host to bind
+     * to the given volume. The values are the path to the volume of the container to bind to.
+     * @return Array of Instance
+     */
+    def createBinds(Map<String, String> binds)
 }

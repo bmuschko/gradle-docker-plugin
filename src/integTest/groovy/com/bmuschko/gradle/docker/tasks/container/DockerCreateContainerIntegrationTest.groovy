@@ -49,4 +49,15 @@ class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
         then:
         task.containerId
     }
+
+    @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
+    def "Set binds"() {
+        when:
+        DockerCreateContainer task = createAndConfigureTask()
+        task.binds = ['/my/local/path':'/my/path']
+        task.execute()
+
+        then:
+        task.containerId
+    }
 }

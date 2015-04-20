@@ -233,6 +233,13 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         bindConstructor.newInstance(path, volumeInstance)
     }
 
+    def createBinds(Map<String, String> binds) {
+
+        def bindList = binds.collect { createBind(it.key, it.value) }
+        Class bindClass = loadClass('com.github.dockerjava.api.model.Bind')
+        bindList.toArray(Array.newInstance(bindClass, bindList.size()))
+    }
+
     private Class loadInternetProtocolClass() {
         loadClass('com.github.dockerjava.api.model.InternetProtocol')
     }
