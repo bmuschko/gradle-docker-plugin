@@ -182,4 +182,35 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         instance
         instance.links.links.size() == 0
     }
+
+    def "Can create class of type Bind"() {
+
+        when:
+        def instance = null
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createBind("/my/path", "/my/other/path")
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+    }
+
+    def "Can create array of type Bind"() {
+
+        when:
+        def instance = null
+
+        def binds = ["/my/path":"my/other/path","/my/third/path":"/my/fourth/path"]
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createBinds(binds)
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+        instance.length == binds.size()
+    }
 }
