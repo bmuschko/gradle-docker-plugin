@@ -102,6 +102,7 @@ The plugin provides the following custom task types for managing containers:
 [options="header"]
 |=======
 |Type                                                                                                                                                                        |Description
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileFromContainer.html[DockerCopyFileFromContainer] |Copies a path from the container as a tar file on to the host.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCreateContainer.html[DockerCreateContainer]             |Creates a container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html[DockerInspectContainer]           |Returns low-level information on the container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerKillContainer.html[DockerKillContainer]                 |Kills the container for a given id.
@@ -110,7 +111,6 @@ The plugin provides the following custom task types for managing containers:
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStartContainer.html[DockerStartContainer]               |Starts the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStopContainer.html[DockerStopContainer]                 |Stops the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops, then returns the exit code.
-|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileFromContainer.html[DockerCopyFileFromContainer] |Copies a path from the container as a tar file on to the host.
 |=======
 
 
