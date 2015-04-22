@@ -131,7 +131,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     }
 
     private void setContainerCommandConfig(containerCommand) {
-        if (getContainerName()) {
+        if(getContainerName()) {
             containerCommand.withName(getContainerName())
         }
 

@@ -18,9 +18,9 @@ package com.bmuschko.gradle.docker.utils
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 
+import java.lang.reflect.Array
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
-import java.lang.reflect.Array
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     /**
@@ -222,25 +222,35 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         ports
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     def createBind(String path, String volume) {
-
         Class volumeClass = loadClass('com.github.dockerjava.api.model.Volume')
         Constructor volumeConstructor = volumeClass.getConstructor(String)
         def volumeInstance = volumeConstructor.newInstance(volume)
 
-        Class bindClass = loadClass('com.github.dockerjava.api.model.Bind')
+        Class bindClass = loadBindClass()
         Constructor bindConstructor = bindClass.getConstructor(String, volumeClass)
         bindConstructor.newInstance(path, volumeInstance)
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     def createBinds(Map<String, String> binds) {
-
         def bindList = binds.collect { createBind(it.key, it.value) }
-        Class bindClass = loadClass('com.github.dockerjava.api.model.Bind')
+        Class bindClass = loadBindClass()
         bindList.toArray(Array.newInstance(bindClass, bindList.size()))
     }
 
     private Class loadInternetProtocolClass() {
         loadClass('com.github.dockerjava.api.model.InternetProtocol')
+    }
+
+    private Class loadBindClass() {
+        loadClass('com.github.dockerjava.api.model.Bind')
     }
 }

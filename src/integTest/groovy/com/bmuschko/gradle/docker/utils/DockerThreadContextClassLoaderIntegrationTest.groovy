@@ -184,11 +184,10 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
     }
 
     def "Can create class of type Bind"() {
-
         when:
         def instance = null
-        def path = "/my/path"
-        def volume = "/my/volume"
+        def path = '/my/path'
+        def volume = '/my/volume'
 
         threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
             instance = createBind(path, volume)
@@ -201,12 +200,11 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         instance.volume.path == volume
     }
 
-    def "Can create array of type Bind"() {
-
+    def "Can create class of type Binds"() {
         when:
         def instance = null
 
-        def binds = ["/my/path":"my/other/path","/my/third/path":"/my/fourth/path"]
+        def binds = ['/my/path': 'my/volume', '/other/path': '/other/volume']
 
         threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
             instance = createBinds(binds)
@@ -216,7 +214,9 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         noExceptionThrown()
         instance
         instance.length == binds.size()
-        instance.collect { it.path } == binds.keySet().toList()
-        instance.collect { it.volume.path } == binds.values().toList()
+        instance[0].path == '/my/path'
+        instance[0].volume.path == 'my/volume'
+        instance[1].path == '/other/path'
+        instance[1].volume.path == '/other/volume'
     }
 }

@@ -29,32 +29,12 @@ class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
     }
 
     @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
-    def "Set exposed ports"() {
+    def "Set custom property values"() {
         when:
         DockerCreateContainer task = createAndConfigureTask()
         task.exposedPorts = ['TCP': 80]
-        task.execute()
-
-        then:
-        task.containerId
-    }
-
-    @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
-    def "Set volumes"() {
-        when:
-        DockerCreateContainer task = createAndConfigureTask()
         task.volumes = ['/my/path']
-        task.execute()
-
-        then:
-        task.containerId
-    }
-
-    @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
-    def "Set binds"() {
-        when:
-        DockerCreateContainer task = createAndConfigureTask()
-        task.binds = ['/my/local/path':'/my/path']
+        task.binds = ['/my/local/path': '/my/path']
         task.execute()
 
         then:
