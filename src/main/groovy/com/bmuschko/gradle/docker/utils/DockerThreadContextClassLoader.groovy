@@ -226,7 +226,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
         Class volumeClass = loadClass('com.github.dockerjava.api.model.Volume')
         Constructor volumeConstructor = volumeClass.getConstructor(String)
-        def volumeInstance = volumeConstructor.newInstance(path)
+        def volumeInstance = volumeConstructor.newInstance(volume)
 
         Class bindClass = loadClass('com.github.dockerjava.api.model.Bind')
         Constructor bindConstructor = bindClass.getConstructor(String, volumeClass)
