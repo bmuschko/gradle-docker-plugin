@@ -1,3 +1,7 @@
+### Version 2.3.1
+
+* Added support for `Binds` when creating containers - [Pull request 54](https://github.com/bmuschko/gradle-docker-plugin/pull/54).
+
 ### Version 2.3 (April 18, 2015)
 
 * Added task `DockerInspectContainer` - [Pull request 44](https://github.com/bmuschko/gradle-docker-plugin/pull/44).
