@@ -15,43 +15,40 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import java.io.File;
-import java.util.List;
-
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.GZIPOutputStream
 
 class DockerCopyFileFromContainer extends DockerExistingContainer {
-	@Input
-	String resource
+    @Input
+    String resource
 
-	@Input
-	@OutputFile
-	File destFile
+    @Input
+    @OutputFile
+    File destFile
 
-	@Input
-	@Optional
-	boolean compressed = false
+    @Input
+    @Optional
+    boolean compressed = false
 
-	@Override
-	void runRemoteCommand(dockerClient) {
-		logger.quiet "Copying '${resource}' from container with ID '${getContainerId()}' to '${destFile}'."
+    @Override
+    void runRemoteCommand(dockerClient) {
+        logger.quiet "Copying '${resource}' from container with ID '${getContainerId()}' to '${destFile}'."
 
-		getDestFile().withOutputStream  { out ->
-			def input = dockerClient.copyFileFromContainerCmd(getContainerId(), resource).exec()
+        getDestFile().withOutputStream  { out ->
+            def input = dockerClient.copyFileFromContainerCmd(getContainerId(), resource).exec()
 
-			if (isCompressed()) {
-				def gzipOut = new GZIPOutputStream(out)
-				gzipOut << input
-				gzipOut.close()
-			} else {
-				out << input
-			}
+            if (isCompressed()) {
+                def gzipOut = new GZIPOutputStream(out)
+                gzipOut << input
+                gzipOut.close()
+            } else {
+                out << input
+            }
 
-			input.close()
-		}
-	}
+            input.close()
+        }
+    }
 }
