@@ -31,24 +31,39 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
 
     @Input
     @Optional
-    boolean compressed = false
+    Boolean compressed = Boolean.FALSE
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Copying '${resource}' from container with ID '${getContainerId()}' to '${destFile}'."
+        logger.quiet "Copying '${getResource()}' from container with ID '${getContainerId()}' to '${getDestFile()}'."
 
-        getDestFile().withOutputStream  { out ->
-            def input = dockerClient.copyFileFromContainerCmd(getContainerId(), resource).exec()
+        getDestFile().withOutputStream  { OutputStream out ->
+            def input
 
-            if (isCompressed()) {
-                def gzipOut = new GZIPOutputStream(out)
-                gzipOut << input
-                gzipOut.close()
-            } else {
-                out << input
+            try {
+                input = dockerClient.copyFileFromContainerCmd(getContainerId(), getResource()).exec()
+
+                if (getCompressed()) {
+                    compressFile(out, input)
+                } else {
+                    out << input
+                }
             }
+            finally {
+                input?.close()
+            }
+        }
+    }
 
-            input.close()
+    private void compressFile(OutputStream outputStream, input) {
+        GZIPOutputStream gzipOut
+
+        try {
+            gzipOut = new GZIPOutputStream(outputStream)
+            gzipOut << input
+        }
+        finally {
+            gzipOut?.close()
         }
     }
 }

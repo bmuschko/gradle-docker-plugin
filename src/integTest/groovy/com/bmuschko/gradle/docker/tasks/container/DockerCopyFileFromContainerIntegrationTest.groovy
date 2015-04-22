@@ -15,38 +15,20 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.bmuschko.gradle.docker.tasks.DockerTaskIntegrationTest
 import org.gradle.api.Task
 
-import spock.lang.Requires
-
-import com.bmuschko.gradle.docker.tasks.DockerTaskIntegrationTest
-import com.bmuschko.gradle.docker.TestPrecondition
-
 class DockerCopyFileFromContainerIntegrationTest extends DockerTaskIntegrationTest {
+    def setup() {
+        createDir(new File(projectDir, 'build'))
+    }
+
     @Override
     Task createAndConfigureTask() {
-        project.file('build').mkdirs()
         project.task('copyFileFromContainer', type: DockerCopyFileFromContainer) {
             containerId = 'busybox'
             resource = '/etc/issue'
             destFile = project.file('build/issue.tar')
-        }
-    }
-
-    @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
-    def "Can copy file from container to host"() {
-        when:
-        def task = createAndConfigureTask()
-
-        task.execute()
-
-        then:
-        File issueTarFile = new File(projectDir, 'build/issue.tar')
-        issueTarFile.exists()
-        tarTree(issueTarFile).visit { element ->
-            element.relativePath == 'issue'
-            element.file.text == """Welcome to Buildroot
-"""
         }
     }
 }
