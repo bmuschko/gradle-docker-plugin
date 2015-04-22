@@ -216,5 +216,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         noExceptionThrown()
         instance
         instance.length == binds.size()
+        instance.collect { it.path } == binds.keySet().toList()
+        instance.collect { it.volume.path } == binds.values().toList()
     }
 }
