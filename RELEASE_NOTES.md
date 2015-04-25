@@ -1,4 +1,4 @@
-### Version 2.3.1
+### Version 2.3.1 (April 25, 2015)
 
 * Added support for `Binds` when creating containers - [Pull request 54](https://github.com/bmuschko/gradle-docker-plugin/pull/54).
 * Added task for copying files from a container to a host - [Pull request 57](https://github.com/bmuschko/gradle-docker-plugin/pull/57).
