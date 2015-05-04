@@ -119,7 +119,11 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         project.task(PUSH_IMAGE_TASK_NAME, type: DockerPushImage) {
             description = 'Pushes created Docker image to the repository.'
             dependsOn dockerBuildImageTask
-            conventionMapping.imageName = { dockerBuildImageTask.getTag() }
+            conventionMapping.imageName = { imageNameFromTag(dockerBuildImageTask.getTag()) }
         }
+    }
+
+    static String imageNameFromTag(String tag) {
+        tag.split(':')[0]
     }
 }
