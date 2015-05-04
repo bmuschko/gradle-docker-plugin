@@ -9,6 +9,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.network "forwarded_port", guest: 2375, host: 2375
+  config.vm.network "forwarded_port", guest: 5000, host: 5000
 
   config.vm.provision 'shell', inline: <<-SH
     sudo echo DOCKER_OPTS=\\"-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375\\" > /etc/default/docker
@@ -16,5 +17,7 @@ Vagrant.configure(2) do |config|
     sudo echo Europe/Helsinki > /etc/timezone
     sudo /usr/sbin/dpkg-reconfigure --frontend noninteractive tzdata
   SH
-  config.vm.provision 'docker'
+  config.vm.provision 'docker' do |d|
+    d.run 'registry:2.0', args: '-p 5000:5000', auto_assign_name: false
+  end
 end
