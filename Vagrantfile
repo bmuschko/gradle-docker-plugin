@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.provider "virtualbox" do |vb|
+     vb.memory = "1024"
+  end
+
+  config.vm.network "forwarded_port", guest: 2375, host: 2375
+
+  config.vm.provision 'shell', inline: <<-SH
+    sudo echo DOCKER_OPTS=\\"-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375\\" > /etc/default/docker
+
+    sudo echo Europe/Helsinki > /etc/timezone
+    sudo /usr/sbin/dpkg-reconfigure --frontend noninteractive tzdata
+  SH
+  config.vm.provision 'docker'
+end

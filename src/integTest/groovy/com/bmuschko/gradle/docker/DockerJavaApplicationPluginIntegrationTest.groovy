@@ -141,6 +141,42 @@ EXPOSE 8080
 """
     }
 
+    @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
+    def "Can create versioned image for Java application and push to DockerHub"() {
+      createJettyMainClass()
+      writeBasicSetupToBuildFile()
+      buildFile << """
+  applicationName = 'javaapp'
+
+  docker {
+      registryCredentials {
+          username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
+          password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
+          email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
+      }
+
+      javaApplication {
+          baseImage = 'dockerfile/java:openjdk-7-jdk'
+          tag = "\$docker.registryCredentials.username/javaapp:1.0"
+      }
+  }
+  """
+
+      when:
+      runTasks('dockerPushImage')
+
+      then:
+      File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+      dockerfile.exists()
+      dockerfile.text ==
+              """FROM dockerfile/java:openjdk-7-jdk
+MAINTAINER ${System.getProperty('user.name')}
+ADD javaapp-1.0.tar /
+ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
+EXPOSE 8080
+"""
+    }
+
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can create image for Java application and push to private registry"() {
         createJettyMainClass()
