@@ -124,6 +124,12 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
     }
 
     static String imageNameFromTag(String tag) {
-        tag.split(':')[0]
+        String repository = ""
+        String[] components = tag.split('/')
+
+        if (components.length > 1) repository = components.first() + '/'
+
+        String image = components.last()
+        repository + image.split(':').first()
     }
 }

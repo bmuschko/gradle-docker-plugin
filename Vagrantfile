@@ -18,6 +18,6 @@ Vagrant.configure(2) do |config|
     sudo /usr/sbin/dpkg-reconfigure --frontend noninteractive tzdata
   SH
   config.vm.provision 'docker' do |d|
-    d.run 'registry:2.0', args: '-p 5000:5000', auto_assign_name: false
+    d.run 'registry', args: '-p 5000:5000'
   end
 end
