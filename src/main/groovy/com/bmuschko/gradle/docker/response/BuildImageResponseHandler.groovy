@@ -51,7 +51,7 @@ class BuildImageResponseHandler implements ResponseHandler<String> {
     }
 
     private boolean isSuccessfulStreamIndicator(String stream) {
-        stream.contains(SUCCESS_OUTPUT)
+        ( stream!=null ?  stream.contains(SUCCESS_OUTPUT) : false)
     }
 
     private String parseImageIdFromStream(String stream) {

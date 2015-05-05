@@ -60,6 +60,14 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String cpuset
+
+    @Input
+    @Optional
+    String portBindings
+
+    @Input
+    @Optional
     Boolean attachStdin
 
     @Input
@@ -163,6 +171,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.withMemorySwap(getMemorySwap())
         }
 
+        if(getCpuset()) {
+            containerCommand.withCpuset(getCpuset())
+        }
         if(getAttachStdin()) {
             containerCommand.withAttachStdin(getAttachStdin())
         }
@@ -213,7 +224,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             def createdExposedPorts = getExposedPorts().collect { threadContextClassLoader.createExposedPort(it.key, it.value) }
             containerCommand.exposedPorts = threadContextClassLoader.createExposedPorts(createdExposedPorts)
         }
-
+        if(getPortBindings()) {
+            containerCommand.withPortBindings(threadContextClassLoader.createPortBinding(getPortBindings()))
+        }
         if(getBinds()) {
             def createdBinds = threadContextClassLoader.createBinds(getBinds())
             containerCommand.withBinds(createdBinds)
