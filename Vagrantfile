@@ -19,6 +19,6 @@ Vagrant.configure(2) do |config|
   SH
   config.vm.provision 'docker' do |d|
     d.run 'registry', args: '-p 5000:5000'
-    d.pull_image 'busybox'
+    d.pull_images 'busybox'
   end
 end
