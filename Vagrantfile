@@ -13,10 +13,8 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision 'shell', inline: <<-SH
     sudo echo DOCKER_OPTS=\\"-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375\\" > /etc/default/docker
-
-    sudo echo Europe/Helsinki > /etc/timezone
-    sudo /usr/sbin/dpkg-reconfigure --frontend noninteractive tzdata
   SH
+
   config.vm.provision 'docker' do |d|
     d.run 'registry', args: '-p 5000:5000'
     d.pull_images 'busybox'
