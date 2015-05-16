@@ -48,7 +48,7 @@ class BuildImageResponseHandlerTest extends Specification {
 {"stream":"Removing intermediate container ae1699fe1007\\n"}
 {"stream":"Successfully built bffa8586c96c\\n"}"""
 
-        InputStream inputStream = new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8))
+        InputStream inputStream = createResponseInputStream(response)
 
         when:
         String imageId = responseHandler.handle(inputStream)
@@ -77,7 +77,7 @@ class BuildImageResponseHandlerTest extends Specification {
 
     def "Handle error response"() {
         String response = """{"errorDetail":{"message":"The command [/bin/sh -c apt-get install -q -y openjdk-7-jre-headless && apt-get clean] returned a non-zero code: 100"},"error":"The command [/bin/sh -c apt-get install -q -y openjdk-7-jre-headless && apt-get clean] returned a non-zero code: 100"}"""
-        InputStream inputStream = new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8))
+        InputStream inputStream = createResponseInputStream(response)
 
         when:
         String imageId = responseHandler.handle(inputStream)
@@ -86,5 +86,20 @@ class BuildImageResponseHandlerTest extends Specification {
         Throwable t = thrown(GradleException)
         t.message == 'The command [/bin/sh -c apt-get install -q -y openjdk-7-jre-headless && apt-get clean] returned a non-zero code: 100'
         !imageId
+    }
+
+    def "Handle response line contains stream String but is not a stream JSON attribute"() {
+        String response = """{"something":"my stream"}"""
+        InputStream inputStream = createResponseInputStream(response)
+
+        when:
+        String imageId = responseHandler.handle(inputStream)
+
+        then:
+        !imageId
+    }
+
+    private InputStream createResponseInputStream(String response) {
+        new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8))
     }
 }

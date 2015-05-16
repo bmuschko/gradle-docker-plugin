@@ -23,7 +23,7 @@ import org.gradle.api.logging.Logging
 import java.nio.charset.StandardCharsets
 
 class BuildImageResponseHandler implements ResponseHandler<String> {
-    static final String SUCCESS_OUTPUT = 'Successfully built'
+    public static final String SUCCESS_OUTPUT = 'Successfully built'
     private final JsonSlurper slurper = new JsonSlurper()
     Logger logger = Logging.getLogger(PushImageResponseHandler)
 
@@ -34,7 +34,7 @@ class BuildImageResponseHandler implements ResponseHandler<String> {
         reader.eachLine { line ->
             def json = slurper.parseText(line)
 
-            if(line.contains('stream')) {
+            if(json.get('stream')) {
                 String stream = json.stream
                 logger.info stream
 
@@ -44,14 +44,14 @@ class BuildImageResponseHandler implements ResponseHandler<String> {
                     return imageId
                 }
             }
-            else if(line.contains('error')) {
+            else if(json.get('error')) {
                 throw new GradleException(json.error)
             }
         }
     }
 
     private boolean isSuccessfulStreamIndicator(String stream) {
-        ( stream!=null ?  stream.contains(SUCCESS_OUTPUT) : false)
+        stream.contains(SUCCESS_OUTPUT)
     }
 
     private String parseImageIdFromStream(String stream) {
