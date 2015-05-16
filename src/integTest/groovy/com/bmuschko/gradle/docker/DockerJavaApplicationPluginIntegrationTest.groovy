@@ -18,9 +18,10 @@ class DockerJavaApplicationPluginIntegrationTest extends ToolingApiIntegrationTe
         dockerfile.text ==
 """FROM java
 MAINTAINER ${System.getProperty('user.name')}
-ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0/bin/integTest"]
 EXPOSE 8080
+ENTRYPOINT ["/integTest/bin/integTest"]
+ADD integTest/ /integTest
+ADD app-lib/integTest-1.0.jar /integTest/lib/integTest-1.0.jar
 """
         result.output.contains('Author           : ')
     }
@@ -33,7 +34,7 @@ EXPOSE 8080
         buildFile << """
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
+        baseImage = 'library/java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         port = 9090
         tag = 'jettyapp:1.115'
@@ -48,11 +49,12 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-"""FROM dockerfile/java:openjdk-7-jre
+"""FROM library/java:openjdk-7-jre
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0/bin/integTest"]
 EXPOSE 9090
+ENTRYPOINT ["/integTest/bin/integTest"]
+ADD integTest/ /integTest
+ADD app-lib/integTest-1.0.jar /integTest/lib/integTest-1.0.jar
 """
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
@@ -70,14 +72,14 @@ dockerCopyDistResources {
     from file('file2.txt')
 }
 
-dockerDistTar {
+dockerfile {
     addFile 'file1.txt', '/some/dir/file1.txt'
     addFile 'file2.txt', '/other/dir/file2.txt'
 }
 
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
+        baseImage = 'library/java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         port = 9090
         tag = 'jettyapp:1.115'
@@ -92,11 +94,12 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-"""FROM dockerfile/java:openjdk-7-jre
+"""FROM library/java:openjdk-7-jre
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0/bin/integTest"]
 EXPOSE 9090
+ENTRYPOINT ["/integTest/bin/integTest"]
+ADD integTest/ /integTest
+ADD app-lib/integTest-1.0.jar /integTest/lib/integTest-1.0.jar
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
 """
@@ -120,7 +123,7 @@ docker {
     }
 
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        baseImage = 'library/java:openjdk-7-jdk'
         tag = "\$docker.registryCredentials.username/javaapp"
     }
 }
@@ -133,11 +136,12 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM dockerfile/java:openjdk-7-jdk
+                """FROM library/java:openjdk-7-jdk
 MAINTAINER ${System.getProperty('user.name')}
-ADD javaapp-1.0.tar /
-ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
 EXPOSE 8080
+ENTRYPOINT ["/javaapp/bin/javaapp"]
+ADD javaapp/ /javaapp
+ADD app-lib/javaapp-1.0.jar /javaapp/lib/javaapp-1.0.jar
 """
     }
 
@@ -150,7 +154,7 @@ applicationName = 'javaapp'
 
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        baseImage = 'library/java:openjdk-7-jdk'
         tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
     }
 }
@@ -163,11 +167,12 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM dockerfile/java:openjdk-7-jdk
+                """FROM library/java:openjdk-7-jdk
 MAINTAINER ${System.getProperty('user.name')}
-ADD javaapp-1.0.tar /
-ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
 EXPOSE 8080
+ENTRYPOINT ["/javaapp]/bin/javaapp"]
+ADD javaapp/ /javaapp
+ADD app-lib/javaapp-1.0.jar /javaapp/lib/javaapp-1.0.jar
 """
         noExceptionThrown()
     }

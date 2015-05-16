@@ -269,7 +269,7 @@ The plugin defines the following extension properties in the `javaApplication` c
 ----
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
+        baseImage = 'library/java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         port = 9090
         tag = 'jettyapp:1.115'
@@ -285,9 +285,9 @@ The plugin provides a set of tasks for your project and preconfigures them with 
 [options="header"]
 |=======
 |Task name                 |Depends On                |Type                                                                                 |Description
-|`dockerCopyDistResources` |`distTar`                 |link:http://www.gradle.org/docs/current/javadoc/org/gradle/api/tasks/Copy.html[Copy] |Copies the resource files (like the Java application's TAR file) to a temporary directory for image creation.
-|`dockerDistTar`           |`dockerCopyDistResources` |Dockerfile                                                                           |Creates the Docker image for the Java application.
-|`dockerBuildImage`        |`dockerDistTar`           |DockerBuildImage                                                                     |Builds the Docker image for the Java application.
+|`dockerCopyDistResources` |`installDist`             |link:http://www.gradle.org/docs/current/javadoc/org/gradle/api/tasks/Copy.html[Copy] |Copies the resource files (like the Java application's TAR file) to a temporary directory for image creation.
+|`dockerfile`              |`dockerCopyDistResources` |Dockerfile                                                                           |Creates the Docker image for the Java application.
+|`dockerBuildImage`        |`dockerfile`              |DockerBuildImage                                                                     |Builds the Docker image for the Java application.
 |`dockerPushImage`         |`dockerBuildImage`        |DockerPushImage                                                                      |Pushes created Docker image to the repository.
 |=======
 
