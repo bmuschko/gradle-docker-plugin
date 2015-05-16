@@ -28,10 +28,10 @@ import org.gradle.api.artifacts.Dependency
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
  */
 class DockerRemoteApiPlugin implements Plugin<Project> {
-    static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    static final String DOCKER_JAVA_DEFAULT_VERSION = '1.2.0'
-    static final String EXTENSION_NAME = 'docker'
-    static final String DEFAULT_TASK_GROUP = 'Docker'
+    public static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
+    public static final String DOCKER_JAVA_DEFAULT_VERSION = '1.2.0'
+    public static final String EXTENSION_NAME = 'docker'
+    public static final String DEFAULT_TASK_GROUP = 'Docker'
 
     @Override
     void apply(Project project) {
