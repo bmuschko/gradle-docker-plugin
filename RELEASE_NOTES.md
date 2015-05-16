@@ -1,4 +1,4 @@
-### Version 2.4
+### Version 2.4 (May 16, 2015)
 
 * Added missing support for properties `portBindings` and `cpuset` in `CreateContainer` - [Pull request 66](https://github.com/bmuschko/gradle-docker-plugin/pull/66).
 * Expose response handlers so users can inject custom handling logic - [Issue 65](https://github.com/bmuschko/gradle-docker-plugin/issues/65).
