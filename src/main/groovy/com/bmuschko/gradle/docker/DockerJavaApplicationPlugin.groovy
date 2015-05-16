@@ -26,7 +26,7 @@ import org.gradle.api.tasks.bundling.Tar
 import org.gradle.util.ConfigureUtil
 
 /**
- * Opinonated Gradle plugin for creating and pushing a Docker image for a Java application.
+ * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
  */
 class DockerJavaApplicationPlugin implements Plugin<Project> {
     public static final String COPY_DIST_RESOURCES_TASK_NAME = 'dockerCopyDistResources'
