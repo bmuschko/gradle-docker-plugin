@@ -92,7 +92,7 @@ jar {
 }
 
 idea.project {
-    jdkName = '1.6'
+    jdkName = '1.8'
     languageLevel = '1.6'
 
     ipr.withXml { provider ->
