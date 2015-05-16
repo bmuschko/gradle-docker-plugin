@@ -1,3 +1,8 @@
+### Version 2.4
+
+* Added missing support for properties `portBindings` and `cpuset` in `CreateContainer` - [Pull request 66](https://github.com/bmuschko/gradle-docker-plugin/pull/66).
+* Upgrade to Gradle 2.4 including all compatible plugins and libraries.
+
 ### Version 2.3.1 (April 25, 2015)
 
 * Added support for `Binds` when creating containers - [Pull request 54](https://github.com/bmuschko/gradle-docker-plugin/pull/54).
