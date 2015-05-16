@@ -33,7 +33,7 @@ class PushImageResponseHandler implements ResponseHandler<Void> {
         reader.eachLine { line ->
             def json = slurper.parseText(line)
 
-            if(line.contains('status')) {
+            if(json.get('status')) {
                 if(json.id) {
                     logger.quiet "${json.status} ${json.id}."
                 }
@@ -41,7 +41,7 @@ class PushImageResponseHandler implements ResponseHandler<Void> {
                     logger.quiet "${json.status}."
                 }
             }
-            else if(line.contains('error')) {
+            else if(json.get('error')) {
                 throw new GradleException(json.error)
             }
         }
