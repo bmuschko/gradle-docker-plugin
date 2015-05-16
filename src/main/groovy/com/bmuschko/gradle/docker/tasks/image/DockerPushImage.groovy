@@ -25,7 +25,7 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
-    private final ResponseHandler<Void> responseHandler = new PushImageResponseHandler()
+    private ResponseHandler<Void> responseHandler = new PushImageResponseHandler()
 
     /**
      * The image name e.g. "bmuschko/busybox" or just "busybox" if you want to default.
@@ -63,5 +63,9 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
         InputStream response = pushImageCmd.exec()
         responseHandler.handle(response)
+    }
+
+    void setResponseHandler(ResponseHandler<Void> responseHandler) {
+        this.responseHandler = responseHandler
     }
 }

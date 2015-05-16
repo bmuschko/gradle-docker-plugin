@@ -25,7 +25,7 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
-    private final ResponseHandler<Void> responseHandler = new PullImageResponseHandler()
+    private ResponseHandler<Void> responseHandler = new PullImageResponseHandler()
 
     /**
      * The image repository.
@@ -63,5 +63,9 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
         InputStream response = pullImageCmd.exec()
         responseHandler.handle(response)
+    }
+
+    void setResponseHandler(ResponseHandler<Void> responseHandler) {
+        this.responseHandler = responseHandler
     }
 }
