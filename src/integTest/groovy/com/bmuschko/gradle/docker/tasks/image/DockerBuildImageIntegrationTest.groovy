@@ -32,6 +32,7 @@ class DockerBuildImageIntegrationTest extends DockerTaskIntegrationTest {
         project.task('buildImage', type: DockerBuildImage) {
             inputDir = dockerInputDir
             tag = 'bmuschko/myImage'
+            pull = true
         }
     }
 
