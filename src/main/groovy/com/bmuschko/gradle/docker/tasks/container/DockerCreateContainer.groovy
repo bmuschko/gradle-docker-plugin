@@ -113,6 +113,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     Map<String,String> binds
+    
+    @Input
+    @Optional
+    String[] extraHosts
 
     String containerId
 
@@ -234,6 +238,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             def createdBinds = threadContextClassLoader.createBinds(getBinds())
             containerCommand.withBinds(createdBinds)
         }
+        
+        if(getExtraHosts()) {
+            containerCommand.withExtraHosts(getExtraHosts())
+        }
     }
 }
-
