@@ -1,3 +1,7 @@
+### Version 2.4.1
+
+* Add `extraHosts` property to task `DockerCreateContainer` - [Pull request 79](https://github.com/bmuschko/gradle-docker-plugin/pull/79).
+
 ### Version 2.4 (May 16, 2015)
 
 * Added missing support for properties `portBindings` and `cpuset` in `CreateContainer` - [Pull request 66](https://github.com/bmuschko/gradle-docker-plugin/pull/66).
