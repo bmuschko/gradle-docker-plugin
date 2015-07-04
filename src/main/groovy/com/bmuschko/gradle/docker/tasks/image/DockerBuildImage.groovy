@@ -50,6 +50,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask {
     @Optional
     Boolean quiet
 
+    @Input
+    @Optional
+    Boolean pull
+
     String imageId
 
     DockerBuildImage() {
@@ -76,6 +80,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask {
 
         if(getQuiet()) {
             buildImageCmd.withQuiet(getQuiet())
+        }
+
+        if(getPull()) {
+            buildImageCmd.withPull(getPull())
         }
 
         InputStream response = buildImageCmd.exec()
