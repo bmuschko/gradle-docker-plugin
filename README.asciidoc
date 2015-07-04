@@ -184,11 +184,10 @@ order.
 
 [source,groovy]
 ----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
-
-apply plugin: 'com.bmuschko.docker-remote-api'
 
 task createDockerfile(type: Dockerfile) {
     destFile = project.file('build/mydockerfile/Dockerfile')
@@ -210,10 +209,10 @@ image and exercises functional tests agains the running container. At the end of
 
 [source,groovy]
 ----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
 import com.bmuschko.gradle.docker.tasks.container.*
 import com.bmuschko.gradle.docker.tasks.image.*
-
-apply plugin: 'com.bmuschko.docker-remote-api'
 
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('docker/myapp')
