@@ -1,4 +1,4 @@
-### Version 2.4.1
+### Version 2.4.1 (July 4, 2015)
 
 * Add `extraHosts` property to task `DockerCreateContainer` - [Pull request 79](https://github.com/bmuschko/gradle-docker-plugin/pull/79).
 * Add `pull` property to task `DockerBuildImage` - [Pull request 78](https://github.com/bmuschko/gradle-docker-plugin/pull/78).
