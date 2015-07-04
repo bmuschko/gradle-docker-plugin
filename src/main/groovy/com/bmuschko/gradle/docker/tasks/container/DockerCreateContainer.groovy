@@ -116,7 +116,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     
     @Input
     @Optional
-    String[] extraHosts
+    List<String> extraHosts
 
     String containerId
 
@@ -240,7 +240,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
         
         if(getExtraHosts()) {
-            containerCommand.withExtraHosts(getExtraHosts())
+            containerCommand.withExtraHosts(getExtraHosts() as String[])
         }
     }
 }
