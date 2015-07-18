@@ -1,5 +1,6 @@
 package com.bmuschko.gradle.docker.utils
 
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.ProjectBuilderIntegrationTest
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
@@ -218,5 +219,55 @@ class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegr
         instance[0].volume.path == 'my/volume'
         instance[1].path == '/other/path'
         instance[1].volume.path == '/other/volume'
+    }
+
+    def "Can create class of type AuthConfig"() {
+        when:
+        def instance = null
+        DockerRegistryCredentials credentials = createCredentials()
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createAuthConfig(credentials)
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+        instance.serverAddress == DockerRegistryCredentials.DEFAULT_URL
+        instance.username == 'username'
+        instance.password == 'password'
+        instance.email == 'username@gmail.com'
+    }
+
+    def "Can create class of type AuthConfigurations"() {
+        when:
+        def instance = null
+        DockerRegistryCredentials credentials1 = createCredentials()
+        credentials1.url = 'http://server1.com/'
+        DockerRegistryCredentials credentials2 = createCredentials()
+        credentials2.url = 'http://server2.com/'
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            def authConfig1 = createAuthConfig(credentials1)
+            def authConfig2 = createAuthConfig(credentials2)
+            instance = createAuthConfigurations([authConfig1, authConfig2])
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+        instance.configs.size() == 2
+    }
+
+    private DockerRegistryCredentials createCredentials() {
+        DockerRegistryCredentials credentials = new DockerRegistryCredentials()
+
+        credentials.with {
+            username = 'username'
+            password = 'password'
+            email = 'username@gmail.com'
+        }
+
+        credentials
     }
 }

@@ -19,11 +19,13 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerRegistryCredentials {
+    public static final String DEFAULT_URL = 'https://index.docker.io/v1/'
+
     /**
      * Registry URL needed to push images. Defaults to "https://index.docker.io/v1/".
      */
     @Input
-    String url = 'https://index.docker.io/v1/'
+    String url = DEFAULT_URL
 
     /**
      * Registry username needed to push images. Defaults to null.

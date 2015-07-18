@@ -15,14 +15,17 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.bmuschko.gradle.docker.response.image.BuildImageResponseHandler
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.response.ResponseHandler
+import com.bmuschko.gradle.docker.response.image.BuildImageResponseHandler
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
-class DockerBuildImage extends AbstractDockerRemoteApiTask {
+class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
     private ResponseHandler<String, InputStream> responseHandler = new BuildImageResponseHandler()
 
     /**
@@ -54,6 +57,13 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask {
     @Optional
     Boolean pull
 
+    /**
+     * The target Docker registry credentials for building image.
+     */
+    @Nested
+    @Optional
+    DockerRegistryCredentials registryCredentials
+
     String imageId
 
     DockerBuildImage() {
@@ -84,6 +94,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask {
 
         if(getPull()) {
             buildImageCmd.withPull(getPull())
+        }
+
+        if(getRegistryCredentials()) {
+            def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
+            def authConfigurations = threadContextClassLoader.createAuthConfigurations([authConfig])
+            buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }
 
         InputStream response = buildImageCmd.exec()

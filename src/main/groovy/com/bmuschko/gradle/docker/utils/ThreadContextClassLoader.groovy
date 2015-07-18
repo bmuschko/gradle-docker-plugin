@@ -46,6 +46,15 @@ interface ThreadContextClassLoader {
     def createAuthConfig(DockerRegistryCredentials registryCredentials)
 
     /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/AuthConfigurations.java">AuthConfigurations</a>
+     * from the thread context classloader.
+     *
+     * @param authConfigs Authentication configs
+     * @return Instance
+     */
+    def createAuthConfigurations(List<Object> authConfigs)
+
+    /**
      * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Volume.java">Volume</a>
      * from thread context classloader.
      *

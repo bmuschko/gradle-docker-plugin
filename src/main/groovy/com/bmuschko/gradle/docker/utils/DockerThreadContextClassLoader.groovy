@@ -23,6 +23,8 @@ import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
+    public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
+
     /**
      * {@inheritDoc}
      */
@@ -100,7 +102,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createAuthConfig(DockerRegistryCredentials registryCredentials) {
-        Class authConfigClass = loadClass('com.github.dockerjava.api.model.AuthConfig')
+        Class authConfigClass = loadClass("${MODEL_PACKAGE}.AuthConfig")
         def authConfig = authConfigClass.newInstance()
         authConfig.serverAddress = registryCredentials.url
         authConfig.username = registryCredentials.username
@@ -113,8 +115,23 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
+    def createAuthConfigurations(List<Object> authConfigs) {
+        Class authConfigurationsClass = loadClass("${MODEL_PACKAGE}.AuthConfigurations")
+        def authConfigurations = authConfigurationsClass.newInstance()
+
+        authConfigs.each { authConfig ->
+            authConfigurations.addConfig(authConfig)
+        }
+
+        authConfigurations
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     def createVolume(String path) {
-        Class volumeClass = loadClass('com.github.dockerjava.api.model.Volume')
+        Class volumeClass = loadClass("${MODEL_PACKAGE}.Volume")
         Constructor constructor = volumeClass.getConstructor(String)
         constructor.newInstance(path)
     }
@@ -124,7 +141,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createVolumes(List<Object> volumes) {
-        Class volumesClass = loadClass('com.github.dockerjava.api.model.Volumes')
+        Class volumesClass = loadClass("${MODEL_PACKAGE}.Volumes")
         Constructor constructor = volumesClass.getConstructor(List)
         constructor.newInstance(volumes)
     }
@@ -134,7 +151,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createLink(String link) {
-        Class linkClass = loadClass('com.github.dockerjava.api.model.Link')
+        Class linkClass = loadClass("${MODEL_PACKAGE}.Link")
         Method method = linkClass.getMethod("parse", String)
         method.invoke(null, link)
     }
@@ -144,7 +161,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createLinks(List<Object> links) {
-        Class linksClass = loadClass('com.github.dockerjava.api.model.Links')
+        Class linksClass = loadClass("${MODEL_PACKAGE}.Links")
         Constructor constructor = linksClass.getConstructor(List.class)
         constructor.newInstance(links)
     }
@@ -154,7 +171,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createHostConfig(Map<String, String> hostConfigProperties) {
-        Class hostConfigClass = loadClass('com.github.dockerjava.api.model.HostConfig')
+        Class hostConfigClass = loadClass("${MODEL_PACKAGE}.HostConfig")
         Constructor constructor = hostConfigClass.getConstructor()
         def hostConfig = constructor.newInstance()
         hostConfigProperties.each { key, value ->
@@ -168,7 +185,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createExposedPort(String scheme, Integer port) {
-        Class exposedPortClass = loadClass('com.github.dockerjava.api.model.ExposedPort')
+        Class exposedPortClass = loadClass("${MODEL_PACKAGE}.ExposedPort")
         Constructor constructor = exposedPortClass.getConstructor(Integer.TYPE, loadInternetProtocolClass())
         constructor.newInstance(port, createInternetProtocol(scheme))
     }
@@ -188,7 +205,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createExposedPorts(List<Object> exposedPorts) {
-        Class exposedPortsClass = loadClass('com.github.dockerjava.api.model.ExposedPorts')
+        Class exposedPortsClass = loadClass("${MODEL_PACKAGE}.ExposedPorts")
         Constructor constructor = exposedPortsClass.getConstructor(List)
         constructor.newInstance(exposedPorts)
     }
@@ -198,7 +215,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createPortBinding(String portBinding) {
-        Class portBindingClass = loadClass('com.github.dockerjava.api.model.PortBinding')
+        Class portBindingClass = loadClass("${MODEL_PACKAGE}.PortBinding")
         Method method = portBindingClass.getMethod('parse', String)
         method.invoke(null, portBinding)
     }
@@ -208,7 +225,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createPorts(List<Object> portBindings) {
-        Class portsClass = loadClass('com.github.dockerjava.api.model.Ports')
+        Class portsClass = loadClass("${MODEL_PACKAGE}.Ports")
         Constructor constructor = portsClass.getConstructor()
         def ports = constructor.newInstance()
         if (!portBindings.isEmpty()) {
@@ -227,7 +244,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createBind(String path, String volume) {
-        Class volumeClass = loadClass('com.github.dockerjava.api.model.Volume')
+        Class volumeClass = loadClass("${MODEL_PACKAGE}.Volume")
         Constructor volumeConstructor = volumeClass.getConstructor(String)
         def volumeInstance = volumeConstructor.newInstance(volume)
 
@@ -247,10 +264,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private Class loadInternetProtocolClass() {
-        loadClass('com.github.dockerjava.api.model.InternetProtocol')
+        loadClass("${MODEL_PACKAGE}.InternetProtocol")
     }
 
     private Class loadBindClass() {
-        loadClass('com.github.dockerjava.api.model.Bind')
+        loadClass("${MODEL_PACKAGE}.Bind")
     }
 }
