@@ -1,3 +1,8 @@
+### Version 2.5 (July 18, 2015)
+
+* Expose response handler for `DockerListImages` task - [Issue 75](https://github.com/bmuschko/gradle-docker-plugin/issues/75).
+* Pass in credentials when building an image - [Issue 76](https://github.com/bmuschko/gradle-docker-plugin/issues/76).
+
 ### Version 2.4.1 (July 4, 2015)
 
 * Add `extraHosts` property to task `DockerCreateContainer` - [Pull request 79](https://github.com/bmuschko/gradle-docker-plugin/pull/79).
