@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.response
 
+import com.bmuschko.gradle.docker.response.image.BuildImageResponseHandler
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import spock.lang.Specification

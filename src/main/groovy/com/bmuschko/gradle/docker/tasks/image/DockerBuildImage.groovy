@@ -16,14 +16,14 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.bmuschko.gradle.docker.response.BuildImageResponseHandler
+import com.bmuschko.gradle.docker.response.image.BuildImageResponseHandler
 import com.bmuschko.gradle.docker.response.ResponseHandler
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 
 class DockerBuildImage extends AbstractDockerRemoteApiTask {
-    private ResponseHandler<String> responseHandler = new BuildImageResponseHandler()
+    private ResponseHandler<String, InputStream> responseHandler = new BuildImageResponseHandler()
 
     /**
      * Input directory containing Dockerfile. Defaults to "$projectDir/docker".
@@ -90,7 +90,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask {
         imageId = responseHandler.handle(response)
     }
 
-    void setResponseHandler(ResponseHandler<String> responseHandler) {
+    void setResponseHandler(ResponseHandler<String, InputStream> responseHandler) {
         this.responseHandler = responseHandler
     }
 }

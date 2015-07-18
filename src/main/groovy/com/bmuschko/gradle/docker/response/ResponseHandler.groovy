@@ -15,6 +15,6 @@
  */
 package com.bmuschko.gradle.docker.response
 
-interface ResponseHandler<T> {
-    T handle(InputStream response)
+interface ResponseHandler<T, V> {
+    T handle(V response)
 }

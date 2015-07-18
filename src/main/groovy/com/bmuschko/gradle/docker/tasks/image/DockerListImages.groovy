@@ -15,11 +15,15 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.bmuschko.gradle.docker.response.image.ListImagesResponseHandler
+import com.bmuschko.gradle.docker.response.ResponseHandler
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerListImages extends AbstractDockerRemoteApiTask {
+    private ResponseHandler<Void, List<Object>> responseHandler = new ListImagesResponseHandler()
+
     @Input
     @Optional
     Boolean showAll
@@ -41,13 +45,10 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
         }
 
         def images = listImagesCmd.exec()
+        responseHandler.handle(images)
+    }
 
-        images.each { image ->
-            logger.quiet "Repository Tags : ${image.repoTags?.join(', ')}"
-            logger.quiet "Image ID        : $image.id"
-            logger.quiet "Created         : ${new Date(image.created * 1000)}"
-            logger.quiet "Virtual Size    : $image.virtualSize"
-            logger.quiet "-----------------------------------------------"
-        }
+    void setResponseHandler(ResponseHandler<Void, List<Object>> responseHandler) {
+        this.responseHandler = responseHandler
     }
 }

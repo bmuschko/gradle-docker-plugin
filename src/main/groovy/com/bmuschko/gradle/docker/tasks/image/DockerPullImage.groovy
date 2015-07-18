@@ -16,7 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.response.PullImageResponseHandler
+import com.bmuschko.gradle.docker.response.image.PullImageResponseHandler
 import com.bmuschko.gradle.docker.response.ResponseHandler
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
@@ -25,7 +25,7 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
-    private ResponseHandler<Void> responseHandler = new PullImageResponseHandler()
+    private ResponseHandler<Void, InputStream> responseHandler = new PullImageResponseHandler()
 
     /**
      * The image repository.
@@ -65,7 +65,7 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
         responseHandler.handle(response)
     }
 
-    void setResponseHandler(ResponseHandler<Void> responseHandler) {
+    void setResponseHandler(ResponseHandler<Void, InputStream> responseHandler) {
         this.responseHandler = responseHandler
     }
 }

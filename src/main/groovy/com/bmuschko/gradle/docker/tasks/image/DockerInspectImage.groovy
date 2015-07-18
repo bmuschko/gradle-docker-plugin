@@ -15,19 +15,20 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.bmuschko.gradle.docker.response.image.InspectImageResponseHandler
+import com.bmuschko.gradle.docker.response.ResponseHandler
+
 class DockerInspectImage extends DockerExistingImage {
+    private ResponseHandler<Void, Object> responseHandler = new InspectImageResponseHandler()
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Inspecting image for with ID '${getImageId()}'."
         def image = dockerClient.inspectImageCmd(getImageId()).exec()
-        logger.quiet "ID               : $image.id"
-        logger.quiet "Author           : $image.author"
-        logger.quiet "Created          : $image.created"
-        logger.quiet "Comment          : $image.comment"
-        logger.quiet "Architecture     : $image.arch"
-        logger.quiet "Operating System : $image.os"
-        logger.quiet "Parent           : $image.parent"
-        logger.quiet "Size             : $image.size"
-        logger.quiet "Docker Version   : $image.dockerVersion"
+        responseHandler.handle(image)
+    }
+
+    void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
+        this.responseHandler = responseHandler
     }
 }
