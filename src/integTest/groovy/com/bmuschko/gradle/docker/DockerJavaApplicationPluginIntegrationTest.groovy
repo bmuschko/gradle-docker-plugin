@@ -33,7 +33,7 @@ EXPOSE 8080
         buildFile << """
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
+        baseImage = 'java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         port = 9090
         tag = 'jettyapp:1.115'
@@ -48,7 +48,7 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-"""FROM dockerfile/java:openjdk-7-jre
+"""FROM java:openjdk-7-jre
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD integTest-1.0.tar /
 ENTRYPOINT ["/integTest-1.0/bin/integTest"]
@@ -77,7 +77,7 @@ dockerDistTar {
 
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
+        baseImage = 'java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         port = 9090
         tag = 'jettyapp:1.115'
@@ -92,7 +92,7 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-"""FROM dockerfile/java:openjdk-7-jre
+"""FROM java:openjdk-7-jre
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD integTest-1.0.tar /
 ENTRYPOINT ["/integTest-1.0/bin/integTest"]
@@ -120,7 +120,7 @@ docker {
     }
 
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        baseImage = 'java:openjdk-7-jdk'
         tag = "\$docker.registryCredentials.username/javaapp"
     }
 }
@@ -133,7 +133,43 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM dockerfile/java:openjdk-7-jdk
+                """FROM java:openjdk-7-jdk
+MAINTAINER ${System.getProperty('user.name')}
+ADD javaapp-1.0.tar /
+ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
+EXPOSE 8080
+"""
+    }
+
+    @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
+    def "Can create versioned image for Java application and push to DockerHub"() {
+      createJettyMainClass()
+      writeBasicSetupToBuildFile()
+      buildFile << """
+  applicationName = 'javaapp'
+
+  docker {
+      registryCredentials {
+          username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
+          password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
+          email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
+      }
+
+      javaApplication {
+          baseImage = 'java:openjdk-7-jdk'
+          tag = "\$docker.registryCredentials.username/javaapp:1.0"
+      }
+  }
+  """
+
+      when:
+      runTasks('dockerPushImage')
+
+      then:
+      File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+      dockerfile.exists()
+      dockerfile.text ==
+              """FROM java:openjdk-7-jdk
 MAINTAINER ${System.getProperty('user.name')}
 ADD javaapp-1.0.tar /
 ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
@@ -150,7 +186,7 @@ applicationName = 'javaapp'
 
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        baseImage = 'java:openjdk-7-jdk'
         tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
     }
 }
@@ -163,7 +199,7 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM dockerfile/java:openjdk-7-jdk
+                """FROM java:openjdk-7-jdk
 MAINTAINER ${System.getProperty('user.name')}
 ADD javaapp-1.0.tar /
 ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
