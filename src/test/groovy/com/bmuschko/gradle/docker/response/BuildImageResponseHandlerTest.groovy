@@ -31,7 +31,7 @@ class BuildImageResponseHandlerTest extends Specification {
     }
 
     def "Handle successful response"() {
-        String response = """{"stream":"Step 0 : FROM dockerfile/java:openjdk-7-jre\\n"}
+        String response = """{"stream":"Step 0 : FROM library/java:openjdk-7-jre\\n"}
 {"stream":" ---\\u003e 13a4762ffb1c\\n"}
 {"stream":"Step 1 : MAINTAINER Benjamin Muschko \\"benjamin.muschko@gmail.com\\"\\n"}
 {"stream":" ---\\u003e Using cache\\n"}
@@ -55,7 +55,7 @@ class BuildImageResponseHandlerTest extends Specification {
         String imageId = responseHandler.handle(inputStream)
 
         then:
-        1 * logger.info('Step 0 : FROM dockerfile/java:openjdk-7-jre\n')
+        1 * logger.info('Step 0 : FROM library/java:openjdk-7-jre\n')
         1 * logger.info(' ---\u003e 13a4762ffb1c\n')
         1 * logger.info('Step 1 : MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"\n')
         1 * logger.info(' ---\u003e Using cache\n')
