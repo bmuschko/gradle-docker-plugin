@@ -373,6 +373,30 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    static abstract class MapInstruction implements Instruction {
+        final Object command
+
+        MapInstruction(Map<String, String> command) {
+            this.command = command
+        }
+
+        MapInstruction(Closure command) {
+            this.command = command
+        }
+
+        @Override
+        String build() {
+            if (command instanceof Map<String, String>) {
+                String args = ""
+                ((Map<String, String>) command).each { key, value -> args += " \"$key\"=\"$value\"" }
+                keyword + args
+            }
+            else if(command instanceof Closure) {
+                "$keyword ${command()}"
+            }
+        }
+    }
+
     static abstract class FileInstruction implements Instruction {
         final Object src
         final Object dest
@@ -590,6 +614,17 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             "ONBUILD"
+        }
+    }
+
+    static class LabelInstruction extends MapInstruction {
+        LabelInstruction(Map labels) {
+            super(labels)
+        }
+
+        @Override
+        String getKeyword() {
+            "LABEL"
         }
     }
 }
