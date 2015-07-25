@@ -1,14 +1,14 @@
 package com.bmuschko.gradle.docker.utils
 
+import com.bmuschko.gradle.docker.AbstractIntegrationTest
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-import com.bmuschko.gradle.docker.ProjectBuilderIntegrationTest
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import spock.lang.Unroll
 
 import java.lang.reflect.InvocationTargetException
 
-class DockerThreadContextClassLoaderIntegrationTest extends ProjectBuilderIntegrationTest {
+class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationTest {
     ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader()
     DockerClientConfiguration dockerClientConfiguration = new DockerClientConfiguration(url: 'http://localhost:2375')
 

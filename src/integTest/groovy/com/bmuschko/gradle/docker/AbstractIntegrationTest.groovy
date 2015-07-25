@@ -15,46 +15,74 @@
  */
 package com.bmuschko.gradle.docker
 
-import org.apache.commons.io.FileUtils
+import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class AbstractIntegrationTest extends Specification {
-    File projectDir = new File('build/integTest')
+abstract class AbstractIntegrationTest extends Specification {
+    @Rule
+    TemporaryFolder temporaryFolder = new TemporaryFolder()
+
+    Project project
+    File projectDir
 
     def setup() {
-        deleteProjectDir()
-        projectDir = createDir(projectDir)
-    }
+        projectDir = temporaryFolder.root
 
-    def cleanup() {
-        deleteProjectDir()
-    }
+        System.setOut(new FilteredPrintStream(System.out))
+        project = ProjectBuilder.builder().withProjectDir(projectDir).build()
 
-    protected File createDir(File dir) {
-        if(!dir.exists()) {
-            boolean success = dir.mkdirs()
+        project.apply plugin: DockerRemoteApiPlugin
 
-            if(!success) {
-                throw new IOException("Failed to create directory '$dir.canonicalPath'")
-            }
+        project.repositories {
+            mavenCentral()
         }
 
-        dir
+        setupDockerServerUrl()
+        setupDockerCertPath()
+        setupDockerPrivateRegistryUrl()
     }
 
-    protected File createNewFile(File parent, String filename) {
-        File file = new File(parent, filename)
+    private void setupDockerServerUrl() {
+        String dockerServerUrl = TestConfiguration.dockerServerUrl
 
-        if(!file.exists()) {
-            if(!file.createNewFile()) {
-                throw new IOException("Unable to create new test file $file.canonicalPath.")
+        if(dockerServerUrl) {
+            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).url = dockerServerUrl
+        }
+    }
+
+    private void setupDockerCertPath() {
+        File dockerCertPath = TestConfiguration.dockerCertPath
+
+        if(dockerCertPath) {
+            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).certPath = dockerCertPath
+        }
+    }
+
+    private void setupDockerPrivateRegistryUrl() {
+        String dockerPrivateRegistryUrl = TestConfiguration.dockerPrivateRegistryUrl
+
+        if(dockerPrivateRegistryUrl) {
+            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).registryCredentials {
+                url = dockerPrivateRegistryUrl
             }
         }
-
-        file
     }
 
-    private void deleteProjectDir() {
-        FileUtils.deleteDirectory(projectDir)
+    class FilteredPrintStream extends PrintStream {
+        FilteredPrintStream(PrintStream source) {
+            super(source)
+        }
+
+        @Override
+        void write(byte[] buf, int off, int len) {
+            String string = new String(buf)
+
+            if(!string.contains(" DEBUG ")) {
+                super.write(buf, off, len)
+            }
+        }
     }
 }

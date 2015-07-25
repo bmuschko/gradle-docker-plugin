@@ -1,9 +1,9 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.GradleInvocationResult
-import com.bmuschko.gradle.docker.ToolingApiIntegrationTest
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 
-class DockerfileToolingApiIntegrationTest extends ToolingApiIntegrationTest {
+class DockerfileFunctionalTest extends AbstractFunctionalTest {
     static final String DOCKERFILE_TASK_NAME = 'dockerfile'
 
     def "Same instructions does not mark task UP-TO-DATE"() {
@@ -43,7 +43,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     }
 
     def "Adding more instructions does not mark task UP-TO-DATE"() {
-        File dockerfileDir = new File(projectDir, 'build/docker')
+        File dockerfileDir = temporaryFolder.newFolder('build', 'docker')
         File dockerfile = new File(dockerfileDir, 'Dockerfile')
 
         buildFile << """
@@ -63,7 +63,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
 
         when:
-        createNewFile(dockerfileDir, 'test.txt')
+        new File(dockerfileDir, 'test.txt').createNewFile()
         buildFile << """
 ${DOCKERFILE_TASK_NAME}.addFile('test.txt', '/app/')
 """

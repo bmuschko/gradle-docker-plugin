@@ -20,7 +20,7 @@ import org.gradle.api.Task
 
 class DockerCopyFileFromContainerIntegrationTest extends DockerTaskIntegrationTest {
     def setup() {
-        createDir(new File(projectDir, 'build'))
+        temporaryFolder.newFolder('build')
     }
 
     @Override

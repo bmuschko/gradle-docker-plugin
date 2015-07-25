@@ -1,11 +1,11 @@
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.ProjectBuilderIntegrationTest
+import com.bmuschko.gradle.docker.AbstractIntegrationTest
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import org.apache.commons.lang.exception.ExceptionUtils
 import org.gradle.api.tasks.TaskExecutionException
 
-class DockerfileProjectBuilderIntegrationTest extends ProjectBuilderIntegrationTest {
+class DockerfileIntegrationTest extends AbstractIntegrationTest {
     def "Executing a Dockerfile task without specified instructions throws exception"() {
         when:
         Dockerfile task = project.task('dockerfile', type: Dockerfile)

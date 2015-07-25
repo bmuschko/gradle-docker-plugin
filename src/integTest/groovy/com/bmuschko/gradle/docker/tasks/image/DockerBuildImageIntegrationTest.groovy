@@ -23,7 +23,7 @@ class DockerBuildImageIntegrationTest extends DockerTaskIntegrationTest {
     File dockerInputDir
 
     def setup() {
-        dockerInputDir = createDir(new File(projectDir, 'docker'))
+        dockerInputDir = temporaryFolder.newFolder('docker')
         createDockerfile()
     }
 

@@ -35,10 +35,28 @@ sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
 sourceSets {
+    testSetup {
+        groovy.srcDir file('src/testSetup/groovy')
+        resources.srcDir file('src/testSetup/resources')
+        compileClasspath = configurations.testRuntime
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+sourceSets {
     integrationTest {
         groovy.srcDir file('src/integTest/groovy')
         resources.srcDir file('src/integTest/resources')
-        compileClasspath = sourceSets.main.output + configurations.testRuntime
+        compileClasspath = sourceSets.main.output + sourceSets.testSetup.output + configurations.testRuntime
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+sourceSets {
+    functionalTest {
+        groovy.srcDir file('src/functTest/groovy')
+        resources.srcDir file('src/functTest/resources')
+        compileClasspath = sourceSets.main.output + sourceSets.testSetup.output + configurations.testRuntime
         runtimeClasspath = output + compileClasspath
     }
 }
@@ -49,15 +67,41 @@ task integrationTest(type: Test) {
     testClassesDir = sourceSets.integrationTest.output.classesDir
     classpath = sourceSets.integrationTest.runtimeClasspath
     mustRunAfter test
+}
 
-    testLogging {
-        events 'skipped'
+task createClasspathManifest {
+    def outputDir = sourceSets.functionalTest.output.resourcesDir
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
     }
 }
 
-check.dependsOn integrationTest
+dependencies {
+    functionalTestCompile files(createClasspathManifest)
+}
+
+compileFunctionalTestJava.dependsOn createClasspathManifest
+
+task functionalTest(type: Test) {
+    description = 'Runs the functional tests.'
+    group = 'verification'
+    testClassesDir = sourceSets.functionalTest.output.classesDir
+    classpath = sourceSets.functionalTest.runtimeClasspath
+    mustRunAfter test, integrationTest
+}
+
+check.dependsOn integrationTest, functionalTest
 
 tasks.withType(Test) { task ->
+    testLogging {
+        events 'skipped'
+    }
+
     def dockerServerUrl = System.properties['dockerServerUrl']
 
     if(dockerServerUrl) {
@@ -109,7 +153,9 @@ idea.project {
 }
 
 idea.module {
+    testSourceDirs += file('src/testSetup/groovy')
     testSourceDirs += file('src/integTest/groovy')
+    testSourceDirs += file('src/functTest/groovy')
 }
 
 task sourcesJar(type: Jar) {

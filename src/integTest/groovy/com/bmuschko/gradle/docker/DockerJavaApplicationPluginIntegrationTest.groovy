@@ -1,261 +1,75 @@
 package com.bmuschko.gradle.docker
 
-import spock.lang.Requires
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import org.gradle.api.Project
 
-@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
-class DockerJavaApplicationPluginIntegrationTest extends ToolingApiIntegrationTest {
-    def "Can create image for Java application with default configuration"() {
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
+class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest {
+    def "Does not create tasks out-of-the-box when application plugin is not applied"() {
         when:
-        GradleInvocationResult result = runTasks('startContainer')
+        applyDockerJavaApplicationPluginWithoutApplicationPlugin(project)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text ==
-"""FROM java
-MAINTAINER ${System.getProperty('user.name')}
-ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0/bin/integTest"]
-EXPOSE 8080
-"""
-        result.output.contains('Author           : ')
+        !project.tasks.findByName(DockerJavaApplicationPlugin.COPY_DIST_RESOURCES_TASK_NAME)
+        !project.tasks.findByName(DockerJavaApplicationPlugin.DOCKERFILE_TASK_NAME)
+        !project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
+        !project.tasks.findByName(DockerJavaApplicationPlugin.PUSH_IMAGE_TASK_NAME)
     }
 
-    def "Can create image for Java application with user-driven configuration"() {
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
-        buildFile << """
-docker {
-    javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
-        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
-        port = 9090
-        tag = 'jettyapp:1.115'
-    }
-}
-"""
-
+    def "Creates tasks out-of-the-box when application plugin is applied"() {
         when:
-        GradleInvocationResult result = runTasks('startContainer')
+        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text ==
-"""FROM dockerfile/java:openjdk-7-jre
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0/bin/integTest"]
-EXPOSE 9090
-"""
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        project.tasks.findByName(DockerJavaApplicationPlugin.COPY_DIST_RESOURCES_TASK_NAME)
+        project.tasks.findByName(DockerJavaApplicationPlugin.DOCKERFILE_TASK_NAME)
+        project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
+        project.tasks.findByName(DockerJavaApplicationPlugin.PUSH_IMAGE_TASK_NAME)
     }
 
-    def "Can create image for Java application with additional files"() {
-        createNewFile(projectDir, 'file1.txt')
-        createNewFile(projectDir, 'file2.txt')
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
-        buildFile << """
-dockerCopyDistResources {
-    from file('file1.txt')
-    from file('file2.txt')
-}
-
-dockerDistTar {
-    addFile 'file1.txt', '/some/dir/file1.txt'
-    addFile 'file2.txt', '/other/dir/file2.txt'
-}
-
-docker {
-    javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
-        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
-        port = 9090
-        tag = 'jettyapp:1.115'
-    }
-}
-"""
-
+    def "Configures image task without project group and version"() {
         when:
-        GradleInvocationResult result = runTasks('startContainer')
+        project.apply(plugin: 'application')
+        project.apply(plugin: DockerJavaApplicationPlugin)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text ==
-"""FROM dockerfile/java:openjdk-7-jre
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD integTest-1.0.tar /
-ENTRYPOINT ["/integTest-1.0/bin/integTest"]
-EXPOSE 9090
-ADD file1.txt /some/dir/file1.txt
-ADD file2.txt /other/dir/file2.txt
-"""
-        new File(projectDir, 'build/docker/file1.txt').exists()
-        new File(projectDir, 'build/docker/file2.txt').exists()
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
+        task.tag == "${project.applicationName}:latest"
     }
 
-    @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
-    def "Can create image for Java application and push to DockerHub"() {
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        buildFile << """
-applicationName = 'javaapp'
-
-docker {
-    registryCredentials {
-        username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
-        password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
-        email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
-    }
-
-    javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jdk'
-        tag = "\$docker.registryCredentials.username/javaapp"
-    }
-}
-"""
+    def "Configures image task without project group and but with version"() {
+        given:
+        String projectVersion = '1.0'
 
         when:
-        runTasks('dockerPushImage')
+        project.version = projectVersion
+        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text ==
-                """FROM dockerfile/java:openjdk-7-jdk
-MAINTAINER ${System.getProperty('user.name')}
-ADD javaapp-1.0.tar /
-ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
-EXPOSE 8080
-"""
+        DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
+        task.tag == "${project.applicationName}:${projectVersion}"
     }
 
-    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
-    def "Can create image for Java application and push to private registry"() {
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        buildFile << """
-applicationName = 'javaapp'
-
-docker {
-    javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jdk'
-        tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
-    }
-}
-"""
+    def "Configures image task with project group and version"() {
+        given:
+        String projectGroup = 'com.company'
+        String projectVersion = '1.0'
 
         when:
-        runTasks('dockerPushImage')
+        project.group = projectGroup
+        project.version = projectVersion
+        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text ==
-                """FROM dockerfile/java:openjdk-7-jdk
-MAINTAINER ${System.getProperty('user.name')}
-ADD javaapp-1.0.tar /
-ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
-EXPOSE 8080
-"""
-        noExceptionThrown()
+        DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
+        task.tag == "${projectGroup}/${project.applicationName}:${projectVersion}"
     }
 
-    private void createJettyMainClass() {
-        File packageDir = createDir(new File(projectDir, 'src/main/java/com/bmuschko/gradle/docker/application'))
-        File jettyMainClass = createNewFile(packageDir, 'JettyMain.java')
-        jettyMainClass << """
-package com.bmuschko.gradle.docker.application;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-
-import java.io.IOException;
-
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-
-public class JettyMain extends AbstractHandler
-{
-    public void handle(String target,
-                       Request baseRequest,
-                       HttpServletRequest request,
-                       HttpServletResponse response)
-            throws IOException, ServletException
-    {
-        response.setContentType("text/html;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        baseRequest.setHandled(true);
-        response.getWriter().println("<p><img src='http://www.docker.io/static/img/homepage-docker-logo.png'></p>");
-        response.getWriter().println("<br><h1>Hello, Docker!</h1>");
+    private void applyDockerJavaApplicationPluginWithoutApplicationPlugin(Project project) {
+        project.apply(plugin: DockerJavaApplicationPlugin)
     }
 
-    public static void main(String[] args) throws Exception
-    {
-        Server server = new Server(8080);
-        server.setHandler(new JettyMain());
-
-        server.start();
-        server.join();
-    }
-}
-"""
-    }
-
-    private void writeBasicSetupToBuildFile() {
-        buildFile << """
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: com.bmuschko.gradle.docker.DockerJavaApplicationPlugin
-
-version = '1.0'
-sourceCompatibility = 1.7
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
-}
-
-mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
-"""
-    }
-
-    private void writeCustomTasksToBuildFile() {
-        buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
-import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-
-task inspectImage(type: DockerInspectImage) {
-    dependsOn dockerBuildImage
-    targetImageId { dockerBuildImage.getImageId() }
-}
-
-task createContainer(type: DockerCreateContainer) {
-    dependsOn inspectImage
-    targetImageId { dockerBuildImage.getImageId() }
-}
-
-task startContainer(type: DockerStartContainer) {
-    dependsOn createContainer
-    targetContainerId { createContainer.getContainerId() }
-}
-"""
+    private void applyDockerJavaApplicationPluginAndApplicationPlugin(Project project) {
+        project.apply(plugin: 'application')
+        applyDockerJavaApplicationPluginWithoutApplicationPlugin(project)
     }
 }

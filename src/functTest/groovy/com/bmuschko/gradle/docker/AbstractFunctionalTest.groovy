@@ -19,20 +19,41 @@ import org.gradle.tooling.BuildLauncher
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.model.GradleProject
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
 
-class ToolingApiIntegrationTest extends AbstractIntegrationTest {
+abstract class AbstractFunctionalTest extends Specification {
+    @Rule
+    TemporaryFolder temporaryFolder = new TemporaryFolder()
+
+    File projectDir
     File buildFile
 
     def setup() {
-        buildFile = createNewFile(projectDir, 'build.gradle')
+        projectDir = temporaryFolder.root
+        buildFile = temporaryFolder.newFile('build.gradle')
+
+        def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.txt")
+        if (pluginClasspathResource == null) {
+            throw new IllegalStateException("Did not find plugin classpath resource, run 'functionalTestClasses' build task.")
+        }
+
+        def pluginClasspath = pluginClasspathResource.readLines()
+                .collect { it.replace('\\', '\\\\') } // escape backslashes in Windows paths
+                .collect { "'$it'" }
+                .join(", ")
+
+        // Add the logic under test to the test build
+        buildFile << """
+    buildscript {
+        dependencies {
+            classpath files($pluginClasspath)
+        }
+    }
+"""
 
         buildFile << """
-buildscript {
-    dependencies {
-        classpath files('../classes/main')
-    }
-}
-
 apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 
 repositories {
@@ -85,7 +106,7 @@ docker.registryCredentials {
             builder.setStandardOutput(outputStream)
             builder.forTasks(tasks).run()
             GradleProject gradleProject = connection.getModel(GradleProject)
-            return new GradleInvocationResult(project: gradleProject, output: new String(outputStream.toByteArray(), 'UTF-8'))
+            return new GradleInvocationResult(project: gradleProject, output: new String(outputStream.toByteArray()))
         }
         finally {
             connection?.close()

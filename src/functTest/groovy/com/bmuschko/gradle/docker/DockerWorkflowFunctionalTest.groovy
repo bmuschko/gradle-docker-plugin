@@ -19,7 +19,7 @@ import org.apache.commons.io.FileUtils
 import spock.lang.Requires
 
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
-class DockerWorkflowIntegrationTest extends ToolingApiIntegrationTest {
+class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     def "Can get Docker version and info"() {
         buildFile << """
 import com.bmuschko.gradle.docker.tasks.DockerVersion
@@ -68,7 +68,7 @@ task inspectImage(type: DockerInspectImage) {
     }
 
     def "Can build and verify image"() {
-        File imageDir = createDir(new File(projectDir, 'images/minimal'))
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
 
         buildFile << """
@@ -93,7 +93,7 @@ task inspectImage(type: DockerInspectImage) {
     }
 
     def "Can build an image, create and start a container"() {
-        File imageDir = createDir(new File(projectDir, 'images/minimal'))
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -133,7 +133,7 @@ task inspectContainer(type: DockerInspectContainer) {
     }
 
     def "Can build an image, create and link a container"() {
-        File imageDir = createDir(new File(projectDir, 'images/minimal'))
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
