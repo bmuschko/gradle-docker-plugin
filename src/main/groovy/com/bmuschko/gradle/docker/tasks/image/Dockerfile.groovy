@@ -387,13 +387,19 @@ class Dockerfile extends DefaultTask {
         @Override
         String build() {
             if (command instanceof Map<String, String>) {
-                String args = ""
-                ((Map<String, String>) command).each { key, value -> args += " \"$key\"=\"$value\"" }
-                keyword + args
+                "$keyword ${join(command)}"
             }
             else if(command instanceof Closure) {
-                "$keyword ${command()}"
+                def evaluatedCommand = command()
+
+                if(evaluatedCommand instanceof Map) {
+                    "$keyword ${join(evaluatedCommand)}"
+                }
             }
+        }
+
+        private String join(Map command) {
+            command.inject([]) { result, entry -> result << "\"$entry.key\"=\"$entry.value\"" }.join(' ')
         }
     }
 
@@ -619,6 +625,10 @@ class Dockerfile extends DefaultTask {
 
     static class LabelInstruction extends MapInstruction {
         LabelInstruction(Map labels) {
+            super(labels)
+        }
+
+        LabelInstruction(Closure labels) {
             super(labels)
         }
 
