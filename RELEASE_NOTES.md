@@ -1,3 +1,7 @@
+### Version 2.5.1
+
+* Adds Dockerfile support for the LABEL instruction - [Pull request 86](https://github.com/bmuschko/gradle-docker-plugin/pull/86).
+
 ### Version 2.5 (July 18, 2015)
 
 * Expose response handler for `DockerListImages` task - [Issue 75](https://github.com/bmuschko/gradle-docker-plugin/issues/75).
