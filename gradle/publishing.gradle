@@ -1,0 +1,76 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
+    }
+}
+
+apply plugin: 'maven-publish'
+apply plugin: com.jfrog.bintray.gradle.BintrayPlugin
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact groovydocJar
+            artifact javadocJar
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', 'Gradle Docker plugin')
+                root.appendNode('description', 'Gradle plugin for managing Docker images and containers.')
+                root.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
+                root.appendNode('inceptionYear', '2014')
+
+                def scm = root.appendNode('scm')
+                scm.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
+                scm.appendNode('connection', 'scm:https://bmuschko@github.com/bmuschko/gradle-docker-plugin.git')
+                scm.appendNode('developerConnection', 'scm:git://github.com/bmuschko/gradle-docker-plugin.git')
+
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                license.appendNode('distribution', 'repo')
+
+                def developers = root.appendNode('developers')
+                def bmuschko = developers.appendNode('developer')
+                bmuschko.appendNode('id', 'bmuschko')
+                bmuschko.appendNode('name', 'Benjamin Muschko')
+                bmuschko.appendNode('email', 'benjamin.muschko@gmail.com')
+            }
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.getProperty('bintrayUser') : null
+    key =  project.hasProperty('bintrayKey') ? project.getProperty('bintrayKey') : null
+    publications = ['mavenJava']
+
+    pkg {
+        repo = 'gradle-plugins'
+        name = 'com.bmuschko:gradle-docker-plugin'
+        desc = 'Gradle plugin for managing Docker images and containers.'
+        websiteUrl = "https://github.com/bmuschko/${project.name}"
+        issueTrackerUrl = "https://github.com/bmuschko/${project.name}/issues"
+        vcsUrl = "https://github.com/bmuschko/${project.name}.git"
+        licenses = ['Apache-2.0']
+        labels = ['gradle', 'docker', 'container', 'image', 'lightweight', 'vm', 'linux']
+        publicDownloadNumbers = true
+
+        version {
+            vcsTag = "v$project.version"
+            attributes = ['gradle-plugin': ["com.bmuschko.docker-remote-api:${project.group}:${project.name}",
+                                            "com.bmuschko.docker-java-application:${project.group}:${project.name}"]]
+
+            gpg {
+                sign = true
+                passphrase = project.hasProperty('gpgPassphrase') ? project.getProperty('gpgPassphrase') : null
+            }
+        }
+    }
+}

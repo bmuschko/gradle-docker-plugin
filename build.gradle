@@ -1,19 +1,11 @@
-buildscript {
-    repositories {
-        maven { url 'http://jcenter.bintray.com' }
-    }
-
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
-        classpath 'org.ajoberstar:gradle-git:0.13.0'
-    }
-}
-
 apply plugin: 'groovy'
 apply plugin: 'idea'
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'org.ajoberstar.github-pages'
+apply from: "$rootDir/gradle/test-setup.gradle"
+apply from: "$rootDir/gradle/integration-test.gradle"
+apply from: "$rootDir/gradle/functional-test.gradle"
+apply from: "$rootDir/gradle/additional-artifacts.gradle"
+apply from: "$rootDir/gradle/publishing.gradle"
+apply from: "$rootDir/gradle/documentation.gradle"
 
 group = 'com.bmuschko'
 version = '2.5'
@@ -31,98 +23,9 @@ dependencies {
     }
 }
 
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
-
-sourceSets {
-    testSetup {
-        groovy.srcDir file('src/testSetup/groovy')
-        resources.srcDir file('src/testSetup/resources')
-        compileClasspath = configurations.testRuntime
-        runtimeClasspath = output + compileClasspath
-    }
-}
-
-sourceSets {
-    integrationTest {
-        groovy.srcDir file('src/integTest/groovy')
-        resources.srcDir file('src/integTest/resources')
-        compileClasspath = sourceSets.main.output + sourceSets.testSetup.output + configurations.testRuntime
-        runtimeClasspath = output + compileClasspath
-    }
-}
-
-sourceSets {
-    functionalTest {
-        groovy.srcDir file('src/functTest/groovy')
-        resources.srcDir file('src/functTest/resources')
-        compileClasspath = sourceSets.main.output + sourceSets.testSetup.output + configurations.testRuntime
-        runtimeClasspath = output + compileClasspath
-    }
-}
-
-task integrationTest(type: Test) {
-    description = 'Runs the integration tests.'
-    group = 'verification'
-    testClassesDir = sourceSets.integrationTest.output.classesDir
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    mustRunAfter test
-}
-
-task createClasspathManifest {
-    def outputDir = sourceSets.functionalTest.output.resourcesDir
-
-    inputs.files sourceSets.main.runtimeClasspath
-    outputs.dir outputDir
-
-    doLast {
-        outputDir.mkdirs()
-        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
-    }
-}
-
-dependencies {
-    functionalTestCompile files(createClasspathManifest)
-}
-
-compileFunctionalTestJava.dependsOn createClasspathManifest
-
-task functionalTest(type: Test) {
-    description = 'Runs the functional tests.'
-    group = 'verification'
-    testClassesDir = sourceSets.functionalTest.output.classesDir
-    classpath = sourceSets.functionalTest.runtimeClasspath
-    mustRunAfter test, integrationTest
-}
-
-check.dependsOn integrationTest, functionalTest
-
-tasks.withType(Test) { task ->
-    testLogging {
-        events 'skipped'
-    }
-
-    def dockerServerUrl = System.properties['dockerServerUrl']
-
-    if(dockerServerUrl) {
-        logger.quiet "Using Docker server URL '$dockerServerUrl' for executing tests with task '$task.name'."
-        systemProperty 'dockerServerUrl', dockerServerUrl
-    }
-
-    def dockerCertPath = System.properties['dockerCertPath']
-
-    if(dockerCertPath) {
-        logger.quiet "Using Docker cert path '$dockerCertPath' for executing tests with task '$task.name'."
-        systemProperty 'dockerCertPath', dockerCertPath
-    }
-
-    def dockerPrivateRegistryUrl = System.properties['dockerPrivateRegistryUrl']
-
-    if(dockerPrivateRegistryUrl) {
-        logger.quiet "Using Docker private registry URL '$dockerPrivateRegistryUrl' for executing tests with task '$task.name'."
-        systemProperty 'dockerPrivateRegistryUrl', dockerPrivateRegistryUrl
-    }
-}
+ext.compatibilityVersion = '1.6'
+sourceCompatibility = compatibilityVersion
+targetCompatibility = compatibilityVersion
 
 jar {
     manifest {
@@ -137,7 +40,7 @@ jar {
 
 idea.project {
     jdkName = '1.8'
-    languageLevel = '1.6'
+    languageLevel = compatibilityVersion
 
     ipr.withXml { provider ->
         def node = provider.asNode()
@@ -149,109 +52,5 @@ idea.project {
         // Set Gradle home
         def gradleSettings = node.appendNode('component', [name: 'GradleSettings'])
         gradleSettings.appendNode('option', [name: 'SDK_HOME', value: gradle.gradleHomeDir])
-    }
-}
-
-idea.module {
-    testSourceDirs += file('src/testSetup/groovy')
-    testSourceDirs += file('src/integTest/groovy')
-    testSourceDirs += file('src/functTest/groovy')
-}
-
-task sourcesJar(type: Jar) {
-    classifier 'sources'
-    from sourceSets.main.allSource
-}
-
-task groovydocJar(type: Jar, dependsOn: groovydoc) {
-    classifier 'groovydoc'
-    from groovydoc.destinationDir
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives groovydocJar
-    archives javadocJar
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact groovydocJar
-            artifact javadocJar
-
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('name', 'Gradle Docker plugin')
-                root.appendNode('description', 'Gradle plugin for managing Docker images and containers.')
-                root.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
-                root.appendNode('inceptionYear', '2014')
-
-                def scm = root.appendNode('scm')
-                scm.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
-                scm.appendNode('connection', 'scm:https://bmuschko@github.com/bmuschko/gradle-docker-plugin.git')
-                scm.appendNode('developerConnection', 'scm:git://github.com/bmuschko/gradle-docker-plugin.git')
-
-                def license = root.appendNode('licenses').appendNode('license')
-                license.appendNode('name', 'The Apache Software License, Version 2.0')
-                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
-                license.appendNode('distribution', 'repo')
-
-                def developers = root.appendNode('developers')
-                def bmuschko = developers.appendNode('developer')
-                bmuschko.appendNode('id', 'bmuschko')
-                bmuschko.appendNode('name', 'Benjamin Muschko')
-                bmuschko.appendNode('email', 'benjamin.muschko@gmail.com')
-            }
-        }
-    }
-}
-
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.getProperty('bintrayUser') : null
-    key =  project.hasProperty('bintrayKey') ? project.getProperty('bintrayKey') : null
-    publications = ['mavenJava']
-
-    pkg {
-        repo = 'gradle-plugins'
-        name = 'com.bmuschko:gradle-docker-plugin'
-        desc = 'Gradle plugin for managing Docker images and containers.'
-        websiteUrl = "https://github.com/bmuschko/${project.name}"
-        issueTrackerUrl = "https://github.com/bmuschko/${project.name}/issues"
-        vcsUrl = "https://github.com/bmuschko/${project.name}.git"
-        licenses = ['Apache-2.0']
-        labels = ['gradle', 'docker', 'container', 'image', 'lightweight', 'vm', 'linux']
-        publicDownloadNumbers = true
-
-        version {
-            vcsTag = "v$project.version"
-            attributes = ['gradle-plugin': ["com.bmuschko.docker-remote-api:${project.group}:${project.name}",
-                                            "com.bmuschko.docker-java-application:${project.group}:${project.name}"]]
-
-            gpg {
-                sign = true
-                passphrase = project.hasProperty('gpgPassphrase') ? project.getProperty('gpgPassphrase') : null
-            }
-        }
-    }
-}
-
-githubPages {
-    repoUri = 'git@github.com:bmuschko/gradle-docker-plugin.git'
-
-    pages {
-        from(javadoc.outputs.files) {
-            into 'docs/javadoc'
-        }
-        from(groovydoc.outputs.files) {
-            into 'docs/groovydoc'
-        }
     }
 }

@@ -1,0 +1,39 @@
+sourceSets {
+    testSetup {
+        groovy.srcDir file('src/testSetup/groovy')
+        resources.srcDir file('src/testSetup/resources')
+        compileClasspath = configurations.testRuntime
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+tasks.withType(Test) { task ->
+    testLogging {
+        events 'skipped'
+    }
+
+    def dockerServerUrl = System.properties['dockerServerUrl']
+
+    if(dockerServerUrl) {
+        logger.quiet "Using Docker server URL '$dockerServerUrl' for executing tests with task '$task.name'."
+        systemProperty 'dockerServerUrl', dockerServerUrl
+    }
+
+    def dockerCertPath = System.properties['dockerCertPath']
+
+    if(dockerCertPath) {
+        logger.quiet "Using Docker cert path '$dockerCertPath' for executing tests with task '$task.name'."
+        systemProperty 'dockerCertPath', dockerCertPath
+    }
+
+    def dockerPrivateRegistryUrl = System.properties['dockerPrivateRegistryUrl']
+
+    if(dockerPrivateRegistryUrl) {
+        logger.quiet "Using Docker private registry URL '$dockerPrivateRegistryUrl' for executing tests with task '$task.name'."
+        systemProperty 'dockerPrivateRegistryUrl', dockerPrivateRegistryUrl
+    }
+}
+
+idea.module {
+    testSourceDirs += file('src/testSetup/groovy')
+}

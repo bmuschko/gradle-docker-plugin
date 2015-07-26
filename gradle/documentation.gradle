@@ -1,0 +1,24 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.ajoberstar:gradle-git:0.13.0'
+    }
+}
+
+apply plugin: org.ajoberstar.gradle.git.ghpages.GithubPagesPlugin
+
+githubPages {
+    repoUri = 'git@github.com:bmuschko/gradle-docker-plugin.git'
+
+    pages {
+        from(javadoc.outputs.files) {
+            into 'docs/javadoc'
+        }
+        from(groovydoc.outputs.files) {
+            into 'docs/groovydoc'
+        }
+    }
+}
