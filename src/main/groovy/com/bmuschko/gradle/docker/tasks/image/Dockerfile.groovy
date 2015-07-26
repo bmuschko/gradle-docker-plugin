@@ -281,6 +281,24 @@ class Dockerfile extends DefaultTask {
         instructions << new OnBuildInstruction(instruction)
     }
 
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#label">LABEL</a> instruction adds metadata to an image.
+     *
+     * @param labels Labels
+     */
+    void label(Map<String, String> labels) {
+        instructions << new LabelInstruction(labels)
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#label">LABEL</a> instruction adds metadata to an image.
+     *
+     * @param labels Labels
+     */
+    void label(Closure labels) {
+        instructions << new LabelInstruction(labels)
+    }
+
     static interface Instruction {
         String getKeyword()
         String build()
