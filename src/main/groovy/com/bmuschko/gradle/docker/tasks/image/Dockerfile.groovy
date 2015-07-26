@@ -282,7 +282,7 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * The <a href="https://docs.docker.com/reference/builder/#label">LABEL</a> instruction adds metadata to an image.
+     * The <a href="https://docs.docker.com/reference/builder/#label">LABEL instruction</a> adds metadata to an image.
      *
      * @param labels Labels
      */
@@ -291,7 +291,7 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * The <a href="https://docs.docker.com/reference/builder/#label">LABEL</a> instruction adds metadata to an image.
+     * The <a href="https://docs.docker.com/reference/builder/#label">LABEL instruction</a> adds metadata to an image.
      *
      * @param labels Labels
      */
