@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.DockerTaskIntegrationTest
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Task
 
 class DockerBuildImageIntegrationTest extends DockerTaskIntegrationTest {
@@ -38,11 +37,10 @@ class DockerBuildImageIntegrationTest extends DockerTaskIntegrationTest {
 
     private File createDockerfile() {
         File dockerFile = new File(dockerInputDir, 'Dockerfile')
-
-        FileUtils.writeStringToFile(dockerFile, """
+        dockerFile << """
 FROM ubuntu:12.04
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-""")
+"""
         dockerFile
     }
 }

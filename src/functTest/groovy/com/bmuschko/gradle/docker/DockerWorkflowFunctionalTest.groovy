@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker
 
-import org.apache.commons.io.FileUtils
 import spock.lang.Requires
 
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
@@ -248,10 +247,10 @@ task pushImage(type: DockerPushImage) {
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
 
-        FileUtils.writeStringToFile(dockerFile, """
+        dockerFile << """
 FROM ubuntu:12.04
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-""")
+"""
         dockerFile
     }
 }
