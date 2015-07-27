@@ -64,7 +64,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    String portBindings
+    List<String> portBindings
 
     @Input
     @Optional
@@ -231,7 +231,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getPortBindings()) {
-            containerCommand.withPortBindings(threadContextClassLoader.createPortBinding(getPortBindings()))
+            def createdPortBindings = getPortBindings().collect { threadContextClassLoader.createPortBinding(it) }
+            containerCommand.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
         }
 
         if(getBinds()) {

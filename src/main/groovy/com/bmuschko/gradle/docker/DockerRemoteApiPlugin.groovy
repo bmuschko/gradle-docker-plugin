@@ -29,7 +29,7 @@ import org.gradle.api.artifacts.Dependency
  */
 class DockerRemoteApiPlugin implements Plugin<Project> {
     public static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    public static final String DOCKER_JAVA_DEFAULT_VERSION = '1.2.0'
+    public static final String DOCKER_JAVA_DEFAULT_VERSION = '1.4.0'
     public static final String EXTENSION_NAME = 'docker'
     public static final String DEFAULT_TASK_GROUP = 'Docker'
 

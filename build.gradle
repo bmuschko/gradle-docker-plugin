@@ -8,7 +8,7 @@ apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/documentation.gradle"
 
 group = 'com.bmuschko'
-version = '2.5'
+version = '2.5.1'
 
 repositories {
     mavenCentral()

@@ -113,12 +113,12 @@ task createContainer(type: DockerCreateContainer) {
     dependsOn buildImage
     targetImageId { buildImage.getImageId() }
     containerName = "$uniqueContainerName"
+    portBindings = ['8080:8080']
 }
 
 task startContainer(type: DockerStartContainer) {
     dependsOn createContainer
     targetContainerId { createContainer.getContainerId() }
-    portBindings = ['8080:8080']
 }
 
 task inspectContainer(type: DockerInspectContainer) {
