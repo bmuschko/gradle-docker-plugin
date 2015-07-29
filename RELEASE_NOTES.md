@@ -1,8 +1,8 @@
-### Version 2.5.1
+### Version 2.5.1 (July 29, 2015)
 
 * Adds Dockerfile support for the LABEL instruction - [Pull request 86](https://github.com/bmuschko/gradle-docker-plugin/pull/86).
 * Usage of [docker-java library](https://github.com/docker-java/docker-java) version 1.4.0. Underlying API does not provide
-setting port bindings for task `DockerStartContainer` anymore.
+setting port bindings for task `DockerStartContainer` anymore. Needs to be set on `DockerCreateContainer`.
 
 ### Version 2.5 (July 18, 2015)
 
