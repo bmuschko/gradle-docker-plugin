@@ -68,6 +68,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    Boolean publishAll
+
+    @Input
+    @Optional
     Boolean attachStdin
 
     @Input
@@ -233,6 +237,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if(getPortBindings()) {
             def createdPortBindings = getPortBindings().collect { threadContextClassLoader.createPortBinding(it) }
             containerCommand.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
+        }
+
+        if(getPublishAll()) {
+            containerCommand.withPublishAll(getPublishAll())
         }
 
         if(getBinds()) {
