@@ -7,6 +7,12 @@ sourceSets {
     }
 }
 
+idea.module {
+    sourceSets.testSetup.allSource.srcDirs.each {
+        testSourceDirs += it
+    }
+}
+
 tasks.withType(Test) { task ->
     testLogging {
         events 'skipped'
@@ -32,8 +38,4 @@ tasks.withType(Test) { task ->
         logger.quiet "Using Docker private registry URL '$dockerPrivateRegistryUrl' for executing tests with task '$task.name'."
         systemProperty 'dockerPrivateRegistryUrl', dockerPrivateRegistryUrl
     }
-}
-
-idea.module {
-    testSourceDirs += file('src/testSetup/groovy')
 }
