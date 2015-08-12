@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker
 
+import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
@@ -28,11 +29,11 @@ task dockerVersion(type: DockerVersion)
 task dockerInfo(type: DockerInfo)
 """
         when:
-        GradleInvocationResult result = runTasks('dockerVersion', 'dockerInfo')
+        BuildResult result = build('dockerVersion', 'dockerInfo')
 
         then:
-        result.output.contains('Retrieving Docker version.')
-        result.output.contains('Retrieving Docker info.')
+        result.standardOutput.contains('Retrieving Docker version.')
+        result.standardOutput.contains('Retrieving Docker info.')
     }
 
     def "Can create Dockerfile and build an image from it"() {
@@ -59,11 +60,11 @@ task inspectImage(type: DockerInspectImage) {
 }
 """
         when:
-        GradleInvocationResult result = runTasks('inspectImage')
+        BuildResult result = build('inspectImage')
 
         then:
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     def "Can build and verify image"() {
@@ -85,10 +86,10 @@ task inspectImage(type: DockerInspectImage) {
 }
 """
         when:
-        GradleInvocationResult result = runTasks('inspectImage')
+        BuildResult result = build('inspectImage')
 
         then:
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     def "Can build an image, create and start a container"() {
@@ -127,8 +128,8 @@ task inspectContainer(type: DockerInspectContainer) {
 }
 """
         expect:
-        GradleInvocationResult result = runTasks('startContainer', 'inspectContainer')
-        result.output.contains("Name       : /$uniqueContainerName")
+        BuildResult result = build('startContainer', 'inspectContainer')
+        result.standardOutput.contains("Name       : /$uniqueContainerName")
     }
 
     def "Can build an image, create and link a container"() {
@@ -166,8 +167,8 @@ task inspectContainer(type: DockerInspectContainer) {
 }
 """
         expect:
-        GradleInvocationResult result = runTasks('createContainer2', 'inspectContainer')
-        result.output.contains("Links      : [${uniqueContainerName}1:container1]")
+        BuildResult result = build('createContainer2', 'inspectContainer')
+        result.standardOutput.contains("Links      : [${uniqueContainerName}1:container1]")
     }
 
     @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
@@ -209,7 +210,7 @@ task pullImage(type: DockerPullImage) {
 """
 
         expect:
-        runTasks('pullImage')
+        build('pullImage')
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
@@ -237,7 +238,7 @@ task pushImage(type: DockerPushImage) {
 }
 """
         when:
-        runTasks('pushImage')
+        build('pushImage')
 
         then:
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()

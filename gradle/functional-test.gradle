@@ -2,8 +2,8 @@ sourceSets {
     functionalTest {
         groovy.srcDir file('src/functTest/groovy')
         resources.srcDir file('src/functTest/resources')
-        compileClasspath = sourceSets.main.output + sourceSets.testSetup.output + configurations.testRuntime
-        runtimeClasspath = output + compileClasspath
+        compileClasspath += sourceSets.main.output + sourceSets.testSetup.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
     }
 }
 
@@ -20,6 +20,7 @@ task createClasspathManifest {
 }
 
 dependencies {
+    functionalTestCompile gradleTestKit()
     functionalTestCompile files(createClasspathManifest)
 }
 
@@ -36,5 +37,10 @@ task functionalTest(type: Test) {
 check.dependsOn functionalTest
 
 idea.module {
-    testSourceDirs += file('src/functTest/groovy')
+    sourceSets.functionalTest.allSource.srcDirs.each {
+        testSourceDirs += it
+    }
+
+    scopes.TEST.plus += [configurations.functionalTestCompile]
+    scopes.TEST.plus += [configurations.functionalTestRuntime]
 }

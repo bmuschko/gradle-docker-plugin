@@ -1,5 +1,6 @@
 package com.bmuschko.gradle.docker
 
+import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
@@ -11,7 +12,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
         writeCustomTasksToBuildFile()
 
         when:
-        GradleInvocationResult result = runTasks('startContainer')
+        BuildResult result = build('startContainer')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
@@ -23,7 +24,7 @@ ADD ${projectName}-1.0.tar /
 ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
 EXPOSE 8080
 """
-        result.output.contains('Author           : ')
+        result.standardOutput.contains('Author           : ')
     }
 
     def "Can create image for Java application with user-driven configuration"() {
@@ -44,7 +45,7 @@ docker {
 """
 
         when:
-        GradleInvocationResult result = runTasks('startContainer')
+        BuildResult result = build('startContainer')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
@@ -56,7 +57,7 @@ ADD ${projectName}-1.0.tar /
 ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
 EXPOSE 9090
 """
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     def "Can create image for Java application with additional files"() {
@@ -89,7 +90,7 @@ docker {
 """
 
         when:
-        GradleInvocationResult result = runTasks('startContainer')
+        BuildResult result = build('startContainer')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
@@ -105,7 +106,7 @@ ADD file2.txt /other/dir/file2.txt
 """
         new File(projectDir, 'build/docker/file1.txt').exists()
         new File(projectDir, 'build/docker/file2.txt').exists()
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
@@ -130,7 +131,7 @@ docker {
 """
 
         when:
-        runTasks('dockerPushImage')
+        build('dockerPushImage')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
@@ -160,7 +161,7 @@ docker {
 """
 
         when:
-        runTasks('dockerPushImage')
+        build('dockerPushImage')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')

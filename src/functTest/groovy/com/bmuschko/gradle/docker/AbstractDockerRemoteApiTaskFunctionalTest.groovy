@@ -21,7 +21,7 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
 }
 """
         when:
-        runTasks('customDocker')
+        build('customDocker')
 
         then:
         noExceptionThrown()
@@ -60,7 +60,7 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
 }
 """
         when:
-        runTasks('customDocker')
+        build('customDocker')
 
         then:
         noExceptionThrown()

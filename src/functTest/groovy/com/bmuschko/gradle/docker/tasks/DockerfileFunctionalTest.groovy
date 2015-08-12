@@ -1,7 +1,7 @@
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.GradleInvocationResult
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import org.gradle.testkit.runner.BuildResult
 
 class DockerfileFunctionalTest extends AbstractFunctionalTest {
     static final String DOCKERFILE_TASK_NAME = 'dockerfile'
@@ -28,14 +28,14 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
 """
 
         when:
-        GradleInvocationResult result = runTasks(DOCKERFILE_TASK_NAME)
+        BuildResult result = build(DOCKERFILE_TASK_NAME)
 
         then:
         !isDockerfileTaskUpToDate(result)
         dockerfile.exists()
 
         when:
-        result = runTasks(DOCKERFILE_TASK_NAME)
+        result = build(DOCKERFILE_TASK_NAME)
 
         then:
         !isDockerfileTaskUpToDate(result)
@@ -56,7 +56,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
 """
 
         when:
-        GradleInvocationResult result = runTasks(DOCKERFILE_TASK_NAME)
+        BuildResult result = build(DOCKERFILE_TASK_NAME)
 
         then:
         !isDockerfileTaskUpToDate(result)
@@ -67,14 +67,14 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         buildFile << """
 ${DOCKERFILE_TASK_NAME}.addFile('test.txt', '/app/')
 """
-        result = runTasks(DOCKERFILE_TASK_NAME)
+        result = build(DOCKERFILE_TASK_NAME)
 
         then:
         !isDockerfileTaskUpToDate(result)
         dockerfile.exists()
     }
 
-    private boolean isDockerfileTaskUpToDate(GradleInvocationResult result) {
-        result.output.contains(":$DOCKERFILE_TASK_NAME UP-TO-DATE")
+    private boolean isDockerfileTaskUpToDate(BuildResult result) {
+        result.standardOutput.contains(":$DOCKERFILE_TASK_NAME UP-TO-DATE")
     }
 }

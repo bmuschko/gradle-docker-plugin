@@ -2,8 +2,8 @@ sourceSets {
     integrationTest {
         groovy.srcDir file('src/integTest/groovy')
         resources.srcDir file('src/integTest/resources')
-        compileClasspath = sourceSets.main.output + sourceSets.testSetup.output + configurations.testRuntime
-        runtimeClasspath = output + compileClasspath
+        compileClasspath += sourceSets.main.output + sourceSets.testSetup.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
     }
 }
 
@@ -18,5 +18,10 @@ task integrationTest(type: Test) {
 check.dependsOn integrationTest
 
 idea.module {
-    testSourceDirs += file('src/integTest/groovy')
+    sourceSets.integrationTest.allSource.srcDirs.each {
+        testSourceDirs += it
+    }
+
+    scopes.TEST.plus += [configurations.integrationTestCompile]
+    scopes.TEST.plus += [configurations.integrationTestRuntime]
 }

@@ -15,10 +15,8 @@
  */
 package com.bmuschko.gradle.docker
 
-import org.gradle.tooling.BuildLauncher
-import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.ProjectConnection
-import org.gradle.tooling.model.GradleProject
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -97,20 +95,8 @@ docker.registryCredentials {
         }
     }
 
-    protected GradleInvocationResult runTasks(String... tasks) {
-        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(projectDir).connect()
-
-        try {
-            BuildLauncher builder = connection.newBuild()
-            OutputStream outputStream = new ByteArrayOutputStream()
-            builder.setStandardOutput(outputStream)
-            builder.forTasks(tasks).run()
-            GradleProject gradleProject = connection.getModel(GradleProject)
-            return new GradleInvocationResult(project: gradleProject, output: new String(outputStream.toByteArray()))
-        }
-        finally {
-            connection?.close()
-        }
+    protected BuildResult build(String... tasks) {
+        GradleRunner.create().withProjectDir(projectDir).withArguments(tasks).build()
     }
 
     protected String createUniqueImageId() {
