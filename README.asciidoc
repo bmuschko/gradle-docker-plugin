@@ -222,12 +222,12 @@ task buildMyAppImage(type: DockerBuildImage) {
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage
     targetImageId { buildMyAppImage.getImageId() }
+    portBindings = ['8080:8080']
 }
 
 task startMyAppContainer(type: DockerStartContainer) {
     dependsOn createMyAppContainer
     targetContainerId { createMyAppContainer.getContainerId() }
-    portBindings = ['8080:8080']
 }
 
 task stopMyAppContainer(type: DockerStopContainer) {
