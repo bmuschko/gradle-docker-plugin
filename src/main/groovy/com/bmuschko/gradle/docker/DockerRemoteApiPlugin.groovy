@@ -22,7 +22,6 @@ import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.Dependency
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
@@ -52,11 +51,9 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
         project.tasks.withType(AbstractDockerRemoteApiTask) {
             Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
 
-            config.incoming.beforeResolve {
-                if(config.dependencies.empty) {
-                    addDependency(project, config, "com.github.docker-java:docker-java:$DOCKER_JAVA_DEFAULT_VERSION")
-                    addDependency(project, config, 'org.slf4j:slf4j-simple:1.7.5')
-                }
+            config.defaultDependencies { dependencies ->
+                dependencies.add(project.dependencies.create("com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
+                dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
             }
 
             group = DEFAULT_TASK_GROUP
@@ -74,10 +71,5 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
         project.tasks.withType(RegistryCredentialsAware) {
             conventionMapping.registryCredentials = { extension.registryCredentials }
         }
-    }
-
-    private void addDependency(Project project, Configuration config, String coordinates) {
-        Dependency dockerJavaDependency = project.dependencies.create(coordinates)
-        config.dependencies.add(dockerJavaDependency)
     }
 }
