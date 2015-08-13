@@ -24,7 +24,7 @@ import org.gradle.api.logging.Logging
 import java.nio.charset.StandardCharsets
 
 class PullImageResponseHandler implements ResponseHandler<Void, InputStream> {
-    Logger logger = Logging.getLogger(PullImageResponseHandler)
+    private final Logger logger = Logging.getLogger(PullImageResponseHandler)
     private final JsonSlurper slurper = new JsonSlurper()
 
     @Override
