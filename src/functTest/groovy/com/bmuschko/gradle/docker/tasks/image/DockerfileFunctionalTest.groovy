@@ -1,4 +1,4 @@
-package com.bmuschko.gradle.docker.tasks
+package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import org.gradle.testkit.runner.BuildResult
