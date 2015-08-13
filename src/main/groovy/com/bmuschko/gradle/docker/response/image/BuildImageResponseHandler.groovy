@@ -26,7 +26,15 @@ import java.nio.charset.StandardCharsets
 class BuildImageResponseHandler implements ResponseHandler<String, InputStream> {
     public static final String SUCCESS_OUTPUT = 'Successfully built'
     private final JsonSlurper slurper = new JsonSlurper()
-    private final Logger logger = Logging.getLogger(BuildImageResponseHandler)
+    private final Logger logger
+
+    BuildImageResponseHandler() {
+        this(Logging.getLogger(BuildImageResponseHandler))
+    }
+
+    private BuildImageResponseHandler(Logger logger) {
+        this.logger = logger
+    }
 
     @Override
     String handle(InputStream response) {

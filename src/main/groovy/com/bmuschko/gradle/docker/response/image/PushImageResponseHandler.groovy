@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.response.image
 
 import com.bmuschko.gradle.docker.response.ResponseHandler
 import groovy.json.JsonSlurper
+import groovy.transform.PackageScope
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -24,8 +25,16 @@ import org.gradle.api.logging.Logging
 import java.nio.charset.StandardCharsets
 
 class PushImageResponseHandler implements ResponseHandler<Void, InputStream> {
-    private final Logger logger = Logging.getLogger(PushImageResponseHandler)
+    private final Logger logger
     private final JsonSlurper slurper = new JsonSlurper()
+
+    PushImageResponseHandler() {
+        this(Logging.getLogger(PushImageResponseHandler))
+    }
+
+    private PushImageResponseHandler(Logger logger) {
+        this.logger = logger
+    }
 
     @Override
     Void handle(InputStream response) {

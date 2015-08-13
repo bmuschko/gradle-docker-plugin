@@ -23,12 +23,8 @@ import spock.lang.Specification
 import java.nio.charset.StandardCharsets
 
 class PullImageResponseHandlerTest extends Specification {
-    PullImageResponseHandler responseHandler = new PullImageResponseHandler()
     Logger logger = Mock()
-
-    def setup() {
-        responseHandler.logger = logger
-    }
+    PullImageResponseHandler responseHandler = new PullImageResponseHandler(logger)
 
     def "Handle successful response"() {
         given:

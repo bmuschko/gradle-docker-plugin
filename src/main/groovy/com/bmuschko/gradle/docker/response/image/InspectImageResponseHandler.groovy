@@ -5,7 +5,15 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 class InspectImageResponseHandler implements ResponseHandler<Void, Object> {
-    private final Logger logger = Logging.getLogger(InspectImageResponseHandler)
+    private final Logger logger
+
+    InspectImageResponseHandler() {
+        this(Logging.getLogger(InspectImageResponseHandler))
+    }
+
+    private InspectImageResponseHandler(Logger logger) {
+        this.logger = logger
+    }
 
     @Override
     Void handle(Object image) {

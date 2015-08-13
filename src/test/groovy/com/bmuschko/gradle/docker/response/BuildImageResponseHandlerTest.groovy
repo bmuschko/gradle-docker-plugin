@@ -23,12 +23,8 @@ import spock.lang.Specification
 import java.nio.charset.StandardCharsets
 
 class BuildImageResponseHandlerTest extends Specification {
-    BuildImageResponseHandler responseHandler = new BuildImageResponseHandler()
     Logger logger = Mock()
-
-    def setup() {
-        responseHandler.logger = logger
-    }
+    BuildImageResponseHandler responseHandler = new BuildImageResponseHandler(logger)
 
     def "Handle successful response"() {
         String response = """{"stream":"Step 0 : FROM dockerfile/java:openjdk-7-jre\\n"}
