@@ -1,3 +1,7 @@
+### Version 2.5.2
+
+* Fix listImages task throwing GroovyCastException - [Issue 96](https://github.com/bmuschko/gradle-docker-plugin/issues/96).
+
 ### Version 2.5.1 (July 29, 2015)
 
 * Adds Dockerfile support for the LABEL instruction - [Pull request 86](https://github.com/bmuschko/gradle-docker-plugin/pull/86).
