@@ -240,7 +240,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getPublishAll()) {
-            containerCommand.withPublishAll(getPublishAll())
+            containerCommand.withPublishAllPorts(getPublishAll())
         }
 
         if(getBinds()) {
