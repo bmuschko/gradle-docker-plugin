@@ -2,8 +2,8 @@ sourceSets {
     testSetup {
         groovy.srcDir file('src/testSetup/groovy')
         resources.srcDir file('src/testSetup/resources')
-        compileClasspath = configurations.testRuntime
-        runtimeClasspath = output + compileClasspath
+        compileClasspath += configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
     }
 }
 
