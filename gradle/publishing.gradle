@@ -47,8 +47,8 @@ publishing {
 }
 
 bintray {
-    user = project.hasProperty('bintrayUser') ? project.getProperty('bintrayUser') : null
-    key =  project.hasProperty('bintrayKey') ? project.getProperty('bintrayKey') : null
+    user = resolveProperty('BINTRAY_USER', 'bintrayUser')
+    key = resolveProperty('BINTRAY_KEY', 'bintrayKey')
     publications = ['mavenJava']
 
     pkg {
@@ -69,8 +69,18 @@ bintray {
 
             gpg {
                 sign = true
-                passphrase = project.hasProperty('gpgPassphrase') ? project.getProperty('gpgPassphrase') : null
+                passphrase = resolveProperty('GPG_PASSPHRASE', 'gpgPassphrase')
             }
         }
     }
+}
+
+String resolveProperty(String envVarKey, String projectPropKey) {
+    String propValue = System.getenv()[envVarKey]
+
+    if(propValue) {
+        return propValue
+    }
+
+    hasProperty(projectPropKey) ? getProperty(projectPropKey) : null
 }
