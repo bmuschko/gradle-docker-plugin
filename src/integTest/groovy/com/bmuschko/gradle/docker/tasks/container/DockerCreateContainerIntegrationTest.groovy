@@ -40,4 +40,15 @@ class DockerCreateContainerIntegrationTest extends DockerTaskIntegrationTest {
         then:
         task.containerId
     }
+
+    @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
+    def "Publish all ports"() {
+        when:
+        DockerCreateContainer task = createAndConfigureTask()
+        task.publishAll = true
+        task.execute()
+
+        then:
+        task.containerId
+    }
 }
