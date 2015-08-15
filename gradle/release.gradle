@@ -1,0 +1,50 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.ajoberstar:gradle-git:$depVersions.gradleGit"
+    }
+}
+
+import org.ajoberstar.grgit.Grgit
+
+ext.repo = Grgit.open(rootDir)
+
+task createTag {
+    description = 'Creates repository tag with current project version.'
+    ext.tagName = "v${project.version}"
+
+    doLast {
+        logger.quiet "Creating tag '$tagName'."
+
+        repo.tag.add {
+            name = tagName
+            message = "Version ${project.version}"
+        }
+    }
+}
+
+task pushTag {
+    description = 'Pushes tag to remote repository.'
+    dependsOn createTag
+
+    doLast {
+        logger.quiet "Pushing tag '$createTag.tagName' to remote."
+
+        repo.push {
+            tags = true
+        }
+    }
+}
+
+task tag {
+    dependsOn pushTag
+    mustRunAfter bintrayUpload
+}
+
+task release {
+    description = 'Publishes artifacts to Bintray and tags repository with current project version.'
+    dependsOn assemble, bintrayUpload, tag
+}
