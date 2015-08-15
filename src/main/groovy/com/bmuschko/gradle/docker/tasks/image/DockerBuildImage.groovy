@@ -20,19 +20,24 @@ import com.bmuschko.gradle.docker.response.ResponseHandler
 import com.bmuschko.gradle.docker.response.image.BuildImageResponseHandler
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.*
 
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
     private ResponseHandler<String, InputStream> responseHandler = new BuildImageResponseHandler()
 
     /**
-     * Input directory containing Dockerfile. Defaults to "$projectDir/docker".
+     * Input directory containing the build context. Defaults to "$projectDir/docker".
      */
     @InputDirectory
     File inputDir = project.file('docker')
+
+    /**
+     * The Dockerfile to use to build the image.  If null, will use 'Dockerfile' in the
+     * build context, i.e. "$inputDir/Dockerfile".
+     */
+    @InputFile
+    @Optional
+    File dockerFile
 
     /**
      * Tag for image.
@@ -72,8 +77,18 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Building image from folder '${getInputDir()}'."
-        def buildImageCmd = dockerClient.buildImageCmd(getInputDir())
+        logger.quiet "Building image using context '${getInputDir()}'."
+        def buildImageCmd
+
+        if(getDockerFile()) {
+            logger.quiet "Using Dockerfile '${getDockerFile()}'"
+            buildImageCmd = dockerClient.buildImageCmd()
+                    .withBaseDirectory(getInputDir())
+                    .withDockerfile(getDockerFile())
+        }
+        else {
+            buildImageCmd = dockerClient.buildImageCmd(getInputDir())
+        }
 
         if(getTag()) {
             logger.quiet "Using tag '${getTag()}' for image."
