@@ -2,6 +2,7 @@
 
 * Fix listImages task throwing GroovyCastException - [Issue 96](https://github.com/bmuschko/gradle-docker-plugin/issues/96).
 * Add support for publishAll in DockerCreateContainer - [Pull request 94](https://github.com/bmuschko/gradle-docker-plugin/pull/94).
+* Add optional dockerFile option to the DockerBuildImage task - [Pull request 47](https://github.com/bmuschko/gradle-docker-plugin/pull/47).
 
 ### Version 2.5.1 (July 29, 2015)
 
