@@ -36,7 +36,6 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     /**
      * Path to the <a href="https://docs.docker.com/articles/https/">Docker certificate and key</a>.
      */
-    @InputDirectory
     @Optional
     File certPath
 
@@ -49,6 +48,13 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         }
     }
 
+    public void setCertPath(File certPath) {
+      File[] pemFiles = certPath.listFiles().findAll( { it.name.endsWith("pem") } )
+      getInputs().files(pemFiles)
+
+      this.certPath = certPath
+    }
+
     private DockerClientConfiguration createDockerClientConfig() {
         DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
         dockerClientConfig.url = getUrl()
@@ -58,4 +64,3 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
     abstract void runRemoteCommand(dockerClient)
 }
-
