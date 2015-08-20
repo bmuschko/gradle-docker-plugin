@@ -48,11 +48,12 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         }
     }
 
-    public void setCertPath(File certPath) {
-      File[] pemFiles = certPath.listFiles().findAll( { it.name.endsWith("pem") } )
-      getInputs().files(pemFiles)
-
-      this.certPath = certPath
+    @InputFiles
+    public File[] getCertPathKeys() {
+      if (certPath) {
+        return certPath.listFiles().findAll( { it.name.endsWith("pem") } )
+      }
+      return []
     }
 
     private DockerClientConfiguration createDockerClientConfig() {
