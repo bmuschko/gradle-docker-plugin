@@ -28,16 +28,16 @@ import org.gradle.api.artifacts.Configuration
  */
 class DockerRemoteApiPlugin implements Plugin<Project> {
     public static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    public static final String DOCKER_JAVA_DEFAULT_VERSION = '1.4.0'
+    public static final String DOCKER_JAVA_DEFAULT_VERSION = '2.0.0'
     public static final String EXTENSION_NAME = 'docker'
     public static final String DEFAULT_TASK_GROUP = 'Docker'
 
     @Override
     void apply(Project project) {
         project.configurations.create(DOCKER_JAVA_CONFIGURATION_NAME)
-               .setVisible(false)
-               .setTransitive(true)
-               .setDescription('The Docker Java libraries to be used for this project.')
+                .setVisible(false)
+                .setTransitive(true)
+                .setDescription('The Docker Java libraries to be used for this project.')
 
         DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension)
 

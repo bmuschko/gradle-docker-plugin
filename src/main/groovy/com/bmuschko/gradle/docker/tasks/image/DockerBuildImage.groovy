@@ -23,7 +23,7 @@ import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import org.gradle.api.tasks.*
 
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
-    private ResponseHandler<String, InputStream> responseHandler = new BuildImageResponseHandler()
+    private ResponseHandler<String, Object> responseHandler = new BuildImageResponseHandler()
 
     /**
      * Input directory containing the build context. Defaults to "$projectDir/docker".
@@ -117,11 +117,11 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }
 
-        InputStream response = buildImageCmd.exec()
+        def response = buildImageCmd.exec(threadContextClassLoader.createBuildImageResultCallback())
         imageId = responseHandler.handle(response)
     }
 
-    void setResponseHandler(ResponseHandler<String, InputStream> responseHandler) {
+    void setResponseHandler(ResponseHandler<String, Object> responseHandler) {
         this.responseHandler = responseHandler
     }
 }

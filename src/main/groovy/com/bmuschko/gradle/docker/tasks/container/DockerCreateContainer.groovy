@@ -19,6 +19,8 @@ import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+import java.lang.reflect.Array
+
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     String imageId
 
@@ -218,7 +220,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if (getLinks()) {
             def createdLinks = getLinks().collect( { threadContextClassLoader.createLink(it) })
-            containerCommand.withHostConfig(threadContextClassLoader.createHostConfig(["links":createdLinks]))
+            Class linkClass = createdLinks[0].getClass()
+            def linksArray = Array.newInstance(linkClass, createdLinks.size())
+            def linksArrayClass = linksArray.getClass()
+            containerCommand.withLinks(createdLinks.toArray(linksArrayClass))
         }
 
         if(getVolumesFrom()) {

@@ -16,16 +16,10 @@
 package com.bmuschko.gradle.docker.response.image
 
 import com.bmuschko.gradle.docker.response.ResponseHandler
-import groovy.json.JsonSlurper
-import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-import java.nio.charset.StandardCharsets
-
-class BuildImageResponseHandler implements ResponseHandler<String, InputStream> {
-    public static final String SUCCESS_OUTPUT = 'Successfully built'
-    private final JsonSlurper slurper = new JsonSlurper()
+class BuildImageResponseHandler implements ResponseHandler<String, Object> {
     private final Logger logger
 
     BuildImageResponseHandler() {
@@ -37,33 +31,9 @@ class BuildImageResponseHandler implements ResponseHandler<String, InputStream> 
     }
 
     @Override
-    String handle(InputStream response) {
-        Reader reader = new InputStreamReader(response, StandardCharsets.UTF_8)
-
-        reader.eachLine { line ->
-            def json = slurper.parseText(line)
-
-            if(json.get('stream')) {
-                String stream = json.stream
-                logger.info stream
-
-                if(isSuccessfulStreamIndicator(stream)) {
-                    String imageId = parseImageIdFromStream(stream)
-                    logger.quiet "Created image with ID '$imageId'."
-                    return imageId
-                }
-            }
-            else if(json.get('error')) {
-                throw new GradleException(json.error)
-            }
-        }
-    }
-
-    private boolean isSuccessfulStreamIndicator(String stream) {
-        stream.contains(SUCCESS_OUTPUT)
-    }
-
-    private String parseImageIdFromStream(String stream) {
-        (stream - SUCCESS_OUTPUT).trim()
+    String handle(Object response) {
+        String imageId = response.awaitImageId()
+        logger.quiet "Created image with ID '$imageId'."
+        return imageId
     }
 }

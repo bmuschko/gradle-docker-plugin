@@ -164,4 +164,28 @@ interface ThreadContextClassLoader {
      * @return Array of Instance
      */
     def createBinds(Map<String, String> binds)
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/BuildImageResultCallback.java">BuildImageResultCallback</a>
+     * from thread context classloader.
+     *
+     * @return Callback instance
+     */
+    def createBuildImageResultCallback()
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/PushImageResultCallback.java">PushImageResultCallback</a>
+     * from thread context classloader.
+     *
+     * @return Callback instance
+     */
+    def createPushImageResultCallback()
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/PullImageResultCallback.java">PullImageResultCallback</a>
+     * from thread context classloader.
+     *
+     * @return Callback instance
+     */
+    def createPullImageResultCallback()
 }

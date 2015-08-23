@@ -24,6 +24,7 @@ import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
+    public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
 
     /**
      * {@inheritDoc}
@@ -261,6 +262,36 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         def bindList = binds.collect { createBind(it.key, it.value) }
         Class bindClass = loadBindClass()
         bindList.toArray(Array.newInstance(bindClass, bindList.size()))
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createBuildImageResultCallback() {
+        createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback")
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createPushImageResultCallback() {
+        createCallback("${COMMAND_PACKAGE}.PushImageResultCallback")
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createPullImageResultCallback() {
+        createCallback("${COMMAND_PACKAGE}.PullImageResultCallback")
+    }
+
+    private Object createCallback(String className) {
+        Class callbackClass = loadClass(className)
+        Constructor constructor = callbackClass.getConstructor()
+        constructor.newInstance()
     }
 
     private Class loadInternetProtocolClass() {
