@@ -18,7 +18,9 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.bmuschko.gradle.docker.utils.TaskStateHelper
 import org.gradle.api.tasks.*
+
 
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
     /**
@@ -69,6 +71,9 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     DockerBuildImage() {
         ext.getImageId = { imageId }
+
+        doLast { saveImageId() }
+        getOutputs().upToDateWhen { previouslyBuiltImageExists() }
     }
 
     @Override
@@ -116,5 +121,32 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         def response = buildImageCmd.exec(threadContextClassLoader.createBuildImageResultCallback())
         imageId = response.awaitImageId()
         logger.quiet "Created image with ID '$imageId'."
+    }
+
+    void saveImageId() {
+        def state = new TaskStateHelper(name, project)
+        state.put("imageId", getImageId())
+    }
+
+    boolean previouslyBuiltImageExists() {
+        def imageExists = false
+
+        def imageId = new TaskStateHelper(name, project).get("imageId")
+        if (!imageId?.trim()) {
+            logger.info "No previously saved imageId exists"
+            return false
+        }
+
+        runInDockerClassPath { dockerClient ->
+            try {
+                dockerClient.inspectImageCmd(imageId).exec()
+                logger.info "Image ${imageId} found via call to inspectImage"
+                imageExists = true
+            } catch(Exception e) {
+                logger.info "Image ${imageId} not found via call to inspectImage"
+                imageExists = false
+            }
+        }
+        imageExists
     }
 }
