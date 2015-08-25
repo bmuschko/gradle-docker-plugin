@@ -32,9 +32,9 @@ class TaskStateHelper {
         put([ "${key}" : value])
     }
 
-    public void put(Map<String, String> state) {
-        def map = get()
-        state.each { k, v -> map[k] = v}
+    public void put(Map<String, String> newState) {
+        def state = get()
+        newState.each { k, v -> state[k] = v}
         saveState(state)
     }
 

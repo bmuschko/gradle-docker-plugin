@@ -30,21 +30,61 @@ class TaskStateHelperTest extends Specification {
         stateHelper.put("testKey", "testVal")
 
         then:
-        new File("${project.buildDir}/docker/state/saveStateTest").exists()
-        new File("${project.buildDir}/docker/state/saveStateTest").text.contains("testKey=testVal")
+        stateHelper.getStateFile().exists()
+        stateHelper.getStateFile().text.contains("testKey=testVal")
+    }
+
+    def "Saving task state doesn't overwrite previous state"() {
+        project.buildDir >> createTempDir()
+        def stateHelper = new TaskStateHelper("saveStateOverwrite", project)
+
+        when:
+        stateHelper.put("testKey", "testVal")
+        stateHelper.put("testKey2", "testVal2")
+
+        then:
+        stateHelper.getStateFile().exists()
+        stateHelper.getStateFile().text.contains("testKey=testVal")
+        stateHelper.getStateFile().text.contains("testKey2=testVal2")
+    }
+
+    def "Can overwrite state value for a given key"() {
+        project.buildDir >> createTempDir()
+        def stateHelper = new TaskStateHelper("stateOverwriteTest", project)
+
+        when:
+        stateHelper.put("testKey", "testVal")
+        stateHelper.put("testKey", "secondTestVal")
+
+        then:
+        stateHelper.getStateFile().exists()
+        stateHelper.getStateFile().text.contains("testKey=secondTestVal")
     }
 
     def "Gets previously saved task state"() {
         project.buildDir >> createTempDir()
         def stateHelper = new TaskStateHelper("testStateTest", project)
         new File("${project.buildDir}/docker/state/").mkdirs()
-        new File("${project.buildDir}/docker/state/testStateTest").write("testKeyForGet=1234567")
+        stateHelper.getStateFile().write("testKeyForGet=1234567")
 
         when:
         def val = stateHelper.get("testKeyForGet")
 
         then:
         val == "1234567"
+    }
+
+    def "Write/read integration"() {
+      project.buildDir >> createTempDir()
+      def stateHelper = new TaskStateHelper("writeReadIntg", project)
+
+      when:
+      stateHelper.put("gradlewwwww", "TEST_VALUE_xyz-123")
+      def newHelper = new TaskStateHelper("writeReadIntg", project)
+      def result = newHelper.get("gradlewwwww")
+
+      then:
+      result == "TEST_VALUE_xyz-123"
     }
 
     File createTempDir() {
