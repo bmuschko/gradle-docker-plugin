@@ -222,7 +222,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getVolumesFrom()) {
-            containerCommand.withVolumesFrom(getVolumesFrom())
+            def createdVolumes = threadContextClassLoader.createVolumesFrom(getVolumesFrom())
+            containerCommand.withVolumesFrom(createdVolumes)
         }
 
         if(getWorkingDir()) {
