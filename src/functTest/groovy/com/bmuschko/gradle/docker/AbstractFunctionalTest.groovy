@@ -96,7 +96,15 @@ docker.registryCredentials {
     }
 
     protected BuildResult build(String... tasks) {
-        GradleRunner.create().withProjectDir(projectDir).withArguments(tasks).build()
+        createAndConfigureGradleRunner(tasks).build()
+    }
+
+    protected BuildResult buildAndFail(String... tasks) {
+        createAndConfigureGradleRunner(tasks).buildAndFail()
+    }
+
+    private GradleRunner createAndConfigureGradleRunner(String... tasks) {
+        GradleRunner.create().withProjectDir(projectDir).withArguments(tasks)
     }
 
     protected String createUniqueImageId() {

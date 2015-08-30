@@ -20,22 +20,6 @@ import spock.lang.Requires
 
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
-    def "Can get Docker version and info"() {
-        buildFile << """
-import com.bmuschko.gradle.docker.tasks.DockerVersion
-import com.bmuschko.gradle.docker.tasks.DockerInfo
-
-task dockerVersion(type: DockerVersion)
-task dockerInfo(type: DockerInfo)
-"""
-        when:
-        BuildResult result = build('dockerVersion', 'dockerInfo')
-
-        then:
-        result.standardOutput.contains('Retrieving Docker version.')
-        result.standardOutput.contains('Retrieving Docker info.')
-    }
-
     def "Can create Dockerfile and build an image from it"() {
         buildFile << """
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
