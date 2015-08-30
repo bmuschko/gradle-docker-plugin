@@ -11,6 +11,6 @@ final class CollectionUtil {
         }
 
         Class clazz = list[0].getClass()
-        list.toArray(Array.newInstance(clazz, list.size()))
+        list.toArray(Array.newInstance(clazz, 0))
     }
 }
