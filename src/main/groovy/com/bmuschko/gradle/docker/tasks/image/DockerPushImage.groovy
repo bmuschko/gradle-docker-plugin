@@ -16,8 +16,6 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.response.ResponseHandler
-import com.bmuschko.gradle.docker.response.image.PushImageResponseHandler
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import org.gradle.api.tasks.Input
@@ -25,8 +23,6 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
-    private ResponseHandler<Void, Object> responseHandler = new PushImageResponseHandler()
-
     /**
      * The image name e.g. "bmuschko/busybox" or just "busybox" if you want to default.
      */
@@ -61,11 +57,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
             pushImageCmd.withAuthConfig(authConfig)
         }
 
-        Object response = pushImageCmd.exec(threadContextClassLoader.createPushImageResultCallback())
-        responseHandler.handle(response)
-    }
-
-    void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
-        this.responseHandler = responseHandler
+        def response = pushImageCmd.exec(threadContextClassLoader.createPushImageResultCallback())
+        response.awaitSuccess()
     }
 }

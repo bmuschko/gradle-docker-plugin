@@ -1,3 +1,10 @@
+### Version 2.6
+
+* Upgrade to Docker Java 2.1.0 - [Pull request 92](https://github.com/bmuschko/gradle-docker-plugin/pull/92).
+_Note:_ The Docker Java API changed vastly with version 2.0.0. The tasks `DockerBuildImage`, `DockerPullImage` and 
+`DockerPushImage` do not provide a response handler anymore. This is a breaking change. Future versions of the plugin
+might open up the response handling again in some way.
+
 ### Version 2.5.2 (August 15, 2015)
 
 * Fix listImages task throwing GroovyCastException - [Issue 96](https://github.com/bmuschko/gradle-docker-plugin/issues/96).
