@@ -42,9 +42,13 @@ task inspectImage(type: DockerInspectImage) {
     dependsOn buildImage
     targetImageId { buildImage.getImageId() }
 }
+
+task workflow {
+    dependsOn inspectImage
+}
 """
         when:
-        BuildResult result = build('inspectImage')
+        BuildResult result = build('workflow')
 
         then:
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
@@ -68,9 +72,13 @@ task inspectImage(type: DockerInspectImage) {
     dependsOn buildImage
     targetImageId { buildImage.getImageId() }
 }
+
+task workflow {
+    dependsOn inspectImage
+}
 """
         when:
-        BuildResult result = build('inspectImage')
+        BuildResult result = build('workflow')
 
         then:
         result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
@@ -87,7 +95,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
-
+import com.bmuschko.gradle.docker.tasks.container.DockerKillContainer
 
 task buildImage(type: DockerBuildImage) {
     inputDir = file('images/minimal')
@@ -110,9 +118,18 @@ task inspectContainer(type: DockerInspectContainer) {
     dependsOn startContainer
     targetContainerId { startContainer.getContainerId() }
 }
+
+task killContainer(type: DockerKillContainer) {
+    dependsOn inspectContainer
+    targetContainerId { startContainer.getContainerId() }
+}
+
+task workflow {
+    dependsOn killContainer
+}
 """
         expect:
-        BuildResult result = build('startContainer', 'inspectContainer')
+        BuildResult result = build('workflow')
         result.standardOutput.contains("Name       : /$uniqueContainerName")
     }
 
@@ -149,9 +166,13 @@ task inspectContainer(type: DockerInspectContainer) {
     dependsOn createContainer2
     targetContainerId { createContainer2.getContainerId() }
 }
+
+task workflow {
+    dependsOn inspectContainer
+}
 """
         expect:
-        BuildResult result = build('createContainer2', 'inspectContainer')
+        BuildResult result = build('workflow')
         result.standardOutput.contains("Links      : [${uniqueContainerName}1:container1]")
     }
 
@@ -191,10 +212,14 @@ task pullImage(type: DockerPullImage) {
     dependsOn pushImage
     repository = "\$docker.registryCredentials.username/busybox"
 }
+
+task workflow {
+    dependsOn pullImage
+}
 """
 
         expect:
-        build('pullImage')
+        build('workflow')
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
@@ -220,9 +245,13 @@ task pushImage(type: DockerPushImage) {
     dependsOn buildImage
     conventionMapping.imageName = { buildImage.getTag() }
 }
+
+task workflow {
+    dependsOn pushImage
+}
 """
         when:
-        build('pushImage')
+        build('workflow')
 
         then:
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
