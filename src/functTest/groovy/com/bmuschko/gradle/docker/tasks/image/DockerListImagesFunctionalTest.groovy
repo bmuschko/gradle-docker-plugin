@@ -26,7 +26,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerListImages
 
 task listImages(type: DockerListImages) {
     showAll = true
-    filter = 'busybox'
+    filters = '{"dangling":["true"]}'
 }
 """
 
