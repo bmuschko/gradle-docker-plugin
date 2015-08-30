@@ -175,7 +175,7 @@ docker {
 
 === Usage examples
 
-The following usage examples demonstrate code for common use cases. More scenarios can be found in the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/integTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowIntegrationTest.groovy[integration tests].
+The following usage examples demonstrate code for common use cases. More scenarios can be found in the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy[functional tests].
 
 ==== Creating a Dockerfile and building an image
 
@@ -298,7 +298,7 @@ The plugin provides a set of tasks for your project and preconfigures them with 
 
 === Usage examples
 
-The following usage examples demonstrate code for common use cases. More scenarios can be found in the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/integTest/groovy/com/bmuschko/gradle/docker/DockerJavaApplicationPluginIntegrationTest.groovy[integration tests].
+The following usage examples demonstrate code for common use cases. More scenarios can be found in the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerJavaApplicationPluginFunctionalTest.groovy[functional tests].
 
 [source,groovy]
 ----
