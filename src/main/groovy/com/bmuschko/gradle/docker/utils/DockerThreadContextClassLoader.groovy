@@ -152,8 +152,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createVolumesFrom(String[] volumes) {
         Class volumesClass = loadClass("${MODEL_PACKAGE}.VolumesFrom")
-        Constructor constructor = volumesClass.getConstructor(String)
-        volumes.collect { constructor.newInstance(it) }.toArray(Array.newInstance(volumesClass, 0))
+        Method parseMethod = volumesClass.getMethod('parse', String)
+        volumes.collect { parseMethod.invoke(null, it) }.toArray(Array.newInstance(volumesClass, 0))
     }
 
     /**
