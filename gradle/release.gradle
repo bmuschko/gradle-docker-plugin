@@ -34,7 +34,7 @@ task pushTag {
         logger.quiet "Pushing tag '$createTag.tagName' to remote."
 
         repo.push {
-            tags = true
+            refsOrSpecs = [createTag.tagName]
         }
     }
 }
