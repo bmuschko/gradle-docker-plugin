@@ -4,6 +4,7 @@
 _Note:_ The Docker Java API changed vastly with version 2.0.0. The tasks `DockerBuildImage`, `DockerPullImage` and 
 `DockerPushImage` do not provide a response handler anymore. This is a breaking change. Future versions of the plugin
 might open up the response handling again in some way.
+* `DockerListImages` with `filter` call a wrong function from `ListImagesCmdImpl.java` - [Issue 105](https://github.com/bmuschko/gradle-docker-plugin/issues/105).
 
 ### Version 2.5.2 (August 15, 2015)
 
