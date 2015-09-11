@@ -22,3 +22,5 @@ githubPages {
         }
     }
 }
+
+publishGhPages.dependsOn javadoc, groovydoc
