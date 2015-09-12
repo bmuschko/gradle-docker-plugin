@@ -73,6 +73,15 @@ interface ThreadContextClassLoader {
     def createVolumes(List<Object> volumes)
 
     /**
+     * Creates an array of instances of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/VolumesFrom.java">VolumesFrom</a>
+     * from thread context classloader.
+     *
+     * @param volume Container name
+     * @return Array of Instances
+     */
+    def createVolumesFrom(String[] volumes)
+
+    /**
      * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Link.java">Link</a>
      * from thread context classloader.
      *

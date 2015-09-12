@@ -259,6 +259,28 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         instance.configs.size() == 2
     }
 
+    def "Can create class of type VolumesFrom"() {
+        when:
+        def instance = null
+
+        def volumes = ['volume-one', 'volume-two:ro', 'volume-three:rw'] as String[]
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createVolumesFrom(volumes)
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+        instance.size() == volumes.size()
+        instance[0].container == 'volume-one'
+        instance[0].accessMode.toString() == 'rw'
+        instance[1].container == 'volume-two'
+        instance[1].accessMode.toString() == 'ro'
+        instance[2].container == 'volume-three'
+        instance[2].accessMode.toString() == 'rw'
+    }
+
     private DockerRegistryCredentials createCredentials() {
         DockerRegistryCredentials credentials = new DockerRegistryCredentials()
 
