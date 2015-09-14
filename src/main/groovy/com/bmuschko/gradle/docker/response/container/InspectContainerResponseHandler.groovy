@@ -9,8 +9,10 @@ class InspectContainerResponseHandler implements ResponseHandler<String, Object>
 
     @Override
     String handle(Object container) {
-        logger.quiet "Image ID   : $container.imageId"
-        logger.quiet "Name       : $container.name"
-        logger.quiet "Links      : $container.hostConfig.links"
+        logger.quiet "Image ID    : $container.imageId"
+        logger.quiet "Name        : $container.name"
+        logger.quiet "Links       : $container.hostConfig.links"
+        logger.quiet "Volumes     : $container.volumes"
+        logger.quiet "VolumesFrom : $container.hostConfig.volumesFrom"
     }
 }

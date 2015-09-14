@@ -133,7 +133,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("Name       : /$uniqueContainerName")
+        result.standardOutput.contains("Name        : /$uniqueContainerName")
     }
 
     def "Can build an image, create and link a container"() {
@@ -177,53 +177,53 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("Links      : [${uniqueContainerName}1:container1]")
+        result.standardOutput.contains("Links       : [${uniqueContainerName}1:container1]")
     }
 
-    @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
-    def "Can push image to DockerHub and pull it afterward"() {
+    def "Can build an image, create a container and link its volumes into another container"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        def dockefile = createDockerfile(imageDir)
+
+        dockefile << 'VOLUME /data'
+
+        String uniqueContainerName = createUniqueContainerName()
+
         buildFile << """
-            docker {
-                registryCredentials {
-                    username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
-                    password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
-                    email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
-                }
-            }
-
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.image.DockerCommitImage
-            import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
-            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
-            task createContainer(type: DockerCreateContainer) {
-                imageId = 'busybox'
-                cmd = ['true'] as String[]
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file('images/minimal')
+                tag = "${createUniqueImageId()}"
             }
 
-            task commitImage(type: DockerCommitImage) {
-                dependsOn createContainer
-                repository = "\$docker.registryCredentials.username/busybox"
-                targetContainerId { createContainer.getContainerId() }
+            task createContainer1(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}-1"
             }
 
-            task pushImage(type: DockerPushImage) {
-                dependsOn commitImage
-                imageName = "\$docker.registryCredentials.username/busybox"
+            task createContainer2(type: DockerCreateContainer) {
+                dependsOn createContainer1
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}-2"
+                volumesFrom = ["${uniqueContainerName}-1"]
             }
 
-            task pullImage(type: DockerPullImage) {
-                dependsOn pushImage
-                repository = "\$docker.registryCredentials.username/busybox"
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer2
+                targetContainerId { createContainer2.getContainerId() }
             }
 
             task workflow {
-                dependsOn pullImage
+                dependsOn inspectContainer
             }
         """
 
         expect:
-        build('workflow')
+        BuildResult result = build('workflow')
+        result.standardOutput.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
