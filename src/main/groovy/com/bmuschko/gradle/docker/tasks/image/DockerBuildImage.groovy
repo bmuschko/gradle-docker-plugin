@@ -138,22 +138,29 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     boolean previouslyBuiltImageExists() {
         def imageExists = false
 
-        def imageId = new TaskStateHelper(name, project).get("imageId")
-        if (!imageId?.trim()) {
+        def prevImageId = new TaskStateHelper(name, project).get("imageId")
+        if (!prevImageId?.trim()) {
             logger.info "No previously saved imageId exists"
             return false
         }
 
         runInDockerClassPath { dockerClient ->
             try {
-                dockerClient.inspectImageCmd(imageId).exec()
-                logger.info "Image ${imageId} found via call to inspectImage"
+                dockerClient.inspectImageCmd(prevImageId).exec()
+                logger.info "Image ${prevImageId} found via call to inspectImage"
+
                 imageExists = true
             } catch(Exception e) {
-                logger.info "Image ${imageId} not found via call to inspectImage"
+                logger.info "Image ${prevImageId} not found via call to inspectImage"
                 imageExists = false
             }
         }
-        imageExists
+
+        if (imageExists) {
+          this.imageId = prevImageId
+          return true
+        } else {
+          return false
+        }
     }
 }
