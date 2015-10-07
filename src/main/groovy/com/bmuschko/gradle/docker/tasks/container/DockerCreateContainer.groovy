@@ -113,7 +113,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    Map<String, Integer> exposedPorts
+    Map<Integer, String> exposedPorts
 
     @Input
     @Optional
@@ -232,7 +232,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getExposedPorts()) {
-            def createdExposedPorts = getExposedPorts().collect { threadContextClassLoader.createExposedPort(it.key, it.value) }
+            def createdExposedPorts = getExposedPorts().collect { threadContextClassLoader.createExposedPort(it.value, it.key) }
             containerCommand.exposedPorts = threadContextClassLoader.createExposedPorts(createdExposedPorts)
         }
 
