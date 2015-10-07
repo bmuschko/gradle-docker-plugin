@@ -30,11 +30,14 @@ class DockerStopContainer extends DockerExistingContainer {
     void runRemoteCommand(dockerClient) {
         logger.quiet "Stopping container with ID '${getContainerId()}'."
         def stopContainerCmd = dockerClient.stopContainerCmd(getContainerId())
+        setContainerCommandConfig(stopContainerCmd)
+        stopContainerCmd.exec()
+        logger.quiet "Stopped container with ID '${getContainerId()}'."
+    }
 
+    private void setContainerCommandConfig(stopContainerCmd) {
         if(getTimeout()) {
             stopContainerCmd.withTimeout(getTimeout())
         }
-
-        stopContainerCmd.exec()
     }
 }
