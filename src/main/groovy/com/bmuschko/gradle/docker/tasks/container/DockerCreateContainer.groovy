@@ -97,6 +97,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String networkMode
+
+    @Input
+    @Optional
     String image
 
     @Input
@@ -206,6 +210,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getDns()) {
             containerCommand.withDns(getDns())
+        }
+
+        if(getNetworkMode()) {
+            containerCommand.withNetworkMode(getNetworkMode())
         }
 
         if(getImage()) {
