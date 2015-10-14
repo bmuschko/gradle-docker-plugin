@@ -22,11 +22,11 @@ class DockerRemoveContainer extends DockerExistingContainer {
 
     @Input
     @Optional
-    boolean removeVolumes
+    Boolean removeVolumes
 
     @Input
     @Optional
-    boolean force
+    Boolean force
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -37,12 +37,12 @@ class DockerRemoveContainer extends DockerExistingContainer {
     }
 
     private void setContainerCommandConfig(containerCommand) {
-        if(removeVolumes) {
-            containerCommand.withRemoveVolumes(removeVolumes);
+        if(getRemoveVolumes()) {
+            containerCommand.withRemoveVolumes(getRemoveVolumes());
         }
 
-        if(force) {
-            containerCommand.withForce(force);
+        if(getForce()) {
+            containerCommand.withForce(getForce());
         }
     }
 }
