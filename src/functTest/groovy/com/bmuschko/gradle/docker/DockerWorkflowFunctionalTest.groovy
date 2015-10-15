@@ -227,9 +227,6 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container with host networkMode and run it"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
-        createDockerfile(imageDir)
-
         String uniqueContainerName = createUniqueContainerName()
 
         buildFile << """
