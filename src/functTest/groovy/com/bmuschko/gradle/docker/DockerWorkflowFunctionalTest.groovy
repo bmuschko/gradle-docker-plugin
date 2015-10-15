@@ -226,6 +226,70 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.standardOutput.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
     }
 
+    def "Can build an image, create a container with host networkMode and run it"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerKillContainer
+
+            task createDockerfile(type: Dockerfile) {
+                destFile = project.file('build/networkMode/Dockerfile')
+                from 'ubuntu:14.04'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn createDockerfile
+                inputDir = createDockerfile.destFile.parentFile
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+              dependsOn buildImage
+              targetImageId { buildImage.getImageId() }
+              networkMode = 'host'
+              name = "$uniqueContainerName"
+              cmd = ['/bin/bash', '-c', 'while true; do echo -e "HTTP/1.1 200 OK\\n\\nhostNetworkModeContainer" | nc -l -p 27277; done']
+            }
+
+            task startContainer(type: DockerStartContainer) {
+              dependsOn createContainer
+              targetContainerId { createContainer.getContainerId() }
+            }
+
+            task connectServer(type: Exec) {
+              dependsOn startContainer
+              commandLine 'curl', 'http://localhost:27277'
+              doLast {
+                 project.ext {
+                    runningContainerId = startContainer.getContainerId()
+                 }
+              }
+            }
+
+            task killContainer(type: DockerKillContainer) {
+              dependsOn connectServer
+              targetContainerId {
+                 project.ext.runningContainerId
+              }
+            }
+
+            task workflow {
+              dependsOn killContainer
+            }
+        """
+
+        expect:
+        BuildResult result = build('--info','workflow')
+        result.standardOutput.contains("hostNetworkModeContainer")
+    }
+
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
         buildFile << """
