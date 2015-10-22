@@ -175,6 +175,16 @@ interface ThreadContextClassLoader {
     def createBinds(Map<String, String> binds)
 
     /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/LogConfig.java">LogConfig</a>
+     * from thread context classloader.
+     *
+     * @param type The type of log-driver to use (e.g. json-file, syslog, journald, none).
+     * @param parameters Optional parameters for log-driver
+     * @return Instance
+     */
+    def createLogConfig(String type, Map<String, String> parameters)
+
+    /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/BuildImageResultCallback.java">BuildImageResultCallback</a>
      * from thread context classloader.
      *

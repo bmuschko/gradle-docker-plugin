@@ -278,6 +278,18 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
+    def createLogConfig(String type, Map<String, String> parameters) {
+        Class logConfigClass = loadClass("${MODEL_PACKAGE}.LogConfig")
+        Class logTypeClass = loadClass("${MODEL_PACKAGE}.LogConfig\$LoggingType")
+        def logTypeEnum = logTypeClass.values().find { it.type == type }
+        Constructor logConfigConstructor = logConfigClass.getConstructor(logTypeClass, Map)
+        logConfigConstructor.newInstance(logTypeEnum, parameters)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     def createBuildImageResultCallback() {
         createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback")
     }

@@ -221,6 +221,24 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         instance[1].volume.path == '/other/volume'
     }
 
+    def "Can create class of type LogConfig"() {
+        when:
+        def instance = null
+
+        def type = "json-file"
+        def parameters = [:]
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createLogConfig(type, parameters)
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+        instance.type.getType() == type
+        instance.config.size() == parameters.size()
+    }
+
     def "Can create class of type AuthConfig"() {
         when:
         def instance = null

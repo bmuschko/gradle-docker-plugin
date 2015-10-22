@@ -123,6 +123,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     List<String> extraHosts
 
+    @Input
+    @Optional
+    Closure logConfig
+
     String containerId
 
     DockerCreateContainer() {
@@ -252,6 +256,11 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         
         if(getExtraHosts()) {
             containerCommand.withExtraHosts(getExtraHosts() as String[])
+        }
+
+        if(getLogConfig()) {
+            def (type, parameters) = getLogConfig().call()
+            containerCommand.withLogConfig(threadContextClassLoader.createLogConfig(type, parameters))
         }
     }
 }
