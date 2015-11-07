@@ -1,3 +1,7 @@
+### Version 2.6.2
+
+* Upgrade to Docker Java 2.1.2.
+
 ### Version 2.6.1 (September 21, 2015)
 
 * Correct the `withVolumesFrom` call on `DockerCreateContainer` task which needs to get a `VolumesFrom[]` array as the parameter - [Pull request 102](https://github.com/bmuschko/gradle-docker-plugin/pull/102).
