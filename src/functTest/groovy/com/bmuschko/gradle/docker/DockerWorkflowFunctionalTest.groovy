@@ -226,6 +226,60 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.standardOutput.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
     }
 
+    def "Can build an image, create, start and wait a container"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerKillContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file('images/minimal')
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "$uniqueContainerName"
+                exposedPorts = {[8080:'TCP'], [8081:'TCP']}
+                cmd = ['/bin/sh', '-c', 'exit 10']
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+            }
+
+            task waitContainer(type: DockerWaitContainer) {
+                dependsOn inspectContainer
+                targetContainerId { startContainer.getContainerId() }
+                doLast << {
+                    System.out.println 'Exit code: ' + exitCode;
+                }
+            }
+
+            task workflow {
+                dependsOn waitContainer
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.standardOutput.contains("Exit code: 10")
+    }
+
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
         buildFile << """
