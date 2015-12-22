@@ -1,5 +1,6 @@
-### Version 2.6.2
+### Version 2.6.2 (December 22, 2015)
 
+* Expose support for LogDriver on `DockerCreateContainer` - [Pull request 118](https://github.com/bmuschko/gradle-docker-plugin/pull/118).
 * Upgrade to Docker Java 2.1.2.
 
 ### Version 2.6.1 (September 21, 2015)
