@@ -31,12 +31,12 @@ class DockerRemoveContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(dockerClient) {
         def containerCommand = dockerClient.removeContainerCmd(getContainerId())
-        setContainerCommandConfig(containerCommand)
+        configureContainerCommandConfig(containerCommand)
         logger.quiet "Removing container with ID '${getContainerId()}'."
         containerCommand.exec()
     }
 
-    private void setContainerCommandConfig(containerCommand) {
+    private void configureContainerCommandConfig(containerCommand) {
         if(getRemoveVolumes()) {
             containerCommand.withRemoveVolumes(getRemoveVolumes())
         }

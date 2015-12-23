@@ -1,3 +1,7 @@
+### Version 2.6.3 (December 23, 2015)
+
+* Expose force and removeVolumes properties on `DockerRemoveContainer` - [Pull request 129](https://github.com/bmuschko/gradle-docker-plugin/pull/129).
+
 ### Version 2.6.2 (December 22, 2015)
 
 * Expose support for LogDriver on `DockerCreateContainer` - [Pull request 118](https://github.com/bmuschko/gradle-docker-plugin/pull/118).
