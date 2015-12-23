@@ -127,6 +127,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     LogConfig logConfig
 
+    @Input
+    @Optional
+    Boolean privileged
+
     String containerId
 
     DockerCreateContainer() {
@@ -261,10 +265,15 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if(getLogConfig()) {
             containerCommand.withLogConfig(threadContextClassLoader.createLogConfig(getLogConfig().type, getLogConfig().config))
         }
+
+        if(getPrivileged()) {
+            containerCommand.withPrivileged(getPrivileged())
+        }
     }
-    
+
     class LogConfig {
         @Input String type
         @Input Map<String, String> config = [:]
     }
 }
+
