@@ -1,3 +1,7 @@
+### Version 2.6.4 (December 24, 2015)
+
+* Expose privileged property on `DockerCreateContainer` - [Pull request 130](https://github.com/bmuschko/gradle-docker-plugin/pull/130).
+
 ### Version 2.6.3 (December 23, 2015)
 
 * Expose force and removeVolumes properties on `DockerRemoveContainer` - [Pull request 129](https://github.com/bmuschko/gradle-docker-plugin/pull/129).
