@@ -3,23 +3,15 @@ Gradle Docker plugin
 
 image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout.png[Docker Logo]
 
-<table border=1>
-    <tr>
-        <td>
-            Over the past couple of years this plugin has seen many releases. Thanks to everyone involved!
-            Unfortunately, I don't have much time to contribute anymore. In practice this means far less activity,
-            responsiveness on issues and new releases from my end.
-        </td>
-    </tr>
-    <tr>
-        <td>
-            I am
-            <a href="https://discuss.gradle.org/t/looking-for-new-owners-for-gradle-plugins/9735">actively looking for contributors</a>
-            willing to take on maintenance and implementation of the project. If you are interested and would love to see this
-            plugin continue to thrive, shoot me a <a href="mailto:benjamin.muschko@gmail.com">mail</a>.
-        </td>
-    </tr>
-</table>
+|=======
+| Over the past couple of years this plugin has seen many releases. Thanks to everyone involved!
+Unfortunately, I don't have much time to contribute anymore. In practice this means far less activity,
+responsiveness on issues and new releases from my end.
+|I am
+link:https://discuss.gradle.org/t/looking-for-new-owners-for-gradle-plugins/9735[actively looking for contributors]
+willing to take on maintenance and implementation of the project. If you are interested and would love to see this
+plugin continue to thrive, shoot me a mailto:benjamin.muschko@gmail.com[mail].
+|=======
 
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
