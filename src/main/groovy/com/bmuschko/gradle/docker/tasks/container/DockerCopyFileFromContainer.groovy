@@ -33,8 +33,8 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      * Path, either regular file or directory, on host. If file does not exist
      * a regular file will be created with its name.
      *
-     * If regular file output will be of type tgz. If directory then output
-     * will be untarred into directory.
+     * If regular file then hostPath will be of type tgz. If directory then output
+     * will be untarred into hostPath.
      */
     @Input
     @OutputFile
