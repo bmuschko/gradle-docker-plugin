@@ -22,47 +22,58 @@ import org.gradle.api.tasks.OutputFile
 import java.util.zip.GZIPOutputStream
 
 class DockerCopyFileFromContainer extends DockerExistingContainer {
+
+    /**
+     * Path, either regular file or directory, inside container.
+     */
     @Input
     String resource
 
+    /**
+     * Path, either regular file or directory, on host. If file does not exist
+     * a regular file will be created with its name.
+     *
+     * If regular file output will be of type tgz. If directory then output
+     * will be untarred into directory.
+     */
     @Input
     @OutputFile
-    File destFile
-
-    @Input
-    @Optional
-    Boolean compressed = Boolean.FALSE
+    File hostPath
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Copying '${getResource()}' from container with ID '${getContainerId()}' to '${getDestFile()}'."
+        def containerCommand = dockerClient.copyFileFromContainerCmd(getContainerId(), getResource())
+        logger.quiet "Copying '${getResource()}' from container with ID '${getContainerId()}' to '${getHostPath()}'."
 
-        getDestFile().withOutputStream  { OutputStream out ->
-            def input
+        // create path (non-directory) if it does not already exist
+        if (!hostPath.exists()) {
+            hostPath.parentFile.mkdirs()
+            hostPath.createNewFile()
+        }
 
-            try {
-                input = dockerClient.copyFileFromContainerCmd(getContainerId(), getResource()).exec()
-
-                if (getCompressed()) {
-                    compressFile(out, input)
-                } else {
-                    out << input
+        def input = containerCommand.exec()
+        def tempFile
+        try {
+            def workingFile = hostPath.isFile() ? hostPath : File.createTempFile(UUID.randomUUID().toString(), ".tgz")
+            workingFile.withOutputStream { owner.compressFile(it, input) }
+            if (hostPath.isDirectory()) {
+                project.copy {
+                    into hostPath
+                    from project.tarTree(workingFile)
                 }
             }
-            finally {
-                input?.close()
-            }
+        } finally {
+            input?.close()
+            tempFile?.delete()
         }
     }
 
-    private void compressFile(OutputStream outputStream, input) {
+    protected compressFile(OutputStream outputStream, InputStream inputStream) {
         GZIPOutputStream gzipOut
-
         try {
             gzipOut = new GZIPOutputStream(outputStream)
-            gzipOut << input
-        }
-        finally {
+            gzipOut << inputStream
+        } finally {
             gzipOut?.close()
         }
     }

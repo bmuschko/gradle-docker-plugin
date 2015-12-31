@@ -263,6 +263,47 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         noExceptionThrown()
     }
 
+    def "Can build an image, create a container, and copy file from it"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file('images/minimal')
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "$uniqueContainerName"
+            }
+
+            task copyFileFromContainer(type: DockerCopyFileFromContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                hostPath = project.file("$buildDir/fileCopiedFromContainer.tgz")
+                resource = "/var/log"
+            }
+
+            task workflow {
+                dependsOn copyFileFromContainer
+            }
+        """
+
+        when:
+        BuildResult result = build('workflow')
+
+        then:
+        new File(projectDir, 'build/fileCopiedFromContainer.tgz').exists()
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
 
