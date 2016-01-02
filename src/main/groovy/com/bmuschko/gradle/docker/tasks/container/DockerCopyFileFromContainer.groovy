@@ -17,18 +17,37 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import groovy.io.FileType
 import org.gradle.api.GradleException
+import org.gradle.api.file.FileCopyDetails
+import org.gradle.api.file.RelativePath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerCopyFileFromContainer extends DockerExistingContainer {
 
+    /**
+     * Path inside container
+     */
     @Input
     String resource
 
+    /**
+     * Path on disk to write resource into. If hostPath does
+     * not exist it will be created relative to what we need it
+     * to be (e.g. regular file or directory). This is consistent
+     * with how 'docker cp' behaves.
+     */
     @Input
     @Optional
     File hostPath = project.projectDir
 
+    /**
+     * Whether to leave file in its compressed state or not.
+     *
+     * Docker CP command hands back a tar stream regardless if we asked
+     * for a regular file or directory. Thus, we can give the caller
+     * back the tar file as is or explode it to some location like
+     * 'docker cp' does.
+     */
     @Input
     @Optional
     Boolean compressed = Boolean.FALSE
@@ -43,21 +62,11 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         def tempDir
         try {
 
-            /*
-                1.) Tar stream is handed back which can contain N number of files. Because
-                of this, we will explode into temp directory first, as we don't know
-                how many files are to receive.
-            */
+            // 1.) get tar InputStream
             input = containerCommand.exec()
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tar")
-            tempFile.withOutputStream { it << input }
-
 
             // 2.) if compressed leave file as is otherwise untar
             if (compressed) {
-
-                println "in compressed..."
-                println "temp file at ${tempFile.absolutePath}"
 
                 // ensure file ends with '.tar' if we are responsible for naming it
                 def fileName = new File(resource).name
@@ -69,32 +78,36 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
                         hostPath :
                         hostPath.parentFile
 
-                println "compressedName ${compressedFileName}"
-                println "compressedLocation ${compressedFileLocation.absolutePath}"
-
-
+                // ensure path does not previously exist or risk clobbering
                 if (hostPath.exists()) {
                     if (!hostPath.isDirectory()) { hostPath.delete() }
                 } else {
                     hostPath.parentFile.mkdirs()
                 }
 
-                project.copy {
-                    into compressedFileLocation
-                    from tempFile
-                    rename { compressedFileName }
-                }
+                new File(compressedFileLocation,
+                        compressedFileName).
+                        withOutputStream { it << input }
+
             } else {
 
-                // copy raw contents of tar into tempDir
-                tempDir = File.createTempDir()
+                // 3.) write tar to temp location since we are exploding it anyway
+                tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tar")
+                tempFile.withOutputStream { it << input }
+
+                // We are not allowed to rename tempDir's created in OS temp directory (as
+                // we do further downstream) which is why we are creating it relative to
+                // build directory
+                tempDir = new File("${project.buildDir}/${UUID.randomUUID().toString()}")
+                tempDir.mkdirs()
                 project.copy {
                     into tempDir
                     from project.tarTree(tempFile)
                 }
+                tempFile.delete()
 
                 /*
-                    3.) At this point we have 3 possibilities:
+                    3.1) At this juncture we have 3 possibilities:
 
                         a.) 0 files were found in which case we do nothing
 
@@ -112,39 +125,61 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
                 } else if (fileCount == 1) {
 
                     // ensure regular file does not exist as we don't want clobbering
-                    if (hostPath.exists() && !hostPath.isDirectory()) {
+                    if (hostPath.exists() && !hostPath.isDirectory())
                         hostPath.delete()
-                    }
 
                     // create parent files of hostPath should they not exist
-                    if (!hostPath.exists()) {
+                    if (!hostPath.exists())
                         hostPath.parentFile.mkdirs()
-                    }
 
-                    if (hostPath.isDirectory()) {
-                        project.copy {
-                            into hostPath
-                            from tempDir.listFiles().last()
-                        }
-                    } else {
-                        project.copy {
-                            into hostPath.parentFile
-                            from tempDir.listFiles().last()
-                            rename { hostPath.name }
-                        }
-                    }
+                    def parentDirectory = hostPath.isDirectory() ?
+                            hostPath : hostPath.parentFile
+                    def fileName = hostPath.isDirectory() ?
+                            tempDir.listFiles().last().name : hostPath.name
+
+                    def destination = new File(parentDirectory, fileName)
+                    if (!tempDir.listFiles().last().renameTo(destination))
+                        throw new GradleException("Failed to write file to ${destination}")
+
                 } else {
 
+                    // flatten single top-level directory to behave more like docker.
+                    // gradle does not currently offer any mechanism to do this which
+                    // is why we have to do the following gymnastics
+                    if (tempDir.listFiles().size() == 1) {
+                        def dirToFlatten = tempDir.listFiles().last()
+                        def dirToFlattenParent = tempDir.listFiles().last().parentFile
+                        def flatDir = new File(dirToFlattenParent, UUID.randomUUID().toString())
+
+                        // rename origin to escape potential clobbering
+                        dirToFlatten.renameTo(flatDir)
+
+                        // rename files 1 level higher
+                        flatDir.listFiles().each {
+                            it.renameTo(new File(dirToFlattenParent, it.name))
+                        }
+                        flatDir.deleteDir()
+                    }
+
                     // delete regular file should it exist
-                    if (hostPath.exists() && !hostPath.isDirectory()) {
+                    if (hostPath.exists() && !hostPath.isDirectory())
                         hostPath.delete()
-                    }
-                    if (!hostPath.exists()) {
-                        hostPath.mkdirs()
-                    }
-                    project.copy {
-                        into hostPath
-                        from tempDir
+
+                    // if directory already exists, rename each file into
+                    // given directory, otherwise rename entire directory
+                    if (hostPath.exists()) {
+                        def parentName = tempDir.name
+                        tempDir.listFiles().each {
+                            def originPath = it.absolutePath
+                            def index = originPath.lastIndexOf(parentName) + parentName.length()
+                            def relativePath = originPath.substring(index, originPath.length())
+                            def destFile = new File("${hostPath.absolutePath}/${relativePath}")
+                            if (!it.renameTo(destFile))
+                                throw new GradleException("Failed to write file to ${destFile}")
+                        }
+                    } else {
+                        if (!tempDir.renameTo(hostPath))
+                            throw new GradleException("Failed to write file to ${hostPath}")
                     }
                 }
             }
@@ -153,6 +188,5 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
             tempFile?.delete()
             tempDir?.delete()
         }
-
     }
 }
