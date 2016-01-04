@@ -31,10 +31,11 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     String resource
 
     /**
-     * Path on disk to write resource into. If hostPath does
-     * not exist it will be created relative to what we need it
-     * to be (e.g. regular file or directory). This is consistent
-     * with how 'docker cp' behaves.
+     * Path on disk to write resource to or into.
+     *
+     * If hostPath does not exist it will be created relative to
+     * what we need it to be (e.g. regular file or directory).
+     * This is consistent with how 'docker cp' behaves.
      */
     @Input
     @Optional
@@ -45,7 +46,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      *
      * Docker CP command hands back a tar stream regardless if we asked
      * for a regular file or directory. Thus, we can give the caller
-     * back the tar file as is or explode it to some location like
+     * back the tar file as-is or explode it to some destination like
      * 'docker cp' does.
      */
     @Input
@@ -57,136 +58,164 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         def containerCommand = dockerClient.copyFileFromContainerCmd(getContainerId(), getResource())
         logger.quiet "Copying '${getResource()}' from container with ID '${getContainerId()}' to '${getHostPath()}'."
 
-        def input
+        def tarStream
+        try {
+
+            tarStream = containerCommand.exec()
+
+            // if compressed leave file as is otherwise untar
+            if (compressed) {
+                copyFileCompressed(tarStream)
+            } else {
+                copyFile(tarStream)
+            }
+        } finally {
+            tarStream?.close()
+        }
+    }
+
+    /**
+     * Copy tar-stream from container to host
+     */
+    private void copyFileCompressed(InputStream tarStream) {
+
+        // If user supplied an existing directory then we are responsible for naming and so
+        // will ensure file ends with '.tar'. If user supplied a regular file then use
+        // whichever name was passed in.
+        def fileName = new File(resource).name
+        def compressedFileName = (hostPath.exists() && hostPath.isDirectory()) ?
+                (fileName.endsWith(".tar") ?: fileName + ".tar") :
+                hostPath.name
+
+        def compressedFileLocation = (hostPath.exists() && hostPath.isDirectory()) ?
+                hostPath :
+                hostPath.parentFile
+
+        // If user supplied regular file ensure its parent location exists and if
+        // the regular file itself exists, delete to avoid clobbering.
+        if (hostPath.exists()) {
+            if (!hostPath.isDirectory())
+                hostPath.delete()
+        } else {
+            hostPath.parentFile.mkdirs()
+        }
+
+        new File(compressedFileLocation,
+                compressedFileName).
+                withOutputStream { it << tarStream }
+
+    }
+
+    /**
+     * Copy regular file or directory from container to host
+     */
+    private void copyFile(InputStream tarStream) {
+
         def tempFile
         def tempDir
         try {
 
-            // 1.) get tar InputStream
-            input = containerCommand.exec()
+            // Write tar to temp location since we are exploding it anyway
+            tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tar")
+            tempFile.withOutputStream { it << tarStream }
 
-            // 2.) if compressed leave file as is otherwise untar
-            if (compressed) {
+            // We are not allowed to rename tempDir's created in OS temp directory (as
+            // we do further downstream) which is why we are creating it relative to
+            // build directory
+            tempDir = new File("${project.buildDir}/${UUID.randomUUID().toString()}")
+            tempDir.mkdirs()
+            project.copy {
+                into tempDir
+                from project.tarTree(tempFile)
+            }
+            tempFile.delete()
 
-                // ensure file ends with '.tar' if we are responsible for naming it
-                def fileName = new File(resource).name
-                def compressedFileName = (hostPath.exists() && hostPath.isDirectory()) ?
-                        (fileName.endsWith(".tar") ? fileName : fileName + ".tar") :
-                        hostPath.name
+            /*
+                At this juncture we have 3 possibilities:
 
-                def compressedFileLocation = (hostPath.exists() && hostPath.isDirectory()) ?
-                        hostPath :
-                        hostPath.parentFile
+                    1.) 0 files were found in which case we do nothing
 
-                // ensure path does not previously exist or risk clobbering
-                if (hostPath.exists()) {
-                    if (!hostPath.isDirectory()) { hostPath.delete() }
-                } else {
+                    2.) 1 regular file was found
+
+                    3.) N regular files (and possibly directories) were found
+            */
+            def fileCount = 0
+            tempDir.eachFileRecurse(FileType.FILES) { fileCount++ }
+            if (fileCount == 0) {
+
+                logger.quiet "Nothing to copy."
+
+            } else if (fileCount == 1) {
+
+                // ensure regular file does not exist as we don't want clobbering
+                if (hostPath.exists() && !hostPath.isDirectory())
+                    hostPath.delete()
+
+                // create parent files of hostPath should they not exist
+                if (!hostPath.exists())
                     hostPath.parentFile.mkdirs()
-                }
 
-                new File(compressedFileLocation,
-                        compressedFileName).
-                        withOutputStream { it << input }
+                def parentDirectory = hostPath.isDirectory() ?: hostPath.parentFile
+                def fileName = hostPath.isDirectory() ?
+                        tempDir.listFiles().last().name : hostPath.name
+
+                def destination = new File(parentDirectory, fileName)
+                if (!tempDir.listFiles().last().renameTo(destination))
+                    throw new GradleException("Failed to write file to ${destination}")
 
             } else {
 
-                // 3.) write tar to temp location since we are exploding it anyway
-                tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tar")
-                tempFile.withOutputStream { it << input }
+                // Flatten single top-level directory to behave more like docker. Basically
+                // we are turning this:
+                //
+                //     /<requested-host-dir>/base-directory/actual-files-start-here
+                //
+                // into this:
+                //
+                //     /<requested-host-dir>/actual-files-start-here
+                //
+                // gradle does not currently offer any mechanism to do this which
+                // is why we have to do the following gymnastics
+                if (tempDir.listFiles().size() == 1) {
+                    def dirToFlatten = tempDir.listFiles().last()
+                    def dirToFlattenParent = tempDir.listFiles().last().parentFile
+                    def flatDir = new File(dirToFlattenParent, UUID.randomUUID().toString())
 
-                // We are not allowed to rename tempDir's created in OS temp directory (as
-                // we do further downstream) which is why we are creating it relative to
-                // build directory
-                tempDir = new File("${project.buildDir}/${UUID.randomUUID().toString()}")
-                tempDir.mkdirs()
-                project.copy {
-                    into tempDir
-                    from project.tarTree(tempFile)
+                    // rename origin to escape potential clobbering
+                    dirToFlatten.renameTo(flatDir)
+
+                    // rename files 1 level higher
+                    flatDir.listFiles().each {
+                        it.renameTo(new File(dirToFlattenParent, it.name))
+                    }
+                    flatDir.deleteDir()
                 }
-                tempFile.delete()
 
-                /*
-                    3.1) At this juncture we have 3 possibilities:
+                // delete regular file should it exist
+                if (hostPath.exists() && !hostPath.isDirectory())
+                    hostPath.delete()
 
-                        a.) 0 files were found in which case we do nothing
-
-                        b.) 1 regular file was found
-
-                        c.) N regular files were found
-
-                */
-                def fileCount = 0
-                tempDir.eachFileRecurse(FileType.FILES) { fileCount++ }
-                if (fileCount == 0) {
-
-                    println "Nothing to copy."
-
-                } else if (fileCount == 1) {
-
-                    // ensure regular file does not exist as we don't want clobbering
-                    if (hostPath.exists() && !hostPath.isDirectory())
-                        hostPath.delete()
-
-                    // create parent files of hostPath should they not exist
-                    if (!hostPath.exists())
-                        hostPath.parentFile.mkdirs()
-
-                    def parentDirectory = hostPath.isDirectory() ?
-                            hostPath : hostPath.parentFile
-                    def fileName = hostPath.isDirectory() ?
-                            tempDir.listFiles().last().name : hostPath.name
-
-                    def destination = new File(parentDirectory, fileName)
-                    if (!tempDir.listFiles().last().renameTo(destination))
-                        throw new GradleException("Failed to write file to ${destination}")
-
+                // If directory already exists, rename each file into
+                // said directory, otherwise rename entire directory.
+                if (hostPath.exists()) {
+                    def parentName = tempDir.name
+                    tempDir.listFiles().each {
+                        def originPath = it.absolutePath
+                        def index = originPath.lastIndexOf(parentName) + parentName.length()
+                        def relativePath = originPath.substring(index, originPath.length())
+                        def destFile = new File("${hostPath.absolutePath}/${relativePath}")
+                        if (!it.renameTo(destFile))
+                            throw new GradleException("Failed renaming file ${it} to ${destFile}")
+                    }
                 } else {
-
-                    // flatten single top-level directory to behave more like docker.
-                    // gradle does not currently offer any mechanism to do this which
-                    // is why we have to do the following gymnastics
-                    if (tempDir.listFiles().size() == 1) {
-                        def dirToFlatten = tempDir.listFiles().last()
-                        def dirToFlattenParent = tempDir.listFiles().last().parentFile
-                        def flatDir = new File(dirToFlattenParent, UUID.randomUUID().toString())
-
-                        // rename origin to escape potential clobbering
-                        dirToFlatten.renameTo(flatDir)
-
-                        // rename files 1 level higher
-                        flatDir.listFiles().each {
-                            it.renameTo(new File(dirToFlattenParent, it.name))
-                        }
-                        flatDir.deleteDir()
-                    }
-
-                    // delete regular file should it exist
-                    if (hostPath.exists() && !hostPath.isDirectory())
-                        hostPath.delete()
-
-                    // if directory already exists, rename each file into
-                    // given directory, otherwise rename entire directory
-                    if (hostPath.exists()) {
-                        def parentName = tempDir.name
-                        tempDir.listFiles().each {
-                            def originPath = it.absolutePath
-                            def index = originPath.lastIndexOf(parentName) + parentName.length()
-                            def relativePath = originPath.substring(index, originPath.length())
-                            def destFile = new File("${hostPath.absolutePath}/${relativePath}")
-                            if (!it.renameTo(destFile))
-                                throw new GradleException("Failed to write file to ${destFile}")
-                        }
-                    } else {
-                        if (!tempDir.renameTo(hostPath))
-                            throw new GradleException("Failed to write file to ${hostPath}")
-                    }
+                    if (!tempDir.renameTo(hostPath))
+                        throw new GradleException("Failed renaming file ${tempDir} to ${hostPath}")
                 }
             }
         } finally {
-            input?.close()
+            // ensure we delete in-case exception was thrown
             tempFile?.delete()
-            tempDir?.delete()
+            tempDir?.deleteDir()
         }
     }
 }
