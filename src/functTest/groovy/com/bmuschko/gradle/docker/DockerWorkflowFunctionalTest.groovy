@@ -289,7 +289,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 hostPath = project.file("$projectDir/copy-file-dir/shebang.tar")
-                resource = "/bin/sh"
+                remotePath = "/bin/sh"
                 compressed = true
             }
 

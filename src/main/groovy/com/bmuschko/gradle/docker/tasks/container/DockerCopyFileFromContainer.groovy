@@ -28,10 +28,10 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      * Path inside container
      */
     @Input
-    String resource
+    String remotePath
 
     /**
-     * Path on disk to write resource to or into.
+     * Path on host to write remotePath to or into.
      *
      * If hostPath does not exist it will be created relative to
      * what we need it to be (e.g. regular file or directory).
@@ -55,8 +55,8 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        def containerCommand = dockerClient.copyFileFromContainerCmd(getContainerId(), getResource())
-        logger.quiet "Copying '${getResource()}' from container with ID '${getContainerId()}' to '${getHostPath()}'."
+        def containerCommand = dockerClient.copyFileFromContainerCmd(getContainerId(), getRemotePath())
+        logger.quiet "Copying '${getRemotePath()}' from container with ID '${getContainerId()}' to '${getHostPath()}'."
 
         def tarStream
         try {
@@ -82,7 +82,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         // If user supplied an existing directory then we are responsible for naming and so
         // will ensure file ends with '.tar'. If user supplied a regular file then use
         // whichever name was passed in.
-        def fileName = new File(resource).name
+        def fileName = new File(getRemotePath()).name
         def compressedFileName = (hostPath.exists() && hostPath.isDirectory()) ?
                 (fileName.endsWith(".tar") ?: fileName + ".tar") :
                 hostPath.name
