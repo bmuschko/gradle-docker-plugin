@@ -39,7 +39,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    File hostPath = project.projectDir
+    String hostPath
 
     /**
      * Whether to leave file in its compressed state or not.
@@ -55,6 +55,10 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
 
     @Override
     void runRemoteCommand(dockerClient) {
+
+        if (!hostPath)
+            hostPath = "${project.projectDir}"
+
         def containerCommand = dockerClient.copyFileFromContainerCmd(getContainerId(), getRemotePath())
         logger.quiet "Copying '${getRemotePath()}' from container with ID '${getContainerId()}' to '${getHostPath()}'."
 
@@ -62,12 +66,13 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         try {
 
             tarStream = containerCommand.exec()
+            def hostDestination = project.file(hostPath)
 
             // if compressed leave file as is otherwise untar
             if (compressed) {
-                copyFileCompressed(tarStream)
+                copyFileCompressed(tarStream, hostDestination)
             } else {
-                copyFile(tarStream)
+                copyFile(tarStream, hostDestination)
             }
         } finally {
             tarStream?.close()
@@ -77,27 +82,27 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     /**
      * Copy tar-stream from container to host
      */
-    private void copyFileCompressed(InputStream tarStream) {
+    private void copyFileCompressed(InputStream tarStream, File hostDestination) {
 
         // If user supplied an existing directory then we are responsible for naming and so
         // will ensure file ends with '.tar'. If user supplied a regular file then use
         // whichever name was passed in.
         def fileName = new File(getRemotePath()).name
-        def compressedFileName = (hostPath.exists() && hostPath.isDirectory()) ?
+        def compressedFileName = (hostDestination.exists() && hostDestination.isDirectory()) ?
                 (fileName.endsWith(".tar") ?: fileName + ".tar") :
-                hostPath.name
+                hostDestination.name
 
-        def compressedFileLocation = (hostPath.exists() && hostPath.isDirectory()) ?
-                hostPath :
-                hostPath.parentFile
+        def compressedFileLocation = (hostDestination.exists() && hostDestination.isDirectory()) ?
+                hostDestination :
+                hostDestination.parentFile
 
         // If user supplied regular file ensure its parent location exists and if
         // the regular file itself exists, delete to avoid clobbering.
-        if (hostPath.exists()) {
-            if (!hostPath.isDirectory())
-                hostPath.delete()
+        if (hostDestination.exists()) {
+            if (!hostDestination.isDirectory())
+                hostDestination.delete()
         } else {
-            hostPath.parentFile.mkdirs()
+            hostDestination.parentFile.mkdirs()
         }
 
         new File(compressedFileLocation,
@@ -109,7 +114,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     /**
      * Copy regular file or directory from container to host
      */
-    private void copyFile(InputStream tarStream) {
+    private void copyFile(InputStream tarStream, File hostDestination) {
 
         def tempFile
         def tempDir
@@ -148,16 +153,16 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
             } else if (fileCount == 1) {
 
                 // ensure regular file does not exist as we don't want clobbering
-                if (hostPath.exists() && !hostPath.isDirectory())
-                    hostPath.delete()
+                if (hostDestination.exists() && !hostDestination.isDirectory())
+                    hostDestination.delete()
 
                 // create parent files of hostPath should they not exist
-                if (!hostPath.exists())
-                    hostPath.parentFile.mkdirs()
+                if (!hostDestination.exists())
+                    hostDestination.parentFile.mkdirs()
 
-                def parentDirectory = hostPath.isDirectory() ?: hostPath.parentFile
-                def fileName = hostPath.isDirectory() ?
-                        tempDir.listFiles().last().name : hostPath.name
+                def parentDirectory = hostDestination.isDirectory() ?: hostDestination.parentFile
+                def fileName = hostDestination.isDirectory() ?
+                        tempDir.listFiles().last().name : hostDestination.name
 
                 def destination = new File(parentDirectory, fileName)
                 if (!tempDir.listFiles().last().renameTo(destination))
@@ -192,24 +197,24 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
                 }
 
                 // delete regular file should it exist
-                if (hostPath.exists() && !hostPath.isDirectory())
-                    hostPath.delete()
+                if (hostDestination.exists() && !hostDestination.isDirectory())
+                    hostDestination.delete()
 
                 // If directory already exists, rename each file into
                 // said directory, otherwise rename entire directory.
-                if (hostPath.exists()) {
+                if (hostDestination.exists()) {
                     def parentName = tempDir.name
                     tempDir.listFiles().each {
                         def originPath = it.absolutePath
                         def index = originPath.lastIndexOf(parentName) + parentName.length()
                         def relativePath = originPath.substring(index, originPath.length())
-                        def destFile = new File("${hostPath.absolutePath}/${relativePath}")
+                        def destFile = new File("${hostDestination.absolutePath}/${relativePath}")
                         if (!it.renameTo(destFile))
                             throw new GradleException("Failed renaming file ${it} to ${destFile}")
                     }
                 } else {
-                    if (!tempDir.renameTo(hostPath))
-                        throw new GradleException("Failed renaming file ${tempDir} to ${hostPath}")
+                    if (!tempDir.renameTo(hostDestination))
+                        throw new GradleException("Failed renaming file ${tempDir} to ${hostDestination}")
                 }
             }
         } finally {
