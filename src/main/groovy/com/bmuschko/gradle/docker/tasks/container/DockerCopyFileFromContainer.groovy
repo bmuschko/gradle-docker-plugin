@@ -17,13 +17,10 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import groovy.io.FileType
 import org.gradle.api.GradleException
-import org.gradle.api.file.FileCopyDetails
-import org.gradle.api.file.RelativePath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerCopyFileFromContainer extends DockerExistingContainer {
-
     /**
      * Path inside container
      */
@@ -66,7 +63,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         try {
 
             tarStream = containerCommand.exec()
-            def hostDestination = project.file(hostPath)
+            def hostDestination = new File(hostPath)
 
             // if compressed leave file as is otherwise untar
             if (compressed) {

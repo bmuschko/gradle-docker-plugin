@@ -293,8 +293,15 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 compressed = true
             }
 
-            task workflow {
+            task copyDirFromContainer(type: DockerCopyFileFromContainer) {
                 dependsOn copyFileFromContainer
+                targetContainerId { createContainer.getContainerId() }
+                hostPath = "$projectDir/copy-dir"
+                remotePath = "/var/log"
+            }
+
+            task workflow {
+                dependsOn copyDirFromContainer
             }
         """
 
@@ -302,7 +309,8 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
 
         then:
-        new File("$projectDir/copy-file-dir/shebang.tar").exists()
+        new File("$projectDir/copy-file-dir/shebang.tar").exists() &&
+                new File("$projectDir/copy-dir").exists()
     }
 
     private File createDockerfile(File imageDir) {
