@@ -1,5 +1,5 @@
 group = 'com.bmuschko'
-version = '2.6.4'
+version = '2.6.5'
 
 apply plugin: 'groovy'
 apply plugin: 'idea'

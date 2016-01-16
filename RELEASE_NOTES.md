@@ -1,4 +1,4 @@
-### Version 2.6.5
+### Version 2.6.5 (January 16, 2016)
 
 * Fix implementation of `DockerCopyFileFromContainer` - [Pull request 135](https://github.com/bmuschko/gradle-docker-plugin/pull/135).
 * Add `networkMode` property to `DockerCreateContainer` - [Pull request 114](https://github.com/bmuschko/gradle-docker-plugin/pull/114).
