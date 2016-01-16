@@ -1,3 +1,7 @@
+### Version 2.6.5
+
+* Fix implementation of `DockerCopyFileFromContainer` - [Pull request 135](https://github.com/bmuschko/gradle-docker-plugin/pull/135).
+
 ### Version 2.6.4 (December 24, 2015)
 
 * Expose privileged property on `DockerCreateContainer` - [Pull request 130](https://github.com/bmuschko/gradle-docker-plugin/pull/130).
