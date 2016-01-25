@@ -113,7 +113,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }
 
-        def response = buildImageCmd.exec(threadContextClassLoader.createBuildImageResultCallback())
+        def response = buildImageCmd.exec(threadContextClassLoader.createBuildImageResultCallback(logger))
         imageId = response.awaitImageId()
         logger.quiet "Created image with ID '$imageId'."
     }
