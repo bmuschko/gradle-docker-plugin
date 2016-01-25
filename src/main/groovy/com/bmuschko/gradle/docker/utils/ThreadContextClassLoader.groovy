@@ -207,4 +207,13 @@ interface ThreadContextClassLoader {
      * @return Callback instance
      */
     def createPullImageResultCallback()
+
+    /**
+     * Creates a proxy that delegates its calls to a given callback. Whenever the <code>onNext</code> method is called, the
+     * proxy will print the stream returned by docker to standard output.
+     *
+     * @param delegate the callback the proxy will delegate to
+     * @return proxy instance
+     */
+    def createPrintStreamProxyCallback(delegate)
 }

@@ -54,6 +54,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             config.defaultDependencies { dependencies ->
                 dependencies.add(project.dependencies.create("com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
                 dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
+                dependencies.add(project.dependencies.create('cglib:cglib:3.2.0'))
             }
 
             group = DEFAULT_TASK_GROUP
