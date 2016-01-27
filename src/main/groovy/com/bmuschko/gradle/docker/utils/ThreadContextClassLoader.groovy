@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 
 interface ThreadContextClassLoader {
     /**
@@ -135,6 +136,15 @@ interface ThreadContextClassLoader {
      * @return Instance
      */
     def createExposedPorts(List<Object> exposedPorts)
+
+    /**
+     * Creates an array of instances of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/ExposedPort.java">ExposedPorts</a>
+     * from thread context classloader.
+     *
+     * @param exposedPorts Exposed ports
+     * @return An array of instances
+     */
+    def createExposedPortsArray(List<DockerCreateContainer.ExposedPort> exposedPorts)
 
     /**
      * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/PortBinding.java">PortBinding</a>
