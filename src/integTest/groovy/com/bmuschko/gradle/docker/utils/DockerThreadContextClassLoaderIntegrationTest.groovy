@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.AbstractIntegrationTest
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import spock.lang.Unroll
 
 import java.lang.reflect.InvocationTargetException
