@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.container
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.CollectionUtil
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
@@ -115,9 +116,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     String workingDir
 
-    @Input
-    @Optional
-    Map<String, Integer> exposedPorts
+    @Nested
+    List<ExposedPort> exposedPorts = []
 
     @Input
     @Optional
@@ -157,6 +157,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     String getImageId() {
         imageId
+    }
+
+    void exposePorts(String internetProtocol, List<Integer> ports) {
+        exposedPorts << new ExposedPort(internetProtocol, ports)
     }
 
     private void setContainerCommandConfig(containerCommand) {
@@ -248,8 +252,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getExposedPorts()) {
-            def createdExposedPorts = getExposedPorts().collect { threadContextClassLoader.createExposedPort(it.key, it.value) }
-            containerCommand.exposedPorts = threadContextClassLoader.createExposedPorts(createdExposedPorts)
+            def ports = threadContextClassLoader.createExposedPortsArray(getExposedPorts())
+            containerCommand.withExposedPorts(ports)
         }
 
         if(getPortBindings()) {
@@ -265,7 +269,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             def createdBinds = threadContextClassLoader.createBinds(getBinds())
             containerCommand.withBinds(createdBinds)
         }
-        
+
         if(getExtraHosts()) {
             containerCommand.withExtraHosts(getExtraHosts() as String[])
         }
@@ -282,6 +286,16 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     class LogConfig {
         @Input String type
         @Input Map<String, String> config = [:]
+    }
+
+    static class ExposedPort {
+        @Input String internetProtocol
+        @Input List<Integer> ports
+
+        ExposedPort(String internetProtocol, List<Integer> ports) {
+            this.internetProtocol = internetProtocol
+            this.ports = ports
+        }
     }
 }
 

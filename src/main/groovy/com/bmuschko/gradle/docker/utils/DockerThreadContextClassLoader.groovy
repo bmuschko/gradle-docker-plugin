@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 
 import java.lang.reflect.Array
 import java.lang.reflect.Constructor
@@ -219,6 +220,32 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class exposedPortsClass = loadClass("${MODEL_PACKAGE}.ExposedPorts")
         Constructor constructor = exposedPortsClass.getConstructor(List)
         constructor.newInstance(exposedPorts)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createExposedPortsArray(List<DockerCreateContainer.ExposedPort> exposedPorts) {
+        Class exposedPortClass = loadClass("${MODEL_PACKAGE}.ExposedPort")
+
+        def protocolClass = loadInternetProtocolClass()
+        Constructor cExposedPort = exposedPortClass.getConstructor(Integer.TYPE, protocolClass)
+
+        List expPorts = new ArrayList<>();
+        exposedPorts.each { it ->
+            it.ports.each { p ->
+                expPorts << cExposedPort.newInstance(p, protocolClass.invokeMethod("parse", it.internetProtocol.toLowerCase()))
+            }
+        }
+
+        def res = Array.newInstance(exposedPortClass, expPorts.size())
+        for (int i = 0; i < expPorts.size(); ++i) {
+            Object o = expPorts.get(i)
+            res[i] = exposedPortClass.cast(o)
+        }
+
+        res
     }
 
     /**
