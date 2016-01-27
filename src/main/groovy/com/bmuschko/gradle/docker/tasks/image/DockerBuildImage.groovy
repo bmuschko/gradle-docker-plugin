@@ -58,6 +58,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     Boolean pull
 
+    @Input
+    @Optional
+    Boolean printStream
+
     /**
      * The target Docker registry credentials for building image.
      */
@@ -113,7 +117,11 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }
 
-        def response = buildImageCmd.exec(threadContextClassLoader.createBuildImageResultCallback())
+        def callback = threadContextClassLoader.createBuildImageResultCallback()
+        if (printStream) {
+            callback = threadContextClassLoader.createPrintStreamProxyCallback(callback)
+        }
+        def response = buildImageCmd.exec(callback)
         imageId = response.awaitImageId()
         logger.quiet "Created image with ID '$imageId'."
     }

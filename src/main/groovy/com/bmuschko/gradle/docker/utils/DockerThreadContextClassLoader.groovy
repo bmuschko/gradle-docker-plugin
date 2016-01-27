@@ -337,6 +337,25 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         createCallback("${COMMAND_PACKAGE}.PullImageResultCallback")
     }
 
+    @Override
+    def createPrintStreamProxyCallback(delegate) {
+        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        def enhancer = enhancerClass.getConstructor().newInstance()
+        enhancer.setSuperclass(delegate.getClass())
+        enhancer.setCallback([
+
+                invoke: {Object proxy, Method method, Object[] args ->
+                    if ("onNext" == method.name) {
+                        println args[0].stream
+                    }
+                    method.invoke(delegate, args)
+                }
+
+        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+
+        enhancer.create()
+    }
+
     private Object createCallback(String className) {
         Class callbackClass = loadClass(className)
         Constructor constructor = callbackClass.getConstructor()
