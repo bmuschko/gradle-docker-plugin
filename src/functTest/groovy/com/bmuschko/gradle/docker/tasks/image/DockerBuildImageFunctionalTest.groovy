@@ -25,6 +25,7 @@ task buildImage(type: DockerBuildImage, dependsOn: dockerFile) {
         BuildResult result = build('buildImage')
 
         then:
+        !result.standardOutput.contains('Step 1 : FROM ubuntu:12.04')
         result.standardOutput.contains('Created image with ID')
     }
 
@@ -39,11 +40,11 @@ task dockerFile(type: Dockerfile) {
 
 task buildImage(type: DockerBuildImage, dependsOn: dockerFile) {
     inputDir = file("build/docker")
-    printStream = true
 }
 """
         when:
-        BuildResult result = build('buildImage')
+        BuildResult result = build('buildImage', '-i')
+        println result.standardOutput
 
         then:
         result.standardOutput.contains('Step 1 : FROM ubuntu:12.04')

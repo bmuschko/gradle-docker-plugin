@@ -118,9 +118,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         def callback = threadContextClassLoader.createBuildImageResultCallback()
-        if (printStream) {
-            callback = threadContextClassLoader.createPrintStreamProxyCallback(callback)
-        }
+        callback = threadContextClassLoader.createPrintStreamProxyCallback(logger, callback)
         def response = buildImageCmd.exec(callback)
         imageId = response.awaitImageId()
         logger.quiet "Created image with ID '$imageId'."

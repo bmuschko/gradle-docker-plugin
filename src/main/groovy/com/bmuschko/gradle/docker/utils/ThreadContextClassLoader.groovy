@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
+import org.slf4j.Logger
 
 interface ThreadContextClassLoader {
     /**
@@ -210,10 +211,11 @@ interface ThreadContextClassLoader {
 
     /**
      * Creates a proxy that delegates its calls to a given callback. Whenever the <code>onNext</code> method is called, the
-     * proxy will print the stream returned by docker to standard output.
+     * proxy will print the stream returned by docker to the given logger.
      *
+     * @param logger instance stream messages will be printed to
      * @param delegate the callback the proxy will delegate to
      * @return proxy instance
      */
-    def createPrintStreamProxyCallback(delegate)
+    def createPrintStreamProxyCallback(Logger logger, delegate)
 }

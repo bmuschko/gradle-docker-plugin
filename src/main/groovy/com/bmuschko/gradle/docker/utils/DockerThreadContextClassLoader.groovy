@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
+import org.slf4j.Logger
 
 import java.lang.reflect.Array
 import java.lang.reflect.Constructor
@@ -311,7 +312,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     @Override
-    def createPrintStreamProxyCallback(delegate) {
+    def createPrintStreamProxyCallback(Logger logger, delegate) {
         Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(delegate.getClass())
@@ -319,7 +320,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
                 invoke: {Object proxy, Method method, Object[] args ->
                     if ("onNext" == method.name) {
-                        println args[0].stream
+                        logger.info(args[0].stream)
                     }
                     method.invoke(delegate, args)
                 }
