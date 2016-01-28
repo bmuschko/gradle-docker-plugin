@@ -15,67 +15,47 @@
  */
 package com.bmuschko.gradle.docker.utils
 
-import org.gradle.api.Project
+import org.gradle.api.GradleException
 
 class TaskStateHelper {
 
     String taskName
 
-    Project project
+    File buildDir
 
-    public TaskStateHelper(String taskName, Project project) {
+    public TaskStateHelper(String taskName, File buildDir) {
         this.taskName = taskName
-        this.project = project
+        this.buildDir = buildDir
     }
 
-    public void put(String key, String value) {
-        put([ "${key}" : value])
-    }
-
-    public void put(Map<String, String> newState) {
-        def state = get()
-        newState.each { k, v -> state[k] = v}
-        saveState(state)
+    public void put(Object key, Object value) {
+        saveState(key.toString(), value.toString())
     }
 
     public String get(String key) {
-        get()[key]
+        loadState()[key]
     }
 
-    public Map<String, String> get() {
-        def map = [:]
-        def props = loadStateProps()
-        def names = props.propertyNames()
-
-        while (names.hasMoreElements()) {
-          def propName = names.nextElement()
-          map[propName] = props.getProperty(propName)
+    File getStateFile() {
+        File stateDir = new File("${buildDir.path}/docker/state")
+        if (!stateDir.exists() && !stateDir.mkdirs()) {
+            throw new GradleException("Could not create state directory at ${stateDir.path}")
         }
-        map
+        new File(stateDir, taskName)
     }
 
-    Properties loadStateProps() {
-        def stateFile = getStateFile()
-        def props = new Properties()
+    Properties loadState() {
+        File stateFile = getStateFile()
+        Properties props = new Properties()
         if(stateFile.exists()) {
-          stateFile.withInputStream {
-              props.load(it)
-          }
+            props.load(stateFile.newInputStream())
         }
         props
     }
 
-    File getStateFile() {
-        def stateDir = "${project.buildDir}/docker/state"
-        new File(stateDir).mkdirs()
-        new File("${stateDir}/${taskName}")
-    }
-
-    void saveState(Map<String, String> state) {
-        def props = new Properties()
-        state.each { k, v -> props.setProperty(k, v) }
-        getStateFile().withOutputStream {
-            props.store(it, null)
-        }
+    void saveState(String key, String value) {
+        Properties props = loadState()
+        props.setProperty(key, value)
+        props.store(getStateFile().newOutputStream(), null)
     }
 }
