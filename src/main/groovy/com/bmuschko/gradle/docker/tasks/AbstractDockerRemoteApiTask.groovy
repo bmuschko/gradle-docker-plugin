@@ -44,9 +44,13 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
     @TaskAction
     void start() {
-        threadContextClassLoader.withClasspath(getClasspath().files, createDockerClientConfig()) { dockerClient ->
+        runInDockerClassPath { dockerClient ->
             runRemoteCommand(dockerClient)
         }
+    }
+
+    void runInDockerClassPath(Closure closure) {
+      threadContextClassLoader.withClasspath(getClasspath().files, createDockerClientConfig(), closure)
     }
 
     private DockerClientConfiguration createDockerClientConfig() {
@@ -58,4 +62,3 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
     abstract void runRemoteCommand(dockerClient)
 }
-

@@ -313,6 +313,36 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 new File("$projectDir/copy-dir").exists()
     }
 
+    def "Can build an image only once"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        createDockerfile(imageDir)
+
+        String uniqueImageId = createUniqueImageId()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file('images/minimal')
+                tag = "${uniqueImageId}"
+            }
+
+            task buildImageAgain(type: DockerBuildImage) {
+                dependsOn buildImage
+                inputDir = file('images/minimal')
+                tag = "${uniqueImageId}"
+            }
+
+            task workflow {
+                dependsOn buildImageAgain
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.standardOutput.contains("UP-TO-DATE")
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
 
