@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.utils
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import org.gradle.api.logging.Logger
 
 import java.lang.reflect.Array
 import java.lang.reflect.Constructor
@@ -317,8 +318,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createBuildImageResultCallback() {
-        createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback")
+    def createBuildImageResultCallback(Logger logger) {
+        createPrintStreamProxyCallback(logger, createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
     }
 
     /**
@@ -335,6 +336,24 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createPullImageResultCallback() {
         createCallback("${COMMAND_PACKAGE}.PullImageResultCallback")
+    }
+
+    private createPrintStreamProxyCallback(Logger logger, delegate) {
+        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        def enhancer = enhancerClass.getConstructor().newInstance()
+        enhancer.setSuperclass(delegate.getClass())
+        enhancer.setCallback([
+
+                invoke: {Object proxy, Method method, Object[] args ->
+                    if ("onNext" == method.name) {
+                        logger.info(args[0].stream)
+                    }
+                    method.invoke(delegate, args)
+                }
+
+        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+
+        enhancer.create()
     }
 
     private Object createCallback(String className) {

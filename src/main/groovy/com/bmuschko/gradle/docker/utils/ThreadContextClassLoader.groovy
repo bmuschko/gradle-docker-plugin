@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.utils
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import org.gradle.api.logging.Logger
 
 interface ThreadContextClassLoader {
     /**
@@ -198,9 +199,10 @@ interface ThreadContextClassLoader {
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/BuildImageResultCallback.java">BuildImageResultCallback</a>
      * from thread context classloader.
      *
+     * @param logger The logger instance which docker stream items will be printed to
      * @return Callback instance
      */
-    def createBuildImageResultCallback()
+    def createBuildImageResultCallback(Logger logger)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/PushImageResultCallback.java">PushImageResultCallback</a>
