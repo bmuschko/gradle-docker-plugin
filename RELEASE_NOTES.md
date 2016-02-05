@@ -1,3 +1,9 @@
+### Version 2.6.6 (TBA)
+
+* Added docker step reports for `DockerBuildImage` - [Pull request 145](https://github.com/bmuschko/gradle-docker-plugin/pull/145)
+* Added UP-TO-DATE check for `DockerBuildImage` - [Pull request 139](https://github.com/bmuschko/gradle-docker-plugin/pull/139)
+* Fix implementation of exposedPorts for `DockerCreateContainer` - [Pull request 145](https://github.com/bmuschko/gradle-docker-plugin/pull/140)
+
 ### Version 2.6.5 (January 16, 2016)
 
 * Fix implementation of `DockerCopyFileFromContainer` - [Pull request 135](https://github.com/bmuschko/gradle-docker-plugin/pull/135).
