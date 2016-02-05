@@ -14,5 +14,7 @@ class InspectContainerResponseHandler implements ResponseHandler<String, Object>
         logger.quiet "Links       : $container.hostConfig.links"
         logger.quiet "Volumes     : $container.volumes"
         logger.quiet "VolumesFrom : $container.hostConfig.volumesFrom"
+        String exposedPorts = container.config?.@exposedPorts ? container.config.exposedPorts : '[]'
+        logger.quiet "ExposedPorts : $exposedPorts"
     }
 }
