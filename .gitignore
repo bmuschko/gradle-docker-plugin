@@ -1,7 +1,20 @@
-build
-out
-*.iml
+# Directories #
+######################
+build 
+out 
+.gradle
+
+# OS generated files #
+######################
+.DS_Store
+
+# IDE generated files #
+######################
+.settings 
+.classpath 
+.project 
+.README* 
+.idea 
+*.iml 
 *.ipr
 *.iws
-.idea
-.gradle
