@@ -15,20 +15,28 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.response.ResponseHandler
-import com.bmuschko.gradle.docker.response.container.InspectContainerResponseHandler
-
 class DockerInspectContainer extends DockerExistingContainer {
-    private ResponseHandler<Void, Object> responseHandler = new InspectContainerResponseHandler()
 
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Inspecting container with ID '${getContainerId()}'."
-        def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
-        responseHandler.handle(container)
+        def command = dockerClient.inspectContainerCmd(getContainerId())
+        configureResponseHandler()(command)
     }
 
-    void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
-        this.responseHandler = responseHandler
+    private Closure configureResponseHandler() {
+        if(!getResponseHandler()) {
+            setResponseHandler { command ->
+                def container = command.exec()
+                logger.quiet "Image ID    : $container.imageId"
+                logger.quiet "Name        : $container.name"
+                logger.quiet "Links       : $container.hostConfig.links"
+                logger.quiet "Volumes     : $container.volumes"
+                logger.quiet "VolumesFrom : $container.hostConfig.volumesFrom"
+                String exposedPorts = container.config?.@exposedPorts ? container.config.exposedPorts : '[]'
+                logger.quiet "ExposedPorts : $exposedPorts"
+            }
+        }
+        getResponseHandler()
     }
 }
