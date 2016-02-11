@@ -41,11 +41,11 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     File certPath
 
     /**
-     * The default response handler
+     * The default execution handler
      */
     @Input
     @Optional
-    Closure responseHandler
+    Closure executionHandler
 
     ThreadContextClassLoader threadContextClassLoader
 

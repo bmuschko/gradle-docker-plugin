@@ -20,15 +20,15 @@ class DockerKillContainer extends DockerExistingContainer {
     void runRemoteCommand(dockerClient) {
         logger.quiet "Killing container with ID '${getContainerId()}'."
         def command = dockerClient.killContainerCmd(getContainerId())
-        configureResponseHandler()(command)
+        configureExecutionHandler()(command)
     }
 
-    private Closure configureResponseHandler() {
-        if(!getResponseHandler()) {
-            setResponseHandler { command ->
+    private Closure configureExecutionHandler() {
+        if(!getExecutionHandler()) {
+            setExecutionHandler { command ->
                 command.exec()
             }
         }
-        getResponseHandler()
+        getExecutionHandler()
     }
 }
