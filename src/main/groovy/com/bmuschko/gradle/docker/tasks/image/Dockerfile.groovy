@@ -137,6 +137,16 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
+     * The <a href="https://docs.docker.com/reference/builder/#run">RUN instruction</a> will execute any commands in a
+     * new layer on top of the current image and commit the results.
+     *
+     * @param command Command
+     */
+    void runCommand(Closure command) {
+        instructions << new RunCommandInstruction(command)
+    }
+
+    /**
      * The main purpose of a <a href="https://docs.docker.com/reference/builder/#cmd">CMD instruction</a> is to provide
      * defaults for an executing container.
      *
@@ -478,6 +488,10 @@ class Dockerfile extends DefaultTask {
 
     static class RunCommandInstruction extends StringCommandInstruction {
        RunCommandInstruction(String command) {
+            super(command)
+        }
+
+        RunCommandInstruction(Closure command) {
             super(command)
         }
 
