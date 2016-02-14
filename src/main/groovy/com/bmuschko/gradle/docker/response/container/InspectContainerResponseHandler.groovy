@@ -16,5 +16,6 @@ class InspectContainerResponseHandler implements ResponseHandler<String, Object>
         logger.quiet "VolumesFrom : $container.hostConfig.volumesFrom"
         String exposedPorts = container.config?.@exposedPorts ? container.config.exposedPorts : '[]'
         logger.quiet "ExposedPorts : $exposedPorts"
+        logger.quiet "LogConfig : $container.hostConfig.logConfig.type.type"
     }
 }
