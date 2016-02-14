@@ -157,6 +157,16 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
+     * The main purpose of a <a href="https://docs.docker.com/reference/builder/#cmd">CMD instruction</a> is to provide
+     * defaults for an executing container.
+     *
+     * @param command Command
+     */
+    void defaultCommand(Closure command) {
+        instructions << new DefaultCommandInstruction(command)
+    }
+
+    /**
      * The <a href="https://docs.docker.com/reference/builder/#expose">EXPOSE instruction</a> informs Docker that the
      * container will listen on the specified network ports at runtime.
      *
@@ -262,12 +272,32 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
+     * The <a href="https://docs.docker.com/reference/builder/#volume">VOLUME instruction</a> will create a mount point
+     * with the specified name and mark it as holding externally mounted volumes from native host or other containers.
+     *
+     * @param volume Volume
+     */
+    void volume(Closure volume) {
+        instructions << new VolumeInstruction(volume)
+    }
+
+    /**
      * The <a href="https://docs.docker.com/reference/builder/#user">USER instruction</a> sets the user name or UID to
      * use when running the image and for any RUN, CMD and ENTRYPOINT instructions that follow it in the Dockerfile.
      *
      * @param user User
      */
     void user(String user) {
+        instructions << new UserInstruction(user)
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#user">USER instruction</a> sets the user name or UID to
+     * use when running the image and for any RUN, CMD and ENTRYPOINT instructions that follow it in the Dockerfile.
+     *
+     * @param user User
+     */
+    void user(Closure user) {
         instructions << new UserInstruction(user)
     }
 
@@ -282,12 +312,32 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
+     * The <a href="https://docs.docker.com/reference/builder/#workdir">WORKDIR instruction</a> sets the working directory
+     * for any RUN, CMD and ENTRYPOINT instructions that follow it in the Dockerfile.
+     *
+     * @param dir Directory
+     */
+    void workingDir(Closure dir) {
+        instructions << new WorkDirInstruction(dir)
+    }
+
+    /**
      * The <a href="https://docs.docker.com/reference/builder/#onbuild">ONBUILD instruction</a> adds to the image a
      * trigger instruction to be executed at a later time, when the image is used as the base for another build.
      *
      * @param instruction Instruction
      */
     void onBuild(String instruction) {
+        instructions << new OnBuildInstruction(instruction)
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#onbuild">ONBUILD instruction</a> adds to the image a
+     * trigger instruction to be executed at a later time, when the image is used as the base for another build.
+     *
+     * @param instruction Instruction
+     */
+    void onBuild(Closure instruction) {
         instructions << new OnBuildInstruction(instruction)
     }
 
@@ -506,6 +556,10 @@ class Dockerfile extends DefaultTask {
             super(command)
         }
 
+        DefaultCommandInstruction(Closure command) {
+            super(command)
+        }
+
         @Override
         String getKeyword() {
             "CMD"
@@ -616,6 +670,10 @@ class Dockerfile extends DefaultTask {
             super(volume)
         }
 
+        VolumeInstruction(Closure volume) {
+            super(volume)
+        }
+
         @Override
         String getKeyword() {
             "VOLUME"
@@ -624,6 +682,10 @@ class Dockerfile extends DefaultTask {
 
     static class UserInstruction extends StringCommandInstruction {
         UserInstruction(String user) {
+            super(user)
+        }
+
+        UserInstruction(Closure user) {
             super(user)
         }
 
@@ -638,6 +700,10 @@ class Dockerfile extends DefaultTask {
             super(dir)
         }
 
+        WorkDirInstruction(Closure dir) {
+            super(dir)
+        }
+
         @Override
         String getKeyword() {
             "WORKDIR"
@@ -646,6 +712,10 @@ class Dockerfile extends DefaultTask {
 
     static class OnBuildInstruction extends StringCommandInstruction {
         OnBuildInstruction(String instruction) {
+            super(instruction)
+        }
+
+        OnBuildInstruction(Closure instruction) {
             super(instruction)
         }
 
