@@ -159,6 +159,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         imageId
     }
 
+    void logConfig(String type, Map<String, String> config) {
+        logConfig = new LogConfig(type: type, config: config)
+    }
+
     void exposePorts(String internetProtocol, List<Integer> ports) {
         exposedPorts << new ExposedPort(internetProtocol, ports)
     }
@@ -283,7 +287,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
     }
 
-    class LogConfig {
+    static class LogConfig {
         @Input String type
         @Input Map<String, String> config = [:]
     }
