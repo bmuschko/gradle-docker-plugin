@@ -41,11 +41,11 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     File certPath
 
     /**
-     * The default execution handler
+     * Response handler is given 2 objects: response and exception
      */
     @Input
     @Optional
-    Closure executionHandler
+    Closure responseHandler
 
     ThreadContextClassLoader threadContextClassLoader
 
@@ -68,4 +68,20 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     }
 
     abstract void runRemoteCommand(dockerClient)
+
+    public void executeCommand(def command) {
+        def possibleResponse
+        Exception possibleException
+        try {
+            possibleResponse = command.exec()
+        } catch (Exception e) {
+            possibleException = e
+        }
+
+        if(getResponseHandler()) {
+            getResponseHandler()(possibleResponse, possibleException)
+        } else {
+            if (possibleException) throw possibleException
+        }
+    }
 }

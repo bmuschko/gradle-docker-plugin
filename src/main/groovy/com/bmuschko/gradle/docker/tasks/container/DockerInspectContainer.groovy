@@ -21,13 +21,15 @@ class DockerInspectContainer extends DockerExistingContainer {
     void runRemoteCommand(dockerClient) {
         logger.quiet "Inspecting container with ID '${getContainerId()}'."
         def command = dockerClient.inspectContainerCmd(getContainerId())
-        configureExecutionHandler()(command)
+        configureResponseHandler()
+        executeCommand(command)
     }
 
-    private Closure configureExecutionHandler() {
-        if(!getExecutionHandler()) {
-            setExecutionHandler { command ->
-                def container = command.exec()
+    private void configureResponseHandler() {
+        if(!getResponseHandler()) {
+            responseHandler { container, exception ->
+                if (exception) throw exception
+
                 logger.quiet "Image ID    : $container.imageId"
                 logger.quiet "Name        : $container.name"
                 logger.quiet "Links       : $container.hostConfig.links"
@@ -37,6 +39,5 @@ class DockerInspectContainer extends DockerExistingContainer {
                 logger.quiet "ExposedPorts : $exposedPorts"
             }
         }
-        getExecutionHandler()
     }
 }
