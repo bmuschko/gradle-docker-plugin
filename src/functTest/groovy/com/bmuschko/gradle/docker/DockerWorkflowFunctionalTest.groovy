@@ -226,7 +226,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.standardOutput.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
     }
-/*
+
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
         buildFile << """
@@ -263,7 +263,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
         noExceptionThrown()
     }
-*/
+
     def "Can build an image, create a container, and copy file from it"() {
         File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
