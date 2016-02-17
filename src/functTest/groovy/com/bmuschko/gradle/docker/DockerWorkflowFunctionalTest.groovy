@@ -98,7 +98,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerKillContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
@@ -122,13 +122,15 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { startContainer.getContainerId() }
             }
 
-            task killContainer(type: DockerKillContainer) {
+            task removeContainer(type: DockerRemoveContainer) {
                 dependsOn inspectContainer
-                targetContainerId { startContainer.getContainerId() }
+                removeVolumes = true
+                force = true
+                targetContainerId { "$uniqueContainerName" }
             }
 
             task workflow {
-                dependsOn killContainer
+                dependsOn removeContainer
             }
         """
 
