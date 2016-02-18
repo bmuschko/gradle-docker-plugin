@@ -3,6 +3,10 @@ package com.bmuschko.gradle.docker
 class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
     def "Can create and execute custom remote API task with default extension values"() {
         buildFile << """
+docker {
+    apiVersion = '1.22'
+}
+
 task customDocker(type: CustomDocker)
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
@@ -31,6 +35,7 @@ class CustomDocker extends AbstractDockerRemoteApiTask {
         File customCertPath = temporaryFolder.newFolder('mydocker')
         buildFile << """
 docker {
+    apiVersion = '1.22'
     url = 'http://remote.docker.com:2375'
     certPath = new File('${customCertPath.canonicalPath}')
 

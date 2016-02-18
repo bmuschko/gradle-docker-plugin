@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker
 import org.gradle.util.ConfigureUtil
 
 class DockerExtension {
+    String apiVersion
     String url = 'http://localhost:2375'
     File certPath
     DockerRegistryCredentials registryCredentials

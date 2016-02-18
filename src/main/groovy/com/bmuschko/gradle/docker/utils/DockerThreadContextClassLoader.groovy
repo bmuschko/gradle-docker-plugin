@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import org.gradle.api.logging.Logger
 
@@ -28,18 +27,30 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
 
+    private final Map<String, String> dockerClientConfiguration
+    private def dockerClient
+
+    DockerThreadContextClassLoader(Map<String, String> dockerClientConfiguration) {
+        this.dockerClientConfiguration = dockerClientConfiguration
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    void withClasspath(Set<File> classpathFiles, DockerClientConfiguration dockerClientConfiguration, Closure closure) {
+    void withClasspath(Set<File> classpathFiles, Closure closure) {
         ClassLoader originalClassLoader = getClass().classLoader
 
         try {
             Thread.currentThread().contextClassLoader = createClassLoader(classpathFiles)
             closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure.delegate = this
-            closure(getDockerClient(dockerClientConfiguration))
+
+            if (!dockerClient) {
+                dockerClient = new DockerClientFactory().getInstance(dockerClientConfiguration)
+            }
+
+            closure(dockerClient)
         }
         finally {
             Thread.currentThread().contextClassLoader = originalClassLoader
@@ -66,43 +77,37 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         files.collect { file -> file.toURI().toURL() } as URL[]
     }
 
-    /**
-     * Creates DockerClient from ClassLoader.
-     *
-     * @param dockerClientConfiguration Docker client configuration
-     * @return DockerClient instance
-     */
-    private def getDockerClient(DockerClientConfiguration clientConfiguration) {
-        Class clientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
-        Method clientConfigMethod = clientConfigClass.getMethod('createDefaultConfigBuilder')
+   private static class DockerClientFactory {
+        private final Class configClass = DockerThreadContextClassLoader.loadClass('com.github.dockerjava.core.DockerClientConfig')
+        private final Class builderClass = DockerThreadContextClassLoader.loadClass('com.github.dockerjava.core.DockerClientBuilder')
 
-        def clientConfigBuilder = clientConfigMethod.invoke(null)
-        clientConfigBuilder.withUri(clientConfiguration.url)
+        def getInstance(Map<String, String> configuration) {
+            def configBuilder = configClass
+                    .getMethod('createDefaultConfigBuilder')
+                    .invoke(null)
 
-        if(clientConfiguration.certPath) {
-            clientConfigBuilder.withDockerCertPath(clientConfiguration.certPath.canonicalPath)
+            configBuilder.with {
+                withUri configuration.url
+                withDockerCertPath configuration.certPath?.canonicalPath
+                withVersion configuration.apiVersion ?: getApiVersion(build())
+                createClient build()
+            }
         }
 
-        def version = client(clientConfigBuilder).versionCmd().exec().apiVersion
-        clientConfigBuilder.withVersion(version)
+       private def createClient(def configuration) {
+           def clientBuilder = builderClass
+                   .getMethod('getInstance', configClass)
+                   .invoke(null, configuration)
+           return clientBuilder.build()
+       }
 
-        return client(clientConfigBuilder)
-    }
+       private String getApiVersion(def configuration) {
+           def client = createClient(configuration)
+           return client.versionCmd().exec().apiVersion
+       }
+   }
 
-    private def client(def configBuilder) {
-        Class clientBuilderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
-        Class clientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
-
-        Method method = clientBuilderClass.getMethod('getInstance', clientConfigClass)
-        def clientBuilder = method.invoke(null, configBuilder.build())
-        return clientBuilder.build()
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    Class loadClass(String className) {
+    static Class loadClass(String className) {
         Thread.currentThread().contextClassLoader.loadClass(className)
     }
 

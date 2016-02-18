@@ -46,7 +46,8 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
-        ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader()
+        def configuration = [:].withDefault { key -> extension."$key" }
+        ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader(configuration)
 
         project.tasks.withType(AbstractDockerRemoteApiTask) {
             Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
@@ -59,12 +60,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
 
             group = DEFAULT_TASK_GROUP
             threadContextClassLoader = dockerClassLoader
-
-            conventionMapping.with {
-                classpath = { config }
-                url = { extension.url }
-                certPath = { extension.certPath }
-            }
+            conventionMapping.classpath = { config }
         }
     }
 
