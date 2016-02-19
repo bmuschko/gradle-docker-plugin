@@ -17,27 +17,16 @@ package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.*
 
 abstract class AbstractDockerRemoteApiTask extends DefaultTask {
-    /**
-     * Classpath for Docker Java libraries.
-     */
-    @InputFiles
-    FileCollection classpath
-
     ThreadContextClassLoader threadContextClassLoader
 
     @TaskAction
     void start() {
-        runInDockerClassPath { dockerClient ->
+        threadContextClassLoader.withClasspath { dockerClient ->
             runRemoteCommand(dockerClient)
         }
-    }
-
-    void runInDockerClassPath(Closure closure) {
-      threadContextClassLoader.withClasspath(getClasspath().files, closure)
     }
 
     abstract void runRemoteCommand(dockerClient)

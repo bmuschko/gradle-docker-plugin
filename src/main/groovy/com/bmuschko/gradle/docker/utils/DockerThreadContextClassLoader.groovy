@@ -27,10 +27,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
 
-    private final Map<String, String> dockerClientConfiguration
+    private final Map dockerClientConfiguration
     private def dockerClient
 
-    DockerThreadContextClassLoader(Map<String, String> dockerClientConfiguration) {
+    DockerThreadContextClassLoader(Map dockerClientConfiguration) {
         this.dockerClientConfiguration = dockerClientConfiguration
     }
 
@@ -38,48 +38,26 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    void withClasspath(Set<File> classpathFiles, Closure closure) {
-        ClassLoader originalClassLoader = getClass().classLoader
+    void withClasspath(Closure closure) {
+        if (!dockerClient) {
+            dockerClient = new DockerClientFactory().getInstance(dockerClientConfiguration)
+        }
 
-        try {
-            Thread.currentThread().contextClassLoader = createClassLoader(classpathFiles)
-            closure.resolveStrategy = Closure.DELEGATE_FIRST
-            closure.delegate = this
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = this
+        closure(dockerClient)
+    }
 
-            if (!dockerClient) {
-                dockerClient = new DockerClientFactory().getInstance(dockerClientConfiguration)
+    private class DockerClientFactory {
+        private Class configClass
+        private Class builderClass
+
+        DockerClientFactory() {
+            classLoader.with {
+                configClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
+                builderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
             }
-
-            closure(dockerClient)
         }
-        finally {
-            Thread.currentThread().contextClassLoader = originalClassLoader
-        }
-    }
-
-    /**
-     * Creates the classloader with the given classpath files.
-     *
-     * @param classpathFiles Classpath files
-     * @return URL classloader
-     */
-    private URLClassLoader createClassLoader(Set<File> classpathFiles) {
-        new URLClassLoader(toURLArray(classpathFiles), ClassLoader.systemClassLoader.parent)
-    }
-
-    /**
-     * Creates URL array from a set of files.
-     *
-     * @param files Files
-     * @return URL array
-     */
-    private URL[] toURLArray(Set<File> files) {
-        files.collect { file -> file.toURI().toURL() } as URL[]
-    }
-
-    private static class DockerClientFactory {
-        private final Class configClass = DockerThreadContextClassLoader.loadClass('com.github.dockerjava.core.DockerClientConfig')
-        private final Class builderClass = DockerThreadContextClassLoader.loadClass('com.github.dockerjava.core.DockerClientBuilder')
 
         def getInstance(Map<String, String> configuration) {
             def configBuilder = configClass
@@ -103,12 +81,17 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
         private String getApiVersion(def configuration) {
             def client = createClient(configuration)
-            return client.versionCmd().exec().apiVersion
+            client.versionCmd().exec().apiVersion
         }
     }
 
-    static Class loadClass(String className) {
-        Thread.currentThread().contextClassLoader.loadClass(className)
+    private ClassLoader getClassLoader() {
+        URL[] urls = dockerClientConfiguration.classpath*.toURI()*.toURL()
+        dockerClient ? dockerClient.class.classLoader : new URLClassLoader(urls, ClassLoader.systemClassLoader.parent)
+    }
+
+    private Class loadClass(String className) {
+        classLoader.loadClass(className)
     }
 
     /**
