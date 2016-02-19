@@ -38,14 +38,25 @@ class DefaultDockerClientSite implements DockerClientSite {
      * {@inheritDoc}
      */
     @Override
-    def withDockerClient(@DelegatesTo(DockerClientSite) Closure closure) {
-        if (!dockerClient) {
-            dockerClient = new DockerClientFactory().getInstance(dockerClientConfiguration)
-        }
+    def withDockerClient(Closure closure) {
+        ClassLoader originalClassLoader = getClass().classLoader
+        try {
+            if (dockerClient) {
+                Thread.currentThread().contextClassLoader = dockerClient.class.classLoader
+            } else {
+                URL[] urls = dockerClientConfiguration.classpath*.toURI()*.toURL()
+                Thread.currentThread().contextClassLoader = new URLClassLoader(urls, ClassLoader.systemClassLoader.parent)
 
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.delegate = this
-        closure(dockerClient)
+                dockerClient = new DockerClientFactory().getInstance(dockerClientConfiguration)
+            }
+
+            closure.resolveStrategy = Closure.DELEGATE_FIRST
+            closure.delegate = this
+            closure(dockerClient)
+        }
+        finally {
+            Thread.currentThread().contextClassLoader = originalClassLoader
+        }
     }
 
     private class DockerClientFactory {
@@ -53,10 +64,8 @@ class DefaultDockerClientSite implements DockerClientSite {
         private Class builderClass
 
         DockerClientFactory() {
-            classLoader.with {
-                configClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
-                builderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
-            }
+            configClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
+            builderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
         }
 
         def getInstance(Map<String, String> configuration) {
@@ -85,13 +94,8 @@ class DefaultDockerClientSite implements DockerClientSite {
         }
     }
 
-    private ClassLoader getClassLoader() {
-        URL[] urls = dockerClientConfiguration.classpath*.toURI()*.toURL()
-        dockerClient ? dockerClient.class.classLoader : new URLClassLoader(urls, ClassLoader.systemClassLoader.parent)
-    }
-
     private Class loadClass(String className) {
-        classLoader.loadClass(className)
+        Thread.currentThread().contextClassLoader.loadClass(className)
     }
 
     /**

@@ -134,12 +134,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         if (!prevImageId?.trim()) {
             logger.info "No previously saved imageId exists"
         } else {
-            runInDockerClassPath { dockerClient ->
+            dockerClientSite.withDockerClient { dockerClient ->
                 try {
                     dockerClient.inspectImageCmd(prevImageId).exec()
                     logger.info "Image ${prevImageId} found via call to inspectImage"
                     imageExists = true
-                } catch(Exception e) {
+                } catch(ignored) {
                     logger.info "Image ${prevImageId} not found via call to inspectImage"
                 }
             }

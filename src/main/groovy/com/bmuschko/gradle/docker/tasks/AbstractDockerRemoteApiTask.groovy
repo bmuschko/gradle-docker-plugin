@@ -20,7 +20,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
 
 abstract class AbstractDockerRemoteApiTask extends DefaultTask {
-    DockerClientSite dockerClientSite
+    protected DockerClientSite dockerClientSite
 
     @TaskAction
     void start() {
