@@ -17,6 +17,7 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
         project.dependencies {
             dockerJava "com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"
+            dockerJava "org.slf4j:slf4j-simple:1.7.5"
         }
 
         testSubject = new DefaultDockerClientSite(classpath: project.configurations.dockerJava.files, url: 'http://localhost:2375', apiVersion: '1.22')
