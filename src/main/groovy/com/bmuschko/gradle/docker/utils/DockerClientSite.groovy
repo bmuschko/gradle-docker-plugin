@@ -24,8 +24,9 @@ interface DockerClientSite {
      * Performs the closure passing DockerClient to it
      *
      * @param closure the given closure
+     * @return whatever the closure returns
      */
-    void withDockerClient(Closure closure)
+    def withDockerClient(@DelegatesTo(DockerClientSite) Closure closure)
 
     /**
      * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/AuthConfig.java">AuthConfig</a>

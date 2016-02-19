@@ -24,10 +24,8 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Volume"() {
         when:
-        def instance
-
-        testSubject.withDockerClient {
-            instance = createVolume('/my/path')
+        def instance = testSubject.withDockerClient {
+            createVolume('/my/path')
         }
 
         then:
@@ -38,12 +36,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Volumes"() {
         when:
-        def instance
-
-        testSubject.withDockerClient {
+        def instance = testSubject.withDockerClient {
             def volume1 = createVolume('/my/path')
             def volume2 = createVolume('/my/other/path')
-            instance = createVolumes([volume1, volume2])
+            createVolumes([volume1, volume2])
         }
 
         then:
@@ -55,10 +51,8 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     @Unroll
     def "Can create class of type InternetProtocol with scheme #scheme"() {
         when:
-        def instance
-
-        testSubject.withDockerClient {
-            instance = createInternetProtocol(scheme)
+        def instance = testSubject.withDockerClient {
+            createInternetProtocol(scheme)
         }
 
         then:
@@ -72,10 +66,8 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Throws exception when creating class of type InternetProtocol with unknown scheme"() {
         when:
-        def instance
-
         testSubject.withDockerClient {
-            instance = createInternetProtocol('UNKNOWN')
+            createInternetProtocol('UNKNOWN')
         }
 
         then:
@@ -84,10 +76,8 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type ExposedPort"() {
         when:
-        def instance
-
-        testSubject.withDockerClient {
-            instance = createExposedPort('TCP', 80)
+        def instance = testSubject.withDockerClient {
+            createExposedPort('TCP', 80)
         }
 
         then:
@@ -98,12 +88,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create of class of type ExposedPorts"() {
         when:
-        def instance
-
-        testSubject.withDockerClient {
+        def instance = testSubject.withDockerClient {
             def exposedPort1 = createExposedPort('TCP', 80)
             def exposedPort2 = createExposedPort('UDP', 90)
-            instance = createExposedPorts([exposedPort1, exposedPort2])
+            createExposedPorts([exposedPort1, exposedPort2])
         }
 
         then:
@@ -114,10 +102,8 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type PortBinding"() {
         when:
-        def instance
-
-        testSubject.withDockerClient {
-            instance = createPortBinding('8080:80')
+        def instance = testSubject.withDockerClient {
+            createPortBinding('8080:80')
         }
 
         then:
@@ -127,12 +113,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Ports"() {
         when:
-        def instance
-
-        testSubject.withDockerClient {
+        def instance = testSubject.withDockerClient {
             def portBinding1 = createPortBinding('8080:80')
             def portBinding2 = createPortBinding('9090:90')
-            instance = createPorts([portBinding1, portBinding2])
+            createPorts([portBinding1, portBinding2])
         }
 
         then:
@@ -143,10 +127,8 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Link"() {
         when:
-        def instance = null
-
-        testSubject.withDockerClient {
-            instance = createLink('name:alias')
+        def instance = testSubject.withDockerClient {
+            createLink('name:alias')
         }
 
         then:
@@ -156,12 +138,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Links"() {
         when:
-        def instance = null
-
-        testSubject.withDockerClient {
+        def instance = testSubject.withDockerClient {
             def link = createLink('name:alias')
             def link2 = createLink('name2:alias2')
-            instance = createLinks([link, link2])
+            createLinks([link, link2])
         }
 
         then:
@@ -172,10 +152,8 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type HostConfig"() {
         when:
-        def instance = null
-
-        testSubject.withDockerClient {
-            instance = createHostConfig(["links": []])
+        def instance = testSubject.withDockerClient {
+            createHostConfig(["links": []])
         }
 
         then:
@@ -185,13 +163,12 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type Bind"() {
-        when:
-        def instance = null
+        given:
         def path = '/my/path'
         def volume = '/my/volume'
-
-        testSubject.withDockerClient {
-            instance = createBind(path, volume)
+        when:
+        def instance = testSubject.withDockerClient {
+            createBind(path, volume)
         }
 
         then:
@@ -202,13 +179,11 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type Binds"() {
-        when:
-        def instance = null
-
+        given:
         def binds = ['/my/path': 'my/volume', '/other/path': '/other/volume']
-
-        testSubject.withDockerClient {
-            instance = createBinds(binds)
+        when:
+        def instance = testSubject.withDockerClient {
+            createBinds(binds)
         }
 
         then:
@@ -222,14 +197,12 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type LogConfig"() {
-        when:
-        def instance = null
-
+        given:
         def type = "json-file"
         def parameters = [:]
-
-        testSubject.withDockerClient {
-            instance = createLogConfig(type, parameters)
+        when:
+        def instance = testSubject.withDockerClient {
+            createLogConfig(type, parameters)
         }
 
         then:
@@ -240,12 +213,11 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type AuthConfig"() {
-        when:
-        def instance = null
+        given:
         DockerRegistryCredentials credentials = createCredentials()
-
-        testSubject.withDockerClient {
-            instance = createAuthConfig(credentials)
+        when:
+        def instance = testSubject.withDockerClient {
+            createAuthConfig(credentials)
         }
 
         then:
@@ -258,17 +230,14 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type AuthConfigurations"() {
+        given:
+        DockerRegistryCredentials credentials1 = createCredentials('http://server1.com/')
+        DockerRegistryCredentials credentials2 = createCredentials('http://server2.com/')
         when:
-        def instance = null
-        DockerRegistryCredentials credentials1 = createCredentials()
-        credentials1.url = 'http://server1.com/'
-        DockerRegistryCredentials credentials2 = createCredentials()
-        credentials2.url = 'http://server2.com/'
-
-        testSubject.withDockerClient {
+        def instance = testSubject.withDockerClient {
             def authConfig1 = createAuthConfig(credentials1)
             def authConfig2 = createAuthConfig(credentials2)
-            instance = createAuthConfigurations([authConfig1, authConfig2])
+            createAuthConfigurations([authConfig1, authConfig2])
         }
 
         then:
@@ -278,13 +247,11 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type VolumesFrom"() {
-        when:
-        def instance = null
-
+        given:
         def volumes = ['volume-one', 'volume-two:ro', 'volume-three:rw'] as String[]
-
-        testSubject.withDockerClient {
-            instance = createVolumesFrom(volumes)
+        when:
+        def instance = testSubject.withDockerClient {
+            createVolumesFrom(volumes)
         }
 
         then:
@@ -299,15 +266,19 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
         instance[2].accessMode.toString() == 'rw'
     }
 
-    private DockerRegistryCredentials createCredentials() {
-        DockerRegistryCredentials credentials = new DockerRegistryCredentials()
+    private static DockerRegistryCredentials createCredentials(String url) {
+        createCredentials().with {
+            it.url = url
+            it
+        }
+    }
 
-        credentials.with {
+    private static DockerRegistryCredentials createCredentials() {
+        new DockerRegistryCredentials().with {
             username = 'username'
             password = 'password'
             email = 'username@gmail.com'
+            it
         }
-
-        credentials
     }
 }

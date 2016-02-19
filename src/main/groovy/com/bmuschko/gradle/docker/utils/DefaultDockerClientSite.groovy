@@ -38,7 +38,7 @@ class DefaultDockerClientSite implements DockerClientSite {
      * {@inheritDoc}
      */
     @Override
-    void withDockerClient(Closure closure) {
+    def withDockerClient(@DelegatesTo(DockerClientSite) Closure closure) {
         if (!dockerClient) {
             dockerClient = new DockerClientFactory().getInstance(dockerClientConfiguration)
         }
