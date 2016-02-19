@@ -77,7 +77,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         files.collect { file -> file.toURI().toURL() } as URL[]
     }
 
-   private static class DockerClientFactory {
+    private static class DockerClientFactory {
         private final Class configClass = DockerThreadContextClassLoader.loadClass('com.github.dockerjava.core.DockerClientConfig')
         private final Class builderClass = DockerThreadContextClassLoader.loadClass('com.github.dockerjava.core.DockerClientBuilder')
 
@@ -94,18 +94,18 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             }
         }
 
-       private def createClient(def configuration) {
-           def clientBuilder = builderClass
-                   .getMethod('getInstance', configClass)
-                   .invoke(null, configuration)
-           return clientBuilder.build()
-       }
+        private def createClient(def configuration) {
+            def clientBuilder = builderClass
+                .getMethod('getInstance', configClass)
+                .invoke(null, configuration)
+            clientBuilder.build()
+        }
 
-       private String getApiVersion(def configuration) {
-           def client = createClient(configuration)
-           return client.versionCmd().exec().apiVersion
-       }
-   }
+        private String getApiVersion(def configuration) {
+            def client = createClient(configuration)
+            return client.versionCmd().exec().apiVersion
+        }
+    }
 
     static Class loadClass(String className) {
         Thread.currentThread().contextClassLoader.loadClass(className)
