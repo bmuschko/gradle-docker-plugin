@@ -237,17 +237,17 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getVolumes()) {
-            def createdVolumes = getVolumes().collect { threadContextClassLoader.createVolume(it) }
-            containerCommand.volumes = threadContextClassLoader.createVolumes(createdVolumes)
+            def createdVolumes = getVolumes().collect { dockerClientSite.createVolume(it) }
+            containerCommand.volumes = dockerClientSite.createVolumes(createdVolumes)
         }
 
         if (getLinks()) {
-            def createdLinks = getLinks().collect { threadContextClassLoader.createLink(it) }
+            def createdLinks = getLinks().collect { dockerClientSite.createLink(it) }
             containerCommand.withLinks(CollectionUtil.toArray(createdLinks))
         }
 
         if(getVolumesFrom()) {
-            def createdVolumes = threadContextClassLoader.createVolumesFrom(getVolumesFrom())
+            def createdVolumes = dockerClientSite.createVolumesFrom(getVolumesFrom())
             containerCommand.withVolumesFrom(createdVolumes)
         }
 
@@ -256,13 +256,13 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getExposedPorts()) {
-            def ports = threadContextClassLoader.createExposedPortsArray(getExposedPorts())
+            def ports = dockerClientSite.createExposedPortsArray(getExposedPorts())
             containerCommand.withExposedPorts(ports)
         }
 
         if(getPortBindings()) {
-            def createdPortBindings = getPortBindings().collect { threadContextClassLoader.createPortBinding(it) }
-            containerCommand.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
+            def createdPortBindings = getPortBindings().collect { dockerClientSite.createPortBinding(it) }
+            containerCommand.withPortBindings(dockerClientSite.createPorts(createdPortBindings))
         }
 
         if(getPublishAll()) {
@@ -270,7 +270,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getBinds()) {
-            def createdBinds = threadContextClassLoader.createBinds(getBinds())
+            def createdBinds = dockerClientSite.createBinds(getBinds())
             containerCommand.withBinds(createdBinds)
         }
 
@@ -279,7 +279,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getLogConfig()) {
-            containerCommand.withLogConfig(threadContextClassLoader.createLogConfig(getLogConfig().type, getLogConfig().config))
+            containerCommand.withLogConfig(dockerClientSite.createLogConfig(getLogConfig().type, getLogConfig().config))
         }
 
         if(getPrivileged()) {

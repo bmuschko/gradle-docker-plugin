@@ -19,15 +19,13 @@ import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import org.gradle.api.logging.Logger
 
-interface ThreadContextClassLoader {
+interface DockerClientSite {
     /**
-     * Performs the closure with thread context classloader.
+     * Performs the closure passing DockerClient to it
      *
-     * @param classpathFiles Classpath files
-     * @param dockerClientConfiguration Docker client configuration
      * @param closure the given closure
      */
-    void withClasspath(Closure closure)
+    void withDockerClient(Closure closure)
 
     /**
      * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/AuthConfig.java">AuthConfig</a>

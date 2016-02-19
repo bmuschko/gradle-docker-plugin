@@ -15,16 +15,16 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
+import com.bmuschko.gradle.docker.utils.DockerClientSite
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
 
 abstract class AbstractDockerRemoteApiTask extends DefaultTask {
-    ThreadContextClassLoader threadContextClassLoader
+    DockerClientSite dockerClientSite
 
     @TaskAction
     void start() {
-        threadContextClassLoader.withClasspath { dockerClient ->
+        dockerClientSite.withDockerClient { dockerClient ->
             runRemoteCommand(dockerClient)
         }
     }

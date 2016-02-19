@@ -7,8 +7,8 @@ import spock.lang.Unroll
 
 import java.lang.reflect.InvocationTargetException
 
-class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationTest {
-    ThreadContextClassLoader threadContextClassLoader
+class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
+    DockerClientSite testSubject
 
     def setup() {
         project.configurations {
@@ -19,14 +19,14 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
             dockerJava "com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"
         }
 
-        threadContextClassLoader = new DockerThreadContextClassLoader(classpath: project.configurations.dockerJava.files, url: 'http://localhost:2375', apiVersion: '1.22')
+        testSubject = new DefaultDockerClientSite(classpath: project.configurations.dockerJava.files, url: 'http://localhost:2375', apiVersion: '1.22')
     }
 
     def "Can create class of type Volume"() {
         when:
         def instance
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createVolume('/my/path')
         }
 
@@ -40,7 +40,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             def volume1 = createVolume('/my/path')
             def volume2 = createVolume('/my/other/path')
             instance = createVolumes([volume1, volume2])
@@ -57,7 +57,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createInternetProtocol(scheme)
         }
 
@@ -74,7 +74,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createInternetProtocol('UNKNOWN')
         }
 
@@ -86,7 +86,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createExposedPort('TCP', 80)
         }
 
@@ -100,7 +100,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             def exposedPort1 = createExposedPort('TCP', 80)
             def exposedPort2 = createExposedPort('UDP', 90)
             instance = createExposedPorts([exposedPort1, exposedPort2])
@@ -116,7 +116,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createPortBinding('8080:80')
         }
 
@@ -129,7 +129,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             def portBinding1 = createPortBinding('8080:80')
             def portBinding2 = createPortBinding('9090:90')
             instance = createPorts([portBinding1, portBinding2])
@@ -145,7 +145,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance = null
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createLink('name:alias')
         }
 
@@ -158,7 +158,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance = null
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             def link = createLink('name:alias')
             def link2 = createLink('name2:alias2')
             instance = createLinks([link, link2])
@@ -174,7 +174,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance = null
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createHostConfig(["links": []])
         }
 
@@ -190,7 +190,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         def path = '/my/path'
         def volume = '/my/volume'
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createBind(path, volume)
         }
 
@@ -207,7 +207,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
 
         def binds = ['/my/path': 'my/volume', '/other/path': '/other/volume']
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createBinds(binds)
         }
 
@@ -228,7 +228,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         def type = "json-file"
         def parameters = [:]
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createLogConfig(type, parameters)
         }
 
@@ -244,7 +244,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         def instance = null
         DockerRegistryCredentials credentials = createCredentials()
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createAuthConfig(credentials)
         }
 
@@ -265,7 +265,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         DockerRegistryCredentials credentials2 = createCredentials()
         credentials2.url = 'http://server2.com/'
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             def authConfig1 = createAuthConfig(credentials1)
             def authConfig2 = createAuthConfig(credentials2)
             instance = createAuthConfigurations([authConfig1, authConfig2])
@@ -283,7 +283,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
 
         def volumes = ['volume-one', 'volume-two:ro', 'volume-three:rw'] as String[]
 
-        threadContextClassLoader.withClasspath {
+        testSubject.withDockerClient {
             instance = createVolumesFrom(volumes)
         }
 

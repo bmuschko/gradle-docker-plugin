@@ -53,11 +53,11 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
         }
 
         if(getRegistryCredentials()) {
-            def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
+            def authConfig = dockerClientSite.createAuthConfig(getRegistryCredentials())
             pullImageCmd.withAuthConfig(authConfig)
         }
 
-        def response = pullImageCmd.exec(threadContextClassLoader.createPullImageResultCallback())
+        def response = pullImageCmd.exec(dockerClientSite.createPullImageResultCallback())
         response.awaitSuccess()
     }
 }

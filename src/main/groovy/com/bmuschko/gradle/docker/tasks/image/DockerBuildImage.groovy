@@ -113,12 +113,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if(getRegistryCredentials()) {
-            def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
-            def authConfigurations = threadContextClassLoader.createAuthConfigurations([authConfig])
+            def authConfig = dockerClientSite.createAuthConfig(getRegistryCredentials())
+            def authConfigurations = dockerClientSite.createAuthConfigurations([authConfig])
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }
 
-        def response = buildImageCmd.exec(threadContextClassLoader.createBuildImageResultCallback(logger))
+        def response = buildImageCmd.exec(dockerClientSite.createBuildImageResultCallback(logger))
         imageId = response.awaitImageId()
         logger.quiet "Created image with ID '$imageId'."
     }

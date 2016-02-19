@@ -17,8 +17,8 @@ package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
-import com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader
-import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
+import com.bmuschko.gradle.docker.utils.DefaultDockerClientSite
+import com.bmuschko.gradle.docker.utils.DockerClientSite
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -48,12 +48,11 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
         def pluginOptions = [classpath: { getDefaultClassPath(project)} ]
         def configuration = [:].withDefault { key -> pluginOptions."$key"?.call() ?: extension."$key" }
-        ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader(configuration)
+        DockerClientSite clientSite = new DefaultDockerClientSite(configuration)
 
         project.tasks.withType(AbstractDockerRemoteApiTask) {
             group = DEFAULT_TASK_GROUP
-            conventionMapping.threadContextClassLoader = { new DockerThreadContextClassLoader(config.files, configuration) }
-            threadContextClassLoader = dockerClassLoader
+            dockerClientSite = clientSite
         }
     }
 
