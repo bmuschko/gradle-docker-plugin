@@ -23,14 +23,14 @@ import java.lang.reflect.Array
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 
-class DefaultDockerClientSite implements DockerClientSite {
+class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
 
     private final Map dockerClientConfiguration
     private def dockerClient
 
-    DefaultDockerClientSite(Map dockerClientConfiguration) {
+    DockerThreadContextClassLoader(Map dockerClientConfiguration) {
         this.dockerClientConfiguration = dockerClientConfiguration
     }
 
@@ -38,7 +38,7 @@ class DefaultDockerClientSite implements DockerClientSite {
      * {@inheritDoc}
      */
     @Override
-    def withDockerClient(Closure closure) {
+    void withClasspath(Closure closure) {
         ClassLoader originalClassLoader = getClass().classLoader
         try {
             if (dockerClient) {

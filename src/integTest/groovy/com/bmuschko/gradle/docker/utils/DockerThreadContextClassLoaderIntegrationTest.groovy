@@ -7,8 +7,8 @@ import spock.lang.Unroll
 
 import java.lang.reflect.InvocationTargetException
 
-class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
-    DockerClientSite testSubject
+class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationTest {
+    ThreadContextClassLoader threadContextClassLoader
 
     def setup() {
         project.configurations {
@@ -17,16 +17,17 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
         project.dependencies {
             dockerJava "com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"
-            dockerJava "org.slf4j:slf4j-simple:1.7.5"
         }
 
-        testSubject = new DefaultDockerClientSite(classpath: project.configurations.dockerJava.files, url: 'http://localhost:2375', apiVersion: '1.22')
+        threadContextClassLoader = new DockerThreadContextClassLoader(classpath: project.configurations.dockerJava.files, url: 'http://localhost:2375', apiVersion: '1.22')
     }
 
     def "Can create class of type Volume"() {
         when:
-        def instance = testSubject.withDockerClient {
-            createVolume('/my/path')
+        def instance
+
+        threadContextClassLoader.withClasspath {
+            instance = createVolume('/my/path')
         }
 
         then:
@@ -37,10 +38,12 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Volumes"() {
         when:
-        def instance = testSubject.withDockerClient {
+        def instance
+
+        threadContextClassLoader.withClasspath {
             def volume1 = createVolume('/my/path')
             def volume2 = createVolume('/my/other/path')
-            createVolumes([volume1, volume2])
+            instance = createVolumes([volume1, volume2])
         }
 
         then:
@@ -52,8 +55,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     @Unroll
     def "Can create class of type InternetProtocol with scheme #scheme"() {
         when:
-        def instance = testSubject.withDockerClient {
-            createInternetProtocol(scheme)
+        def instance
+
+        threadContextClassLoader.withClasspath {
+            instance = createInternetProtocol(scheme)
         }
 
         then:
@@ -67,8 +72,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Throws exception when creating class of type InternetProtocol with unknown scheme"() {
         when:
-        testSubject.withDockerClient {
-            createInternetProtocol('UNKNOWN')
+        def instance
+
+        threadContextClassLoader.withClasspath {
+            instance = createInternetProtocol('UNKNOWN')
         }
 
         then:
@@ -77,8 +84,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type ExposedPort"() {
         when:
-        def instance = testSubject.withDockerClient {
-            createExposedPort('TCP', 80)
+        def instance
+
+        threadContextClassLoader.withClasspath {
+            instance = createExposedPort('TCP', 80)
         }
 
         then:
@@ -89,10 +98,12 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create of class of type ExposedPorts"() {
         when:
-        def instance = testSubject.withDockerClient {
+        def instance
+
+        threadContextClassLoader.withClasspath {
             def exposedPort1 = createExposedPort('TCP', 80)
             def exposedPort2 = createExposedPort('UDP', 90)
-            createExposedPorts([exposedPort1, exposedPort2])
+            instance = createExposedPorts([exposedPort1, exposedPort2])
         }
 
         then:
@@ -103,8 +114,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type PortBinding"() {
         when:
-        def instance = testSubject.withDockerClient {
-            createPortBinding('8080:80')
+        def instance
+
+        threadContextClassLoader.withClasspath {
+            instance = createPortBinding('8080:80')
         }
 
         then:
@@ -114,10 +127,12 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Ports"() {
         when:
-        def instance = testSubject.withDockerClient {
+        def instance
+
+        threadContextClassLoader.withClasspath {
             def portBinding1 = createPortBinding('8080:80')
             def portBinding2 = createPortBinding('9090:90')
-            createPorts([portBinding1, portBinding2])
+            instance = createPorts([portBinding1, portBinding2])
         }
 
         then:
@@ -128,8 +143,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Link"() {
         when:
-        def instance = testSubject.withDockerClient {
-            createLink('name:alias')
+        def instance = null
+
+        threadContextClassLoader.withClasspath {
+            instance = createLink('name:alias')
         }
 
         then:
@@ -139,10 +156,12 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type Links"() {
         when:
-        def instance = testSubject.withDockerClient {
+        def instance = null
+
+        threadContextClassLoader.withClasspath {
             def link = createLink('name:alias')
             def link2 = createLink('name2:alias2')
-            createLinks([link, link2])
+            instance = createLinks([link, link2])
         }
 
         then:
@@ -153,8 +172,10 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
 
     def "Can create class of type HostConfig"() {
         when:
-        def instance = testSubject.withDockerClient {
-            createHostConfig(["links": []])
+        def instance = null
+
+        threadContextClassLoader.withClasspath {
+            instance = createHostConfig(["links": []])
         }
 
         then:
@@ -164,12 +185,13 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type Bind"() {
-        given:
+        when:
+        def instance = null
         def path = '/my/path'
         def volume = '/my/volume'
-        when:
-        def instance = testSubject.withDockerClient {
-            createBind(path, volume)
+
+        threadContextClassLoader.withClasspath {
+            instance = createBind(path, volume)
         }
 
         then:
@@ -180,11 +202,13 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type Binds"() {
-        given:
-        def binds = ['/my/path': 'my/volume', '/other/path': '/other/volume']
         when:
-        def instance = testSubject.withDockerClient {
-            createBinds(binds)
+        def instance = null
+
+        def binds = ['/my/path': 'my/volume', '/other/path': '/other/volume']
+
+        threadContextClassLoader.withClasspath {
+            instance = createBinds(binds)
         }
 
         then:
@@ -198,12 +222,14 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type LogConfig"() {
-        given:
+        when:
+        def instance = null
+
         def type = "json-file"
         def parameters = [:]
-        when:
-        def instance = testSubject.withDockerClient {
-            createLogConfig(type, parameters)
+
+        threadContextClassLoader.withClasspath {
+            instance = createLogConfig(type, parameters)
         }
 
         then:
@@ -214,11 +240,12 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type AuthConfig"() {
-        given:
-        DockerRegistryCredentials credentials = createCredentials()
         when:
-        def instance = testSubject.withDockerClient {
-            createAuthConfig(credentials)
+        def instance = null
+        DockerRegistryCredentials credentials = createCredentials()
+
+        threadContextClassLoader.withClasspath {
+            instance = createAuthConfig(credentials)
         }
 
         then:
@@ -231,14 +258,17 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type AuthConfigurations"() {
-        given:
-        DockerRegistryCredentials credentials1 = createCredentials('http://server1.com/')
-        DockerRegistryCredentials credentials2 = createCredentials('http://server2.com/')
         when:
-        def instance = testSubject.withDockerClient {
+        def instance = null
+        DockerRegistryCredentials credentials1 = createCredentials()
+        credentials1.url = 'http://server1.com/'
+        DockerRegistryCredentials credentials2 = createCredentials()
+        credentials2.url = 'http://server2.com/'
+
+        threadContextClassLoader.withClasspath {
             def authConfig1 = createAuthConfig(credentials1)
             def authConfig2 = createAuthConfig(credentials2)
-            createAuthConfigurations([authConfig1, authConfig2])
+            instance = createAuthConfigurations([authConfig1, authConfig2])
         }
 
         then:
@@ -248,11 +278,13 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
     }
 
     def "Can create class of type VolumesFrom"() {
-        given:
-        def volumes = ['volume-one', 'volume-two:ro', 'volume-three:rw'] as String[]
         when:
-        def instance = testSubject.withDockerClient {
-            createVolumesFrom(volumes)
+        def instance = null
+
+        def volumes = ['volume-one', 'volume-two:ro', 'volume-three:rw'] as String[]
+
+        threadContextClassLoader.withClasspath {
+            instance = createVolumesFrom(volumes)
         }
 
         then:
@@ -267,19 +299,15 @@ class DefaultDockerClientSiteIntegrationTest extends AbstractIntegrationTest {
         instance[2].accessMode.toString() == 'rw'
     }
 
-    private static DockerRegistryCredentials createCredentials(String url) {
-        createCredentials().with {
-            it.url = url
-            it
-        }
-    }
+    private DockerRegistryCredentials createCredentials() {
+        DockerRegistryCredentials credentials = new DockerRegistryCredentials()
 
-    private static DockerRegistryCredentials createCredentials() {
-        new DockerRegistryCredentials().with {
+        credentials.with {
             username = 'username'
             password = 'password'
             email = 'username@gmail.com'
-            it
         }
+
+        credentials
     }
 }
