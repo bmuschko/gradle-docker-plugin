@@ -17,29 +17,9 @@ package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.*
 
 abstract class AbstractDockerRemoteApiTask extends DefaultTask {
-    /**
-     * Classpath for Docker Java libraries.
-     */
-    @InputFiles
-    FileCollection classpath
-
-    /**
-     * Docker remote API server URL. Defaults to "http://localhost:2375".
-     */
-    @Input
-    String url = 'http://localhost:2375'
-
-    /**
-     * Path to the <a href="https://docs.docker.com/articles/https/">Docker certificate and key</a>.
-     */
-    @InputDirectory
-    @Optional
-    File certPath
-
     ThreadContextClassLoader threadContextClassLoader
 
     @TaskAction
@@ -50,14 +30,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     }
 
     void runInDockerClassPath(Closure closure) {
-      threadContextClassLoader.withClasspath(getClasspath().files, createDockerClientConfig(), closure)
-    }
-
-    private DockerClientConfiguration createDockerClientConfig() {
-        DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
-        dockerClientConfig.url = getUrl()
-        dockerClientConfig.certPath = getCertPath()
-        dockerClientConfig
+        threadContextClassLoader.withClasspath(closure)
     }
 
     abstract void runRemoteCommand(dockerClient)

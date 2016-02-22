@@ -46,26 +46,25 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
-        ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader()
+        def pluginOptions = [classpath: { getDefaultClassPath(project)} ]
+        def configuration = [:].withDefault { key -> pluginOptions."$key"?.call() ?: extension."$key" }
+        ThreadContextClassLoader classLoader = new DockerThreadContextClassLoader(configuration)
 
         project.tasks.withType(AbstractDockerRemoteApiTask) {
-            Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
-
-            config.defaultDependencies { dependencies ->
-                dependencies.add(project.dependencies.create("com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
-                dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
-                dependencies.add(project.dependencies.create('cglib:cglib:3.2.0'))
-            }
-
             group = DEFAULT_TASK_GROUP
-            threadContextClassLoader = dockerClassLoader
-
-            conventionMapping.with {
-                classpath = { config }
-                url = { extension.url }
-                certPath = { extension.certPath }
-            }
+            threadContextClassLoader = classLoader
         }
+    }
+
+    private static Set<File> getDefaultClassPath(Project project) {
+        Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
+
+        config.defaultDependencies { dependencies ->
+            dependencies.add(project.dependencies.create("com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
+            dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
+            dependencies.add(project.dependencies.create('cglib:cglib:3.2.0'))
+        }
+        .files
     }
 
     private void configureRegistryAwareTasks(Project project, DockerExtension extension) {
