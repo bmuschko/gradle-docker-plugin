@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker
 
+import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
@@ -264,10 +265,15 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container, and copy file from it"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(projectDir, 'images/minimal')
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
+
+        // required for task `copyFileFromContainerToHostDir`
+        File hostPathDir = new File(getProjectDir(),"copy-file-host-dir")
+        if (!hostPathDir.mkdirs())
+            throw new GradleException("Could not successfully create hostPathDir @ ${hostPathDir.path}")
 
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
@@ -285,23 +291,30 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 containerName = "$uniqueContainerName"
             }
 
-            task copyFileFromContainer(type: DockerCopyFileFromContainer) {
+            task copyFileFromContainerToHostFile(type: DockerCopyFileFromContainer) {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
-                hostPath = "$projectDir/copy-file-dir/shebang.tar"
-                remotePath = "/bin/sh"
+                hostPath = "$projectDir/copy-file-host-file/shebang.tar"
+                remotePath = "/bin/bash"
                 compressed = true
             }
 
-            task copyDirFromContainer(type: DockerCopyFileFromContainer) {
-                dependsOn copyFileFromContainer
+            task copyFileFromContainerToHostDir(type: DockerCopyFileFromContainer) {
+                dependsOn copyFileFromContainerToHostFile
+                targetContainerId { createContainer.getContainerId() }
+                hostPath = "$projectDir/copy-file-host-dir"
+                remotePath = "/bin/bash"
+            }
+
+            task copyDirFromContainerToHostDir(type: DockerCopyFileFromContainer) {
+                dependsOn copyFileFromContainerToHostDir
                 targetContainerId { createContainer.getContainerId() }
                 hostPath = "$projectDir/copy-dir"
                 remotePath = "/var/log"
             }
 
             task workflow {
-                dependsOn copyDirFromContainer
+                dependsOn copyDirFromContainerToHostDir
             }
         """
 
@@ -309,8 +322,9 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
 
         then:
-        new File("$projectDir/copy-file-dir/shebang.tar").exists() &&
-                new File("$projectDir/copy-dir").exists()
+        new File("$projectDir/copy-file-host-file/shebang.tar").exists()
+        new File("$projectDir/copy-file-host-dir/bash").exists()
+        new File("$projectDir/copy-dir").exists()
     }
 
     def "Can build an image only once"() {
@@ -417,6 +431,10 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
+        if (!dockerFile.parentFile.exists()){
+            if(!dockerFile.parentFile.mkdirs())
+                throw new GradleException("Unable to create parentDirectory for ${dockerFile.path}")
+        }
 
         dockerFile << """
 FROM ubuntu:12.04
