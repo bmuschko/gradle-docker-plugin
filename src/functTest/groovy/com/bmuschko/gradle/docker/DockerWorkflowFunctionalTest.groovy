@@ -58,7 +58,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build and verify image"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(projectDir, 'images/minimal')
         createDockerfile(imageDir)
 
         buildFile << """
@@ -88,7 +88,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create and start a container"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(projectDir, 'images/minimal')
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -138,7 +138,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create and link a container"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(projectDir, 'images/minimal')
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -182,7 +182,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container and link its volumes into another container"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(projectDir, 'images/minimal')
         def dockefile = createDockerfile(imageDir)
 
         dockefile << 'VOLUME /data'
@@ -358,6 +358,8 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container and expose a port"() {
+        File imageDir = new File(projectDir, 'images/minimal')
+        createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
 
@@ -394,6 +396,8 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container and set LogConfig"() {
+        File imageDir = new File(projectDir, 'images/minimal')
+        createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
 
