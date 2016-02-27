@@ -19,12 +19,12 @@ import org.gradle.api.GradleException
 
 class TaskStateHelper {
 
-    String taskName
+    String taskClassName
 
     File buildDir
 
-    public TaskStateHelper(String taskName, File buildDir) {
-        this.taskName = taskName
+    public TaskStateHelper(String taskClassName, File buildDir) {
+        this.taskClassName = taskClassName
         this.buildDir = buildDir
     }
 
@@ -41,7 +41,7 @@ class TaskStateHelper {
         if (!stateDir.exists() && !stateDir.mkdirs()) {
             throw new GradleException("Could not create state directory at ${stateDir.path}")
         }
-        new File(stateDir, taskName)
+        new File(stateDir, taskClassName)
     }
 
     Properties loadState() {

@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker
 
+import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
@@ -97,7 +98,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerKillContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
@@ -121,13 +122,15 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { startContainer.getContainerId() }
             }
 
-            task killContainer(type: DockerKillContainer) {
+            task removeContainer(type: DockerRemoveContainer) {
                 dependsOn inspectContainer
-                targetContainerId { startContainer.getContainerId() }
+                removeVolumes = true
+                force = true
+                targetContainerId { "$uniqueContainerName" }
             }
 
             task workflow {
-                dependsOn killContainer
+                dependsOn removeContainer
             }
         """
 
@@ -314,8 +317,8 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image only once"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
-        createDockerfile(imageDir)
+        File imageDir = new File(projectDir, 'images/minimal')
+        File dockerFile = createDockerfile(imageDir)
 
         String uniqueImageId = createUniqueImageId()
 
@@ -323,13 +326,13 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file('images/minimal')
+                inputDir = file("${dockerFile.parentFile.path}")
                 tag = "${uniqueImageId}"
             }
 
             task buildImageAgain(type: DockerBuildImage) {
                 dependsOn buildImage
-                inputDir = file('images/minimal')
+                inputDir = file("${dockerFile.parentFile.path}")
                 tag = "${uniqueImageId}"
             }
 
@@ -344,6 +347,8 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container and expose a port"() {
+        File imageDir = new File(projectDir, 'images/minimal')
+        File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
 
@@ -353,7 +358,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file('images/minimal')
+                inputDir = file("${dockerFile.parentFile.path}")
                 tag = "${createUniqueImageId()}"
             }
 
@@ -380,6 +385,8 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container and set LogConfig"() {
+        File imageDir = new File(projectDir, 'images/minimal')
+        File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
 
@@ -389,7 +396,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file('images/minimal')
+                inputDir = file("${dockerFile.parentFile.path}")
                 tag = "${createUniqueImageId()}"
             }
 
@@ -417,6 +424,11 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
+        if (!dockerFile.parentFile.exists()) {
+            if (!dockerFile.parentFile.mkdirs()) {
+                throw new GradleException("Could not create parent directory for Dockerfile @ ${dockerFile.parentFile.path}");
+            }
+        }
 
         dockerFile << """
 FROM ubuntu:12.04

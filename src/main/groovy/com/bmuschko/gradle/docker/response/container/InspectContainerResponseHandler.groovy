@@ -12,9 +12,11 @@ class InspectContainerResponseHandler implements ResponseHandler<String, Object>
         logger.quiet "Image ID    : $container.imageId"
         logger.quiet "Name        : $container.name"
         logger.quiet "Links       : $container.hostConfig.links"
-        logger.quiet "Volumes     : $container.volumes"
-        logger.quiet "VolumesFrom : $container.hostConfig.volumesFrom"
-        String exposedPorts = container.config?.@exposedPorts ? container.config.exposedPorts : '[]'
+        def volumes = container.@volumes ? container.volumes : '[]'
+        logger.quiet "Volumes     : $volumes"
+        def volumesFrom = container.hostConfig.@volumesFrom ? container.hostConfig.volumesFrom : '[]'
+        logger.quiet "VolumesFrom : $volumesFrom"
+        String exposedPorts = container.config.exposedPorts ? container.config.exposedPorts.toString() : '[]'
         logger.quiet "ExposedPorts : $exposedPorts"
         logger.quiet "LogConfig : $container.hostConfig.logConfig.type.type"
     }
