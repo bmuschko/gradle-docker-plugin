@@ -71,11 +71,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     DockerBuildImage() {
         ext.getImageId = { imageId }
-        onlyIf {
-            boolean runTask = previouslyBuiltImageExists() ? false : true
-            if (!runTask) { logger.quiet("${this.name}: UP-TO-DATE") }
-            runTask
-        }
+        outputs.upToDateWhen { previouslyBuiltImageExists() }
         doLast { saveImageId() }
     }
 
@@ -132,6 +128,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     }
 
     boolean previouslyBuiltImageExists() {
+        println "------> HELLO!"
         boolean imageExists = false
         String prevImageId = new TaskStateHelper(this.class.simpleName, project.buildDir).get("imageId")
         if (!prevImageId?.trim()) {
