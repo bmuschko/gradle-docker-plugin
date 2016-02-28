@@ -363,9 +363,24 @@ The following usage example demonstrates running the tests against a Docker inst
 
 **Note:** At the moment the plugin code does not support executing the tests against a Docker instance with TLS enabled.
 
-Docker does not need to be installed on the local or another remote machine. This project provides a Vagrant image with
-the proper setup to bootstrap a Docker installation. The Vagrantfile can be found under the directory `vagrant`. To use
-the Vagrant box simply start it manually. Alternatively, you can configure the project to bootstrap the Vagrant box
+==== Using a Vagrant box to bootstrap Docker
+
+Docker does not need to be installed on the local or another remote machine. This project provides a
+[Vagrant](https://www.vagrantup.com/) image with the proper setup to bootstrap a Docker installation. The
+[Vagrantfile](https://github.com/bmuschko/gradle-docker-plugin/blob/master/vagrant/Vagrantfile) can be found under
+the directory `vagrant`. To use the Vagrant box simply start it manually.
+
+[source,shell]
+----
+vagrant up
+----
+
+==== Automatically starts and stop Vagrant box for executing functional tests
+
+An installation of VirtualBox and Vagrant is required. See the ["Getting Started"](https://www.vagrantup.com/docs/getting-started/)
+guide for more information.
+
+Alternatively, you can configure the project to bootstrap the Vagrant box
 as needed. Use the command line option `-PbootstrapDocker=true` for this purpose.
 
 [source,groovy]
