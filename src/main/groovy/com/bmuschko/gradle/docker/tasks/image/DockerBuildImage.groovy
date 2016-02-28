@@ -128,7 +128,6 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     }
 
     boolean previouslyBuiltImageExists() {
-        println "------> HELLO!"
         boolean imageExists = false
         String prevImageId = new TaskStateHelper(this.class.simpleName, project.buildDir).get("imageId")
         if (!prevImageId?.trim()) {
