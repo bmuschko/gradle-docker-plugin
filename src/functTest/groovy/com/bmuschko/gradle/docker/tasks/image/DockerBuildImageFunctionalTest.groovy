@@ -5,8 +5,8 @@ import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
+import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
@@ -36,7 +36,35 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         result = build('buildImage', '-i')
 
         then:
-        result.task(':buildImage').outcome == UP_TO_DATE
+        result.task(':buildImage').outcome == SKIPPED
+        !result.standardOutput.contains('Created image with ID')
+        result.standardOutput.contains('found via call to inspectImage')
+    }
+
+    def "building an image with the same ID by two different tasks mark second task UP-TO-DATE"() {
+        buildFile << imageCreation()
+        buildFile << """
+            task buildImageAnother(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+            }
+        """
+
+        when:
+        BuildResult result = build('buildImage', '-i')
+
+        then:
+        println result.standardOutput
+        result.task(':buildImage').outcome == SUCCESS
+        result.standardOutput.contains('Created image with ID')
+        result.standardOutput.contains('No previously saved imageId exists')
+
+        when:
+        result = build('buildImageAnother', '-i')
+
+        then:
+        println result.standardOutput
+        result.task(':buildImageAnother').outcome == SKIPPED
         !result.standardOutput.contains('Created image with ID')
         result.standardOutput.contains('found via call to inspectImage')
     }
@@ -46,12 +74,12 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
-            task dockerFile(type: Dockerfile) {
+            task dockerfile(type: Dockerfile) {
                 from 'ubuntu:12.04'
             }
 
             task buildImage(type: DockerBuildImage) {
-                dependsOn dockerFile
+                dependsOn dockerfile
                 inputDir = file("build/docker")
             }
         """

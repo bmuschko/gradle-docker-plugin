@@ -50,7 +50,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     }
 
     void runInDockerClassPath(Closure closure) {
-      threadContextClassLoader.withClasspath(getClasspath().files, createDockerClientConfig(), closure)
+        threadContextClassLoader.withClasspath(getClasspath().files, createDockerClientConfig(), closure)
     }
 
     private DockerClientConfiguration createDockerClientConfig() {

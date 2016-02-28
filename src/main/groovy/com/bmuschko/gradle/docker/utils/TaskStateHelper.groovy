@@ -19,9 +19,8 @@ import org.gradle.api.GradleException
 
 class TaskStateHelper {
 
-    String taskClassName
-
-    File buildDir
+    private final String taskClassName
+    private final File buildDir
 
     public TaskStateHelper(String taskClassName, File buildDir) {
         this.taskClassName = taskClassName
