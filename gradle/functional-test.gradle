@@ -49,3 +49,7 @@ idea.module {
     scopes.TEST.plus += [configurations.functionalTestCompile]
     scopes.TEST.plus += [configurations.functionalTestRuntime]
 }
+
+if (project.hasProperty('bootstrapDocker') && Boolean.parseBoolean(project.getProperty('bootstrapDocker'))) {
+    apply from: "$rootDir/gradle/vagrant.gradle"
+}

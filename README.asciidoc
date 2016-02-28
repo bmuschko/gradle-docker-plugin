@@ -342,7 +342,7 @@ docker {
 
 === Executing the plugin's test suite with custom configuration
 
-Integration and functional tests that are executed against a Docker instance assume a specific setup. This setup
+Functional tests that are executed against a Docker instance assume a specific setup. This setup
 uses the Docker server URL `http://localhost:2375` with TLS being disabled. The default setup can be configured with the
 help of system properties shown in the table below:
 
@@ -359,4 +359,16 @@ The following usage example demonstrates running the tests against a Docker inst
 [source,groovy]
 ----
 ./gradlew build -DdockerServerUrl=https://192.168.59.103:2376 -DdockerCertPath=/Users/ben/.boot2docker/certs/boot2docker-vm
+----
+
+**Note:** At the moment the plugin code does not support executing the tests against a Docker instance with TLS enabled.
+
+Docker does not need to be installed on the local or another remote machine. This project provides a Vagrant image with
+the proper setup to bootstrap a Docker installation. The Vagrantfile can be found under the directory `vagrant`. To use
+the Vagrant box simply start it manually. Alternatively, you can configure the project to bootstrap the Vagrant box
+as needed. Use the command line option `-PbootstrapDocker=true` for this purpose.
+
+[source,groovy]
+----
+./gradlew functionalTest -PbootstrapDocker=true
 ----
