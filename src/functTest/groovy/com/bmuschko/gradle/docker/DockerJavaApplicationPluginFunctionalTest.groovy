@@ -36,15 +36,15 @@ EXPOSE 8080
         writeCustomTasksToBuildFile()
 
         buildFile << """
-docker {
-    javaApplication {
-        baseImage = '$CUSTOM_BASE_IMAGE'
-        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
-        port = 9090
-        tag = 'jettyapp:1.115'
-    }
-}
-"""
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    port = 9090
+                    tag = 'jettyapp:1.115'
+                }
+            }
+        """
 
         when:
         BuildResult result = build('startContainer', '-s')
@@ -71,25 +71,25 @@ EXPOSE 9090
         writeCustomTasksToBuildFile()
 
         buildFile << """
-dockerCopyDistResources {
-    from file('file1.txt')
-    from file('file2.txt')
-}
+            dockerCopyDistResources {
+                from file('file1.txt')
+                from file('file2.txt')
+            }
 
-dockerDistTar {
-    addFile 'file1.txt', '/some/dir/file1.txt'
-    addFile 'file2.txt', '/other/dir/file2.txt'
-}
+            dockerDistTar {
+                addFile 'file1.txt', '/some/dir/file1.txt'
+                addFile 'file2.txt', '/other/dir/file2.txt'
+            }
 
-docker {
-    javaApplication {
-        baseImage = '$CUSTOM_BASE_IMAGE'
-        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
-        port = 9090
-        tag = 'jettyapp:1.115'
-    }
-}
-"""
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    port = 9090
+                    tag = 'jettyapp:1.115'
+                }
+            }
+        """
 
         when:
         BuildResult result = build('startContainer')
@@ -122,21 +122,21 @@ ADD file2.txt /other/dir/file2.txt
             dockerHubEmail=${gradleProperties['dockerHubEmail']}
         """
         buildFile << """
-applicationName = 'javaapp'
+            applicationName = 'javaapp'
 
-docker {
-    registryCredentials {
-        username = project.property('dockerHubUsername')
-        password = project.property('dockerHubPassword')
-        email = project.property('dockerHubEmail')
-    }
+            docker {
+                registryCredentials {
+                    username = project.property('dockerHubUsername')
+                    password = project.property('dockerHubPassword')
+                    email = project.property('dockerHubEmail')
+                }
 
-    javaApplication {
-        baseImage = '$CUSTOM_BASE_IMAGE'
-        tag = "\$docker.registryCredentials.username/javaapp"
-    }
-}
-"""
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    tag = "\$docker.registryCredentials.username/javaapp"
+                }
+            }
+        """
 
         when:
         build('dockerPushImage')
@@ -158,15 +158,15 @@ EXPOSE 8080
         createJettyMainClass()
         writeBasicSetupToBuildFile()
         buildFile << """
-applicationName = 'javaapp'
+            applicationName = 'javaapp'
 
-docker {
-    javaApplication {
-        baseImage = '$CUSTOM_BASE_IMAGE'
-        tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
-    }
-}
-"""
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
+                }
+            }
+        """
 
         when:
         build('dockerPushImage')
@@ -230,45 +230,45 @@ public class JettyMain extends AbstractHandler
 
     private void writeBasicSetupToBuildFile() {
         buildFile << """
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: com.bmuschko.gradle.docker.DockerJavaApplicationPlugin
+            apply plugin: 'java'
+            apply plugin: 'application'
+            apply plugin: com.bmuschko.gradle.docker.DockerJavaApplicationPlugin
 
-version = '1.0'
-sourceCompatibility = 1.7
+            version = '1.0'
+            sourceCompatibility = 1.7
 
-repositories {
-    mavenCentral()
-}
+            repositories {
+                mavenCentral()
+            }
 
-dependencies {
-    compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
-}
+            dependencies {
+                compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
+            }
 
-mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
-"""
+            mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
+        """
     }
 
     private void writeCustomTasksToBuildFile() {
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
-import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 
-task inspectImage(type: DockerInspectImage) {
-    dependsOn dockerBuildImage
-    targetImageId { dockerBuildImage.getImageId() }
-}
+            task inspectImage(type: DockerInspectImage) {
+                dependsOn dockerBuildImage
+                targetImageId { dockerBuildImage.getImageId() }
+            }
 
-task createContainer(type: DockerCreateContainer) {
-    dependsOn inspectImage
-    targetImageId { dockerBuildImage.getImageId() }
-}
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn inspectImage
+                targetImageId { dockerBuildImage.getImageId() }
+            }
 
-task startContainer(type: DockerStartContainer) {
-    dependsOn createContainer
-    targetContainerId { createContainer.getContainerId() }
-}
-"""
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+        """
     }
 }

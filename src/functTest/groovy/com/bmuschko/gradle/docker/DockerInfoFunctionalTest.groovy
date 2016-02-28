@@ -7,10 +7,11 @@ import spock.lang.Requires
 class DockerInfoFunctionalTest extends AbstractFunctionalTest {
     def "Can get Docker info"() {
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.DockerInfo
+            import com.bmuschko.gradle.docker.tasks.DockerInfo
 
-task dockerInfo(type: DockerInfo)
-"""
+            task dockerInfo(type: DockerInfo)
+        """
+
         when:
         BuildResult result = build('dockerInfo')
 

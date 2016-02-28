@@ -7,10 +7,11 @@ import spock.lang.Requires
 class DockerVersionFunctionalTest extends AbstractFunctionalTest {
     def "Can get Docker version"() {
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.DockerVersion
+            import com.bmuschko.gradle.docker.tasks.DockerVersion
 
-task dockerVersion(type: DockerVersion)
-"""
+            task dockerVersion(type: DockerVersion)
+        """
+
         when:
         BuildResult result = build('dockerVersion')
 

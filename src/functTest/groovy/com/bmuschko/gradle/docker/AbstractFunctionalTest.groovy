@@ -44,20 +44,20 @@ abstract class AbstractFunctionalTest extends Specification {
 
         // Add the logic under test to the test build
         buildFile << """
-    buildscript {
-        dependencies {
-            classpath files($pluginClasspath)
-        }
-    }
-"""
+            buildscript {
+                dependencies {
+                    classpath files($pluginClasspath)
+                }
+            }
+        """
 
         buildFile << """
-apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+            apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 
-repositories {
-    mavenCentral()
-}
-"""
+            repositories {
+                mavenCentral()
+            }
+        """
 
         setupDockerServerUrl()
         setupDockerCertPath()
@@ -69,8 +69,8 @@ repositories {
 
         if(dockerServerUrl) {
             buildFile << """
-docker.url = '$dockerServerUrl'
-"""
+                docker.url = '$dockerServerUrl'
+            """
         }
     }
 
@@ -79,8 +79,8 @@ docker.url = '$dockerServerUrl'
 
         if(dockerCertPath) {
             buildFile << """
-docker.certPath = new File('$dockerCertPath.canonicalPath')
-"""
+                docker.certPath = new File('$dockerCertPath.canonicalPath')
+            """
         }
     }
 
@@ -89,9 +89,10 @@ docker.certPath = new File('$dockerCertPath.canonicalPath')
 
         if(dockerPrivateRegistryUrl) {
             buildFile << """
-docker.registryCredentials {
-    url = '$dockerPrivateRegistryUrl'
-}"""
+                docker.registryCredentials {
+                    url = '$dockerPrivateRegistryUrl'
+                }
+            """
         }
     }
 
