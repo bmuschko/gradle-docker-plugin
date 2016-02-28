@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker
 
-import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
@@ -309,15 +308,14 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         """
 
         when:
-        BuildResult result = build('workflow')
+        build('workflow')
 
         then:
-        new File("$projectDir/copy-file-dir/shebang.tar").exists() &&
-                new File("$projectDir/copy-dir").exists()
+        new File("$projectDir/copy-file-dir/shebang.tar").exists() && new File("$projectDir/copy-dir").exists()
     }
 
     def "Can build an image, create a container and expose a port"() {
-        File imageDir = new File(projectDir, 'images/minimal')
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -355,7 +353,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container and set LogConfig"() {
-        File imageDir = new File(projectDir, 'images/minimal')
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -394,12 +392,6 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
-        if (!dockerFile.parentFile.exists()) {
-            if (!dockerFile.parentFile.mkdirs()) {
-                throw new GradleException("Could not create parent directory for Dockerfile @ ${dockerFile.parentFile.path}");
-            }
-        }
-
         dockerFile << """
 FROM ubuntu:12.04
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
