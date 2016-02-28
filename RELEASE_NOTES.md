@@ -1,4 +1,4 @@
-### Version 2.6.6 (TBA)
+### Version 2.6.6 (February 27, 2016)
 
 * Added docker step reports for `DockerBuildImage` - [Pull request 145](https://github.com/bmuschko/gradle-docker-plugin/pull/145)
 * Added `onlyIf` check for `DockerBuildImage` - [Pull request 139](https://github.com/bmuschko/gradle-docker-plugin/pull/139)
