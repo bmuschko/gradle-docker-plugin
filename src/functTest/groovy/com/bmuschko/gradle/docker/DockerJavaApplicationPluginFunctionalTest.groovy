@@ -5,6 +5,8 @@ import spock.lang.Requires
 
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
+    public static final CUSTOM_BASE_IMAGE = 'yaronr/openjdk-7-jre'
+
     def "Can create image for Java application with default configuration"() {
         String projectName = temporaryFolder.root.name
         createJettyMainClass()
@@ -36,7 +38,7 @@ EXPOSE 8080
         buildFile << """
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
+        baseImage = '$CUSTOM_BASE_IMAGE'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         port = 9090
         tag = 'jettyapp:1.115'
@@ -45,13 +47,13 @@ docker {
 """
 
         when:
-        BuildResult result = build('startContainer')
+        BuildResult result = build('startContainer', '-s')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-"""FROM dockerfile/java:openjdk-7-jre
+"""FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD ${projectName}-1.0.tar /
 ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
@@ -81,7 +83,7 @@ dockerDistTar {
 
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jre'
+        baseImage = '$CUSTOM_BASE_IMAGE'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         port = 9090
         tag = 'jettyapp:1.115'
@@ -96,7 +98,7 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-"""FROM dockerfile/java:openjdk-7-jre
+"""FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD ${projectName}-1.0.tar /
 ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
@@ -130,7 +132,7 @@ docker {
     }
 
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        baseImage = '$CUSTOM_BASE_IMAGE'
         tag = "\$docker.registryCredentials.username/javaapp"
     }
 }
@@ -143,7 +145,7 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM dockerfile/java:openjdk-7-jdk
+                """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER ${System.getProperty('user.name')}
 ADD javaapp-1.0.tar /
 ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
@@ -160,7 +162,7 @@ applicationName = 'javaapp'
 
 docker {
     javaApplication {
-        baseImage = 'dockerfile/java:openjdk-7-jdk'
+        baseImage = '$CUSTOM_BASE_IMAGE'
         tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
     }
 }
@@ -173,7 +175,7 @@ docker {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM dockerfile/java:openjdk-7-jdk
+                """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER ${System.getProperty('user.name')}
 ADD javaapp-1.0.tar /
 ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
