@@ -24,7 +24,7 @@ ADD ${projectName}-1.0.tar /
 ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
 EXPOSE 8080
 """
-        result.standardOutput.contains('Author           : ')
+        result.output.contains('Author           : ')
     }
 
     def "Can create image for Java application with user-driven configuration"() {
@@ -57,7 +57,7 @@ ADD ${projectName}-1.0.tar /
 ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
 EXPOSE 9090
 """
-        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     def "Can create image for Java application with additional files"() {
@@ -106,21 +106,27 @@ ADD file2.txt /other/dir/file2.txt
 """
         new File(projectDir, 'build/docker/file1.txt').exists()
         new File(projectDir, 'build/docker/file2.txt').exists()
-        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
     def "Can create image for Java application and push to DockerHub"() {
         createJettyMainClass()
         writeBasicSetupToBuildFile()
+        Properties gradleProperties = TestPrecondition.readDockerHubCredentials()
+        new File(projectDir, 'gradle.properties') << """
+            dockerHubUsername=${gradleProperties['dockerHubUsername']}
+            dockerHubPassword=${gradleProperties['dockerHubPassword']}
+            dockerHubEmail=${gradleProperties['dockerHubEmail']}
+        """
         buildFile << """
 applicationName = 'javaapp'
 
 docker {
     registryCredentials {
-        username = project.hasProperty('dockerHubUsername') ? project.property('dockerHubUsername') : null
-        password = project.hasProperty('dockerHubPassword') ? project.property('dockerHubPassword') : null
-        email = project.hasProperty('dockerHubEmail') ? project.property('dockerHubEmail') : null
+        username = project.property('dockerHubUsername')
+        password = project.property('dockerHubPassword')
+        email = project.property('dockerHubEmail')
     }
 
     javaApplication {

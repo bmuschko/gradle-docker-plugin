@@ -53,7 +53,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         then:
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
-        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     def "Can build and verify image"() {
@@ -83,7 +83,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
 
         then:
-        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     def "Can build an image, create and start a container"() {
@@ -135,7 +135,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("Name        : /$uniqueContainerName")
+        result.output.contains("Name        : /$uniqueContainerName")
     }
 
     def "Can build an image, create and link a container"() {
@@ -179,7 +179,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("Links       : [${uniqueContainerName}1:container1]")
+        result.output.contains("Links       : [${uniqueContainerName}1:container1]")
     }
 
     def "Can build an image, create a container and link its volumes into another container"() {
@@ -225,7 +225,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
+        result.output.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
@@ -349,7 +349,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("ExposedPorts : [9999/tcp]")
+        result.output.contains("ExposedPorts : [9999/tcp]")
     }
 
     def "Can build an image, create a container and set LogConfig"() {
@@ -387,7 +387,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("LogConfig : none")
+        result.output.contains("LogConfig : none")
     }
 
     private File createDockerfile(File imageDir) {

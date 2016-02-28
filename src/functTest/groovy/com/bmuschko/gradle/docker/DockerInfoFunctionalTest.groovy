@@ -15,6 +15,6 @@ task dockerInfo(type: DockerInfo)
         BuildResult result = build('dockerInfo')
 
         then:
-        result.standardOutput.contains('Retrieving Docker info.')
+        result.output.contains('Retrieving Docker info.')
     }
 }

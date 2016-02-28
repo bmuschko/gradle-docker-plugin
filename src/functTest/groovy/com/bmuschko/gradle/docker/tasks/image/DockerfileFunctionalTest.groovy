@@ -19,7 +19,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile)
         BuildResult buildResult = buildAndFail(DOCKERFILE_TASK_NAME)
 
         then:
-        buildResult.standardError.contains('Please specify instructions for your Dockerfile')
+        buildResult.output.contains('Please specify instructions for your Dockerfile')
         !new File(projectDir, 'build/docker/Dockerfile').exists()
     }
 
@@ -36,7 +36,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         BuildResult buildResult = buildAndFail(DOCKERFILE_TASK_NAME)
 
         then:
-        buildResult.standardError.contains('The first instruction of a Dockerfile has to be FROM')
+        buildResult.output.contains('The first instruction of a Dockerfile has to be FROM')
         !new File(projectDir, 'build/docker/Dockerfile').exists()
     }
 
@@ -219,6 +219,6 @@ ${DOCKERFILE_TASK_NAME}.addFile('test.txt', '/app/')
     }
 
     private boolean isDockerfileTaskUpToDate(BuildResult result) {
-        result.standardOutput.contains(":$DOCKERFILE_TASK_NAME UP-TO-DATE")
+        result.output.contains(":$DOCKERFILE_TASK_NAME UP-TO-DATE")
     }
 }

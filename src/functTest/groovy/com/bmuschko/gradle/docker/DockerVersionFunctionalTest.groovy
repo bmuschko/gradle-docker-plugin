@@ -15,6 +15,6 @@ task dockerVersion(type: DockerVersion)
         BuildResult result = build('dockerVersion')
 
         then:
-        result.standardOutput.contains('Retrieving Docker version.')
+        result.output.contains('Retrieving Docker version.')
     }
 }

@@ -1,3 +1,7 @@
+### Version 2.6.7 (TBD)
+
+* Upgrade to Gradle 2.11.
+
 ### Version 2.6.6 (February 27, 2016)
 
 * Added docker step reports for `DockerBuildImage` - [Pull request 145](https://github.com/bmuschko/gradle-docker-plugin/pull/145)

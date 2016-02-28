@@ -18,7 +18,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('buildImage')
 
         then:
-        result.standardOutput.contains("Created image with ID")
+        result.output.contains("Created image with ID")
     }
 
     def "building an image with the same ID marks task UP-TO-DATE"() {
@@ -29,16 +29,16 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
 
         then:
         result.task(':buildImage').outcome == SUCCESS
-        result.standardOutput.contains('Created image with ID')
-        result.standardOutput.contains('No previously saved imageId exists')
+        result.output.contains('Created image with ID')
+        result.output.contains('No previously saved imageId exists')
 
         when:
         result = build('buildImage', '-i')
 
         then:
         result.task(':buildImage').outcome == SKIPPED
-        !result.standardOutput.contains('Created image with ID')
-        result.standardOutput.contains('found via call to inspectImage')
+        !result.output.contains('Created image with ID')
+        result.output.contains('found via call to inspectImage')
     }
 
     def "building an image with the same ID by two different tasks mark second task UP-TO-DATE"() {
@@ -54,19 +54,17 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('buildImage', '-i')
 
         then:
-        println result.standardOutput
         result.task(':buildImage').outcome == SUCCESS
-        result.standardOutput.contains('Created image with ID')
-        result.standardOutput.contains('No previously saved imageId exists')
+        result.output.contains('Created image with ID')
+        result.output.contains('No previously saved imageId exists')
 
         when:
         result = build('buildImageAnother', '-i')
 
         then:
-        println result.standardOutput
         result.task(':buildImageAnother').outcome == SKIPPED
-        !result.standardOutput.contains('Created image with ID')
-        result.standardOutput.contains('found via call to inspectImage')
+        !result.output.contains('Created image with ID')
+        result.output.contains('found via call to inspectImage')
     }
 
     private String imageCreation() {
