@@ -1,10 +1,11 @@
 ### Version 2.6.6 (TBA)
 
 * Added docker step reports for `DockerBuildImage` - [Pull request 145](https://github.com/bmuschko/gradle-docker-plugin/pull/145)
-* Added UP-TO-DATE check for `DockerBuildImage` - [Pull request 139](https://github.com/bmuschko/gradle-docker-plugin/pull/139)
+* Added `onlyIf` check for `DockerBuildImage` - [Pull request 139](https://github.com/bmuschko/gradle-docker-plugin/pull/139)
 * Added method logConfig for `DockerCreateContainer` - [Pull request 157](https://github.com/bmuschko/gradle-docker-plugin/pull/157)
 * Various commands can now be passed closures for `Dockerfile` - [Pull request 155](https://github.com/bmuschko/gradle-docker-plugin/pull/155)
 * Fix implementation of exposedPorts for `DockerCreateContainer` - [Pull request 140](https://github.com/bmuschko/gradle-docker-plugin/pull/140)
+* Upgrade to Docker Java 2.2.2 - [Pull request 158](https://github.com/bmuschko/gradle-docker-plugin/pull/158).
 
 ### Version 2.6.5 (January 16, 2016)
 
