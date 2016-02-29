@@ -383,7 +383,7 @@ guide for more information.
 Alternatively, you can configure the project to bootstrap the Vagrant box
 as needed. Use the command line option `-PbootstrapDocker=true` for this purpose.
 
-[source,groovy]
+[source,shell]
 ----
 ./gradlew functionalTest -PbootstrapDocker=true
 ----
