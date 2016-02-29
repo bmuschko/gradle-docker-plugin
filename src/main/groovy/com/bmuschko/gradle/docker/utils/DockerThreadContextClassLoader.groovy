@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.utils
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 
 import java.lang.reflect.Array
@@ -346,7 +347,9 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
             invoke: {Object proxy, Method method, Object[] args ->
                 if ("onNext" == method.name) {
-                    logger.quiet(args[0].toString())
+                    def possibleStream = args[0].stream
+                    if (possibleStream)
+                        logger.quiet(possibleStream)
                 }
                 method.invoke(delegate, args)
             }
