@@ -21,8 +21,9 @@ import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.bmuschko.gradle.docker.utils.TaskStateHelper
 import org.gradle.api.tasks.*
 
-
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
+    private final TaskStateHelper state = new TaskStateHelper(getClass().simpleName, project.buildDir)
+
     /**
      * Input directory containing the build context. Defaults to "$projectDir/docker".
      */
@@ -71,9 +72,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     DockerBuildImage() {
         ext.getImageId = { imageId }
-
+        onlyIf { !previouslyBuiltImageExists() }
         doLast { saveImageId() }
-        getOutputs().upToDateWhen { previouslyBuiltImageExists() }
     }
 
     @Override
@@ -124,13 +124,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     }
 
     void saveImageId() {
-        TaskStateHelper state = new TaskStateHelper(name, project.buildDir)
         state.put("imageId", getImageId())
     }
 
     boolean previouslyBuiltImageExists() {
         boolean imageExists = false
-        String prevImageId = new TaskStateHelper(name, project.buildDir).get("imageId")
+        String prevImageId = state.get("imageId")
         if (!prevImageId?.trim()) {
             logger.info "No previously saved imageId exists"
         } else {

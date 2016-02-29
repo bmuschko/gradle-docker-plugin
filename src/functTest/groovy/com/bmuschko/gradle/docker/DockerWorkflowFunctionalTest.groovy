@@ -54,11 +54,11 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         then:
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
-        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     def "Can build and verify image"() {
-        File imageDir = new File(projectDir, 'images/minimal')
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
 
         buildFile << """
@@ -84,11 +84,11 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
 
         then:
-        result.standardOutput.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
     def "Can build an image, create and start a container"() {
-        File imageDir = new File(projectDir, 'images/minimal')
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -98,7 +98,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerKillContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
@@ -122,23 +122,25 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { startContainer.getContainerId() }
             }
 
-            task killContainer(type: DockerKillContainer) {
+            task removeContainer(type: DockerRemoveContainer) {
                 dependsOn inspectContainer
-                targetContainerId { startContainer.getContainerId() }
+                removeVolumes = true
+                force = true
+                targetContainerId { "$uniqueContainerName" }
             }
 
             task workflow {
-                dependsOn killContainer
+                dependsOn removeContainer
             }
         """
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("Name        : /$uniqueContainerName")
+        result.output.contains("Name        : /$uniqueContainerName")
     }
 
     def "Can build an image, create and link a container"() {
-        File imageDir = new File(projectDir, 'images/minimal')
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -178,14 +180,14 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("Links       : [${uniqueContainerName}1:container1]")
+        result.output.contains("Links       : [${uniqueContainerName}1:container1]")
     }
 
     def "Can build an image, create a container and link its volumes into another container"() {
-        File imageDir = new File(projectDir, 'images/minimal')
-        def dockefile = createDockerfile(imageDir)
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
 
-        dockefile << 'VOLUME /data'
+        dockerFile << 'VOLUME /data'
 
         String uniqueContainerName = createUniqueContainerName()
 
@@ -224,7 +226,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
+        result.output.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
@@ -265,7 +267,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can build an image, create a container, and copy file from it"() {
-        File imageDir = new File(projectDir, 'images/minimal')
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -319,7 +321,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         """
 
         when:
-        BuildResult result = build('workflow')
+        build('workflow')
 
         then:
         new File("$projectDir/copy-file-host-file/shebang.tar").exists()
@@ -327,39 +329,9 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         new File("$projectDir/copy-dir").exists()
     }
 
-    def "Can build an image only once"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
-        createDockerfile(imageDir)
-
-        String uniqueImageId = createUniqueImageId()
-
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
-            task buildImage(type: DockerBuildImage) {
-                inputDir = file('images/minimal')
-                tag = "${uniqueImageId}"
-            }
-
-            task buildImageAgain(type: DockerBuildImage) {
-                dependsOn buildImage
-                inputDir = file('images/minimal')
-                tag = "${uniqueImageId}"
-            }
-
-            task workflow {
-                dependsOn buildImageAgain
-            }
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        result.standardOutput.contains("UP-TO-DATE")
-    }
-
     def "Can build an image, create a container and expose a port"() {
-        File imageDir = new File(projectDir, 'images/minimal')
-        createDockerfile(imageDir)
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
 
@@ -369,7 +341,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file('images/minimal')
+                inputDir = file("${dockerFile.parentFile.path}")
                 tag = "${createUniqueImageId()}"
             }
 
@@ -392,12 +364,12 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("ExposedPorts : [9999/tcp]")
+        result.output.contains("ExposedPorts : [9999/tcp]")
     }
 
     def "Can build an image, create a container and set LogConfig"() {
-        File imageDir = new File(projectDir, 'images/minimal')
-        createDockerfile(imageDir)
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
 
@@ -407,7 +379,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file('images/minimal')
+                inputDir = file("${dockerFile.parentFile.path}")
                 tag = "${createUniqueImageId()}"
             }
 
@@ -430,16 +402,11 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.standardOutput.contains("LogConfig : none")
+        result.output.contains("LogConfig : none")
     }
 
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
-        if (!dockerFile.parentFile.exists()){
-            if(!dockerFile.parentFile.mkdirs())
-                throw new GradleException("Unable to create parentDirectory for ${dockerFile.path}")
-        }
-
         dockerFile << """
 FROM ubuntu:12.04
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"

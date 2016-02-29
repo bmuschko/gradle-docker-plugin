@@ -15,16 +15,16 @@
  */
 package com.bmuschko.gradle.docker.utils
 
-import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class TaskStateHelperTest extends Specification {
-
-    def project = ProjectBuilder.builder().build()
+    @Rule
+    TemporaryFolder temporaryFolder = new TemporaryFolder()
 
     def "Saves task state"() {
-        project.buildDir >> createTempDir()
-        def stateHelper = new TaskStateHelper("saveStateTest", project.buildDir)
+        def stateHelper = new TaskStateHelper("saveStateTest", temporaryFolder.root)
 
         when:
         stateHelper.put("testKey", "testVal")
@@ -35,8 +35,7 @@ class TaskStateHelperTest extends Specification {
     }
 
     def "Saving task state doesn't overwrite previous state"() {
-        project.buildDir >> createTempDir()
-        def stateHelper = new TaskStateHelper("saveStateOverwrite", project.buildDir)
+        def stateHelper = new TaskStateHelper("saveStateOverwrite", temporaryFolder.root)
 
         when:
         stateHelper.put("testKey", "testVal")
@@ -49,8 +48,7 @@ class TaskStateHelperTest extends Specification {
     }
 
     def "Can overwrite state value for a given key"() {
-        project.buildDir >> createTempDir()
-        def stateHelper = new TaskStateHelper("stateOverwriteTest", project.buildDir)
+        def stateHelper = new TaskStateHelper("stateOverwriteTest", temporaryFolder.root)
 
         when:
         stateHelper.put("testKey", "testVal")
@@ -62,9 +60,8 @@ class TaskStateHelperTest extends Specification {
     }
 
     def "Gets previously saved task state"() {
-        project.buildDir >> createTempDir()
-        def stateHelper = new TaskStateHelper("testStateTest", project.buildDir)
-        new File("${project.buildDir}/docker/state/").mkdirs()
+        def stateHelper = new TaskStateHelper("testStateTest", temporaryFolder.root)
+        new File("${temporaryFolder.root}/docker/state/").mkdirs()
         stateHelper.getStateFile().write("testKeyForGet=1234567")
 
         when:
@@ -75,22 +72,14 @@ class TaskStateHelperTest extends Specification {
     }
 
     def "Write/read integration"() {
-        project.buildDir >> createTempDir()
-        def stateHelper = new TaskStateHelper("writeReadIntg", project.buildDir)
+        def stateHelper = new TaskStateHelper("writeReadIntg", temporaryFolder.root)
 
         when:
         stateHelper.put("gradlewwwww", "TEST_VALUE_xyz-123")
-        def newHelper = new TaskStateHelper("writeReadIntg", project.buildDir)
+        def newHelper = new TaskStateHelper("writeReadIntg", temporaryFolder.root)
         def result = newHelper.get("gradlewwwww")
 
         then:
         result == "TEST_VALUE_xyz-123"
-    }
-
-    File createTempDir() {
-        def temp = File.createTempFile("TaskStateHelperTest", Long.toString(System.nanoTime()))
-        temp.delete()
-        temp.mkdir()
-        temp
     }
 }

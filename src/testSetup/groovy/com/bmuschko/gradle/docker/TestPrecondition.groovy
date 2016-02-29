@@ -33,10 +33,15 @@ final class TestPrecondition {
     }
 
     private static boolean hasDockerHubCredentials() {
+        Properties gradleProperties = readDockerHubCredentials()
+        gradleProperties['dockerHubUsername'] != null && gradleProperties['dockerHubPassword'] != null && gradleProperties['dockerHubEmail'] != null
+    }
+
+    private static Properties readDockerHubCredentials() {
         File gradlePropsFile = new File(System.getProperty('user.home'), '.gradle/gradle.properties')
 
         if(!gradlePropsFile.exists()) {
-            return false
+            return new Properties()
         }
 
         Properties properties = new Properties()
@@ -45,6 +50,6 @@ final class TestPrecondition {
             properties.load(it)
         }
 
-        properties['dockerHubUsername'] != null && properties['dockerHubPassword'] != null && properties['dockerHubEmail'] != null
+        properties
     }
 }

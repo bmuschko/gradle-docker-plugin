@@ -1,20 +1,13 @@
-# Directories #
-######################
-build 
+build
 out 
 .gradle
-
-# OS generated files #
-######################
+.vagrant
 .DS_Store
-
-# IDE generated files #
-######################
-.settings 
-.classpath 
-.project 
-.README* 
-.idea 
-*.iml 
+.settings
+.classpath
+.project
+.README*
+.idea
+*.iml
 *.ipr
 *.iws

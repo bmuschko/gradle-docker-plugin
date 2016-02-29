@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-vagrant-plugin:2.0'
+    }
+}
+
+apply plugin: com.bmuschko.gradle.vagrant.VagrantBasePlugin
+
+import com.bmuschko.gradle.vagrant.tasks.VagrantUp
+import com.bmuschko.gradle.vagrant.tasks.VagrantDestroy
+
+ext {
+    vagrantBoxDir = file('vagrant')
+}
+
+task vagrantUp(type: VagrantUp) {
+    description = 'Starts Vagrant box for use with functional tests.'
+    boxDir = vagrantBoxDir
+}
+
+task vagrantDestroy(type: VagrantDestroy) {
+    description = 'Stops Vagrant box for use with functional tests.'
+    boxDir = vagrantBoxDir
+}
+
+functionalTest {
+    dependsOn vagrantUp
+    finalizedBy vagrantDestroy
+}

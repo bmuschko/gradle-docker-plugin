@@ -16,7 +16,7 @@ plugin continue to thrive, shoot me a mailto:benjamin.muschko@gmail.com[mail].
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
 Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Currently,
-version 2.2.4. Please refer to the library's documentation for more information on the supported Docker's client API
+version 2.2.2. Please refer to the library's documentation for more information on the supported Docker's client API
 and Docker server version.
 
 *This plugin requires Gradle >= 2.5 to work properly.*
@@ -35,7 +35,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:2.6.5'
+        classpath 'com.bmuschko:gradle-docker-plugin:2.6.6'
     }
 }
 ----
@@ -342,7 +342,7 @@ docker {
 
 === Executing the plugin's test suite with custom configuration
 
-Integration and functional tests that are executed against a Docker instance assume a specific setup. This setup
+Functional tests that are executed against a Docker instance assume a specific setup. This setup
 uses the Docker server URL `http://localhost:2375` with TLS being disabled. The default setup can be configured with the
 help of system properties shown in the table below:
 
@@ -356,7 +356,34 @@ help of system properties shown in the table below:
 
 The following usage example demonstrates running the tests against a Docker instance using HTTPS:
 
-[source,groovy]
+[source,shell]
 ----
 ./gradlew build -DdockerServerUrl=https://192.168.59.103:2376 -DdockerCertPath=/Users/ben/.boot2docker/certs/boot2docker-vm
+----
+
+**Note:** At the moment the plugin code does not support executing the tests against a Docker instance with TLS enabled.
+
+==== Using a Vagrant box to bootstrap Docker
+
+Docker does not need to be installed on the local or another remote machine. This project provides a
+[Vagrant](https://www.vagrantup.com/) image with the proper setup to bootstrap a Docker installation. The
+[Vagrantfile](https://github.com/bmuschko/gradle-docker-plugin/blob/master/vagrant/Vagrantfile) can be found under
+the directory `vagrant`. To use the Vagrant box simply start it manually.
+
+[source,shell]
+----
+vagrant up
+----
+
+==== Automatically starts and stop Vagrant box for executing functional tests
+
+An installation of VirtualBox and Vagrant is required. See the ["Getting Started"](https://www.vagrantup.com/docs/getting-started/)
+guide for more information.
+
+Alternatively, you can configure the project to bootstrap the Vagrant box
+as needed. Use the command line option `-PbootstrapDocker=true` for this purpose.
+
+[source,shell]
+----
+./gradlew functionalTest -PbootstrapDocker=true
 ----

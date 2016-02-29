@@ -15,37 +15,37 @@
  */
 package com.bmuschko.gradle.docker.utils
 
+import groovy.transform.PackageScope
 import org.gradle.api.GradleException
 
+/**
+ * This class is not thread-safe e.g. when the build is executed with {@code --parallel}.
+ */
 class TaskStateHelper {
 
-    String taskName
+    private final File stateFile
 
-    File buildDir
-
-    public TaskStateHelper(String taskName, File buildDir) {
-        this.taskName = taskName
-        this.buildDir = buildDir
+    public TaskStateHelper(String taskClassName, File buildDir) {
+        this.stateFile = determineStateFile(taskClassName, buildDir)
     }
 
-    public void put(Object key, Object value) {
-        saveState(key.toString(), value.toString())
-    }
-
-    public String get(String key) {
-        loadState()[key]
-    }
-
-    File getStateFile() {
+    private File determineStateFile(String taskClassName, File buildDir) {
         File stateDir = new File("${buildDir.path}/docker/state")
         if (!stateDir.exists() && !stateDir.mkdirs()) {
             throw new GradleException("Could not create state directory at ${stateDir.path}")
         }
-        new File(stateDir, taskName)
+        new File(stateDir, taskClassName)
     }
 
-    Properties loadState() {
-        File stateFile = getStateFile()
+    void put(Object key, Object value) {
+        saveState(key.toString(), value.toString())
+    }
+
+    String get(String key) {
+        loadState()[key]
+    }
+
+    private Properties loadState() {
         Properties props = new Properties()
         if(stateFile.exists()) {
             props.load(stateFile.newInputStream())
@@ -53,9 +53,14 @@ class TaskStateHelper {
         props
     }
 
-    void saveState(String key, String value) {
+    private void saveState(String key, String value) {
         Properties props = loadState()
         props.setProperty(key, value)
-        props.store(getStateFile().newOutputStream(), null)
+        props.store(stateFile.newOutputStream(), null)
+    }
+
+    @PackageScope
+    File getStateFile() {
+        stateFile
     }
 }
