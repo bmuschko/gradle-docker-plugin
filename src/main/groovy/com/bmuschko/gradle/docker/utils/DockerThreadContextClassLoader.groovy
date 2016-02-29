@@ -344,12 +344,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setSuperclass(delegate.getClass())
         enhancer.setCallback([
 
-                invoke: {Object proxy, Method method, Object[] args ->
-                    if ("onNext" == method.name) {
-                        logger.info(args[0].stream)
-                    }
-                    method.invoke(delegate, args)
+            invoke: {Object proxy, Method method, Object[] args ->
+                if ("onNext" == method.name) {
+                    logger.quiet(args[0].toString())
                 }
+                method.invoke(delegate, args)
+            }
 
         ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
 
