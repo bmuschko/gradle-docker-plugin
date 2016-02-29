@@ -356,7 +356,7 @@ help of system properties shown in the table below:
 
 The following usage example demonstrates running the tests against a Docker instance using HTTPS:
 
-[source,groovy]
+[source,shell]
 ----
 ./gradlew build -DdockerServerUrl=https://192.168.59.103:2376 -DdockerCertPath=/Users/ben/.boot2docker/certs/boot2docker-vm
 ----
