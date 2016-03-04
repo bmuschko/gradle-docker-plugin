@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.utils
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 
 import java.lang.reflect.Array
@@ -344,12 +345,14 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setSuperclass(delegate.getClass())
         enhancer.setCallback([
 
-                invoke: {Object proxy, Method method, Object[] args ->
-                    if ("onNext" == method.name) {
-                        logger.info(args[0].stream)
-                    }
-                    method.invoke(delegate, args)
+            invoke: {Object proxy, Method method, Object[] args ->
+                if ("onNext" == method.name) {
+                    def possibleStream = args[0].stream
+                    if (possibleStream)
+                        logger.quiet(possibleStream)
                 }
+                method.invoke(delegate, args)
+            }
 
         ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
 

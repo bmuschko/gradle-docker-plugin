@@ -189,7 +189,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
             if(!hostDestination.parentFile.mkdirs())
                 throw new GradleException("Failed creating parent directory for ${hostDestination.path}")
 
-        def parentDirectory = hostDestination.isDirectory() ?: hostDestination.parentFile
+        def parentDirectory = hostDestination.isDirectory() ? hostDestination : hostDestination.parentFile
         def fileName = hostDestination.isDirectory() ?
                 tempDestination.listFiles().last().name : hostDestination.name
 
