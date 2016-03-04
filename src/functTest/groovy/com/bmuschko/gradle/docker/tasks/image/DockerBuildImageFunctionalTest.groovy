@@ -21,52 +21,6 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("Created image with ID")
     }
 
-    def "building an image with the same ID marks task UP-TO-DATE"() {
-        buildFile << imageCreation()
-
-        when:
-        BuildResult result = build('buildImage', '-i')
-
-        then:
-        result.task(':buildImage').outcome == SUCCESS
-        result.output.contains('Created image with ID')
-        result.output.contains('No previously saved imageId exists')
-
-        when:
-        result = build('buildImage', '-i')
-
-        then:
-        result.task(':buildImage').outcome == SKIPPED
-        !result.output.contains('Created image with ID')
-        result.output.contains('found via call to inspectImage')
-    }
-
-    def "building an image with the same ID by two different tasks mark second task UP-TO-DATE"() {
-        buildFile << imageCreation()
-        buildFile << """
-            task buildImageAnother(type: DockerBuildImage) {
-                dependsOn dockerfile
-                inputDir = file("build/docker")
-            }
-        """
-
-        when:
-        BuildResult result = build('buildImage', '-i')
-
-        then:
-        result.task(':buildImage').outcome == SUCCESS
-        result.output.contains('Created image with ID')
-        result.output.contains('No previously saved imageId exists')
-
-        when:
-        result = build('buildImageAnother', '-i')
-
-        then:
-        result.task(':buildImageAnother').outcome == SKIPPED
-        !result.output.contains('Created image with ID')
-        result.output.contains('found via call to inspectImage')
-    }
-
     private String imageCreation() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
