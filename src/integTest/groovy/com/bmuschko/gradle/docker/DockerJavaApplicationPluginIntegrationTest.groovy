@@ -2,8 +2,15 @@ package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
 
 class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest {
+    Project project
+
+    def setup() {
+        project = ProjectBuilder.builder().withProjectDir(projectDir).build()
+    }
+
     def "Does not create tasks out-of-the-box when application plugin is not applied"() {
         when:
         applyDockerJavaApplicationPluginWithoutApplicationPlugin(project)

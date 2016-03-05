@@ -15,8 +15,6 @@
  */
 package com.bmuschko.gradle.docker
 
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -25,53 +23,14 @@ abstract class AbstractIntegrationTest extends Specification {
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
 
-    Project project
     File projectDir
 
     def setup() {
         projectDir = temporaryFolder.root
-
         System.setOut(new FilteredPrintStream(System.out))
-        project = ProjectBuilder.builder().withProjectDir(projectDir).build()
-
-        project.apply plugin: DockerRemoteApiPlugin
-
-        project.repositories {
-            mavenCentral()
-        }
-
-        setupDockerServerUrl()
-        setupDockerCertPath()
-        setupDockerPrivateRegistryUrl()
     }
 
-    private void setupDockerServerUrl() {
-        String dockerServerUrl = TestConfiguration.dockerServerUrl
-
-        if(dockerServerUrl) {
-            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).url = dockerServerUrl
-        }
-    }
-
-    private void setupDockerCertPath() {
-        File dockerCertPath = TestConfiguration.dockerCertPath
-
-        if(dockerCertPath) {
-            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).certPath = dockerCertPath
-        }
-    }
-
-    private void setupDockerPrivateRegistryUrl() {
-        String dockerPrivateRegistryUrl = TestConfiguration.dockerPrivateRegistryUrl
-
-        if(dockerPrivateRegistryUrl) {
-            project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME).registryCredentials {
-                url = dockerPrivateRegistryUrl
-            }
-        }
-    }
-
-    class FilteredPrintStream extends PrintStream {
+    private static class FilteredPrintStream extends PrintStream {
         FilteredPrintStream(PrintStream source) {
             super(source)
         }

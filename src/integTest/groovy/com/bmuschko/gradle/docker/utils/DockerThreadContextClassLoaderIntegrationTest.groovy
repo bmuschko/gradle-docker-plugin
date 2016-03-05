@@ -4,7 +4,9 @@ import com.bmuschko.gradle.docker.AbstractIntegrationTest
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
-import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.Shared
 import spock.lang.Unroll
 
 import java.lang.reflect.InvocationTargetException
@@ -13,7 +15,17 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
     ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader()
     DockerClientConfiguration dockerClientConfiguration = new DockerClientConfiguration(url: 'http://localhost:2375')
 
-    def setup() {
+    @Shared
+    Project project
+
+    def setupSpec() {
+        project = ProjectBuilder.builder().build()
+        project.apply(plugin: DockerRemoteApiPlugin)
+
+        project.repositories {
+            mavenCentral()
+        }
+
         project.configurations {
             dockerJava
         }
