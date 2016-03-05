@@ -86,20 +86,36 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
             return usernameSystemProp
         }
 
-        File dockerIoFile = new File(System.getProperty('user.home'), 'docker-java.properties')
+        // Docker Java 2.x properties file
+        File dockerIoPropertiesFile = new File(System.getProperty('user.home'), '.docker.io.properties')
+        String dockerIoUsername = readRegistryUsernameProperty(dockerIoPropertiesFile)
 
-        if(dockerIoFile.exists()) {
-            Properties properties = new Properties()
+        if(dockerIoUsername) {
+            return dockerIoUsername
+        }
 
-            dockerIoFile.withInputStream {
-                properties.load(it)
-            }
+        // Docker Java 3.x properties file
+        File dockerJavaPropertiesFile = new File(System.getProperty('user.home'), 'docker-java.properties')
+        String dockerJavaUsername = readRegistryUsernameProperty(dockerJavaPropertiesFile)
 
-            if(properties.containsKey(USERNAME_SYSTEM_PROPERTY_KEY)) {
-                return properties.getProperty(USERNAME_SYSTEM_PROPERTY_KEY)
-            }
+        if(dockerJavaUsername) {
+            return dockerJavaUsername
         }
 
         return System.properties['user.name']
+    }
+
+    private String readRegistryUsernameProperty(File propertiesFile) {
+        if(propertiesFile.exists()) {
+            Properties properties = new Properties()
+
+            propertiesFile.withInputStream {
+                properties.load(it)
+            }
+
+            return properties.getProperty(USERNAME_SYSTEM_PROPERTY_KEY)
+        }
+
+        return null
     }
 }
