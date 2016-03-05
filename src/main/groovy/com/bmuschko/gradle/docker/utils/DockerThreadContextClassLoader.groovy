@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.utils
 
+import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -29,22 +30,27 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
 
+    private final DockerExtension dockerExtension
+    private final Set<File> classpath
+    private def dockerClient
+
+    public DockerThreadContextClassLoader(DockerExtension dockerExtension, Set<File> classpath) {
+        this.dockerExtension = dockerExtension
+        this.classpath = classpath
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    void withClasspath(Set<File> classpathFiles, DockerClientConfiguration dockerClientConfiguration, Closure closure) {
-        ClassLoader originalClassLoader = getClass().classLoader
+    void withClosure(Closure closure) {
+        if (!dockerClient) {
+            dockerClient = getDockerClient()
+        }
 
-        try {
-            Thread.currentThread().contextClassLoader = createClassLoader(classpathFiles)
-            closure.resolveStrategy = Closure.DELEGATE_FIRST
-            closure.delegate = this
-            closure(getDockerClient(dockerClientConfiguration))
-        }
-        finally {
-            Thread.currentThread().contextClassLoader = originalClassLoader
-        }
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = this
+        closure(dockerClient)
     }
 
     /**
@@ -73,21 +79,22 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @param dockerClientConfiguration Docker client configuration
      * @return DockerClient instance
      */
-    private getDockerClient(DockerClientConfiguration dockerClientConfiguration) {
-        // Create configuration
-        Class dockerClientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
+    private getDockerClient() {
+
+        ClassLoader classLoader = createClassLoader(classpath)
+        Class dockerClientConfigClass = loadClass(classLoader, 'com.github.dockerjava.core.DockerClientConfig')
         Method dockerClientConfigMethod = dockerClientConfigClass.getMethod('createDefaultConfigBuilder')
         def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
-        dockerClientConfigBuilder.withUri(dockerClientConfiguration.url)
+        dockerClientConfigBuilder.withUri(dockerExtension.url)
 
-        if(dockerClientConfiguration.certPath) {
-            dockerClientConfigBuilder.withDockerCertPath(dockerClientConfiguration.certPath.canonicalPath)
+        if(dockerExtension.certPath) {
+            dockerClientConfigBuilder.withDockerCertPath(dockerExtension.certPath.canonicalPath)
         }
 
         def dockerClientConfig = dockerClientConfigBuilder.build()
 
         // Create client
-        Class dockerClientBuilderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
+        Class dockerClientBuilderClass = loadClass(classLoader, 'com.github.dockerjava.core.DockerClientBuilder')
         Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
         def dockerClientBuilder = method.invoke(null, dockerClientConfig)
         dockerClientBuilder.build()
@@ -98,7 +105,11 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     Class loadClass(String className) {
-        Thread.currentThread().contextClassLoader.loadClass(className)
+        dockerClient.class.classLoader.loadClass(className)
+    }
+
+    Class loadClass(ClassLoader classLoader, String className) {
+        classLoader.loadClass(className)
     }
 
     /**
