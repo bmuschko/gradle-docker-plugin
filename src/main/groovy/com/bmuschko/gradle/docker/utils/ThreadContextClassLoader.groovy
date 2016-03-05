@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import org.gradle.api.logging.Logger
 

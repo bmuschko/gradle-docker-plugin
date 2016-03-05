@@ -17,7 +17,6 @@ package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
@@ -74,9 +73,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     /**
-     * Creates DockerClient from ClassLoader.
+     * Creates DockerClient with custom ClassLoader
      *
-     * @param dockerClientConfiguration Docker client configuration
      * @return DockerClient instance
      */
     private getDockerClient() {
