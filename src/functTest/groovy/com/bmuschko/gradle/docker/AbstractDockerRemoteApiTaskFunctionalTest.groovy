@@ -1,6 +1,17 @@
 package com.bmuschko.gradle.docker
 
+import spock.lang.Shared
+
 class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
+    public static final String USERNAME_SYSTEM_PROPERTY_KEY = 'registry.username'
+
+    @Shared
+    String username
+
+    def setupSpec() {
+        username = determineUsername()
+    }
+
     def "Can create and execute custom remote API task with default extension values"() {
         buildFile << """
             task customDocker(type: CustomDocker)
@@ -14,7 +25,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
                     assert dockerClient.dockerClientConfig.uri == new URI('$TestConfiguration.dockerServerUrl')
                     assert dockerClient.dockerClientConfig.dockerCfgPath == "${System.properties['user.home']}/.dockercfg"
                     assert dockerClient.dockerClientConfig.serverAddress == 'https://index.docker.io/v1/'
-                    assert dockerClient.dockerClientConfig.username == '${System.properties['user.name']}'
+                    assert dockerClient.dockerClientConfig.username == '${username}'
                     assert !dockerClient.dockerClientConfig.password
                     assert !dockerClient.dockerClientConfig.email
                 }
@@ -54,7 +65,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
                     assert dockerClient.dockerClientConfig.uri == new URI('http://remote.docker.com:2375')
                     assert dockerClient.dockerClientConfig.dockerCfgPath == "${System.properties['user.home']}/.dockercfg"
                     assert dockerClient.dockerClientConfig.serverAddress == 'https://index.docker.io/v1/'
-                    assert dockerClient.dockerClientConfig.username == '${System.properties['user.name']}'
+                    assert dockerClient.dockerClientConfig.username == '${username}'
                     assert !dockerClient.dockerClientConfig.password
                     assert !dockerClient.dockerClientConfig.email
                 }
@@ -66,5 +77,29 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
 
         then:
         noExceptionThrown()
+    }
+
+    private String determineUsername() {
+        String usernameSystemProp = System.properties[USERNAME_SYSTEM_PROPERTY_KEY]
+
+        if(usernameSystemProp) {
+            return usernameSystemProp
+        }
+
+        File dockerIoFile = new File(System.getProperty('user.home'), 'docker-java.properties')
+
+        if(dockerIoFile.exists()) {
+            Properties properties = new Properties()
+
+            dockerIoFile.withInputStream {
+                properties.load(it)
+            }
+
+            if(properties.containsKey(USERNAME_SYSTEM_PROPERTY_KEY)) {
+                return properties.getProperty(USERNAME_SYSTEM_PROPERTY_KEY)
+            }
+        }
+
+        return System.properties['user.name']
     }
 }
