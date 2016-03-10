@@ -1,8 +1,9 @@
-### Version 2.6.7 (TBD)
+### Version 2.6.7 (March 10, 2016)
 
 * Upgrade to Gradle 2.11.
 * Bug fix when copying single file from container and hostPath is set to directory for `DockerCopyFileFromContainer` - [Pull request 163](https://github.com/bmuschko/gradle-docker-plugin/pull/163)
 * Step reports are now printed to stdout by default for `DockerBuildImage` - [Pull request 145](https://github.com/bmuschko/gradle-docker-plugin/pull/145)
+* UP-TO-DATE functionality has been removed from `DockerBuildImage` as there were too many corner cases to account for - [Pull request 172](https://github.com/bmuschko/gradle-docker-plugin/pull/172)
 
 ### Version 2.6.6 (February 27, 2016)
 
