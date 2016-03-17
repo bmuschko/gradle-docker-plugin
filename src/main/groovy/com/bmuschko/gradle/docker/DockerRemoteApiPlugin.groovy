@@ -64,6 +64,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
                 classpath = { config }
                 url = { extension.url }
                 certPath = { extension.certPath }
+                apiVersion = { extension.apiVersion }
             }
         }
     }

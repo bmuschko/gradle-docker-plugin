@@ -21,6 +21,7 @@ class DockerExtension {
     String url = 'http://localhost:2375'
     File certPath
     DockerRegistryCredentials registryCredentials
+    String apiVersion
 
     void registryCredentials(Closure closure) {
         registryCredentials = new DockerRegistryCredentials()
