@@ -1,5 +1,6 @@
 ### Version 2.6.8 (TBA)
 * Added task `DockerLogsContainer` - [Pull request 181](https://github.com/bmuschko/gradle-docker-plugin/pull/181)
+* Bump docker-java to version 2.3.3 - [Pull request 183](https://github.com/bmuschko/gradle-docker-plugin/pull/183)
 
 ### Version 2.6.7 (March 10, 2016)
 
