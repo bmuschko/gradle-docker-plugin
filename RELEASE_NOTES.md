@@ -1,3 +1,6 @@
+### Version 2.6.8 (TBA)
+* Added task `DockerLogsContainer` - [Pull request 181](https://github.com/bmuschko/gradle-docker-plugin/pull/181)
+
 ### Version 2.6.7 (March 10, 2016)
 
 * Upgrade to Gradle 2.11.
