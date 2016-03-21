@@ -219,4 +219,12 @@ interface ThreadContextClassLoader {
      * @return Callback instance
      */
     def createPullImageResultCallback()
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/LogContainerResultCallback.java">LogContainerResultCallback</a>
+     * from thread context classloader. The callback is modified to send log lines to standard out and error.
+     *
+     * @return Callback instance
+     */
+    def createLoggingCallback(Logger logger)
 }
