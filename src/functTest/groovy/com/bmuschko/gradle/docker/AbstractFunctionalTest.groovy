@@ -42,13 +42,20 @@ abstract class AbstractFunctionalTest extends Specification {
                 .collect { "'$it'" }
                 .join(", ")
 
-        // Add the logic under test to the test build
+        // Add the logic under test to the test build. 
+        //
+        // We are adding known versions of dependencies that will break the plugin 
+        // should they leak into our custom classloader. Should our custom classloader
+        // be configured correctly adding these to the buildscript classpath should
+        // cause no issue.
         buildFile << """
             buildscript {
                 repositories {
                     mavenCentral()
                 }
                 dependencies {
+                    classpath 'org.bouncycastle:bcpkix-jdk15on:1.47'
+                	classpath 'xml-apis:xml-apis:2.0.2'
                     classpath files($pluginClasspath)
                 }
             }
@@ -56,10 +63,6 @@ abstract class AbstractFunctionalTest extends Specification {
 
         buildFile << """
             apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-
-            repositories {
-                mavenCentral()
-            }
         """
 
         setupDockerServerUrl()
