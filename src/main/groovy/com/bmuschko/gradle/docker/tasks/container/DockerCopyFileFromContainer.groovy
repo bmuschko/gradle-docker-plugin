@@ -97,7 +97,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
                     throw new GradleException("Failed deleting previously existing file at ${hostDestination.path}")
 
         } else {
-            if (!hostDestination.parentFile.mkdirs())
+            if (!hostDestination.parentFile.exists() && !hostDestination.parentFile.mkdirs())
                 throw new GradleException("Failed creating parent directory for ${hostDestination.path}")
         }
 
