@@ -16,9 +16,18 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 class DockerWaitContainer extends DockerExistingContainer {
+
+    protected int exitCode
+
+    DockerWaitContainer(){
+        ext.getExitCode = {exitCode}
+    }
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Waiting for container with ID '${getContainerId()}'."
-        dockerClient.waitContainerCmd(getContainerId()).exec()
+        def containerCommand = dockerClient.waitContainerCmd(getContainerId())
+        exitCode = containerCommand.exec()
+        logger.quiet "Container exited with code ${exitCode}"
     }
 }
