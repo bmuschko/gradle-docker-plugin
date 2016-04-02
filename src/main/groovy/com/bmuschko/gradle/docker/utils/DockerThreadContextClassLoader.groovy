@@ -43,13 +43,9 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     void withClosure(Closure closure) {
-        if (!dockerClient) {
-            dockerClient = getDockerClient()
-        }
-
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = this
-        closure(dockerClient)
+        closure(getDockerClient())
     }
 
     /**
@@ -72,12 +68,20 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         files.collect { file -> file.toURI().toURL() } as URL[]
     }
 
+	public getDockerClient() {
+		dockerClient = dockerClient ?: createDockerClient()
+		if (!dockerExtension.url.toString().equals(dockerClient.@dockerClientConfig.@uri.toString())) {
+			dockerClient = createDockerClient()
+		} 
+		dockerClient
+	}
+	
     /**
      * Creates DockerClient with custom ClassLoader
      *
      * @return DockerClient instance
      */
-    private getDockerClient() {
+    private createDockerClient() {
 
         ClassLoader classLoader = createClassLoader(classpath)
         Class dockerClientConfigClass = loadClass(classLoader, 'com.github.dockerjava.core.DockerClientConfig')
