@@ -38,6 +38,8 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
                 .setVisible(false)
                 .setTransitive(true)
                 .setDescription('The Docker Java libraries to be used for this project.')
+                
+        project.repositories.addAll(project.buildscript.repositories.collect())
 
         DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension)
 

@@ -45,6 +45,9 @@ abstract class AbstractFunctionalTest extends Specification {
         // Add the logic under test to the test build
         buildFile << """
             buildscript {
+                repositories {
+                    mavenCentral()
+                }
                 dependencies {
                     classpath files($pluginClasspath)
                 }
@@ -53,10 +56,6 @@ abstract class AbstractFunctionalTest extends Specification {
 
         buildFile << """
             apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-
-            repositories {
-                mavenCentral()
-            }
         """
 
         setupDockerServerUrl()

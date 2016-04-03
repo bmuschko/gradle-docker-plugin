@@ -9,6 +9,9 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
 
     def setup() {
         project = ProjectBuilder.builder().withProjectDir(projectDir).build()
+        project.buildscript.repositories {
+            mavenCentral()
+        }
     }
 
     def "Does not create tasks out-of-the-box when application plugin is not applied"() {
