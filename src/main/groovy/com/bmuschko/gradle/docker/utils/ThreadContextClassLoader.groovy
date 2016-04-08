@@ -16,22 +16,19 @@
 package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import org.gradle.api.logging.Logger
 
 interface ThreadContextClassLoader {
     /**
-     * Performs the closure with thread context classloader.
+     * Performs the closure within the dockerClient classloader
      *
-     * @param classpathFiles Classpath files
-     * @param dockerClientConfiguration Docker client configuration
      * @param closure the given closure
      */
-    void withClasspath(Set<File> classpathFiles, DockerClientConfiguration dockerClientConfiguration, Closure closure)
+    void withClosure(Closure closure)
 
     /**
-     * Loads class with given name from thread context classloader.
+     * Loads class with given name from dockerClient classloader.
      *
      * @param className Class name
      * @return Class
