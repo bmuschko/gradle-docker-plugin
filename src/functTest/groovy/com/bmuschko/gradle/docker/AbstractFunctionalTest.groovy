@@ -27,6 +27,8 @@ abstract class AbstractFunctionalTest extends Specification {
 
     File projectDir
     File buildFile
+    
+    String dockerServerUrl
 
     def setup() {
         projectDir = temporaryFolder.root
@@ -65,7 +67,7 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     private void setupDockerServerUrl() {
-        String dockerServerUrl = TestConfiguration.dockerServerUrl
+        dockerServerUrl = TestConfiguration.dockerServerUrl
 
         if(dockerServerUrl) {
             buildFile << """

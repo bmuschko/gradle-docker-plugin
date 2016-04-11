@@ -2,6 +2,7 @@ package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.AbstractIntegrationTest
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
+import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import org.gradle.api.Project
@@ -12,7 +13,8 @@ import spock.lang.Unroll
 import java.lang.reflect.InvocationTargetException
 
 class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationTest {
-    ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader()
+    DockerExtension dockerExtension = new DockerExtension()
+    ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader(dockerExtension)
     DockerClientConfiguration dockerClientConfiguration = new DockerClientConfiguration(url: 'http://localhost:2375')
 
     @Shared
@@ -20,19 +22,12 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
 
     def setupSpec() {
         project = ProjectBuilder.builder().build()
-        project.apply(plugin: DockerRemoteApiPlugin)
 
         project.repositories {
             mavenCentral()
         }
 
-        project.configurations {
-            dockerJava
-        }
-
-        project.dependencies {
-            dockerJava "com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"
-        }
+        project.apply(plugin: DockerRemoteApiPlugin)
     }
 
     def "Can create class of type Volume"() {
