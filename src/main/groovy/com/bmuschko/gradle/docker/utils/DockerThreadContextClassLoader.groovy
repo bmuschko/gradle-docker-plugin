@@ -46,10 +46,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         try {
             String dockerUrl = dockerClientConfiguration.url ?: dockerExtension.url
             File certPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
+            String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion
+            
             Thread.currentThread().contextClassLoader = createClassLoader(classpath ?: dockerExtension.classpath?.files)
             closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure.delegate = this
-            closure(getDockerClient(dockerUrl, certPath))
+            closure(getDockerClient(dockerUrl, certPath, apiVersion))
         }
         finally {
             Thread.currentThread().contextClassLoader = originalClassLoader
@@ -82,7 +84,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @param dockerClientConfiguration Docker client configuration
      * @return DockerClient instance
      */
-    private getDockerClient(String dockerUrl, File dockerCertPath) {
+    private getDockerClient(String dockerUrl, File dockerCertPath, String apiVersion) {
     
         // Create configuration
         Class dockerClientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
@@ -92,6 +94,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
         if(dockerCertPath) {
             dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
+        }
+
+        if(apiVersion) {
+            dockerClientConfigBuilder.withVersion(apiVersion)
         }
 
         def dockerClientConfig = dockerClientConfigBuilder.build()

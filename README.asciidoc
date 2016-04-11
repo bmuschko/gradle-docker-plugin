@@ -122,7 +122,7 @@ The plugin provides the following custom task types for managing containers:
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRestartContainer.html[DockerRestartContainer]           |Restarts the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStartContainer.html[DockerStartContainer]               |Starts the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStopContainer.html[DockerStopContainer]                 |Stops the container for a given id.
-|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops. Exit-Code can be retrieved with getExitCode().
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerLogsContainer.html[DockerLogsContainer]                 |Copies the container output to the Gradle process standard out/err.
 |=======
 
@@ -136,6 +136,7 @@ The plugin defines the following extension properties in the `docker` closure:
 |Property name   |Type      |Default value            |Description
 |`url`           |String    |http://localhost:2375    |The server URL to connect to via Docker's remote API.
 |`certPath`      |File      |null                     |The path to certificates for communicating with link:https://docs.docker.com/articles/https/[Docker over SSL].
+|`apiVersion`    |String    |null                     |The remote API version. For most cases this can be left null.
 |=======
 
 Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.

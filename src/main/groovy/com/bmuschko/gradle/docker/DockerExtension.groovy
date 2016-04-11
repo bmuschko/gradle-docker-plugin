@@ -23,6 +23,8 @@ class DockerExtension {
     FileCollection classpath
     String url = 'http://localhost:2375'
     File certPath
+    String apiVersion
+
     DockerRegistryCredentials registryCredentials
 
     void registryCredentials(Closure closure) {
