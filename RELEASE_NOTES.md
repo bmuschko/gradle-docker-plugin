@@ -3,6 +3,8 @@
 * Bump docker-java to version 2.3.3 - [Pull request 183](https://github.com/bmuschko/gradle-docker-plugin/pull/183)
 * Bug fix when not checking if parent dir already exists before creating with `DockerCopyFileToContainer` - [Pull request 186](https://github.com/bmuschko/gradle-docker-plugin/pull/186)
 * `DockerWaitContainer` now produces exitCode - [Pull request 189](https://github.com/bmuschko/gradle-docker-plugin/pull/189)
+* `apiVersion` can now be set on `DockerExtension` and overriden on all tasks - [Pull request 182](https://github.com/bmuschko/gradle-docker-plugin/pull/182)
+* Internal fix where task variables had to be defined - [Pull request 194](https://github.com/bmuschko/gradle-docker-plugin/pull/194)
 
 ### Version 2.6.7 (March 10, 2016)
 
