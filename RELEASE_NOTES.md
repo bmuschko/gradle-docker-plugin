@@ -1,4 +1,4 @@
-### Version 2.6.8 (TBA)
+### Version 2.6.8 (April 10, 2016)
 * Added task `DockerLogsContainer` - [Pull request 181](https://github.com/bmuschko/gradle-docker-plugin/pull/181)
 * Bump docker-java to version 2.3.3 - [Pull request 183](https://github.com/bmuschko/gradle-docker-plugin/pull/183)
 * Bug fix when not checking if parent dir already exists before creating with `DockerCopyFileToContainer` - [Pull request 186](https://github.com/bmuschko/gradle-docker-plugin/pull/186)
