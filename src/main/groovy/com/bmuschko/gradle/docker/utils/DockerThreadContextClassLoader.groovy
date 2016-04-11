@@ -84,6 +84,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             dockerClientConfigBuilder.withDockerCertPath(dockerClientConfiguration.certPath.canonicalPath)
         }
 
+        if(dockerClientConfiguration.apiVersion) {
+            dockerClientConfigBuilder.withVersion(dockerClientConfiguration.apiVersion)
+        }
+
         def dockerClientConfig = dockerClientConfigBuilder.build()
 
         // Create client

@@ -40,6 +40,13 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     File certPath
 
+    /**
+     * The docker remote api version
+     */
+    @Input
+    @Optional
+    String apiVersion
+
     ThreadContextClassLoader threadContextClassLoader
 
     @TaskAction
@@ -57,6 +64,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
         dockerClientConfig.url = getUrl()
         dockerClientConfig.certPath = getCertPath()
+        dockerClientConfig.apiVersion = getApiVersion()
         dockerClientConfig
     }
 
