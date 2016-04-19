@@ -48,7 +48,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             File certPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
             String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion
             
-            Thread.currentThread().contextClassLoader = createClassLoader(classpath ?: dockerExtension.classpath?.files)
+            Thread.currentThread().contextClassLoader = createClassLoader(classpath ?: dockerExtension.classpath?.files, originalClassLoader)
             closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure.delegate = this
             closure(getDockerClient(dockerUrl, certPath, apiVersion))
@@ -64,8 +64,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @param classpathFiles Classpath files
      * @return URL classloader
      */
-    private URLClassLoader createClassLoader(Set<File> classpathFiles) {
-        new URLClassLoader(toURLArray(classpathFiles), ClassLoader.systemClassLoader.parent)
+    private URLClassLoader createClassLoader(Set<File> classpathFiles, ClassLoader parent) {
+        new URLClassLoader(toURLArray(classpathFiles), parent)
     }
 
     /**

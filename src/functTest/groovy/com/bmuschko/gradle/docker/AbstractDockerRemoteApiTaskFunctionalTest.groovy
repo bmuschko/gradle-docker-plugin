@@ -79,6 +79,110 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
         noExceptionThrown()
     }
 
+    def "Can create and execute custom remote API task with callback class"() {
+        buildFile << """
+            buildscript{
+                repositories {
+                    mavenCentral()
+                }
+                dependencies{
+                    classpath("com.github.docker-java:docker-java:2.2.3")
+                }
+            }
+
+            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+            import com.github.dockerjava.core.command.ExecStartResultCallback
+
+            class CustomRemoteApiTask extends AbstractDockerRemoteApiTask {
+
+                String containerId
+
+                Integer exitCode
+
+                void targetContainerId(Closure containerId) {
+                    conventionMapping.containerId = containerId
+                }
+
+                @Override
+                void runRemoteCommand(dockerClient) {
+                    String id = getContainerId()
+
+                    def execCreateCmdResponse = dockerClient
+                            .execCreateCmd(id)
+                            .withAttachStdout(true)
+                            .withCmd('su', '-c', 'sleep 5 && exit 5')
+                            .exec()
+
+                    def callback = new ExecStartResultCallback(System.out, System.err);
+
+                    dockerClient.execStartCmd(execCreateCmdResponse.getId())
+                            .withDetach(false)
+                            .exec(callback)
+                            .awaitCompletion()
+
+                    def execResponse = dockerClient
+                            .inspectExecCmd(execCreateCmdResponse.getId())
+                            .exec()
+
+                    exitCode = execResponse.getExitCode()
+
+                    if(exitCode != 5){
+                        throw new GradleException("Wrong exit code. Should be 5, but was \$exitCode")
+                    }
+                }
+
+                @Input
+                String getContainerId() {
+                    containerId
+                }
+            }
+
+            task pullImage(type: DockerPullImage) {
+                repository = 'alpine'
+                tag = 'latest'
+            }
+
+            task createContainer(type: DockerCreateContainer){
+                dependsOn pullImage
+                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                stdinOpen = true
+                cmd 'sh', '-c', 'read'
+            }
+
+            task startContainer(type: DockerStartContainer){
+                dependsOn createContainer
+                targetContainerId {createContainer.getContainerId()}
+            }
+
+            task stopContainer(type: DockerStopContainer){
+                dependsOn startContainer
+                targetContainerId {startContainer.getContainerId()}
+            }
+
+            task removeContainer(type: DockerRemoveContainer){
+                dependsOn stopContainer
+                targetContainerId {stopContainer.getContainerId()}
+            }
+            removeContainer.mustRunAfter stopContainer
+
+            task customRemoteApiTask (type: CustomRemoteApiTask){
+                dependsOn startContainer
+                targetContainerId {startContainer.getContainerId()}
+                finalizedBy stopContainer, removeContainer
+            }
+        """
+
+        when:
+        build('customRemoteApiTask')
+
+        then:
+        noExceptionThrown()
+    }
     private String determineUsername() {
         String usernameSystemProp = System.properties[USERNAME_SYSTEM_PROPERTY_KEY]
 
