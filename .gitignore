@@ -1,13 +1,22 @@
+# Directories #
+######################
 build
+bin
 out 
 .gradle
 .vagrant
+
+# OS generated files #
+######################
 .DS_Store
-.settings
-.classpath
-.project
-.README*
-.idea
-*.iml
+
+# IDE generated files #
+######################
+.settings/ 
+.classpath 
+.project 
+.README* 
+.idea 
+*.iml 
 *.ipr
 *.iws
