@@ -83,12 +83,19 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Optional
     Date since
 
+    /**
+     * Sink to write log output into
+     */
+    @Input
+    @Optional
+    Writer sink
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Logs for container with ID '${getContainerId()}'."
         def logCommand = dockerClient.logContainerCmd(getContainerId())
         setContainerCommandConfig(logCommand)
-        logCommand.exec(threadContextClassLoader.createLoggingCallback(logger))?.awaitCompletion()
+        logCommand.exec(threadContextClassLoader.createLoggingCallback(logger, sink))?.awaitCompletion()
     }
 
     private void setContainerCommandConfig(logsCommand) {

@@ -157,5 +157,20 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output ==~ ~/(?s).*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][.][0-9]+Z\s+Hello World.*/
     }
+
+    def "sink output to file"() {
+        buildFile << """
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                sink = project.file("${projectDir.path}/log-sink.txt").newWriter()
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        File outputFile = new File("${projectDir.path}/log-sink.txt")
+        outputFile.exists() && outputFile.text.contains("Hello World")
+    }
 }
 
