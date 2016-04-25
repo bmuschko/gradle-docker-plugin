@@ -359,7 +359,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createLoggingCallback(Logger logger, Writer sink) {
+    def createLoggingCallback(Logger logger) {
         Class callbackClass = loadClass("${COMMAND_PACKAGE}.LogContainerResultCallback")
         def delegate = callbackClass.getConstructor().newInstance()
 
@@ -374,22 +374,45 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                   switch (frame.streamType as String) {
                     case "STDOUT":
                     case "RAW":
-                        String output = new String(frame.payload)
-                        if (sink) {
-                            sink.append(output)
-                            sink.flush()
-                        }
-                        logger.quiet(output.trim())
+                        logger.quiet(new String(frame.payload).trim())
                         break
                     case "STDERR":
-                        String output = new String(frame.payload)
-                        if (sink) {
-                            sink.append(output)
-                            sink.flush()
-                        }
-                        logger.error(output.trim())
+                        logger.error(new String(frame.payload).trim())
                         break
                   }
+                }
+                method.invoke(delegate, args)
+            }
+
+        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+
+        enhancer.create()
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createLoggingCallback(Writer sink) {
+        Class callbackClass = loadClass("${COMMAND_PACKAGE}.LogContainerResultCallback")
+        def delegate = callbackClass.getConstructor().newInstance()
+
+        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        def enhancer = enhancerClass.getConstructor().newInstance()
+        enhancer.setSuperclass(callbackClass)
+        enhancer.setCallback([
+
+            invoke: {Object proxy, java.lang.reflect.Method method, Object[] args ->
+                if ("onNext" == method.name && args.length && args[0]) {
+                    def frame = args[0]
+                    switch (frame.streamType as String) {
+                        case "STDOUT":
+                        case "RAW":
+                        case "STDERR":
+                            sink.append(new String(frame.payload))
+                            sink.flush()
+                            break
+                    }
                 }
                 method.invoke(delegate, args)
             }

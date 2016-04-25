@@ -95,7 +95,8 @@ class DockerLogsContainer extends DockerExistingContainer {
         logger.quiet "Logs for container with ID '${getContainerId()}'."
         def logCommand = dockerClient.logContainerCmd(getContainerId())
         setContainerCommandConfig(logCommand)
-        logCommand.exec(threadContextClassLoader.createLoggingCallback(logger, sink))?.awaitCompletion()
+        def loggingCallback = sink ? threadContextClassLoader.createLoggingCallback(sink) : threadContextClassLoader.createLoggingCallback(logger)
+        logCommand.exec(loggingCallback)?.awaitCompletion()
     }
 
     private void setContainerCommandConfig(logsCommand) {
