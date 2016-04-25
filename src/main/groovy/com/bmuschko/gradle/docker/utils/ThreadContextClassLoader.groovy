@@ -225,8 +225,16 @@ interface ThreadContextClassLoader {
      * from thread context classloader. The callback is modified to send log lines to standard out and error.
      *
      * @param logger The logger instance which docker stream items will be printed to
-     * @param sink The optional Writer instance which docker stream items will be written to
      * @return Callback instance
      */
-    def createLoggingCallback(Logger logger, Writer sink)
+    def createLoggingCallback(Logger logger)
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/LogContainerResultCallback.java">LogContainerResultCallback</a>
+     * from thread context classloader. The callback is modified to send log lines to standard out and error.
+     *
+     * @param sink The Writer instance which docker stream items will be written to
+     * @return Callback instance
+     */
+    def createLoggingCallback(Writer sink)
 }
