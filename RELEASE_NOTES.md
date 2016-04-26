@@ -1,5 +1,6 @@
 ### Version 2.6.9 (TBA)
 * Task `DockerLogsContainer` gained attribute `sink` - [Pull request 203](https://github.com/bmuschko/gradle-docker-plugin/pull/203)
+* Task `DockerBuildImage` will no longer insert extra newline as part of build output - [Pull request 206](https://github.com/bmuschko/gradle-docker-plugin/pull/206)
 
 ### Version 2.6.8 (April 10, 2016)
 * Added task `DockerLogsContainer` - [Pull request 181](https://github.com/bmuschko/gradle-docker-plugin/pull/181)
