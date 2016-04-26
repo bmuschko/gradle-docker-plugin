@@ -432,7 +432,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 if ("onNext" == method.name) {
                     def possibleStream = args[0].stream
                     if (possibleStream)
-                        logger.quiet(possibleStream)
+                        logger.quiet(possibleStream.trim())
                 }
                 method.invoke(delegate, args)
             }
