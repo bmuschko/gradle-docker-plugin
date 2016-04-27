@@ -19,12 +19,8 @@ import org.gradle.api.tasks.Input
 
 class DockerExecute extends DockerExistingContainer {
 
-  String[] cmd
-  
   @Input
-  String[] getCmd() {
-    cmd
-  }
+  String[] cmd
 
   @Override
   void runRemoteCommand(dockerClient) {
