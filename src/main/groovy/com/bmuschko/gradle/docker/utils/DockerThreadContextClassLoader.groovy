@@ -422,6 +422,16 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.create()
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    def createExecCallback(OutputStream out, OutputStream err) {
+        Class callbackClass = loadClass('com.github.dockerjava.core.command.ExecStartResultCallback')
+        Constructor constructor = callbackClass.getConstructor(OutputStream, OutputStream)
+        constructor.newInstance(out, err)
+    }
+
     private createPrintStreamProxyCallback(Logger logger, delegate) {
         Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
         def enhancer = enhancerClass.getConstructor().newInstance()
