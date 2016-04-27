@@ -26,6 +26,8 @@ import java.lang.reflect.Array
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 
+import java.io.OutputStream
+
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
@@ -446,6 +448,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class callbackClass = loadClass(className)
         Constructor constructor = callbackClass.getConstructor()
         constructor.newInstance()
+    }
+
+    public Object createExecCallback(OutputStream out, OutputStream in) {
+        Class callbackClass = loadClass('com.github.dockerjava.core.command.ExecStartResultCallback')
+        Constructor constructor = callbackClass.getConstructor(OutputStream.class, OutputStream.class)
+        constructor.newInstance(out, in)
     }
 
     private Class loadInternetProtocolClass() {
