@@ -15,8 +15,6 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import java.io.OutputStream
-
 import org.gradle.api.tasks.Input
 
 class DockerExecute extends DockerExistingContainer {
