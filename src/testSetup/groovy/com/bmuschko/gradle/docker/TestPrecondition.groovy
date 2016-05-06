@@ -9,7 +9,7 @@ final class TestPrecondition {
     private TestPrecondition() {}
 
     private static boolean isDockerServerInfoUrlReachable() {
-        isUrlReachable(new URL("${TestConfiguration.dockerServerUrl}/info"))
+        isUrlReachable(new URL("${TestConfiguration.dockerHost}/info"))
     }
 
     private static boolean isPrivateDockerRegistryReachable() {
