@@ -335,6 +335,16 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
+    def createRestartPolicy(String restartPolicy) {
+        Class rpClass = loadClass("${MODEL_PACKAGE}.RestartPolicy")
+        Method rpParseMethod = rpClass.getMethod("parse", String.class)
+        rpParseMethod.invoke(null, restartPolicy)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     def createBuildImageResultCallback(Logger logger) {
         createPrintStreamProxyCallback(logger, createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
     }
