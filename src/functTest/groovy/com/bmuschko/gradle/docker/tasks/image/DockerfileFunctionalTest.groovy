@@ -81,6 +81,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     user 'root'
     workingDir '/tmp'
     onBuild 'RUN echo "Hello World"'
+    label version: '1.0'
 }
 """
         when:
@@ -103,6 +104,7 @@ VOLUME ["/jenkins", "/myApp"]
 USER root
 WORKDIR /tmp
 ONBUILD RUN echo "Hello World"
+LABEL "version"="1.0"
 """
     }
 
