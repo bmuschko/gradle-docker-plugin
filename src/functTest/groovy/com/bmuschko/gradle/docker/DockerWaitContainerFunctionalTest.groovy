@@ -134,6 +134,6 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = buildAndFail('runContainers')
-        result.output.contains("Error while wait container")
+        result.output.contains("Awaiting status code timeout")
     }
 }
