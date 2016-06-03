@@ -1,8 +1,8 @@
 package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.AbstractIntegrationTest
-import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.DockerExtension
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import org.gradle.api.Project
@@ -15,7 +15,7 @@ import java.lang.reflect.InvocationTargetException
 class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationTest {
     DockerExtension dockerExtension = new DockerExtension()
     ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader(dockerExtension)
-    DockerClientConfiguration dockerClientConfiguration = new DockerClientConfiguration(url: 'http://localhost:2375')
+    DockerClientConfiguration dockerClientConfiguration = new DockerClientConfiguration(url: 'tcp://localhost:2375')
 
     @Shared
     Project project
@@ -259,7 +259,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         then:
         noExceptionThrown()
         instance
-        instance.serverAddress == DockerRegistryCredentials.DEFAULT_URL
+        instance.registryAddress == DockerRegistryCredentials.DEFAULT_URL
         instance.username == 'username'
         instance.password == 'password'
         instance.email == 'username@gmail.com'
@@ -305,6 +305,38 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         instance[1].accessMode.toString() == 'ro'
         instance[2].container == 'volume-three'
         instance[2].accessMode.toString() == 'rw'
+    }
+
+    def "Can create class of type WaitContainerResultCallback"() {
+        when:
+        def instance = null
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createWaitContainerResultCallback()
+        }
+
+        then:
+        noExceptionThrown()
+        instance
+    }
+
+    @Unroll
+    def "Supports Docker host URL in format #config.url"(DockerClientConfiguration config, String expectedScheme) {
+
+        when:
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, config) { dockerClient ->
+            assert dockerClient.dockerClientConfig.dockerHost.scheme == expectedScheme
+        }
+
+        then:
+        noExceptionThrown()
+
+        where:
+        config                                                            | expectedScheme
+        new DockerClientConfiguration(url: 'tcp://localhost:2375')        | 'tcp'
+        new DockerClientConfiguration(url: 'http://localhost:2375')       | 'tcp'
+        new DockerClientConfiguration(url: 'https://localhost:2375')      | 'tcp'
+        new DockerClientConfiguration(url: 'unix:///var/run/docker.sock') | 'unix'
     }
 
     private DockerRegistryCredentials createCredentials() {

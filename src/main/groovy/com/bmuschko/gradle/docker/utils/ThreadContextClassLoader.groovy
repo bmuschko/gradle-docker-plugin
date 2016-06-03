@@ -237,4 +237,10 @@ interface ThreadContextClassLoader {
      * @return Callback instance
      */
     def createLoggingCallback(Writer sink)
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/WaitContainerResultCallback.java">WaitContainerResultCallback</a> from thread context classloader.
+     * @return Callback instance
+     */
+    def createWaitContainerResultCallback()
 }
