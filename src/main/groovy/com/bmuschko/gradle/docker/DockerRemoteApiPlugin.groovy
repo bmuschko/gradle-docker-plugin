@@ -40,6 +40,12 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
                 .setTransitive(true)
                 .setDescription('The Docker Java libraries to be used for this project.')
 
+        // if no repositories were defined fallback to buildscript
+        // repositories to resolve dependencies as a last resort
+        if (project.repositories.size() == 0) {
+            project.repositories.addAll(project.buildscript.repositories.collect())
+        }
+        
         Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
         config.defaultDependencies { dependencies ->
             dependencies.add(project.dependencies.create("com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
