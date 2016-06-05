@@ -6,6 +6,7 @@
 * Added task `DockerExecContainer` - [Pull request 221](https://github.com/bmuschko/gradle-docker-plugin/pull/221)
 * Added task `DockerCopyFileToContainer` - [Pull request 222](https://github.com/bmuschko/gradle-docker-plugin/pull/222)
 * Remove use of Gradle internal methods.
+* Added ISSUSE.md file.
 * Upgrade to Gradle 2.13.
 
 ### Version 2.6.8 (April 10, 2016)
