@@ -114,6 +114,7 @@ The plugin provides the following custom task types for managing containers:
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStopContainer.html[DockerStopContainer]                 |Stops the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerLogsContainer.html[DockerLogsContainer]                 |Copies the container output to the Gradle process standard out/err.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerExecContainer.html[DockerExecContainer]                 |Executes a command within a running container.
 |=======
 
 
