@@ -5,8 +5,9 @@
 * Fallback to buildscript.repositories for internal dependency resolution if no repositories were defined - [Pull request 218](https://github.com/bmuschko/gradle-docker-plugin/pull/218)
 * Added task `DockerExecContainer` - [Pull request 221](https://github.com/bmuschko/gradle-docker-plugin/pull/221)
 * Added task `DockerCopyFileToContainer` - [Pull request 222](https://github.com/bmuschko/gradle-docker-plugin/pull/222)
+* Task `DockerCreateContainer` gained attribute `restartPolicy` - [Pull request 224](https://github.com/bmuschko/gradle-docker-plugin/pull/224)
 * Remove use of Gradle internal methods.
-* Added ISSUSE.md file.
+* Added ISSUES.md file.
 * Upgrade to Gradle 2.13.
 
 ### Version 2.6.8 (April 10, 2016)
