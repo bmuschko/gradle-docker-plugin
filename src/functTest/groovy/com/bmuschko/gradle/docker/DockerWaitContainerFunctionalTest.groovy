@@ -101,4 +101,39 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('runContainers')
         result.output.contains("Container failed with exit code 1")
     }
+
+    def "Wait for a container for a defined timeout"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = 'alpine'
+                tag = 'latest'
+            }
+
+            task createContainer(type: DockerCreateContainer){
+                dependsOn pullImage
+                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                cmd 'sh', '-c', 'sleep 15'
+            }
+
+            task startContainer(type: DockerStartContainer){
+                dependsOn createContainer
+                targetContainerId {createContainer.getContainerId()}
+            }
+
+            task runContainers(type: DockerWaitContainer){
+                timeout = 1
+                dependsOn startContainer
+                targetContainerId {startContainer.getContainerId()}
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('runContainers')
+        result.output.contains("Awaiting status code timeout")
+    }
 }

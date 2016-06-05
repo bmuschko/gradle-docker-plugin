@@ -27,7 +27,7 @@ abstract class AbstractFunctionalTest extends Specification {
 
     File projectDir
     File buildFile
-    
+
     String dockerServerUrl
 
     def setup() {
@@ -67,9 +67,9 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     private void setupDockerServerUrl() {
-        dockerServerUrl = TestConfiguration.dockerServerUrl
+        dockerServerUrl = TestConfiguration.dockerHost
 
-        if(dockerServerUrl) {
+        if (dockerServerUrl) {
             buildFile << """
                 docker.url = '$dockerServerUrl'
             """
@@ -79,7 +79,7 @@ abstract class AbstractFunctionalTest extends Specification {
     private void setupDockerCertPath() {
         File dockerCertPath = TestConfiguration.dockerCertPath
 
-        if(dockerCertPath) {
+        if (dockerCertPath) {
             buildFile << """
                 docker.certPath = new File('$dockerCertPath.canonicalPath')
             """
@@ -89,7 +89,7 @@ abstract class AbstractFunctionalTest extends Specification {
     private void setupDockerPrivateRegistryUrl() {
         String dockerPrivateRegistryUrl = TestConfiguration.dockerPrivateRegistryUrl
 
-        if(dockerPrivateRegistryUrl) {
+        if (dockerPrivateRegistryUrl) {
             buildFile << """
                 docker.registryCredentials {
                     url = '$dockerPrivateRegistryUrl'
