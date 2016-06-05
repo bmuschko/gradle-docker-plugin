@@ -134,6 +134,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     Boolean privileged
+    
+    @Input
+    @Optional
+    Boolean tty
 
     @Input
     @Optional
@@ -171,12 +175,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         exposedPorts << new ExposedPort(internetProtocol, ports)
     }
 
-    void setRestartPolicy(String name, int maximumRetryCount) {
+    void restartPolicy(String name, int maximumRetryCount) {
         restartPolicy = "${name}:${maximumRetryCount}"
-    }
-
-    void setRestartPolicy(String serialized) {
-        restartPolicy = serialized
     }
 
     private void setContainerCommandConfig(containerCommand) {
@@ -300,6 +300,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if (getRestartPolicy()) {
             containerCommand.withRestartPolicy(threadContextClassLoader.createRestartPolicy(getRestartPolicy()))
+        }
+        
+        if(getTty()) {
+            containerCommand.withTty(getTty())
         }
     }
 

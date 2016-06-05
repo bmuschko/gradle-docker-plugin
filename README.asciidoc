@@ -3,16 +3,6 @@ Gradle Docker plugin
 
 image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout.png[Docker Logo]
 
-|=======
-| Over the past couple of years this plugin has seen many releases. Thanks to everyone involved!
-Unfortunately, I don't have much time to contribute anymore. In practice this means far less activity,
-responsiveness on issues and new releases from my end.
-|I am
-link:https://discuss.gradle.org/t/looking-for-new-owners-for-gradle-plugins/9735[actively looking for contributors]
-willing to take on maintenance and implementation of the project. If you are interested and would love to see this
-plugin continue to thrive, shoot me a mailto:benjamin.muschko@gmail.com[mail].
-|=======
-
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
 Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Currently,
@@ -114,6 +104,7 @@ The plugin provides the following custom task types for managing containers:
 [options="header"]
 |=======
 |Type                                                                                                                                                                        |Description
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileToContainer.html[DockerCopyFileToContainer] |Copies a path from the host into the container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileFromContainer.html[DockerCopyFileFromContainer] |Copies a path from the container as a tar file on to the host.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCreateContainer.html[DockerCreateContainer]             |Creates a container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html[DockerInspectContainer]           |Returns low-level information on the container.
@@ -124,6 +115,7 @@ The plugin provides the following custom task types for managing containers:
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStopContainer.html[DockerStopContainer]                 |Stops the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerLogsContainer.html[DockerLogsContainer]                 |Copies the container output to the Gradle process standard out/err.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerExecContainer.html[DockerExecContainer]                 |Executes a command within a running container.
 |=======
 
 
