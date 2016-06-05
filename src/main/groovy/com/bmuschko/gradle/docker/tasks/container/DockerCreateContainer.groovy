@@ -134,6 +134,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     Boolean privileged
+    
+    @Input
+    @Optional
+    Boolean tty
 
     String containerId
 
@@ -284,6 +288,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getPrivileged()) {
             containerCommand.withPrivileged(getPrivileged())
+        }
+        
+        if(getTty()) {
+            containerCommand.withTty(getTty())
         }
     }
 

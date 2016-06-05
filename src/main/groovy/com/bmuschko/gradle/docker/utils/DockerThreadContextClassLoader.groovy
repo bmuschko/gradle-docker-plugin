@@ -441,6 +441,16 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
+    def createExecCallback(OutputStream out, OutputStream err) {
+        Class callbackClass = loadClass('com.github.dockerjava.core.command.ExecStartResultCallback')
+        Constructor constructor = callbackClass.getConstructor(OutputStream, OutputStream)
+        constructor.newInstance(out, err)
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     def createWaitContainerResultCallback() {
         createCallback("${COMMAND_PACKAGE}.WaitContainerResultCallback")
     }
