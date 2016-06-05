@@ -404,59 +404,6 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output.contains("LogConfig : none")
     }
-    
-    def "Can build an image, create and start a container, and exec command within it"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
-        createDockerfile(imageDir)
-
-        String uniqueContainerName = createUniqueContainerName()
-
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
-
-            task buildImage(type: DockerBuildImage) {
-                inputDir = file('images/minimal')
-                tag = "${createUniqueImageId()}"
-            }
-
-            task createContainer(type: DockerCreateContainer) {
-                dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
-                containerName = "$uniqueContainerName"
-                cmd = ['sleep','10']
-            }
-
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
-            }
-
-            task execContainer(type: DockerExecContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                cmd = ['echo', 'Hello World']
-            }
-            
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn execContainer
-                targetContainerId { startContainer.getContainerId() }
-                follow = true
-                tailAll = true
-            }
-
-            task workflow {
-                dependsOn logContainer
-            }
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        result.output.contains("Hello World")
-    }
 
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
