@@ -49,17 +49,4 @@ class OverrideDefaultVariablesFunctionalTest extends AbstractFunctionalTest {
         then:
         result.output.contains('Retrieving Docker info.')
     }
-    
-    def "Docker info fails with illegal overriden classpath"() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.DockerInfo
-
-            task dockerInfo(type: DockerInfo) {
-                classpath = project.buildscript.configurations.classpath
-            }
-        """
-
-        expect:
-        BuildResult result = buildAndFail('dockerInfo')
-    }
 }
