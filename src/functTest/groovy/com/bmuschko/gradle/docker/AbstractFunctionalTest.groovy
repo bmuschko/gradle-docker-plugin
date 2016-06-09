@@ -34,28 +34,11 @@ abstract class AbstractFunctionalTest extends Specification {
         projectDir = temporaryFolder.root
         buildFile = temporaryFolder.newFile('build.gradle')
 
-        def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.txt")
-        if (pluginClasspathResource == null) {
-            throw new IllegalStateException("Did not find plugin classpath resource, run 'functionalTestClasses' build task.")
-        }
-
-        def pluginClasspath = pluginClasspathResource.readLines()
-                .collect { it.replace('\\', '\\\\') } // escape backslashes in Windows paths
-                .collect { "'$it'" }
-                .join(", ")
-
-        // Add the logic under test to the test build
         buildFile << """
-            buildscript {
-                dependencies {
-                    classpath files($pluginClasspath)
-                }
+            plugins {
+                id 'com.bmuschko.docker-remote-api'
             }
-        """
-
-        buildFile << """
-            apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-
+			
             repositories {
                 mavenCentral()
             }
@@ -107,7 +90,7 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     private GradleRunner createAndConfigureGradleRunner(String... arguments) {
-        GradleRunner.create().withProjectDir(projectDir).withArguments(arguments)
+        GradleRunner.create().withProjectDir(projectDir).withArguments(arguments).withPluginClasspath()
     }
 
     protected String createUniqueImageId() {
