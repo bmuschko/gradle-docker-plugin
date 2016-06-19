@@ -104,6 +104,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         dockerClientConfigBuilder.withDockerHost(dockerUrl)
 
         if (dockerCertPath) {
+            dockerClientConfigBuilder.withDockerTlsVerify(true)
             dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
         } else {
             dockerClientConfigBuilder.withDockerTlsVerify(false)
