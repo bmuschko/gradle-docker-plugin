@@ -21,6 +21,16 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("Created image with ID")
     }
 
+    def "can build image with build variables"() {
+        buildFile << imageCreationWithBuildArgs()
+
+        when:
+        BuildResult result = build('inspectImage')
+
+        then:
+        result.output.contains("label1:test1, label2:test2")
+    }
+
     private String imageCreation() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -33,6 +43,34 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
+            }
+        """
+    }
+
+    private String imageCreationWithBuildArgs() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+
+            task dockerfile(type: Dockerfile) {
+                from 'ubuntu:12.04'
+
+                arg('arg1')
+                arg('arg2')
+
+                label(['label1':'\$arg1', 'label2':'\$arg2'])
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+                buildArgs = ['arg1':'test1', 'arg2':'test2']
+            }
+
+            task inspectImage(type: DockerInspectImage) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
             }
         """
     }

@@ -26,5 +26,6 @@ class InspectImageResponseHandler implements ResponseHandler<Void, Object> {
         logger.quiet "Parent           : $image.parent"
         logger.quiet "Size             : $image.size"
         logger.quiet "Docker Version   : $image.dockerVersion"
+        logger.quiet "Labels           : $image.config.labels"
     }
 }
