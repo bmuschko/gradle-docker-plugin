@@ -19,7 +19,7 @@ import org.gradle.api.file.FileCollection
 
 class DockerExtension {
     FileCollection classpath
-    String url = 'http://localhost:2375'
+    String url
     File certPath
     String apiVersion
 

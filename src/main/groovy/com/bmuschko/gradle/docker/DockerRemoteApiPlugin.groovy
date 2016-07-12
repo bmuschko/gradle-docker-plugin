@@ -63,7 +63,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
-        ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader(extension)
+        ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader(project, extension)
         project.tasks.withType(AbstractDockerRemoteApiTask) {
             group = DEFAULT_TASK_GROUP
             threadContextClassLoader = dockerClassLoader

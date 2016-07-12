@@ -19,6 +19,7 @@ import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 
 import java.lang.reflect.Array
@@ -27,12 +28,19 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
+    static final String DOCKER_HOST_PROPERTY_NAME = "DOCKER_HOST"
+    static final String DOCKER_CERT_PATH_PROPERTY_NAME = "DOCKER_CERT_PATH"
+    static final String DOCKER_API_VERSION_PROPERTY_NAME = "api.version"
+
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
 
     private DockerExtension dockerExtension
 
-    public DockerThreadContextClassLoader(DockerExtension dockerExtension) {
+    private Project project
+
+    public DockerThreadContextClassLoader(Project project, DockerExtension dockerExtension) {
+        this.project = project
         this.dockerExtension = dockerExtension
     }
 
@@ -45,8 +53,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
         try {
             String dockerUrl = getDockerHostUrl(dockerClientConfiguration)
-            File certPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
-            String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion
+            File certPath = getCertPath(dockerClientConfiguration)
+            String apiVersion = getApiVersion(dockerClientConfiguration)
 
             Thread.currentThread().contextClassLoader = createClassLoader(classpath ?: dockerExtension.classpath?.files)
             closure.resolveStrategy = Closure.DELEGATE_FIRST
@@ -58,16 +66,26 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         }
     }
 
-    /**
-     * Checks if Docker host URL starts with http(s) and if so, converts it to tcp
-     * which is accepted by docker-java library.
-     *
-     * @param dockerClientConfiguration docker client configuration
-     * @return Docker host URL as string
-     */
-    private String getDockerHostUrl(DockerClientConfiguration dockerClientConfiguration) {
-        String url = (dockerClientConfiguration.url ?: dockerExtension.url).toLowerCase()
-        url.startsWith("http") ? "tcp" + url.substring(url.indexOf(":")) : url
+    private String getDockerHostUrl(DockerClientConfiguration taskConfig) {
+        String url = project.properties.getOrDefault(DOCKER_HOST_PROPERTY_NAME,
+            System.getProperty(DOCKER_HOST_PROPERTY_NAME, System.getenv(DOCKER_HOST_PROPERTY_NAME)))
+        url = url ?: (taskConfig.url ?: dockerExtension.url)
+        if (url) {
+            url = url.toLowerCase().startsWith("http") ? "tcp${url.substring(url.indexOf(":"))}" : url
+        }
+        url
+    }
+
+    private File getCertPath(DockerClientConfiguration taskConfig) {
+        String certPath = project.properties.getOrDefault(DOCKER_CERT_PATH_PROPERTY_NAME,
+            System.getProperty(DOCKER_CERT_PATH_PROPERTY_NAME, System.getenv(DOCKER_CERT_PATH_PROPERTY_NAME)))
+        certPath ? new File(certPath) : (taskConfig.certPath ?: dockerExtension.certPath)
+    }
+
+    private String getApiVersion(DockerClientConfiguration taskConfig) {
+        String apiVersion = project.properties.getOrDefault(DOCKER_API_VERSION_PROPERTY_NAME,
+            System.getProperty(DOCKER_API_VERSION_PROPERTY_NAME, System.getenv(DOCKER_API_VERSION_PROPERTY_NAME)))
+        apiVersion ?: (taskConfig.apiVersion ?: dockerExtension.apiVersion)
     }
 
     /**
@@ -103,7 +121,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class dockerClientConfigClassImpl = loadClass('com.github.dockerjava.core.DefaultDockerClientConfig')
         Method dockerClientConfigMethod = dockerClientConfigClassImpl.getMethod('createDefaultConfigBuilder')
         def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
-        dockerClientConfigBuilder.withDockerHost(dockerUrl)
+
+        if (dockerUrl) {
+            dockerClientConfigBuilder.withDockerHost(dockerUrl)
+        }
 
         if (dockerCertPath) {
             dockerClientConfigBuilder.withDockerTlsVerify(true)
@@ -375,7 +396,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             deviceConstructor.newInstance(*parseDevice(deviceString))
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -484,7 +505,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Constructor constructor = callbackClass.getConstructor(OutputStream, OutputStream)
         constructor.newInstance(out, err)
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -530,14 +551,14 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     private Class loadBindClass() {
         loadClass("${MODEL_PACKAGE}.Bind")
     }
-    
+
     private def parseDevice(String deviceString) {
         List<String> tokens = deviceString.tokenize(':')
 
         String permissions = 'rwm'
         String source = ''
         String destination = ''
-        
+
         switch(tokens.size()) {
             case 3:
                 if (validDeviceMode(tokens[2])) {
@@ -557,14 +578,14 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             default:
                 throw new IllegalArgumentException("Invalid device specification: " + deviceString)
         }
-        
+
         if (!destination) {
             destination = source
         }
-        
+
         return [permissions, destination, source]
     }
-    
+
     private boolean validDeviceMode(String deviceMode) {
         Map<String, Boolean> validModes = [r: true, w: true, m: true]
 

@@ -5,6 +5,7 @@ bin
 out 
 .gradle
 .vagrant
+classes
 
 # OS generated files #
 ######################
