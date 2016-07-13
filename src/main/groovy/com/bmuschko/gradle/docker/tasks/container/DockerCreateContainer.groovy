@@ -54,7 +54,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    Long memoryLimit
+    Long memory
 
     @Input
     @Optional
@@ -204,8 +204,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.withStdInOnce(getStdinOnce())
         }
 
-        if(getMemoryLimit()) {
-            containerCommand.withMemoryLimit(getMemoryLimit())
+        if(getMemory()) {
+            containerCommand.withMemory(getMemory())
         }
 
         if(getMemorySwap()) {
