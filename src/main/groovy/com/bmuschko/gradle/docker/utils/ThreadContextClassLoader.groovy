@@ -203,6 +203,13 @@ interface ThreadContextClassLoader {
     def createRestartPolicy(String restartPolicy)
 
     /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Device.java">Device</a>
+     * @param  a string with serialized value which can be parsed by the Device.parse method
+     * @return Instance of Device
+     */
+    def createDevice(String device)
+
+    /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/BuildImageResultCallback.java">BuildImageResultCallback</a>
      * from thread context classloader.
      *

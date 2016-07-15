@@ -20,5 +20,10 @@ class InspectContainerResponseHandler implements ResponseHandler<String, Object>
         logger.quiet "ExposedPorts : $exposedPorts"
         logger.quiet "LogConfig : $container.hostConfig.logConfig.type.type"
         logger.quiet "RestartPolicy : $container.hostConfig.restartPolicy"
+        def devices = container.hostConfig.@devices ? 
+                container.hostConfig.devices.collect { 
+                    "${it.pathOnHost}:${it.pathInContainer}:${it.cGroupPermissions}" 
+                } : '[]'
+        logger.quiet "Devices : $devices"
     }
 }
