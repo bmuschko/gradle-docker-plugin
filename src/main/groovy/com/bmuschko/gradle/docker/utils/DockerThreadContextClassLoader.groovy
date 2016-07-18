@@ -365,7 +365,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class deviceClass = loadClass("${MODEL_PACKAGE}.Device")
         try {
             // The parse method is  available in newer Docker java library versions.
-            Method method = deviceClass.getMethod("parse", String.class)
+            Method method = deviceClass.getMethod("parse", String)
             method.invoke(null, deviceString)
         } catch (NoSuchMethodException) {
             // For older Docker java library versions we must parse the device string ourselves.
@@ -519,13 +519,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     
     private def parseDevice(String deviceString) {
         List<String> tokens = deviceString.tokenize(':')
-        int numberOfTokens = tokens.size()
 
         String permissions = 'rwm'
         String source = ''
         String destination = ''
         
-        switch(numberOfTokens) {
+        switch(tokens.size()) {
             case 3:
                 if (validDeviceMode(tokens[2])) {
                     permissions = tokens[2]
@@ -559,12 +558,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             return false
         }
 
-        for (char ch in deviceMode) {
-            final String mode = String.valueOf(ch)
-            if (!validModes.get(mode)) {
+        for (mode in deviceMode) {
+            if (!validModes[mode]) {
                 return false // wrong mode
+            } else {
+                validModes[mode] = false
             }
-            validModes.put(mode, false)
         }
 
         return true
