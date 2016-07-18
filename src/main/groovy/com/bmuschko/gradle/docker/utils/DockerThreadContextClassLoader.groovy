@@ -361,6 +361,23 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
+    def createDevice(final String deviceString) {
+        Class deviceClass = loadClass("${MODEL_PACKAGE}.Device")
+        try {
+            // The parse method is  available in newer Docker java library versions.
+            Method method = deviceClass.getMethod("parse", String)
+            method.invoke(null, deviceString)
+        } catch (NoSuchMethodException) {
+            // For older Docker java library versions we must parse the device string ourselves.
+            Constructor deviceConstructor = deviceClass.getConstructor(String, String, String)
+            deviceConstructor.newInstance(*parseDevice(deviceString))
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     def createBuildImageResultCallback(Logger logger) {
         createPrintStreamProxyCallback(logger, createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
     }
@@ -498,5 +515,57 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
     private Class loadBindClass() {
         loadClass("${MODEL_PACKAGE}.Bind")
+    }
+    
+    private def parseDevice(String deviceString) {
+        List<String> tokens = deviceString.tokenize(':')
+
+        String permissions = 'rwm'
+        String source = ''
+        String destination = ''
+        
+        switch(tokens.size()) {
+            case 3:
+                if (validDeviceMode(tokens[2])) {
+                    permissions = tokens[2]
+                } else {
+                    throw new IllegalArgumentException("Invalid device specification: " + deviceString)
+                }
+            case 2:
+                if (validDeviceMode(tokens[1])) {
+                    permissions = tokens[1]
+                } else {
+                    destination = tokens[1]
+                }
+            case 1:
+                source = tokens[0]
+                break
+            default:
+                throw new IllegalArgumentException("Invalid device specification: " + deviceString)
+        }
+        
+        if (!destination) {
+            destination = source
+        }
+        
+        return [permissions, destination, source]
+    }
+    
+    private boolean validDeviceMode(String deviceMode) {
+        Map<String, Boolean> validModes = [r: true, w: true, m: true]
+
+        if (!deviceMode) {
+            return false
+        }
+
+        for (mode in deviceMode) {
+            if (!validModes[mode]) {
+                return false // wrong mode
+            } else {
+                validModes[mode] = false
+            }
+        }
+
+        return true
     }
 }
