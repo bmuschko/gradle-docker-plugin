@@ -443,6 +443,44 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("RestartPolicy : on-failure:999")
     }
 
+    def "Can build an image, create a container and set devices"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                devices = ["/dev/sda:/dev/xvda:rwm"]
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains("Devices : [/dev/sda:/dev/xvda:rwm]")
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """

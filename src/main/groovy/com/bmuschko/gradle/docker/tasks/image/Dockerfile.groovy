@@ -102,6 +102,16 @@ class Dockerfile extends DefaultTask {
      *
      * @param image Base image name
      */
+    void arg(String arg) {
+        instructions << new ArgInstruction(arg)
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#from">FROM instruction</a> sets the Base Image for
+     * subsequent instructions.
+     *
+     * @param image Base image name
+     */
     void from(Closure image) {
         instructions << new FromInstruction(image)
     }
@@ -518,6 +528,21 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             "FROM"
+        }
+    }
+
+    static class ArgInstruction extends StringCommandInstruction {
+        ArgInstruction(String arg) {
+            super(arg)
+        }
+
+        ArgInstruction(Closure arg) {
+            super(arg)
+        }
+
+        @Override
+        String getKeyword() {
+            "ARG"
         }
     }
 

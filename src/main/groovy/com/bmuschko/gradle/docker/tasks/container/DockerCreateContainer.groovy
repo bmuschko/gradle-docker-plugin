@@ -54,7 +54,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    Long memoryLimit
+    Long memory
 
     @Input
     @Optional
@@ -142,6 +142,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     String restartPolicy
+    
+    @Input
+    @Optional
+    List<String> devices
 
     String containerId
 
@@ -204,8 +208,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.withStdInOnce(getStdinOnce())
         }
 
-        if(getMemoryLimit()) {
-            containerCommand.withMemoryLimit(getMemoryLimit())
+        if(getMemory()) {
+            containerCommand.withMemory(getMemory())
         }
 
         if(getMemorySwap()) {
@@ -301,7 +305,12 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if (getRestartPolicy()) {
             containerCommand.withRestartPolicy(threadContextClassLoader.createRestartPolicy(getRestartPolicy()))
         }
-        
+
+        if (getDevices()) {
+            def createdDevices = getDevices().collect { threadContextClassLoader.createDevice(it) }
+            containerCommand.withDevices(CollectionUtil.toArray(createdDevices))
+        }
+
         if(getTty()) {
             containerCommand.withTty(getTty())
         }

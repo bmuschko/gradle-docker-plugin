@@ -307,6 +307,40 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         instance[2].accessMode.toString() == 'rw'
     }
 
+    def "Can create class of type Device"() {
+        when:
+        def instance = null
+
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            instance = createDevice(deviceString)
+        }
+
+        then:
+        noExceptionThrown()
+        instance.pathOnHost == source
+        instance.pathInContainer == destination
+        instance.cGroupPermissions == permissions
+        
+        where:
+        deviceString            | permissions | source     | destination
+        '/dev/sda:/dev/xvda:rw' | 'rw'        | '/dev/sda' | '/dev/xvda'
+        '/dev/sda:r'            | 'r'         | '/dev/sda' | '/dev/sda'
+        '/dev/sda'              | 'rwm'       | '/dev/sda' | '/dev/sda'
+    }
+
+    def "Throw exception when wrong format is used to create a class of type Device"() {
+        when:
+        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
+            createDevice(deviceString)
+        }
+
+        then:
+        thrown(IllegalArgumentException)
+
+        where:
+        deviceString << ['', '/dev/sda:/dev/xvda:a']
+    }
+    
     def "Can create class of type WaitContainerResultCallback"() {
         when:
         def instance = null

@@ -1,8 +1,17 @@
-### Version 3.0.1 (TBA)
-* Simplify gradle testkit usage - [Pull request 225](https://github.com/bmuschko/gradle-docker-plugin/pull/225)
+### Version 3.0.2 (TBA)
+
+* Add support for build-time variables in `DockerBuildImage` task - [Pull request 240](https://github.com/bmuschko/gradle-docker-plugin/pull/240)
+* Fix incorrect docker-java method name in `DockerCreateContainer` task - [Pull request 242](https://github.com/bmuschko/gradle-docker-plugin/pull/242)
+* Can define devices on `DockerCreateContainer` task - [Pull request 245](https://github.com/bmuschko/gradle-docker-plugin/pull/245)
+
+### Version 3.0.1 (July 6, 2016)
+
+* Simplify Gradle TestKit usage - [Pull request 225](https://github.com/bmuschko/gradle-docker-plugin/pull/225)
 * Ensure `tlsVerify` is set in addition to `certPath` for DockerClientConfig setup - [Pull request 230](https://github.com/bmuschko/gradle-docker-plugin/pull/230)
+* Upgrade to Gradle 2.14.
 
 ### Version 3.0.0 (June 5, 2016)
+
 * Task `DockerLogsContainer` gained attribute `sink` - [Pull request 203](https://github.com/bmuschko/gradle-docker-plugin/pull/203)
 * Task `DockerBuildImage` will no longer insert extra newline as part of build output - [Pull request 206](https://github.com/bmuschko/gradle-docker-plugin/pull/206)
 * Upgrade to docker-java 3.0.0 - [Pull request 217](https://github.com/bmuschko/gradle-docker-plugin/pull/217)
