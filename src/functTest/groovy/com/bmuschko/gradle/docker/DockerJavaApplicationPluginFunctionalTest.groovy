@@ -62,6 +62,39 @@ EXPOSE 9090
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
+    def "Can create image for Java application with user-driven configuration with several ports"() {
+        String projectName = temporaryFolder.root.name
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+
+        buildFile << """
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    ports = [9090, 8080]
+                    tag = 'jettyapp:1.115'
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('startContainer', '-s')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+                """FROM $CUSTOM_BASE_IMAGE
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+ADD ${projectName}-1.0.tar /
+ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
+EXPOSE 9090 8080
+"""
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+    }
+
     def "Can create image for Java application with additional files"() {
         String projectName = temporaryFolder.root.name
         temporaryFolder.newFile('file1.txt')
