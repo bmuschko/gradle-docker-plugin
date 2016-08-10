@@ -116,7 +116,6 @@ The plugin provides the following custom task types for managing containers:
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerLogsContainer.html[DockerLogsContainer]                 |Copies the container output to the Gradle process standard out/err.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerExecContainer.html[DockerExecContainer]                 |Executes a command within a running container.
-|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitForLogMesageInContainer.html[DockerWaitForLogMesageInContainer]     |Blocks until container log contains specified string.
 |=======
 
 
@@ -209,10 +208,35 @@ task buildImage(type: DockerBuildImage) {
 }
 ----
 
+==== Starting a container, and waiting for the application in the container to start up
+
+To support, for example, integration testing tasks within a Gradle project using Docker we can start a container and can 
+wait for the application the start running before running the integration tests from the Gradle script.
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task startContainer(type: DockerStartContainer) {
+    dependsOn createContainer
+    targetContainerId { createContainer.getContainerId() }
+    
+    poller {
+      regex = 'snippet'	// what to look for in the container log
+      sleep = 10		// how long to sleep between each check, defaults to 250ms
+      timeout = 10		// how long do we wait for the log message we are looking for, defaults to 2 minutes
+    }
+}                
+
+----
+
 ==== Executing functional tests against a running container
 
 The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this
-image and exercises functional tests agains the running container. At the end of this operation, the container is stopped.
+image and exercises functional tests against the running container. At the end of this operation, the container is stopped.
 
 [source,groovy]
 ----
