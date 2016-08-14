@@ -4,6 +4,7 @@
 * Fix incorrect docker-java method name in `DockerCreateContainer` task - [Pull request 242](https://github.com/bmuschko/gradle-docker-plugin/pull/242)
 * Can define devices on `DockerCreateContainer` task - [Pull request 245](https://github.com/bmuschko/gradle-docker-plugin/pull/245)
 * Can now supply multiple ports when working with `docker-java-application` - [Pull request 254](https://github.com/bmuschko/gradle-docker-plugin/pull/254)
+* Bump docker-java to 3.0.2 - [Pull request 259](https://github.com/bmuschko/gradle-docker-plugin/pull/259)
 
 ### Version 3.0.1 (July 6, 2016)
 
