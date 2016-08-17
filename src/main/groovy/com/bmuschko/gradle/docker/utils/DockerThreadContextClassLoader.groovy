@@ -35,9 +35,9 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
 
-    private DockerExtension dockerExtension
+    private final DockerExtension dockerExtension
 
-    private Project project
+    private final Project project
 
     public DockerThreadContextClassLoader(Project project, DockerExtension dockerExtension) {
         this.project = project
@@ -66,10 +66,13 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         }
     }
 
+
+    private String getConfigPropertyWithFallback(String key) {
+        project.properties.getOrDefault(key, System.getProperty(key, System.getenv(key)))
+    }
+
     private String getDockerHostUrl(DockerClientConfiguration taskConfig) {
-        String url = project.properties.getOrDefault(DOCKER_HOST_PROPERTY_NAME,
-            System.getProperty(DOCKER_HOST_PROPERTY_NAME, System.getenv(DOCKER_HOST_PROPERTY_NAME)))
-        url = url ?: (taskConfig.url ?: dockerExtension.url)
+        String url = getConfigPropertyWithFallback(DOCKER_HOST_PROPERTY_NAME) ?: (taskConfig.url ?: dockerExtension.url)
         if (url) {
             url = url.toLowerCase().startsWith("http") ? "tcp${url.substring(url.indexOf(":"))}" : url
         }
@@ -77,14 +80,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private File getCertPath(DockerClientConfiguration taskConfig) {
-        String certPath = project.properties.getOrDefault(DOCKER_CERT_PATH_PROPERTY_NAME,
-            System.getProperty(DOCKER_CERT_PATH_PROPERTY_NAME, System.getenv(DOCKER_CERT_PATH_PROPERTY_NAME)))
+        String certPath = getConfigPropertyWithFallback(DOCKER_CERT_PATH_PROPERTY_NAME)
         certPath ? new File(certPath) : (taskConfig.certPath ?: dockerExtension.certPath)
     }
 
     private String getApiVersion(DockerClientConfiguration taskConfig) {
-        String apiVersion = project.properties.getOrDefault(DOCKER_API_VERSION_PROPERTY_NAME,
-            System.getProperty(DOCKER_API_VERSION_PROPERTY_NAME, System.getenv(DOCKER_API_VERSION_PROPERTY_NAME)))
+        String apiVersion = getConfigPropertyWithFallback(DOCKER_API_VERSION_PROPERTY_NAME)
         apiVersion ?: (taskConfig.apiVersion ?: dockerExtension.apiVersion)
     }
 
