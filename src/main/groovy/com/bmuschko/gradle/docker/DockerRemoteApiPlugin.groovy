@@ -29,7 +29,7 @@ import org.gradle.api.file.FileCollection
  */
 class DockerRemoteApiPlugin implements Plugin<Project> {
     public static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    public static final String DOCKER_JAVA_DEFAULT_VERSION = '3.0.0'
+    public static final String DOCKER_JAVA_DEFAULT_VERSION = '3.0.2'
     public static final String EXTENSION_NAME = 'docker'
     public static final String DEFAULT_TASK_GROUP = 'Docker'
 
@@ -43,7 +43,9 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
         // if no repositories were defined fallback to buildscript
         // repositories to resolve dependencies as a last resort
         if (project.repositories.size() == 0) {
-            project.repositories.addAll(project.buildscript.repositories.collect())
+            project.afterEvaluate {
+                project.repositories.addAll(project.buildscript.repositories.collect())
+            }
         }
         
         Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]

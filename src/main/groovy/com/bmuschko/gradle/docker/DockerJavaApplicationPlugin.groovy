@@ -77,7 +77,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             maintainer { dockerJavaApplication.maintainer }
             addFile({ tarTask.archivePath.name }, { '/' })
             entryPoint { determineEntryPoint(project, tarTask) }
-            exposePort { dockerJavaApplication.port }
+            exposePort { dockerJavaApplication.getPorts() }
         }
     }
 

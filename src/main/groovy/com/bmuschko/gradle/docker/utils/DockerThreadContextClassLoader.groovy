@@ -99,7 +99,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
         // Create configuration
         Class dockerClientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
-        Method dockerClientConfigMethod = dockerClientConfigClass.getMethod('createDefaultConfigBuilder')
+        Class dockerClientConfigClassImpl = loadClass('com.github.dockerjava.core.DefaultDockerClientConfig')
+        Method dockerClientConfigMethod = dockerClientConfigClassImpl.getMethod('createDefaultConfigBuilder')
         def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
         dockerClientConfigBuilder.withDockerHost(dockerUrl)
 

@@ -25,7 +25,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.2'
     }
 }
 ----
@@ -293,7 +293,8 @@ The plugin defines the following extension properties in the `javaApplication` c
 |Property name   |Type      |Default value                                         |Description
 |`baseImage`     |String    |java                                                  |The Docker base image used for Java application.
 |`maintainer`    |String    |Value of `user.home` system property                  |The name and email address of the image maintainer.
-|`port`          |Integer   |8080                                                  |The Docker image entry point port used for the Java application.
+|`port`          |Integer   |8080                                                  |The Docker image entry point port used for the Java application (Deprecated)
+|`ports`         |Integer[] |[]                                                    |The Docker image exposed ports (if provided, this values will override `port` configuration property)
 |`tag`           |String    |<project.group>/<applicationName>:<project.version>   |The tag used for the Docker image.
 |=======
 
@@ -306,7 +307,7 @@ docker {
     javaApplication {
         baseImage = 'dockerfile/java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
-        port = 9090
+        ports = [9090, 5701]
         tag = 'jettyapp:1.115'
     }
 }

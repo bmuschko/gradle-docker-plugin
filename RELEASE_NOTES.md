@@ -1,8 +1,11 @@
-### Version 3.0.2 (TBA)
+### Version 3.0.2 (August 14, 2016)
 
 * Add support for build-time variables in `DockerBuildImage` task - [Pull request 240](https://github.com/bmuschko/gradle-docker-plugin/pull/240)
 * Fix incorrect docker-java method name in `DockerCreateContainer` task - [Pull request 242](https://github.com/bmuschko/gradle-docker-plugin/pull/242)
 * Can define devices on `DockerCreateContainer` task - [Pull request 245](https://github.com/bmuschko/gradle-docker-plugin/pull/245)
+* Can now supply multiple ports when working with `docker-java-application` - [Pull request 254](https://github.com/bmuschko/gradle-docker-plugin/pull/254)
+* Bump docker-java to 3.0.2 - [Pull request 259](https://github.com/bmuschko/gradle-docker-plugin/pull/259)
+* If buildscript repos are required make sure they are added after evaluation - [Pull request 260](https://github.com/bmuschko/gradle-docker-plugin/pull/260)
 
 ### Version 3.0.1 (July 6, 2016)
 
