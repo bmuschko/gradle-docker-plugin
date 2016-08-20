@@ -233,6 +233,7 @@ task removeContainer(type: DockerRemoveContainer) {
 
 To support, for example, integration testing tasks within a Gradle project using Docker we can start a container and can 
 wait for the application the start running before running the integration tests from the Gradle script.
+It does this by looking for something in the docker console log rthat matches the regular expression provided. 
 
 [source,groovy]
 ----
@@ -245,11 +246,7 @@ task startContainer(type: DockerStartContainer) {
     dependsOn createContainer
     targetContainerId { createContainer.getContainerId() }
     
-    poller {
-      regex = 'snippet'	// what to look for in the container log
-      sleep = 10		// how long to sleep between each check, defaults to 250ms
-      timeout = 10		// how long do we wait for the log message we are looking for, defaults to 2 minutes
-    }
+    poller('(?ms).*snippet', 10, 10)
 }                
 
 ----

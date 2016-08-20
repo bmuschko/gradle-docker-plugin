@@ -27,6 +27,10 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
+            docker {
+              apiVersion ='1.23'
+            }
+
             task pullImage(type: DockerPullImage) {
                 repository = 'busybox'
                 tag = 'latest'
@@ -35,7 +39,7 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
                 targetImageId { pullImage.repository+":" + pullImage.tag }
-                cmd = ['/bin/sh','-c',' for i in 1 2 3 4 5 6 7 8 9 10; do echo "Welcome \$i times"; sleep 1; done']
+                cmd = ['/bin/sh','-c','sleep 15; for i in 1 2 3 4 5 6 7 8 9 10; do echo "Welcome \$i times"; sleep 1; done']
             }
 
            task removeContainer(type: DockerRemoveContainer) {
@@ -52,15 +56,13 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
         """
   }
 
-  def "Can start a container and monitor logs"() {
+  def "Can start a container and monitor logs for regex"() {
     buildFile << """
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 
-                poller {
-                  regex = 'Welcome 5 times'
-                }
+                poller('(?ms).*Welcome 5 times.*')
             }
         """
     expect:
@@ -74,10 +76,7 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 
-                poller {
-                  regex = 'snippet'
-                  sleep = 0
-                }
+                poller('snippet', 0, 10)
             }
         """
 
@@ -91,10 +90,7 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 
-                poller {
-                  regex = 'snippet'
-                  sleep = -50
-                }
+                poller('snippet', -50, 10)
             }
         """
 
@@ -108,10 +104,7 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 
-                poller {
-                  regex = 'snippet'
-                  timeout = 0
-                }
+                poller('snippet', 10, 0)
             }
         """
 
@@ -125,10 +118,7 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 
-                poller {
-                  regex = 'snippet'
-                  timeout = -50
-                }
+                poller('snippet', 10, -50)
             }
         """
 
@@ -142,9 +132,7 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 
-                poller {
-                  regex = ''
-                }
+                poller('')
             }
         """
 
@@ -158,9 +146,7 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 
-                poller {
-                  regex = null
-                }
+                poller(null)
             }
         """
 
