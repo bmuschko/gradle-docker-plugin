@@ -20,9 +20,6 @@ import org.gradle.api.tasks.Optional
 
 class DockerRemoveImage extends DockerExistingImage {
 
-	/**
-     * Forces removal.
-     */
     @Input
     @Optional
     Boolean force
