@@ -8,7 +8,7 @@ import spock.lang.Requires
 import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-//@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
+@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
 
     def "can remove image"() {
