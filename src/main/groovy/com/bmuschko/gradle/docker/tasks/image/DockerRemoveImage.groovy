@@ -29,10 +29,7 @@ class DockerRemoveImage extends DockerExistingImage {
         logger.quiet "Removing image with ID '${getImageId()}'."
         def removeImageCmd = dockerClient.removeImageCmd(getImageId())
         
-        if(getForce()) {
-            removeImageCmd.withForce(getForce())
-        }
-        
+        removeImageCmd.withForce(getForce())
         removeImageCmd.exec()
     }
 }

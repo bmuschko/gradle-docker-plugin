@@ -30,19 +30,26 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
                 dependsOn buildImage
                 targetImageId { buildImage.getImageId() }
             }
+            
+            task removeImageAndCheckRemoval(type: DockerListImages) {
+				dependsOn removeImage
+    			showAll = true
+    			filters = '{"dangling":["true"]}'
+			}
         """
 
         when:
-        BuildResult result = build('removeImage')
+        BuildResult result = build('removeImageAndCheckRemoval')
 
         then:
-        result.output.contains("Removing image with ID")
+        !result.output.contains("repository")
     }
 
     def "can remove image tagged in multiple repositories"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerListImages
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
             import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
 
@@ -74,13 +81,20 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
                 force = true
                 targetImageId { buildImage.getImageId() }
             }
+
+			task removeImageAndCheckRemoval(type: DockerListImages) {
+				dependsOn removeImage
+    			showAll = true
+    			filters = '{"dangling":["true"]}'
+			}
+            
         """
 
         when:
-        BuildResult result = build('removeImage')
+        BuildResult result = build('removeImageAndCheckRemoval')
 
         then:
-        result.output.contains("Removing image with ID")
+        !result.output.contains("repository")
     }
 
 
