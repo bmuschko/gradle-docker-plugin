@@ -15,10 +15,27 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+
 class DockerRemoveImage extends DockerExistingImage {
+
+	/**
+     * Forces removal.
+     */
+    @Input
+    @Optional
+    Boolean force
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Removing image with ID '${getImageId()}'."
-        dockerClient.removeImageCmd(getImageId()).exec()
+        def removeImageCmd = dockerClient.removeImageCmd(getImageId())
+        
+        if(getForce()) {
+            removeImageCmd.withForce(getForce())
+        }
+        
+        removeImageCmd.exec()
     }
 }
