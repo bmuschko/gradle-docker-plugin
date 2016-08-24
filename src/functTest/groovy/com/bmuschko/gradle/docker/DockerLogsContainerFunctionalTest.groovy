@@ -172,5 +172,18 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
         File outputFile = new File("${projectDir.path}/log-sink.txt")
         outputFile.exists() && outputFile.text.contains("Hello World")
     }
+
+    def "prints error message when obtaining logs fails"() {
+        buildFile << """
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { "not_existimg_container" }
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('workflow')
+        result.output.contains("No such container: not_existimg_container")
+    }
 }
 

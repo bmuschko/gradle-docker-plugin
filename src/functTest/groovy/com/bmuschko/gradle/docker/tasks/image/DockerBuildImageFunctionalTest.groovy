@@ -5,11 +5,32 @@ import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
-import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
-import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
-
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
+
+    def "prints error message when image build fails"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            task dockerfile(type: Dockerfile) {
+                from 'alpine'
+                addFile('./aaa', 'aaa')
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+            }
+        """
+
+        when:
+        def result = buildAndFail('buildImage')
+
+        then:
+        result.output.contains("aaa: no such file or directory")
+    }
+
 
     def "can build image"() {
         buildFile << imageCreation()

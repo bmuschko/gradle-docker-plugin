@@ -23,6 +23,7 @@ import org.gradle.api.logging.Logger
 
 import java.lang.reflect.Array
 import java.lang.reflect.Constructor
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
@@ -425,7 +426,11 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                                 break
                         }
                     }
-                    method.invoke(delegate, args)
+                    try {
+                        method.invoke(delegate, args)
+                    } catch(InvocationTargetException e) {
+                        throw e.cause
+                    }
                 }
 
         ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
@@ -458,7 +463,11 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                                 break
                         }
                     }
-                    method.invoke(delegate, args)
+                    try {
+                        method.invoke(delegate, args)
+                    } catch (InvocationTargetException e) {
+                        throw e.cause
+                    }
                 }
 
         ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
@@ -496,7 +505,11 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                         if (possibleStream)
                             logger.quiet(possibleStream.trim())
                     }
-                    method.invoke(delegate, args)
+                    try {
+                        method.invoke(delegate, args)
+                    } catch(InvocationTargetException e) {
+                        throw e.cause
+                    }
                 }
 
         ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
