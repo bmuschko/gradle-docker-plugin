@@ -1,3 +1,7 @@
+### Version 3.0.3 (TBA)
+
+* Print error messages received from docker engine when build fails - [Pull request 265](https://github.com/bmuschko/gradle-docker-plugin/pull/265)
+
 ### Version 3.0.2 (August 14, 2016)
 
 * Add support for build-time variables in `DockerBuildImage` task - [Pull request 240](https://github.com/bmuschko/gradle-docker-plugin/pull/240)
