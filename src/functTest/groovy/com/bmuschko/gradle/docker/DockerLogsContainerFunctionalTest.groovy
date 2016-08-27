@@ -29,8 +29,8 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'busybox'
-                tag = 'latest'
+                repository = 'alpine'
+                tag = '3.4'
             }
 
             task createContainer(type: DockerCreateContainer) {

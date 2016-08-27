@@ -19,7 +19,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
-                from 'ubuntu:12.04'
+                from 'alpine:3.4'
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -29,6 +29,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             
             task removeImage(type: DockerRemoveImage) {
                 dependsOn buildImage
+                force = true
                 targetImageId { buildImage.getImageId() }
             }
             
@@ -55,7 +56,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
 
             task dockerfile(type: Dockerfile) {
-                from 'ubuntu:12.04'
+                from 'alpine:3.4'
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -97,6 +98,4 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
         then:
         !result.output.contains("repository")
     }
-
-
 }

@@ -52,7 +52,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(dockerClient) {
 
-        def containerCommand = dockerClient.copyFileFromContainerCmd(getContainerId(), getRemotePath())
+        def containerCommand = dockerClient.copyArchiveFromContainerCmd(getContainerId(), getRemotePath())
         logger.quiet "Copying '${getRemotePath()}' from container with ID '${getContainerId()}' to '${getHostPath()}'."
 
         def tarStream
@@ -186,7 +186,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
 
         // create parent files of hostPath should they not exist
         if (!hostDestination.exists())
-            if(!hostDestination.parentFile.mkdirs())
+            if(!hostDestination.parentFile.exists() && !hostDestination.parentFile.mkdirs())
                 throw new GradleException("Failed creating parent directory for ${hostDestination.path}")
 
         def parentDirectory = hostDestination.isDirectory() ? hostDestination : hostDestination.parentFile

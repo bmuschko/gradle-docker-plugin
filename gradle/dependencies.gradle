@@ -1,1 +1,1 @@
-ext.depVersions = ['gradleGit': '0.13.0']
+ext.depVersions = ['gradleGit': '1.4.2']

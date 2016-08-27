@@ -29,7 +29,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file('build/mydockerfile/Dockerfile')
-                from 'ubuntu:12.04'
+                from 'alpine:3.4'
                 maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
             }
 
@@ -110,6 +110,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
                 containerName = "$uniqueContainerName"
                 portBindings = ['8080:8080']
+                cmd = ['/bin/sh']
             }
 
             task startContainer(type: DockerStartContainer) {
@@ -159,6 +160,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn buildImage
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}1"
+                cmd = ['/bin/sh']
             }
 
             task createContainer2(type: DockerCreateContainer) {
@@ -166,6 +168,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}2"
                 links = ["${uniqueContainerName}1:container1"]
+                cmd = ['/bin/sh']
             }
 
             task inspectContainer(type: DockerInspectContainer) {
@@ -205,6 +208,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn buildImage
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}-1"
+                cmd = ['/bin/sh']
             }
 
             task createContainer2(type: DockerCreateContainer) {
@@ -212,6 +216,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}-2"
                 volumesFrom = ["${uniqueContainerName}-1"]
+                cmd = ['/bin/sh']
             }
 
             task inspectContainer(type: DockerInspectContainer) {
@@ -231,15 +236,24 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
+        File dockerFileLocation = new File(getProjectDir(), 'build/private-reg/Dockerfile')
+        if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
+            throw new GradleException("Could not successfully create dockerFileLocation @ ${dockerFileLocation.path}")
+
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
             task createDockerfile(type: Dockerfile) {
-                destFile = project.file('build/mydockerfile/Dockerfile')
-                from 'ubuntu:12.04'
+                destFile = project.file("${dockerFileLocation.path}")
+                from 'alpine:3.4'
                 maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                doLast {
+                    if (new File("${dockerFileLocation.path}").exists()) {
+                        println "Dockerfile does indeed exist."
+                    }
+                }
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -258,12 +272,9 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             }
         """
 
-        when:
-        build('workflow')
-
-        then:
-        new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
-        noExceptionThrown()
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains("Dockerfile does indeed exist.")
     }
 
     def "Can build an image, create a container, and copy file from it"() {
@@ -291,13 +302,14 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn buildImage
                 targetImageId { buildImage.getImageId() }
                 containerName = "$uniqueContainerName"
+                cmd = ['/bin/sh']
             }
 
             task copyFileFromContainerToHostFile(type: DockerCopyFileFromContainer) {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 hostPath = "$projectDir/copy-file-host-file/shebang.tar"
-                remotePath = "/bin/bash"
+                remotePath = "/bin/sh"
                 compressed = true
             }
 
@@ -305,14 +317,14 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn copyFileFromContainerToHostFile
                 targetContainerId { createContainer.getContainerId() }
                 hostPath = "$projectDir/copy-file-host-dir"
-                remotePath = "/bin/bash"
+                remotePath = "/bin/sh"
             }
 
             task copyDirFromContainerToHostDir(type: DockerCopyFileFromContainer) {
                 dependsOn copyFileFromContainerToHostDir
                 targetContainerId { createContainer.getContainerId() }
                 hostPath = "$projectDir/copy-dir"
-                remotePath = "/var/log"
+                remotePath = "/var/spool"
             }
 
             task workflow {
@@ -325,7 +337,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         then:
         new File("$projectDir/copy-file-host-file/shebang.tar").exists()
-        new File("$projectDir/copy-file-host-dir/bash").exists()
+        new File("$projectDir/copy-file-host-dir/sh").exists()
         new File("$projectDir/copy-dir").exists()
     }
 
@@ -350,6 +362,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}"
                 exposePorts("tcp", [9999])
+                cmd = ['/bin/sh']
             }
 
             task inspectContainer(type: DockerInspectContainer) {
@@ -388,6 +401,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}"
                 logConfig("none", [:])
+                cmd = ['/bin/sh']
             }
 
             task inspectContainer(type: DockerInspectContainer) {
@@ -426,6 +440,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}"
                 restartPolicy("on-failure", 999)
+                cmd = ['/bin/sh']
             }
 
             task inspectContainer(type: DockerInspectContainer) {
@@ -464,6 +479,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}"
                 devices = ["/dev/sda:/dev/xvda:rwm"]
+                cmd = ['/bin/sh']
             }
 
             task inspectContainer(type: DockerInspectContainer) {
@@ -484,7 +500,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """
-FROM ubuntu:12.04
+FROM alpine:3.4
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
         dockerFile
