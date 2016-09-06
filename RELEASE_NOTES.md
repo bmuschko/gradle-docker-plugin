@@ -1,6 +1,10 @@
 ### Version 3.0.3 (TBA)
 
 * Print error messages received from docker engine when build fails - [Pull request 265](https://github.com/bmuschko/gradle-docker-plugin/pull/265)
+* Bump docker-java to 3.0.5 - [Pull request 263](https://github.com/bmuschko/gradle-docker-plugin/pull/263)
+* Add support for `force` removal on `DockerRemoveImage` - [Pull request 266](https://github.com/bmuschko/gradle-docker-plugin/pull/266)
+* Various fixes and cleanups as well default to alpine image for all functional tests - [Pull request 269](https://github.com/bmuschko/gradle-docker-plugin/pull/269)
+* Added `editorconfig` file with some basic defaults - [Pull request 270](https://github.com/bmuschko/gradle-docker-plugin/pull/270)
 
 ### Version 3.0.2 (August 14, 2016)
 
