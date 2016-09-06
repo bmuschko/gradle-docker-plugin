@@ -1,4 +1,4 @@
-### Version 3.0.3 (TBA)
+### Version 3.0.3 (September 6, 2016)
 
 * Print error messages received from docker engine when build fails - [Pull request 265](https://github.com/bmuschko/gradle-docker-plugin/pull/265)
 * Bump docker-java to 3.0.5 - [Pull request 263](https://github.com/bmuschko/gradle-docker-plugin/pull/263)
