@@ -32,7 +32,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
 
             task pullImage(type: DockerPullImage) {
                 repository = 'alpine'
-                tag = 'latest'
+                tag = '3.4'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -84,7 +84,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
 
             task pullImage(type: DockerPullImage) {
                 repository = 'alpine'
-                tag = 'latest'
+                tag = '3.4'
             }
 
             task createContainer(type: DockerCreateContainer) {

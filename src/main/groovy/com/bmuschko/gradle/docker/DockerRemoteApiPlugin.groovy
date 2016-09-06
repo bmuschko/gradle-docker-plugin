@@ -42,8 +42,8 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
 
         // if no repositories were defined fallback to buildscript
         // repositories to resolve dependencies as a last resort
-        if (project.repositories.size() == 0) {
-            project.afterEvaluate {
+        project.afterEvaluate {
+            if (project.repositories.size() == 0) {
                 project.repositories.addAll(project.buildscript.repositories.collect())
             }
         }
