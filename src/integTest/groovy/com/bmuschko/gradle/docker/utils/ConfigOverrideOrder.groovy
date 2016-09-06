@@ -9,7 +9,7 @@ import static com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader.*
 enum ConfigOverrideOrder {
     DEFAULT {
         @Override
-        String dockerUrlValue() { "unix:///var/run/docker.sock" }
+        String dockerUrlValue() { 'tcp://localhost:2375' }
 
         @Override
         String dockerCertPathValue() { null }
