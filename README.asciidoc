@@ -39,6 +39,7 @@ The JAR file comes with two plugins:
 |Plugin Id                            |Automatically applies          |Type                                                                                                                                                        |Description
 |com.bmuschko.docker-remote-api       |-                              |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerRemoteApiPlugin.html[DockerRemoteApiPlugin]             |Provides custom tasks for interacting with Docker via its remote API.
 |com.bmuschko.docker-java-application |com.bmuschko.docker-remote-api |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerJavaApplicationPlugin.html[DockerJavaApplicationPlugin] |Creates and pushes a Docker image for a Java application.
+|com.bmuschko.simple-docker-plugin |com.bmuschko.docker-java-application |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/SimpleDockerApplicationPlugin.html[SimpleDockerApplicationPlugin] |Provides a wrapper on top of the docker-java-application to simplify the packaging of docker images for simple Java applications.
 |=======
 
 == Remote API plugin
@@ -331,6 +332,83 @@ docker {
     }
 }
 ----
+
+
+== Simple Docker Application Plugin
+
+The plugin `com.bmuschko.docker-simple-plugin` is a highly opinonated plugin for projects applying the link:http://www.gradle.org/docs/current/userguide/application_plugin.html[application plugin].
+Under the covers the plugin preconfigures tasks for creating, tagging and pushing Docker images for your Java application.
+
+The plugin assumes a certain structure of the docker image and he way the docker repo is organized, following the way the `application` plugin creates directories and packages the application in a tarball: the packaged tarball is typically named `appliationName-M.n.tar` (where `applicationName` is the name of the application from the build file, and the `M` major and `m` minor are components of the version declared in the same build file). The tarball structure is typically:
+
+* `applicationName-version/` -- top level directory
+* `applicationName-version/lib/` -- directory containing all the jars/dependencies
+* `applicationName-version/bin/` -- directory containing the application jar plus the generated startup scripts
+
+Based on this, the plugin assumes the following structure of the docker image:
+
+* `/applicationName-version/` -- top level directory in the docker image where everything will be deployed
+* `/applicationName-version/bin/` -- the `bin` directory created by the `application` plugin in the tarball
+* `/applicationName-version/lib/` -- the `lib` directory created by the `application` plugin
+
+The plugin also assumes that every such docker image deployed to the docker repository will be tagged with the version number and the image name will be set to be `project-group/applicationName`.
+
+This default behaviour is tweakable via an exposed extension. To use the plugin, include the following code snippet in your build script:
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-simple-plugin'
+----
+
+=== Extension properties
+
+The plugin defines the following extension properties in the `simpleDockerConfig` closure:
+
+[options="header"]
+|=======
+|Property name     |Type            |Description
+|`maintainerEmail` |String          |Email for the maintainer of the docker image.
+|`dockerUrl`       |String          |URL to communicate with the docker daemon.
+|`dockerBase`      |String          |Docker base image to build your image on.
+|`dockerImage`     |Closure         |Closure executed when building the Dockerfile. Allows you to add files to the image, execute commands etc.
+|`tagVersion`      |Closure<String> | If not supplied, assumed to be `{<project.version>}`. The result of this closure will be used to set the tag on the docker image when pushing it to the repo.
+|=======
+
+
+=== Usage example
+
+* Using default docker image structure and project version as tagging:
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-simple-plugin'
+//...
+simpleDockerConfig {
+        maintainerEmail = 'maintainer.email@liviutudor.com'
+        dockerUrl = 'http://docker.host.com:12345'
+        dockerBase = 'openjdk:8'
+    }
+}
+----
+
+* Adding customization to the image and change the taggin:
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-simple-plugin'
+//...
+simpleDockerConfig {
+        maintainerEmail = 'another.email@liviutudor.com'
+        dockerUrl = 'http://another.docker.host.com:98765'
+        dockerBase = 'openjdk:8'
+        dockerImage = {
+            addFile 'file.txt', '/some/path'
+            //...
+        }
+        tagVersion = { 'my-version-to-use' }
+    }
+}
+----
+
+
 
 == FAQ
 
