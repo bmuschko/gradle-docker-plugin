@@ -51,7 +51,7 @@ class SimpleDockerApplicationPlugin implements Plugin<Project> {
         String appLatest = "/${project.applicationName}-latest"
         String appDir = "/${project.applicationName}-${project.version}"
         project.tasks.create(name: 'createDockerfile', type: Dockerfile) { task ->
-            destFile = project.file(project.simpleDockerConfig.dockerFile)
+            destFile = project.file('./build/docker/Dockerfile')
             dependsOn project.tasks['distTar']
             dependsOn project.tasks['dockerCopyDistResources']
             from "${project.simpleDockerConfig.dockerBase}"
@@ -59,7 +59,7 @@ class SimpleDockerApplicationPlugin implements Plugin<Project> {
 
             addFile "${project.distTar.archiveName}", '/'
             runCommand "ln -s '${appDir}' '${appLatest}'"
-            entryPoint "${appDir}/bin/${project.applicationName}"
+            entryPoint "${appLatest}/bin/${project.applicationName}"
             if (project.simpleDockerConfig.dockerImage) {
                 project.simpleDockerConfig.dockerImage.delegate = task
                 project.simpleDockerConfig.dockerImage(project, task)
@@ -77,6 +77,7 @@ class SimpleDockerApplicationPlugin implements Plugin<Project> {
     protected void taskPushImage(Project project) {
         SimpleDockerConfig dockerConfig = project.simpleDockerConfig
 
+        String taggingVersion = ""
         if (dockerConfig.tagVersion) {
             dockerConfig.tagVersion.delegate = project
             taggingVersion = dockerConfig.tagVersion(project)
@@ -96,7 +97,6 @@ class SimpleDockerApplicationPlugin implements Plugin<Project> {
             dependsOn project.tasks["dockerTagImage"]
             task.conventionMapping.imageName = { project.tasks["dockerTagImage"].getRepository() }
             task.conventionMapping.tag = { project.tasks["dockerTagImage"].getTag() }
-            printlng "*** tag = " + project.tasks["dockerTagImage"].getTag()
         }
     }
 }
