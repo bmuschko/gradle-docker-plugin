@@ -177,6 +177,7 @@ docker {
     url = 'http://192.168.59.103:2375'
 }
 ----
+On Unix the Docker daemon listens by default on `unix:///var/run/docker.sock`.
 
 === Usage examples
 
