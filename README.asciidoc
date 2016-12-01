@@ -208,6 +208,27 @@ task buildImage(type: DockerBuildImage) {
 }
 ----
 
+=== Reactive-Streams
+
+As needed, we will implement reactive methods as described in link:https://github.com/reactive-streams/reactive-streams-jvm[reactive-streams]. We implement these here as optional closures for all tasks. Currently the only supported method is `onError`.
+
+A typical use-case is when one wants to remove a container thay may/may-not be present. In the example below, we check the thrown exception to see if it contains the string 'No such container'. If it does we silently ignore the exception, otherwise we re-throw it.
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+
+task removeContainer(type: DockerRemoveContainer) {
+    targetContainerId { "container-that-does-not-exist" }
+    onError { exception ->
+        if (!exception.message.contains('No such container')) 
+            throw exception
+    }
+}
+----
+
 ==== Executing functional tests against a running container
 
 The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this

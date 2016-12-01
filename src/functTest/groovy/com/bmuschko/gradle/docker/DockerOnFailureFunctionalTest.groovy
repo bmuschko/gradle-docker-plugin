@@ -29,7 +29,7 @@ class DockerOnFailureFunctionalTest extends AbstractFunctionalTest {
                 removeVolumes = true
                 force = true
                 targetContainerId { "abcdefgh1234567890" }
-                onFailure { exception ->
+                onError { exception ->
                     if (exception.message.contains("No such container")) {
                        println "Caught Exception onFailure"
                     } 
@@ -56,7 +56,7 @@ class DockerOnFailureFunctionalTest extends AbstractFunctionalTest {
                 removeVolumes = true
                 force = true
                 targetContainerId { "abcdefgh1234567890" }
-                onFailure { exception ->
+                onError { exception ->
                     if (exception.message.contains("No such container")) {
                        throw exception
                     } 

@@ -49,9 +49,12 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     String apiVersion
     
+    /**
+     * Closure to handle the possibly throw exception
+     */
     @Input
     @Optional
-    Closure onFailure
+    Closure onError
 
     ThreadContextClassLoader threadContextClassLoader
 
@@ -62,8 +65,8 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
                 runRemoteCommand(dockerClient)
             }
         } catch (Exception possibleException) {
-            if (onFailure) {
-                onFailure(possibleException)
+            if (onError) {
+                onError(possibleException)
             } else {
                 throw possibleException
             }
