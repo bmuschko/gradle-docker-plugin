@@ -1,5 +1,6 @@
 ### Version 3.0.4 (TBA)
 
+* Implement [reactive-stream](https://github.com/reactive-streams/reactive-streams-jvm/#2-subscriber-code) method `onError` for all tasks - [Pull request 302](https://github.com/bmuschko/gradle-docker-plugin/pull/302)
 * Bump docker-java to 3.0.6 - [Pull request 279](https://github.com/bmuschko/gradle-docker-plugin/pull/279)
 
 ### Version 3.0.3 (September 6, 2016)
