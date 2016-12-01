@@ -48,13 +48,25 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Input
     @Optional
     String apiVersion
+    
+    @Input
+    @Optional
+    Closure onFailure
 
     ThreadContextClassLoader threadContextClassLoader
 
     @TaskAction
     void start() {
-        runInDockerClassPath { dockerClient ->
-            runRemoteCommand(dockerClient)
+        try {
+            runInDockerClassPath { dockerClient ->
+                runRemoteCommand(dockerClient)
+            }
+        } catch (Exception possibleException) {
+            if (onFailure) {
+                onFailure(possibleException)
+            } else {
+                throw possibleException
+            }
         }
     }
 

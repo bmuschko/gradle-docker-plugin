@@ -20,3 +20,4 @@ out
 *.iml 
 *.ipr
 *.iws
+/.nb-gradle/
