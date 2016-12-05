@@ -56,6 +56,10 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     Closure onError
 
+    @Input
+    @Optional
+    Closure onNext
+
     ThreadContextClassLoader threadContextClassLoader
 
     @TaskAction

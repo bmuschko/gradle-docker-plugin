@@ -375,13 +375,18 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             deviceConstructor.newInstance(*parseDevice(deviceString))
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     def createBuildImageResultCallback(Logger logger) {
         createPrintStreamProxyCallback(logger, createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
+    }
+
+    @Override
+    def createBuildImageResultCallback(Closure onNext) {
+        createOnNextProxyCallback(onNext, createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
     }
 
     /**
@@ -438,7 +443,11 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.create()
     }
 
-    /**
+    @Override
+    def createLoggingCallback(Closure onNext) {
+        createOnNextProxyCallback(onNext, createCallback("${COMMAND_PACKAGE}.LogContainerResultCallback"))
+    }
+/**
      * {@inheritDoc}
      */
     @Override
@@ -484,13 +493,34 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Constructor constructor = callbackClass.getConstructor(OutputStream, OutputStream)
         constructor.newInstance(out, err)
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     def createWaitContainerResultCallback() {
         createCallback("${COMMAND_PACKAGE}.WaitContainerResultCallback")
+    }
+
+    private createOnNextProxyCallback(Closure onNext, defaultHandler) {
+        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        def enhancer = enhancerClass.getConstructor().newInstance()
+        enhancer.setSuperclass(defaultHandler.getClass())
+        enhancer.setCallback([
+            invoke: { Object proxy, Method method, Object[] args ->
+                if ("onNext" == method.name) {
+                    onNext(args[0])
+                }
+                try {
+                    method.invoke(defaultHandler, args)
+                } catch(InvocationTargetException e) {
+                    throw e.cause
+                }
+            }
+
+        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+
+        enhancer.create()
     }
 
     private createPrintStreamProxyCallback(Logger logger, delegate) {
@@ -530,14 +560,14 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     private Class loadBindClass() {
         loadClass("${MODEL_PACKAGE}.Bind")
     }
-    
+
     private def parseDevice(String deviceString) {
         List<String> tokens = deviceString.tokenize(':')
 
         String permissions = 'rwm'
         String source = ''
         String destination = ''
-        
+
         switch(tokens.size()) {
             case 3:
                 if (validDeviceMode(tokens[2])) {
@@ -557,14 +587,14 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             default:
                 throw new IllegalArgumentException("Invalid device specification: " + deviceString)
         }
-        
+
         if (!destination) {
             destination = source
         }
-        
+
         return [permissions, destination, source]
     }
-    
+
     private boolean validDeviceMode(String deviceMode) {
         Map<String, Boolean> validModes = [r: true, w: true, m: true]
 

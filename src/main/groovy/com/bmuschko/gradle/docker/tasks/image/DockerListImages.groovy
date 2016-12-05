@@ -16,13 +16,12 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.response.ResponseHandler
-import com.bmuschko.gradle.docker.response.image.ListImagesResponseHandler
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerListImages extends AbstractDockerRemoteApiTask {
-    private ResponseHandler<Void, List<Object>> responseHandler = new ListImagesResponseHandler()
+    private ResponseHandler<Void, List<Object>> responseHandler
 
     @Input
     @Optional
@@ -45,7 +44,12 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
         }
 
         def images = listImagesCmd.exec()
-        responseHandler.handle(images)
+        if(responseHandler) {
+            responseHandler.handle(images)
+        }
+        if(onNext) {
+            onNext(images)
+        }
     }
 
     void setResponseHandler(ResponseHandler<Void, List<Object>> responseHandler) {

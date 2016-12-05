@@ -218,6 +218,8 @@ interface ThreadContextClassLoader {
      */
     def createBuildImageResultCallback(Logger logger)
 
+    def createBuildImageResultCallback(Closure onNext)
+
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/PushImageResultCallback.java">PushImageResultCallback</a>
      * from thread context classloader.
@@ -242,6 +244,8 @@ interface ThreadContextClassLoader {
      * @return Callback instance
      */
     def createLoggingCallback(Logger logger)
+
+    def createLoggingCallback(Closure onNext)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/ExecStartResultCallback.java">ExecStartResultCallback</a>
