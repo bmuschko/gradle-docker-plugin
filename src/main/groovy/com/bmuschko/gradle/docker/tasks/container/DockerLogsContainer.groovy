@@ -15,9 +15,14 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
+
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+
+import org.gradle.util.ConfigureUtil
+
 
 /**
  * Copies the container logs into standard out/err, the same as the `docker logs` command. The container output
@@ -90,8 +95,19 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Optional
     Writer sink
 
+    /**
+     * Poll for a regular expression before we move into anything else with the log
+     */
+    @Input
+    @Optional
+    LogPoller poller
+
     @Override
     void runRemoteCommand(dockerClient) {
+        if (getPoller()) {
+          poll(dockerClient)
+        }
+        
         logger.quiet "Logs for container with ID '${getContainerId()}'."
         def logCommand = dockerClient.logContainerCmd(getContainerId())
         setContainerCommandConfig(logCommand)
@@ -123,6 +139,94 @@ class DockerLogsContainer extends DockerExistingContainer {
         if (getSince()) {
             logsCommand.withSince((int) (getSince().time / 1000))
         }
+    }
+    
+    void poller(regex) {
+      poller(regex, LogPoller.DEFAULT_SLEEP, LogPoller.DEFAULT_TIMEOUT)
+    }
+    
+    void poller(regex, sleep, timeout) {
+      if(sleep <= 0) {
+        throw new InvalidUserDataException("sleep should be greater than zero")
+      }
+  
+      if(timeout <= 0) {
+        throw new InvalidUserDataException("timeout should be greater than zero")
+      }
+  
+      if(regex == null || regex == '') {
+        throw new InvalidUserDataException("regex should be set to a valid string")
+      }
+
+      poller = new LogPoller(regex, sleep, timeout)
+    }
+    
+    private void poll(dockerClient) {
+      logger.quiet "Monitoring logs for container with ID '${getContainerId()}', for '${poller.regex}'."
+  
+      def logCommand = dockerClient.logContainerCmd(getContainerId())
+      
+      logCommand.withStdOut(true).withStdErr(true).withTailAll()
+      
+      Writer sink = new StringWriter()
+  
+      def loggingCallback = threadContextClassLoader.createLoggingCallback(sink)
+      
+      boolean finished = false
+      int howLongWaiting = 0
+  
+      while(!finished) {
+        logCommand.exec(loggingCallback)?.awaitCompletion()
+        
+        logger.quiet "found ${sink.toString()}"
+        
+        finished = (sink.toString() ==~ poller.regex)
+  
+        if(!finished) {
+          Thread.sleep(poller.sleep)
+  
+          howLongWaiting += poller.sleep
+  
+          if(howLongWaiting >= poller.timeout) {
+            throw new GradleException("Timed out waiting for '${poller.regex}' in container log")
+          }
+  
+          logger.info "Log sink contains [${sink}]"
+        }
+      }
+    }
+    
+    static class LogPoller {
+      public static int DEFAULT_SLEEP = 250
+      public static int DEFAULT_TIMEOUT = 120000
+      
+      /**
+       * Set to the number of milliseconds to wait between checks of the log content
+       * Default is 250 (milliseconds)
+       */
+      @Input
+      @Optional
+      int sleep = DEFAULT_SLEEP
+    
+      /**
+       * Set to the number of milliseconds before timing out and aborting the task
+       * Default is 120000 (milliseconds), which is 2 minutes
+       */
+      @Input
+      @Optional
+      int timeout = DEFAULT_TIMEOUT
+    
+      /**
+       * Set to the string to find in the log. this should be a vaild regular expression
+       */
+      @Input
+      String regex
+      
+      LogPoller(regex, sleep, timeout) {
+        this.regex = regex
+        this.sleep = sleep
+        this.timeout = timeout
+      }
     }
 }
 

@@ -210,9 +210,9 @@ task buildImage(type: DockerBuildImage) {
 
 ==== Starting a container, and waiting for the application in the container to start up
 
-To support, for example, integration testing tasks within a Gradle project using Docker we can start a container and can 
+To support, for example, integration testing tasks within a Gradle project using Docker we can start a container and can then 
 wait for the application the start running before running the integration tests from the Gradle script.
-It does this by looking for something in the docker console log rthat matches the regular expression provided. 
+It does this by looking for something in the docker console log that matches the regular expression provided. 
 
 [source,groovy]
 ----
@@ -221,9 +221,9 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 import com.bmuschko.gradle.docker.tasks.container.*
 import com.bmuschko.gradle.docker.tasks.image.*
 
-task startContainer(type: DockerStartContainer) {
-    dependsOn createContainer
-    targetContainerId { createContainer.getContainerId() }
+task startContainer(type: DockerLogsContainer) {
+    dependsOn startContainer
+    targetContainerId { startContainer.getContainerId() }
     
     poller('(?ms).*snippet', 10, 10)
 }                

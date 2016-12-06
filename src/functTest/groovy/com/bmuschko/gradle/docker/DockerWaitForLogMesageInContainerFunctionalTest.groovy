@@ -26,6 +26,7 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             docker {
               apiVersion ='1.23'
@@ -48,8 +49,13 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
                 targetContainerId { startContainer.getContainerId() }
             }
 
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
             task workflow {
-                dependsOn 'startContainer'
+                dependsOn 'waitForLogContainer'
 
                 finalizedBy removeContainer
             }
@@ -58,9 +64,9 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
 
   def "Can start a container and monitor logs for regex"() {
     buildFile << """
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+            task waitForLogContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
                 
                 poller('(?ms).*Welcome 5 times.*')
             }
@@ -72,9 +78,9 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
 
   def "sleep must not be zero"() {
     buildFile << """
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+            task waitForLogContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
                 
                 poller('snippet', 0, 10)
             }
@@ -86,9 +92,9 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
 
   def "sleep must not be less than zero"() {
     buildFile << """
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+            task waitForLogContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
                 
                 poller('snippet', -50, 10)
             }
@@ -100,9 +106,9 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
 
   def "timeout must not be zero"() {
     buildFile << """
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+            task waitForLogContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
                 
                 poller('snippet', 10, 0)
             }
@@ -114,9 +120,9 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
 
   def "timeout must not be less than zero"() {
     buildFile << """
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+            task waitForLogContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
                 
                 poller('snippet', 10, -50)
             }
@@ -128,9 +134,9 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
 
   def "regex must not be empty"() {
     buildFile << """
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+            task waitForLogContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
                 
                 poller('')
             }
@@ -142,9 +148,9 @@ class DockerWaitForLogMesageInContainerFunctionalTest extends AbstractFunctional
 
   def "regex must not be null"() {
     buildFile << """
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+            task waitForLogContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
                 
                 poller(null)
             }
