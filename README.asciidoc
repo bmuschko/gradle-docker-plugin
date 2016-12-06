@@ -208,6 +208,28 @@ task buildImage(type: DockerBuildImage) {
 }
 ----
 
+==== Starting a container, and waiting for the application in the container to start up
+
+To support, for example, integration testing tasks within a Gradle project using Docker we can start a container and can then 
+wait for the application the start running before running the integration tests from the Gradle script.
+It does this by looking for something in the docker console log that matches the regular expression provided. 
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task startContainer(type: DockerLogsContainer) {
+    dependsOn startContainer
+    targetContainerId { startContainer.getContainerId() }
+    
+    poller('(?ms).*snippet', 10, 10)
+}                
+
+----
+
 === Reactive-Streams
 
 As needed, we will implement reactive methods as described in link:https://github.com/reactive-streams/reactive-streams-jvm[reactive-streams]. We implement these here as optional closures for all tasks. Currently the only supported method is `onError`.
@@ -229,10 +251,12 @@ task removeContainer(type: DockerRemoveContainer) {
 }
 ----
 
+=======
+
 ==== Executing functional tests against a running container
 
 The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this
-image and exercises functional tests agains the running container. At the end of this operation, the container is stopped.
+image and exercises functional tests against the running container. At the end of this operation, the container is stopped.
 
 [source,groovy]
 ----
