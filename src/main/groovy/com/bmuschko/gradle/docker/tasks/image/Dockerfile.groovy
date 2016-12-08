@@ -208,6 +208,26 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
+     * The <a href="https://docs.docker.com/reference/builder/#env">ENV instruction</a> sets multiple environment
+     * variables at once.
+     *
+     * @param envVars Environment variables
+     */
+    void environmentVariable(Map<String, String> envVars) {
+        instructions << new EnvironmentVariableInstruction(envVars)
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#env">ENV instruction</a> sets multiple environment
+     * variables at once.
+     *
+     * @param envVars Environment variables
+     */
+    void environmentVariable(Closure envVars) {
+        instructions << new EnvironmentVariableInstruction(envVars)
+    }
+
+    /**
      * The <a href="https://docs.docker.com/reference/builder/#add">ADD instruction</a> copies new files, directories
      * or remote file URLs from <src> and adds them to the filesystem of the container at the path <dest>.
      *
@@ -461,33 +481,54 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    interface ItemJoiner {
+        String join(Map map)
+    }
+
+    static class MultiItemJoiner implements ItemJoiner {
+        @Override
+        String join(Map map) {
+            map.inject([]) { result, entry -> result << "\"$entry.key\"=\"$entry.value\"" }.join(' ')
+        }
+    }
+
+    static class SingleItemJoiner implements ItemJoiner {
+        @Override
+        String join(Map map) {
+            map.inject([]) { result, entry -> result << "$entry.key $entry.value" }.join(' ')
+        }
+    }
+
     static abstract class MapInstruction implements Instruction {
         final Object command
+        final ItemJoiner joiner
+
+        MapInstruction(Map<String, String> command, ItemJoiner joiner) {
+            this.command = command
+            this.joiner = joiner
+        }
 
         MapInstruction(Map<String, String> command) {
-            this.command = command
+            this(command, new MultiItemJoiner())
         }
 
         MapInstruction(Closure command) {
             this.command = command
+            this.joiner = new MultiItemJoiner()
         }
 
         @Override
         String build() {
             if (command instanceof Map<String, String>) {
-                "$keyword ${join(command)}"
+                "$keyword ${joiner.join(command)}"
             }
             else if(command instanceof Closure) {
                 def evaluatedCommand = command()
 
                 if(evaluatedCommand instanceof Map) {
-                    "$keyword ${join(evaluatedCommand)}"
+                    "$keyword ${joiner.join(evaluatedCommand)}"
                 }
             }
-        }
-
-        private String join(Map command) {
-            command.inject([]) { result, entry -> result << "\"$entry.key\"=\"$entry.value\"" }.join(' ')
         }
     }
 
@@ -625,23 +666,22 @@ class Dockerfile extends DefaultTask {
         }
     }
 
-    static class EnvironmentVariableInstruction implements Instruction {
-        final String key
-        final String value
-
+    static class EnvironmentVariableInstruction extends MapInstruction {
         EnvironmentVariableInstruction(String key, String value) {
-            this.key = key
-            this.value = value
+            super([(key): value], new SingleItemJoiner())
+        }
+
+        EnvironmentVariableInstruction(Map envVars) {
+            super(envVars)
+        }
+
+        EnvironmentVariableInstruction(Closure envVars) {
+            super(envVars)
         }
 
         @Override
         String getKeyword() {
             "ENV"
-        }
-
-        @Override
-        String build() {
-            "$keyword $key $value"
         }
     }
 
