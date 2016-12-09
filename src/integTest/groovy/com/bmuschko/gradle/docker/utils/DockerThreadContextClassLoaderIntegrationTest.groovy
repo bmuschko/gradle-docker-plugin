@@ -14,20 +14,21 @@ import java.lang.reflect.InvocationTargetException
 
 class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationTest {
     DockerExtension dockerExtension = new DockerExtension()
-    ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader(dockerExtension)
     DockerClientConfiguration dockerClientConfiguration = new DockerClientConfiguration(url: 'tcp://localhost:2375')
 
-    @Shared
+    ThreadContextClassLoader threadContextClassLoader
+
     Project project
 
-    def setupSpec() {
-        project = ProjectBuilder.builder().build()
+    def setup() {
+        project = ProjectBuilder.builder().withProjectDir(projectDir).build()
 
         project.repositories {
             mavenCentral()
         }
 
         project.apply(plugin: DockerRemoteApiPlugin)
+        threadContextClassLoader = new DockerThreadContextClassLoader(project, dockerExtension)
     }
 
     def "Can create class of type Volume"() {

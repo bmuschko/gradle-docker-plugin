@@ -1,11 +1,14 @@
-Gradle Docker plugin
+= Gradle Docker plugin
+:dockerJavaUrl: https://github.com/docker-java/docker-java
+:dockerJavaLink: {dockerJavaUrl}[Docker Java library]
+:dockerJavaCfgLink: {dockerJavaUrl}#configuration[Docker Java library]
 ====================
 
 image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout.png[Docker Logo]
 
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
-Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Please
+Docker remote API is handled by the {dockerJavaLink}. Please
 refer to the library's documentation for more information on the supported Docker's client API and Docker server version.
 
 *This plugin requires Gradle >= 2.5 to work properly.*
@@ -130,6 +133,13 @@ The plugin defines the following extension properties in the `docker` closure:
 |`apiVersion`    |String    |null                     |The remote API version. For most cases this can be left null.
 |=======
 
+[WARNING]
+====
+Default value of `docker.url` property is deprecated.
+It will be replaced to `unix:///var/run/docker.sock` in upcoming releases.
+Please adjust your build scripts accordingly.
+====
+
 Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.
 You can provide those credentials in the `registryCredentials` closure:
 
@@ -142,10 +152,28 @@ You can provide those credentials in the `registryCredentials` closure:
 |`email`         |String    |null                        |The registry email address.
 |=======
 
+=== Extension properties override
 
-==== Extension examples
+Properties defined within `docker` closure are providing flexible fallback mechanism
+allowing to reuse _the same build script_ on various environments with different `Docker Engine` settings,
+e.g. on CI servers, on Windows/Linux/Mac envs etc.
 
-===== Working with a TLS-enabled Docker instance
+Fallback tries to retrieve values from various source in following order
+(with higher precedence on top of the list)
+
+. Project properties, i.e. passed via command line with `-P` flag or defined in build script.
+. Java system variables, i.e. passed via command line with `-D` flag.
+. Environment variables.
+. Properties of currently executed `Docker` task.
+. `docker` closure defined on project or top project level.
+. Fallback to {dockerJavaLink} values.
+
+When overriding via project properties, system variables and environment properties -
+property names are following {dockerJavaCfgLink} conventions.
+
+=== Extension examples
+
+==== Working with a TLS-enabled Docker instance
 
 Starting with Docker version 1.3, TLS is enabled by default. Please consult the Docker documentation link:https://docs.docker.com/articles/https/["Running Docker
 with https"] to set up your certificate. The following example demonstrates how to configure the plugin to use those certificates.
@@ -166,7 +194,7 @@ docker {
 }
 ----
 
-===== Working with a Docker instance without TLS
+==== Working with a Docker instance without TLS
 
 The following example assumes that you disabled TLS on your Docker instance. You can do so by setting `DOCKER_TLS=no` in the file
  `/var/lib/boot2docker/profile`. Additionally, this code snippet shows how to set the user credentials.
@@ -179,7 +207,31 @@ docker {
 ----
 On Unix the Docker daemon listens by default on `unix:///var/run/docker.sock`.
 
-=== Usage examples
+==== Overriding `docker` extension properties via command line
+
+Assuming we're having `build.gradle` with empty `docker` closure, we could do following
+
+Override Docker Engine location via project property::
++
+  $ gradle -PDOCKER_HOST=tcp://localhost:9999 dockerBuildImage <1>
++
+<1> tcp://locahost:9999 will be used
+
+Override Docker Engine location via environment varaible::
++
+  $ export DOCKER_HOST=tcp://locahost:5555
+  $ gradle dockerBuildImage <1>
++
+<1> tcp://locahost:5555 will be used
+
+Precedence rules for property override::
++
+  $ export DOCKER_HOST=tcp://locahost:5555
+  $ gradle -PDOCKER_HOST=tcp://localhost:9999 dockerBuildImage <1>
++
+<1> tcp://locahost:9999 will be used, since project properties have precedence over environment variables
+
+=== Task usage examples
 
 The following usage examples demonstrate code for common use cases. More scenarios can be found in the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy[functional tests].
 

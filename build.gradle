@@ -21,6 +21,7 @@ dependencies {
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
     }
+    testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
 }
 
 ext.compatibilityVersion = '1.6'
