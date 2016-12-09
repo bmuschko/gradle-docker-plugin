@@ -1,4 +1,8 @@
-### Version 3.0.4 (TBA)
+### Version 3.0.5 (TBA)
+
+* Support multiple variables per singled ENV cmd - [Pull request 311](https://github.com/bmuschko/gradle-docker-plugin/pull/311)
+
+### Version 3.0.4 (December 1, 2016)
 
 * Implement [reactive-stream](https://github.com/reactive-streams/reactive-streams-jvm/#2-subscriber-code) method `onError` for all tasks - [Pull request 302](https://github.com/bmuschko/gradle-docker-plugin/pull/302)
 * Bump docker-java to 3.0.6 - [Pull request 279](https://github.com/bmuschko/gradle-docker-plugin/pull/279)
