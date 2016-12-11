@@ -13,12 +13,18 @@ import spock.lang.Unroll
 import java.lang.reflect.InvocationTargetException
 
 class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationTest {
-    DockerExtension dockerExtension = new DockerExtension()
-    ThreadContextClassLoader threadContextClassLoader = new DockerThreadContextClassLoader(dockerExtension)
-    DockerClientConfiguration dockerClientConfiguration = new DockerClientConfiguration(url: 'tcp://localhost:2375')
 
     @Shared
     Project project
+    
+    @Shared
+    DockerExtension dockerExtension
+    
+    @Shared
+    ThreadContextClassLoader threadContextClassLoader
+    
+    @Shared
+    DockerClientConfiguration dockerClientConfiguration
 
     def setupSpec() {
         project = ProjectBuilder.builder().build()
@@ -26,6 +32,10 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         project.repositories {
             mavenCentral()
         }
+        
+        dockerExtension = new DockerExtension(project)
+        threadContextClassLoader = new DockerThreadContextClassLoader(dockerExtension)
+        dockerClientConfiguration = new DockerClientConfiguration(url: 'tcp://localhost:2375')
 
         project.apply(plugin: DockerRemoteApiPlugin)
     }
