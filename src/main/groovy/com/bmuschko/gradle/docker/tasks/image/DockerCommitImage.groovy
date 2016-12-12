@@ -101,5 +101,8 @@ class DockerCommitImage extends DockerExistingContainer {
 
         imageId = commitCmd.exec()
         logger.quiet "Created image with ID '$imageId'."
+        if(onNext) {
+            onNext(imageId)
+        }
     }
 }

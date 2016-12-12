@@ -393,16 +393,26 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createPushImageResultCallback() {
-        createCallback("${COMMAND_PACKAGE}.PushImageResultCallback")
+    def createPushImageResultCallback(Closure onNext) {
+        def defaultHandler = createCallback("${COMMAND_PACKAGE}.PushImageResultCallback")
+        if (onNext) {
+            return createOnNextProxyCallback(onNext, defaultHandler)
+        }
+
+        defaultHandler
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    def createPullImageResultCallback() {
-        createCallback("${COMMAND_PACKAGE}.PullImageResultCallback")
+    def createPullImageResultCallback(Closure onNext) {
+        def defaultHandler = createCallback("${COMMAND_PACKAGE}.PullImageResultCallback")
+        if (onNext) {
+            return createOnNextProxyCallback(onNext, defaultHandler)
+        }
+
+        defaultHandler
     }
 
     /**
@@ -418,25 +428,25 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setSuperclass(callbackClass)
         enhancer.setCallback([
 
-                invoke: { Object proxy, java.lang.reflect.Method method, Object[] args ->
-                    if ("onNext" == method.name && args.length && args[0]) {
-                        def frame = args[0]
-                        switch (frame.streamType as String) {
-                            case "STDOUT":
-                            case "RAW":
-                                logger.quiet(new String(frame.payload).trim())
-                                break
-                            case "STDERR":
-                                logger.error(new String(frame.payload).trim())
-                                break
-                        }
-                    }
-                    try {
-                        method.invoke(delegate, args)
-                    } catch(InvocationTargetException e) {
-                        throw e.cause
+            invoke: { Object proxy, java.lang.reflect.Method method, Object[] args ->
+                if ("onNext" == method.name && args.length && args[0]) {
+                    def frame = args[0]
+                    switch (frame.streamType as String) {
+                        case "STDOUT":
+                        case "RAW":
+                            logger.quiet(new String(frame.payload).trim())
+                            break
+                        case "STDERR":
+                            logger.error(new String(frame.payload).trim())
+                            break
                     }
                 }
+                try {
+                    method.invoke(delegate, args)
+                } catch (InvocationTargetException e) {
+                    throw e.cause
+                }
+            }
 
         ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
 
@@ -448,8 +458,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         createOnNextProxyCallback(onNext, createCallback("${COMMAND_PACKAGE}.LogContainerResultCallback"))
     }
 /**
-     * {@inheritDoc}
-     */
+ * {@inheritDoc}
+ */
     @Override
     def createLoggingCallback(Writer sink) {
         Class callbackClass = loadClass("${COMMAND_PACKAGE}.LogContainerResultCallback")
@@ -460,24 +470,24 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setSuperclass(callbackClass)
         enhancer.setCallback([
 
-                invoke: { Object proxy, java.lang.reflect.Method method, Object[] args ->
-                    if ("onNext" == method.name && args.length && args[0]) {
-                        def frame = args[0]
-                        switch (frame.streamType as String) {
-                            case "STDOUT":
-                            case "RAW":
-                            case "STDERR":
-                                sink.append(new String(frame.payload))
-                                sink.flush()
-                                break
-                        }
-                    }
-                    try {
-                        method.invoke(delegate, args)
-                    } catch (InvocationTargetException e) {
-                        throw e.cause
+            invoke: { Object proxy, java.lang.reflect.Method method, Object[] args ->
+                if ("onNext" == method.name && args.length && args[0]) {
+                    def frame = args[0]
+                    switch (frame.streamType as String) {
+                        case "STDOUT":
+                        case "RAW":
+                        case "STDERR":
+                            sink.append(new String(frame.payload))
+                            sink.flush()
+                            break
                     }
                 }
+                try {
+                    method.invoke(delegate, args)
+                } catch (InvocationTargetException e) {
+                    throw e.cause
+                }
+            }
 
         ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
 
@@ -507,7 +517,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
                 try {
                     method.invoke(defaultHandler, args)
-                } catch(InvocationTargetException e) {
+                } catch (InvocationTargetException e) {
                     throw e.cause
                 }
             }
@@ -523,7 +533,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createWaitContainerResultCallback(Closure onNext) {
         def defaultHandler = createCallback("${COMMAND_PACKAGE}.WaitContainerResultCallback")
-        if(onNext) {
+        if (onNext) {
             return createOnNextProxyCallback(onNext, defaultHandler)
         }
 
@@ -541,7 +551,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
                 try {
                     method.invoke(defaultHandler, args)
-                } catch(InvocationTargetException e) {
+                } catch (InvocationTargetException e) {
                     throw e.cause
                 }
             }
@@ -557,18 +567,18 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setSuperclass(delegate.getClass())
         enhancer.setCallback([
 
-                invoke: { Object proxy, Method method, Object[] args ->
-                    if ("onNext" == method.name) {
-                        def possibleStream = args[0].stream
-                        if (possibleStream)
-                            logger.quiet(possibleStream.trim())
-                    }
-                    try {
-                        method.invoke(delegate, args)
-                    } catch(InvocationTargetException e) {
-                        throw e.cause
-                    }
+            invoke: { Object proxy, Method method, Object[] args ->
+                if ("onNext" == method.name) {
+                    def possibleStream = args[0].stream
+                    if (possibleStream)
+                        logger.quiet(possibleStream.trim())
                 }
+                try {
+                    method.invoke(delegate, args)
+                } catch (InvocationTargetException e) {
+                    throw e.cause
+                }
+            }
 
         ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
 
@@ -596,7 +606,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         String source = ''
         String destination = ''
 
-        switch(tokens.size()) {
+        switch (tokens.size()) {
             case 3:
                 if (validDeviceMode(tokens[2])) {
                     permissions = tokens[2]

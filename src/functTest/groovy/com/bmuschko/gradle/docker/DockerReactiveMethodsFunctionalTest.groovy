@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker
 
+import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
@@ -354,5 +355,110 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = buildAndFail('runContainers')
         result.output.contains("Container failed!")
     }
-}
 
+    def "should call onNext when inspecting image"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+
+            task pullImage(type: DockerPullImage) {
+                repository = 'alpine'
+                tag = '3.4'
+            }
+
+            task inspectImage(type: DockerInspectImage) {
+                dependsOn pullImage
+                targetImageId { 'alpine:3.4' }
+                
+                onNext { image ->
+                    logger.quiet 'Cmd:        ' + image.config.cmd
+                    logger.quiet 'Entrypoint: ' + image.config.entrypoint
+                }
+            }
+
+            task workflow {
+                dependsOn inspectImage
+            }
+        """
+
+        when:
+        BuildResult result = build('workflow')
+
+        then:
+        result.output.contains('Entrypoint: null')
+    }
+
+    def "should call onNext when pulling image"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                targetImageId { 'busybox:musl' }
+                onError {
+                    // no op when image not found
+                }
+            }
+
+            task pullImage(type: DockerPullImage) {
+                dependsOn removeImage
+                repository = 'busybox'
+                tag = 'musl'
+                
+                onNext { p ->
+                    logger.quiet p.status + ' ' + (p.progress ?: '')
+                }
+            }
+
+        """
+
+        when:
+        BuildResult result = build('pullImage')
+
+        then:
+        result.output.contains('Pull complete')
+    }
+
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
+    def "Can build an image and push to private registry"() {
+        File dockerFileLocation = new File(getProjectDir(), 'build/private-reg-reactive/Dockerfile')
+        if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
+            throw new GradleException("Could not successfully create dockerFileLocation @ ${dockerFileLocation.path}")
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+            task createDockerfile(type: Dockerfile) {
+                destFile = project.file("${dockerFileLocation.path}")
+                from 'alpine:3.4'
+                maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'                
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn createDockerfile
+                inputDir = createDockerfile.destFile.parentFile
+                tag = '${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}'
+            }
+
+            task pushImage(type: DockerPushImage) {
+                dependsOn buildImage
+                conventionMapping.imageName = { buildImage.getTag() }
+                
+                onNext { p ->
+                    logger.quiet p.status + ' ' + (p.progress ?: '')
+                }
+            }
+
+            task workflow {
+                dependsOn pushImage
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains("Pushed")
+    }
+}
