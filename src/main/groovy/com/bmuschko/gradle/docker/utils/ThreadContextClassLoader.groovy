@@ -257,6 +257,8 @@ interface ThreadContextClassLoader {
      */
     def createExecCallback(OutputStream out, OutputStream err)
 
+    def createExecCallback(Closure onNext)
+
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/LogContainerResultCallback.java">LogContainerResultCallback</a>
      * from thread context classloader. The callback is modified to send log lines to standard out and error.
@@ -270,5 +272,5 @@ interface ThreadContextClassLoader {
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/WaitContainerResultCallback.java">WaitContainerResultCallback</a> from thread context classloader.
      * @return Callback instance
      */
-    def createWaitContainerResultCallback()
+    def createWaitContainerResultCallback(Closure onNext)
 }

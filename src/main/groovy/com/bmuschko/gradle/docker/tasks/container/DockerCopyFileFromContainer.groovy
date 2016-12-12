@@ -57,15 +57,21 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
 
         def tarStream
         try {
-
             tarStream = containerCommand.exec()
-            def hostDestination = new File(hostPath)
 
-            // if compressed leave file as is otherwise untar
-            if (compressed) {
-                copyFileCompressed(tarStream, hostDestination)
-            } else {
-                copyFile(tarStream, hostDestination)
+            if(onNext) {
+                onNext(tarStream)
+            }
+
+            if(!tarStream.isClosed()) {
+                def hostDestination = new File(hostPath)
+
+                // if compressed leave file as is otherwise untar
+                if (compressed) {
+                    copyFileCompressed(tarStream, hostDestination)
+                } else {
+                    copyFile(tarStream, hostDestination)
+                }
             }
         } finally {
             tarStream?.close()

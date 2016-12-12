@@ -25,9 +25,19 @@ class DockerInspectContainer extends DockerExistingContainer {
     void runRemoteCommand(dockerClient) {
         logger.quiet "Inspecting container with ID '${getContainerId()}'."
         def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
-        responseHandler.handle(container)
+
+        if (onNext) {
+            onNext(container)
+        } else if (responseHandler) {
+            responseHandler.handle(container)
+        }
     }
 
+    /**
+     * Deprecated. Use {@link #onNext} instead.
+     * @param responseHandler
+     */
+    @Deprecated
     void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
         this.responseHandler = responseHandler
     }

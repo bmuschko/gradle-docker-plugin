@@ -494,12 +494,40 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         constructor.newInstance(out, err)
     }
 
+    @Override
+    def createExecCallback(Closure onNext) {
+        def defaultHandler = createExecCallback(null, null)
+        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        def enhancer = enhancerClass.getConstructor().newInstance()
+        enhancer.setSuperclass(defaultHandler.getClass())
+        enhancer.setCallback([
+            invoke: { Object proxy, Method method, Object[] args ->
+                if ("onNext" == method.name) {
+                    onNext(args[0])
+                }
+                try {
+                    method.invoke(defaultHandler, args)
+                } catch(InvocationTargetException e) {
+                    throw e.cause
+                }
+            }
+
+        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+
+        enhancer.create()
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    def createWaitContainerResultCallback() {
-        createCallback("${COMMAND_PACKAGE}.WaitContainerResultCallback")
+    def createWaitContainerResultCallback(Closure onNext) {
+        def defaultHandler = createCallback("${COMMAND_PACKAGE}.WaitContainerResultCallback")
+        if(onNext) {
+            return createOnNextProxyCallback(onNext, defaultHandler)
+        }
+
+        defaultHandler
     }
 
     private createOnNextProxyCallback(Closure onNext, defaultHandler) {

@@ -178,5 +178,181 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         then:
         result.output.contains("MB")
     }
+
+    def "should call onNext when coping file from container"() {
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
+
+            task createContainer(type: DockerCreateContainer) {
+                targetImageId { 'alpine:3.4' }
+                containerName = "$uniqueContainerName"
+                cmd = ['/bin/sh']
+            }
+
+            task printOsRelease(type: DockerCopyFileFromContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                remotePath = "/etc/os-release"
+                
+                onNext { f ->
+                    f.eachLine { l -> logger.quiet l }
+                    f.close()
+                }
+            }
+        """
+
+        when:
+        def result = build('printOsRelease')
+
+        then:
+        result.output.contains('PRETTY_NAME="Alpine Linux v3.4"')
+    }
+
+    def "should call onNext when creating container"() {
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
+
+            task createContainer(type: DockerCreateContainer) {
+                targetImageId { 'alpine:3.4' }
+                containerName = "$uniqueContainerName"
+                cmd = ['/bin/sh']
+                
+                onNext { c ->
+                    if(c.warnings) {
+                        throw new GradleException("Container created with warnings: " + c.warnings.join(','))
+                    }
+                }
+            }
+            """
+
+        when:
+        build('createContainer')
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "should call onNext when executing command in container "() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task createContainer(type: DockerCreateContainer) {
+                targetImageId { 'alpine:3.4' }
+                cmd = ['sleep','10']
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                cmd = ['echo', 'Hello World']
+                
+                onNext { f ->
+                    logger.quiet f.toString()
+                }
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                dependsOn execContainer
+                removeVolumes = true
+                force = true
+                targetContainerId { startContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn removeContainer
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains("STDOUT: Hello World")
+    }
+
+    def "should call onNext when inspecting container"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task createContainer(type: DockerCreateContainer) {
+                targetImageId { 'alpine:3.4' }
+                cmd = ['sleep','10']
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                
+                onNext { c ->
+                    if(!c.state.running) {
+                        throw new GradleException("Container should be running!")
+                    }
+                }
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                dependsOn inspectContainer
+                removeVolumes = true
+                force = true
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn removeContainer
+            }
+        """
+
+        expect:
+        def result = buildAndFail('workflow')
+        result.output.contains("Container should be running!")
+    }
+
+    def "should call onNext when waiting for a container"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
+
+            task createContainer(type: DockerCreateContainer){
+                targetImageId { 'alpine:3.4' }
+                cmd 'sh', '-c', 'exit 1'
+            }
+
+            task startContainer(type: DockerStartContainer){
+                dependsOn createContainer
+                targetContainerId {createContainer.getContainerId()}
+            }
+
+            task runContainers(type: DockerWaitContainer){
+                dependsOn startContainer
+                targetContainerId {startContainer.getContainerId()}
+                onNext { r ->
+                    if(r.statusCode) {
+                        throw new GradleException("Container failed!")
+                    }
+                }
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('runContainers')
+        result.output.contains("Container failed!")
+    }
 }
 
