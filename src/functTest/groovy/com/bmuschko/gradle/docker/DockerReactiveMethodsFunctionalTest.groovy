@@ -302,7 +302,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
                 
                 onNext { c ->
                     if(!c.state.running) {
-                        throw new GradleException("Container should be running!")
+                        logger.error "Container should be running!"
                     }
                 }
             }
@@ -320,7 +320,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         """
 
         expect:
-        def result = buildAndFail('workflow')
+        def result = build('workflow')
         result.output.contains("Container should be running!")
     }
 
@@ -433,8 +433,9 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file("${dockerFileLocation.path}")
-                from 'alpine:3.4'
-                maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'                
+                from 'alpine:3.1'
+                maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                runCommand 'mkdir -p /tmp/${createUniqueImageId()}'
             }
 
             task buildImage(type: DockerBuildImage) {
