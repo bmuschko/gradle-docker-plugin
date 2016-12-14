@@ -461,4 +461,66 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output.contains("Pushed")
     }
+
+    def "should call onComplete when task finished without errors"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerListImages
+
+            task listImages(type: DockerListImages) {
+                onComplete {
+                    logger.quiet "-- END OF IMAGES --"
+                }
+            }
+        """
+
+        when:
+        def result = build('listImages')
+
+        then:
+        result.output.contains("-- END OF IMAGES --")
+
+    }
+
+    def "should not call onComplete when task finished with error and onError is defined"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                targetImageId { 'not_existing_image' }
+                onError {
+                    // no op
+                }
+                onComplete {
+                    throw new GradleException("Should never go here!")
+                }
+            }
+        """
+
+        when:
+        build('removeImage')
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "should not call onComplete when task finished with error"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                targetImageId { 'not_existing_image' }                
+                onComplete {
+                    throw new GradleException("Should never go here!")
+                }
+            }
+        """
+
+        when:
+        def result = buildAndFail('removeImage')
+
+        then:
+        !result.output.contains("Should never go here!")
+    }
 }
