@@ -201,7 +201,6 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
                 
                 onNext { f ->
                     f.eachLine { l -> logger.quiet l }
-                    f.close()
                 }
             }
         """
