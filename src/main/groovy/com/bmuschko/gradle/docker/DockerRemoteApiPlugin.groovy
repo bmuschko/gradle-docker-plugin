@@ -55,7 +55,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             dependencies.add(project.dependencies.create('cglib:cglib:3.2.0'))
         }
         
-        DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension)
+        DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
         extension.classpath = config
 
         configureAbstractDockerTask(project, extension)

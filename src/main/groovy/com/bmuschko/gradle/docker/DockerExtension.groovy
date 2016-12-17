@@ -16,19 +16,44 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.api.file.FileCollection
+import org.gradle.api.Project
 
 class DockerExtension {
     FileCollection classpath
-    String url = 'http://localhost:2375'
+    String url
     File certPath
     String apiVersion
 
     DockerRegistryCredentials registryCredentials
-
+    private Project project
+    
+    public DockerExtension(Project project) {
+        this.project = project
+        this.url = getDefaultDockerUrl()
+    }
+    
     void registryCredentials(Closure closure) {
         registryCredentials = new DockerRegistryCredentials()
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = registryCredentials
         closure()
+    }
+    
+    public String getDefaultDockerUrl() {
+        String dockerUrl = System.getenv("DOCKER_HOST")
+        if (!dockerUrl) {
+            boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+            if (!isWindows && new File('/var/run/docker.sock').exists()) {
+                dockerUrl = 'unix:///var/run/docker.sock'
+            } else {
+                if (isWindows && new File("\\\\.\\pipe\\docker_engine").exists()) {
+                    dockerUrl = 'npipe:////./pipe/docker_engine'
+                } else {
+                    dockerUrl = 'tcp://127.0.0.1:2375'
+                }
+            }
+        }
+        project.logger.info("Default docker.url set to $dockerUrl")
+        dockerUrl
     }
 }
