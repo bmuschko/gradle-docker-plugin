@@ -1,6 +1,7 @@
 ### Version 3.0.5 (TBA)
 
 * Support multiple variables per singled ENV cmd - [Pull request 311](https://github.com/bmuschko/gradle-docker-plugin/pull/311)
+* Implement a sane default docker URL based on environment - [Pull request 313](https://github.com/bmuschko/gradle-docker-plugin/pull/313)
 
 ### Version 3.0.4 (December 1, 2016)
 
