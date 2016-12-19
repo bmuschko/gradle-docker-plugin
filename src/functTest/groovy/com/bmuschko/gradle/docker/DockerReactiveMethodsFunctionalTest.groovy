@@ -32,7 +32,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { "abcdefgh1234567890" }
                 onError { exception ->
                     if (exception.message.contains("No such container")) {
-                       println "Caught Exception onFailure"
+                       println "Caught Exception onError"
                     } 
                 }
             }
@@ -46,7 +46,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
 
         then:
-        result.output.contains('Caught Exception onFailure')
+        result.output.contains('Caught Exception onError')
     }
 
     def "Re-throw exception on removal of non-existent container"() {
@@ -70,7 +70,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         """
 
         expect:
-        BuildResult result = buildAndFail('workflow')
+        buildAndFail('workflow')
     }
 
     def "should call onNext during build image"() {
@@ -80,6 +80,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from 'alpine:3.4'
+                maintainer 'John Doe <john.doe@example.com>'
             }
 
             task buildImage(type: DockerBuildImage) {

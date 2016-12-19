@@ -20,6 +20,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from 'alpine:3.4'
+                maintainer 'Jane Doe <jane.doe@example.com>'
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -34,10 +35,10 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             }
             
             task removeImageAndCheckRemoval(type: DockerListImages) {
-				dependsOn removeImage
-    			showAll = true
-    			filters = '{"dangling":["true"]}'
-			}
+                dependsOn removeImage
+                showAll = true
+                filters = '{"dangling":["true"]}'
+            }
         """
 
         when:
@@ -57,6 +58,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from 'alpine:3.4'
+                maintainer 'Jane Doe <jane.doe@example.com>'
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -84,12 +86,11 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
             }
 
-			task removeImageAndCheckRemoval(type: DockerListImages) {
-				dependsOn removeImage
-    			showAll = true
-    			filters = '{"dangling":["true"]}'
-			}
-            
+            task removeImageAndCheckRemoval(type: DockerListImages) {
+                dependsOn removeImage
+                showAll = true
+                filters = '{"dangling":["true"]}'
+            }
         """
 
         when:
