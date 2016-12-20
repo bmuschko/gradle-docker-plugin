@@ -40,7 +40,7 @@ class DockerWaitContainer extends DockerExistingContainer {
         String possibleTimeout = timeout ? " for ${timeout} seconds" : ''
         logger.quiet "Waiting for container with ID '${getContainerId()}'${possibleTimeout}."
         def containerCommand = dockerClient.waitContainerCmd(getContainerId())
-        def callback = threadContextClassLoader.createWaitContainerResultCallback()
+        def callback = threadContextClassLoader.createWaitContainerResultCallback(onNext)
         callback = containerCommand.exec(callback)
         exitCode = timeout ? callback.awaitStatusCode(timeout, TimeUnit.SECONDS) : callback.awaitStatusCode()
         logger.quiet "Container exited with code ${exitCode}"

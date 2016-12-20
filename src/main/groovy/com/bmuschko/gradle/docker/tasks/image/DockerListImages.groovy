@@ -45,9 +45,19 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
         }
 
         def images = listImagesCmd.exec()
-        responseHandler.handle(images)
+
+        if (onNext) {
+            onNext(images)
+        } else if (responseHandler) {
+            responseHandler.handle(images)
+        }
     }
 
+    /**
+     * Deprecated. Use {@link #onNext} instead.
+     * @param responseHandler
+     */
+    @Deprecated
     void setResponseHandler(ResponseHandler<Void, List<Object>> responseHandler) {
         this.responseHandler = responseHandler
     }

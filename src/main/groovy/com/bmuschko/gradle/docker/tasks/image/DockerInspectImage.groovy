@@ -25,9 +25,18 @@ class DockerInspectImage extends DockerExistingImage {
     void runRemoteCommand(dockerClient) {
         logger.quiet "Inspecting image for with ID '${getImageId()}'."
         def image = dockerClient.inspectImageCmd(getImageId()).exec()
-        responseHandler.handle(image)
+        if(onNext) {
+            onNext(image)
+        } else {
+            responseHandler.handle(image)
+        }
     }
 
+    /**
+     * Deprecated. Use {@link #onNext} instead.
+     * @param responseHandler
+     */
+    @Deprecated
     void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
         this.responseHandler = responseHandler
     }

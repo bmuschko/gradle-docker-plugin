@@ -122,7 +122,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     Map<String,String> binds
-    
+
     @Input
     @Optional
     List<String> extraHosts
@@ -134,7 +134,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     Boolean privileged
-    
+
     @Input
     @Optional
     Boolean tty
@@ -142,7 +142,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     String restartPolicy
-    
+
     @Input
     @Optional
     List<String> devices
@@ -160,6 +160,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         def container = containerCommand.exec()
         logger.quiet "Created container with ID '$container.id'."
         containerId = container.id
+        if(onNext) {
+            onNext(container)
+        }
     }
 
     void targetImageId(Closure imageId) {

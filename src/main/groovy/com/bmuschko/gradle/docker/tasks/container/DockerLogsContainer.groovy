@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -95,8 +96,21 @@ class DockerLogsContainer extends DockerExistingContainer {
         logger.quiet "Logs for container with ID '${getContainerId()}'."
         def logCommand = dockerClient.logContainerCmd(getContainerId())
         setContainerCommandConfig(logCommand)
-        def loggingCallback = sink ? threadContextClassLoader.createLoggingCallback(sink) : threadContextClassLoader.createLoggingCallback(logger)
-        logCommand.exec(loggingCallback)?.awaitCompletion()
+        logCommand.exec(getCallback())?.awaitCompletion()
+    }
+
+    private def getCallback() {
+        if(sink && onNext) {
+            throw new GradleException("Define either sink or onNext")
+        }
+        if(sink) {
+            return threadContextClassLoader.createLoggingCallback(sink)
+        }
+        if(onNext) {
+            return threadContextClassLoader.createLoggingCallback(onNext)
+        }
+
+        threadContextClassLoader.createLoggingCallback(logger)
     }
 
     private void setContainerCommandConfig(logsCommand) {

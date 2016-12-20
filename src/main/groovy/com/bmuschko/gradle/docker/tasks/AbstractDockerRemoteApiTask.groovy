@@ -20,7 +20,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.*
 
-abstract class AbstractDockerRemoteApiTask extends DefaultTask {
+abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
     /**
      * Classpath for Docker Java libraries.
      */
@@ -48,28 +48,13 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Input
     @Optional
     String apiVersion
-    
-    /**
-     * Closure to handle the possibly throw exception
-     */
-    @Input
-    @Optional
-    Closure onError
 
     ThreadContextClassLoader threadContextClassLoader
 
-    @TaskAction
-    void start() {
-        try {
-            runInDockerClassPath { dockerClient ->
-                runRemoteCommand(dockerClient)
-            }
-        } catch (Exception possibleException) {
-            if (onError) {
-                onError(possibleException)
-            } else {
-                throw possibleException
-            }
+    @Override
+    void runReactiveStream() {
+        runInDockerClassPath { dockerClient ->
+            runRemoteCommand(dockerClient)
         }
     }
 
