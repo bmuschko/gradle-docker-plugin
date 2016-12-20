@@ -125,10 +125,15 @@ The plugin defines the following extension properties in the `docker` closure:
 [options="header"]
 |=======
 |Property name   |Type      |Default value            |Description
-|`url`           |String    |http://localhost:2375    |The server URL to connect to via Docker's remote API.
+|`url`           |String    |**                       |The server URL to connect to via Docker's remote API.
 |`certPath`      |File      |null                     |The path to certificates for communicating with link:https://docs.docker.com/articles/https/[Docker over SSL].
 |`apiVersion`    |String    |null                     |The remote API version. For most cases this can be left null.
 |=======
+
+**The default value is now generated based on a best guess attempt given the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[OperatingSystem and Environment]:
+
+    Unix-based machine: unix:///var/run/docker.sock
+    Windows-based machine (and everything else): tcp://127.0.0.1:2375 
 
 Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.
 You can provide those credentials in the `registryCredentials` closure:
@@ -174,10 +179,12 @@ The following example assumes that you disabled TLS on your Docker instance. You
 [source,groovy]
 ----
 docker {
-    url = 'http://192.168.59.103:2375'
+    url = 'tcp://192.168.59.103:2375'
 }
 ----
 On Unix the Docker daemon listens by default on `unix:///var/run/docker.sock`.
+
+On Windows the Docker daemon listens by default on `npipe:////./pipe/docker_engine` though this is not currently supported. We instead fall back to `tcp://127.0.0.1:2375`.
 
 === Usage examples
 
