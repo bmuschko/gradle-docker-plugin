@@ -47,7 +47,7 @@ abstract class AbstractReactiveStreamsTask extends DefaultTask {
     void start() {
         boolean commandFailed = false
         try {
-            runProcessing()
+            runReactiveStream()
         } catch (Exception possibleException) {
             commandFailed = true
             if (onError) {
@@ -61,5 +61,5 @@ abstract class AbstractReactiveStreamsTask extends DefaultTask {
         }
     }
 
-    abstract void runProcessing()
+    abstract void runReactiveStream()
 }

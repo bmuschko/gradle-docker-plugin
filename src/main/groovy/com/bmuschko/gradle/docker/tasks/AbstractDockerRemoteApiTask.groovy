@@ -52,7 +52,7 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
     ThreadContextClassLoader threadContextClassLoader
 
     @Override
-    void runProcessing() {
+    void runReactiveStream() {
         runInDockerClassPath { dockerClient ->
             runRemoteCommand(dockerClient)
         }
