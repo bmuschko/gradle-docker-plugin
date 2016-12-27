@@ -1,7 +1,8 @@
-### Version 3.0.5 (TBA)
+### Version 3.0.5 (December 27, 2016)
 
 * Support multiple variables per singled ENV cmd - [Pull request 311](https://github.com/bmuschko/gradle-docker-plugin/pull/311)
 * Implement a sane default docker URL based on environment - [Pull request 313](https://github.com/bmuschko/gradle-docker-plugin/pull/313)
+* Implement [reactive-stream](https://github.com/reactive-streams/reactive-streams-jvm/#2-subscriber-code) methods `onNext` and `onComplete` for all tasks - [Pull request 307](https://github.com/bmuschko/gradle-docker-plugin/pull/307)
 
 ### Version 3.0.4 (December 1, 2016)
 
