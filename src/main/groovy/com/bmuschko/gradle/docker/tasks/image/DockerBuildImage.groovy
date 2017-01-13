@@ -61,6 +61,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     @Input
     @Optional
+    Map<String, String> labels = [:]
+
+    @Input
+    @Optional
     Map<String, String> buildArgs = [:]
 
     /**
@@ -109,6 +113,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         if (getPull()) {
             buildImageCmd.withPull(getPull())
+        }
+
+        if (getLabels()) {
+            buildImageCmd.withLabels(getLabels())
         }
 
         if (getRegistryCredentials()) {

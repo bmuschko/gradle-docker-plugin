@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
+import spock.lang.Unroll
 
 @Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
@@ -31,7 +32,6 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("aaa: no such file or directory")
     }
 
-
     def "can build image"() {
         buildFile << imageCreation()
 
@@ -42,14 +42,18 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("Created image with ID")
     }
 
-    def "can build image with build variables"() {
-        buildFile << imageCreationWithBuildArgs()
+    @Unroll
+    def "can build image with labels"(String gradleTaskDefinition) {
+        buildFile << gradleTaskDefinition
 
         when:
         BuildResult result = build('inspectImage')
 
         then:
         result.output.contains("label1:test1, label2:test2")
+
+        where:
+        gradleTaskDefinition << [imageCreationWithBuildArgs(), imageCreationWithLabelParameter()]
     }
 
     private String imageCreation() {
@@ -87,6 +91,29 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
                 buildArgs = ['arg1':'test1', 'arg2':'test2']
+            }
+
+            task inspectImage(type: DockerInspectImage) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+            }
+        """
+    }
+
+    private String imageCreationWithLabelParameter() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+
+            task dockerfile(type: Dockerfile) {
+                from 'ubuntu:12.04'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+                labels = ['label1':'test1', 'label2':'test2']
             }
 
             task inspectImage(type: DockerInspectImage) {
