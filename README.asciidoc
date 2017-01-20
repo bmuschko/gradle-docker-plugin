@@ -463,6 +463,16 @@ as needed. Use the command line option `-PbootstrapDocker=true` for this purpose
 ./gradlew functionalTest -PbootstrapDocker=true
 ----
 
+=== How to run the functional tests in a Vagrant box?
+
+[source,shell]
+----
+cd vagrant/
+vagrant up --provider=virtualbox
+cd ..
+./gradlew functionalTest
+----
+
 === How does this plugin communicate with the Docker daemon and registry?
 
 This plugin sends commands to Docker daemon which listens either on non-networked Unix socket or HTTP one. The latter can be secured by TLS
