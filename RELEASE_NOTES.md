@@ -1,3 +1,7 @@
+### Version 3.0.6 (TBA)
+
+* Bump version of docker-java to 3.0.7 - [Pull request 331](https://github.com/bmuschko/gradle-docker-plugin/pull/331)
+
 ### Version 3.0.5 (December 27, 2016)
 
 * Support multiple variables per singled ENV cmd - [Pull request 311](https://github.com/bmuschko/gradle-docker-plugin/pull/311)
