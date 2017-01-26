@@ -31,22 +31,36 @@ class Dockerfile extends DefaultTask {
 
     @TaskAction
     void create() {
+        Instruction fromInstruction = findFromInstruction()
         verifyValidInstructions()
 
         getDestFile().withWriter { out ->
+            out.println fromInstruction.build()
             getInstructions().each { instruction ->
-                out.println instruction.build()
+                if(instruction.keyword != 'FROM'){ //FROM instruction already executed
+                    out.println instruction.build()
+                }
             }
+        }
+    }
+
+    private Instruction findFromInstruction(){
+        Instruction fromInstruction
+        for(Instruction instruction: instructions){
+            if(instruction.keyword == 'FROM'){
+                fromInstruction = instruction
+            }
+        }
+        if(fromInstruction == null){
+            throw new IllegalStateException('Please specify a FROM instruction for your Dockerfile')
+        } else {
+            return fromInstruction
         }
     }
 
     private void verifyValidInstructions() {
         if(getInstructions().empty) {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
-        }
-
-        if(!(getInstructions()[0].keyword == 'FROM')) {
-            throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM')
         }
     }
 
@@ -88,7 +102,9 @@ class Dockerfile extends DefaultTask {
 
     /**
      * The <a href="https://docs.docker.com/reference/builder/#from">FROM instruction</a> sets the Base Image for
-     * subsequent instructions.
+     * subsequent instructions.When this method is called multiple times, only the last call will be effective.
+     * {@link #instruction(String) instruction} and {@link #instruction(Closure) instruction} can also be FROM
+     * instructions, and will also over
      *
      * @param image Base image name
      */
@@ -108,7 +124,9 @@ class Dockerfile extends DefaultTask {
 
     /**
      * The <a href="https://docs.docker.com/reference/builder/#from">FROM instruction</a> sets the Base Image for
-     * subsequent instructions.
+     * subsequent instructions. When this method is called multiple times, only the last call will be effective.
+     * {@link #instruction(String) instruction} and {@link #instruction(Closure) instruction} can also be FROM
+     * instructions, and will also override this method;
      *
      * @param image Base image name
      */
