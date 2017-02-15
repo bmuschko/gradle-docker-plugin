@@ -51,6 +51,11 @@ code snippet in your build script:
 ----
 apply plugin: 'com.bmuschko.docker-remote-api'
 ----
+If you're using this plugin from a build file which is not the *main* build file you must apply plugin like so:
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.gradle.docker.DockerRemoteApiPlugin'
+----
 
 The plugin automatically resolves the Docker Java library with the pre-configured version under the covers. The only
 configuration you will have to provide in your build script is the repository hosting the library and its transitive
