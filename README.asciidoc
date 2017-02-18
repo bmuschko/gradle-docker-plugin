@@ -135,7 +135,7 @@ The plugin defines the following extension properties in the `docker` closure:
 |`apiVersion`    |String    |null                     |The remote API version. For most cases this can be left null.
 |=======
 
-**The default value is now generated based on a best guess attempt given the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[OperatingSystem and Environment]:
+*The default value is now generated based on a best guess attempt given the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[OperatingSystem and Environment]:*
 
     Unix-based machine: unix:///var/run/docker.sock
     Windows-based machine (and everything else): tcp://127.0.0.1:2375 
