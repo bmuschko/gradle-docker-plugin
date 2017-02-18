@@ -130,7 +130,7 @@ The plugin defines the following extension properties in the `docker` closure:
 [options="header"]
 |=======
 |Property name   |Type      |Default value            |Description
-|`url`           |String    |**                       |The server URL to connect to via Docker's remote API.
+|`url`           |String    |see below                |The server URL to connect to via Docker's remote API.
 |`certPath`      |File      |null                     |The path to certificates for communicating with link:https://docs.docker.com/articles/https/[Docker over SSL].
 |`apiVersion`    |String    |null                     |The remote API version. For most cases this can be left null.
 |=======
