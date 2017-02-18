@@ -1,0 +1,22 @@
+stages:
+  - initial
+  - integration-test
+  - functional-test
+  - release
+
+initial:
+  stage: initial
+  script: ./gradlew clean test
+
+integration-test:
+  stage: integration-test
+  script: ./gradlew integrationTest
+
+functional-test:
+  stage: functional-test
+  script: ./gradlew functionalTest
+
+release:
+  stage: release
+  script: ./gradlew release
+  when: manual
