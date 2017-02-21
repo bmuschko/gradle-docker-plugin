@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
 class DockerCommitImage extends DockerExistingContainer {
@@ -60,6 +61,7 @@ class DockerCommitImage extends DockerExistingContainer {
     @Optional
     Boolean attachStdin
 
+    @Internal
     String imageId
 
     DockerCommitImage() {

@@ -16,10 +16,12 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class Dockerfile extends DefaultTask {
+    @Internal
     List<Instruction> instructions = new ArrayList<Instruction>()
 
     @OutputFile

@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
-import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.*
 
@@ -49,6 +48,7 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
     @Optional
     String apiVersion
 
+    @Internal
     ThreadContextClassLoader threadContextClassLoader
 
     @Override

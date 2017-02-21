@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.container
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.CollectionUtil
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
@@ -116,7 +117,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     String workingDir
 
-    @Nested
+    @Input
     List<ExposedPort> exposedPorts = []
 
     @Input
@@ -147,6 +148,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     List<String> devices
 
+    @Internal
     String containerId
 
     DockerCreateContainer() {
@@ -325,8 +327,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     }
 
     static class ExposedPort {
-        @Input String internetProtocol
-        @Input List<Integer> ports
+        @Input final String internetProtocol
+        @Input final List<Integer> ports = []
 
         ExposedPort(String internetProtocol, List<Integer> ports) {
             this.internetProtocol = internetProtocol

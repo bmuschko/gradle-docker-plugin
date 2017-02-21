@@ -96,10 +96,10 @@ class DockerLogsContainer extends DockerExistingContainer {
         logger.quiet "Logs for container with ID '${getContainerId()}'."
         def logCommand = dockerClient.logContainerCmd(getContainerId())
         setContainerCommandConfig(logCommand)
-        logCommand.exec(getCallback())?.awaitCompletion()
+        logCommand.exec(createCallback())?.awaitCompletion()
     }
 
-    private def getCallback() {
+    private Object createCallback() {
         if(sink && onNext) {
             throw new GradleException("Define either sink or onNext")
         }

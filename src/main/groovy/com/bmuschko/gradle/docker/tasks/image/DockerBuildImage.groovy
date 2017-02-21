@@ -74,6 +74,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     DockerRegistryCredentials registryCredentials
 
+    @Internal
     String imageId
 
     DockerBuildImage() {
