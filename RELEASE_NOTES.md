@@ -1,4 +1,4 @@
-### Version 3.0.6 (TBA)
+### Version 3.0.6 (March 2, 2017)
 
 * Bump version of docker-java to 3.0.7 - [Pull request 331](https://github.com/bmuschko/gradle-docker-plugin/pull/331)
 * Add support for label parameter on docker image creation - [Pull request 332](https://github.com/bmuschko/gradle-docker-plugin/pull/332)
