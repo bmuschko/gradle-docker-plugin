@@ -52,6 +52,34 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    void instructionsFromTemplate(File template) {
+        def lines = template.readLines()
+        lines.each { String instruction ->
+            instructions << new GenericInstruction(instruction)
+        }
+    }
+
+    void instructionsFromTemplate(String templatePath) {
+        File template = project.file(templatePath)
+        if (template.exists()) {
+            def lines = template.readLines()
+            lines.each { String instruction ->
+                instructions << new GenericInstruction(instruction)
+            }
+        }
+    }
+
+    void instructionsFromTemplate(Closure templatePath) {
+        File template = project.file(templatePath())
+        if (template.exists()) {
+            def lines = template.readLines()
+            lines.each { String instruction ->
+                instructions << new GenericInstruction(instruction)
+            }
+        }
+    }
+
+
     /**
      * Adds a full instruction as String.
      *
