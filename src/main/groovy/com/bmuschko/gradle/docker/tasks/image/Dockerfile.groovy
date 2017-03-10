@@ -53,22 +53,20 @@ class Dockerfile extends DefaultTask {
     }
 
     void instructionsFromTemplate(File template) {
-        if (template.exists()) {
-            def lines = template.readLines()
-            lines.each { String instruction ->
-                instructions << new GenericInstruction(instruction)
-            }
+        if (!template.exists()) {
+            throw new FileNotFoundException("docker template file not found at location : ${template.getAbsolutePath()}")
+        }
+        template.readLines().each { String instruction ->
+            instructions << new GenericInstruction(instruction)
         }
     }
 
     void instructionsFromTemplate(String templatePath) {
-        File template = project.file(templatePath)
-        instructionsFromTemplate(template)
+        instructionsFromTemplate(project.file(templatePath))
     }
 
     void instructionsFromTemplate(Closure templatePath) {
-        File template = project.file(templatePath())
-        instructionsFromTemplate(template)
+        instructionsFromTemplate(project.file(templatePath()))
     }
 
 

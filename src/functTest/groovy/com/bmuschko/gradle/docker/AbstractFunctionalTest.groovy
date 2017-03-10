@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker
 
+import org.gradle.internal.impldep.com.google.common.io.Files
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
@@ -47,6 +48,7 @@ abstract class AbstractFunctionalTest extends Specification {
         setupDockerServerUrl()
         setupDockerCertPath()
         setupDockerPrivateRegistryUrl()
+        setupDockerTemplateFile()
     }
 
     private void setupDockerServerUrl() {
@@ -78,6 +80,15 @@ abstract class AbstractFunctionalTest extends Specification {
                     url = '$dockerPrivateRegistryUrl'
                 }
             """
+        }
+    }
+
+    private void setupDockerTemplateFile() {
+        File source = new File(TestConfiguration.class.getClassLoader().getResource("Dockerfile.template").toURI())
+        if (source.exists()) {
+            File resourcesDir = new File(projectDir, 'src/main/docker/')
+            resourcesDir.mkdirs()
+            Files.copy(source,new File(projectDir, 'src/main/docker/Dockerfile.template'))
         }
     }
 
