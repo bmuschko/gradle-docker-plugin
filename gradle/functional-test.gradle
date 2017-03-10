@@ -13,7 +13,7 @@ task functionalTest(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
     testClassesDir = sourceSets.functionalTest.output.classesDir
-    classpath = sourceSets.functionalTest.runtimeClasspath + sourceSets.functionalTest.resources.srcDir
+    classpath = sourceSets.functionalTest.runtimeClasspath
     mustRunAfter test, integrationTest
 
     reports {
