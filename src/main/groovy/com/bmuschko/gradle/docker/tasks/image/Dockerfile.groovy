@@ -69,7 +69,6 @@ class Dockerfile extends DefaultTask {
         instructionsFromTemplate(project.file(templatePath()))
     }
 
-
     /**
      * Adds a full instruction as String.
      *

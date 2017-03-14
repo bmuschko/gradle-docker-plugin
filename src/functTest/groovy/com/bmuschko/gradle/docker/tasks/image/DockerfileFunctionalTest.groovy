@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.TestConfiguration
 import org.gradle.testkit.runner.BuildResult
 
 import java.nio.file.Files
@@ -8,7 +9,6 @@ import java.nio.file.Paths
 
 class DockerfileFunctionalTest extends AbstractFunctionalTest {
     static final String DOCKERFILE_TASK_NAME = 'dockerfile'
-
 
     private void setupDockerTemplateFile() {
         File source = new File(TestConfiguration.class.getClassLoader().getResource("Dockerfile.template").toURI())
@@ -188,7 +188,6 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com
 """
     }
-
 
     def "Same instructions does not mark task UP-TO-DATE"() {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')

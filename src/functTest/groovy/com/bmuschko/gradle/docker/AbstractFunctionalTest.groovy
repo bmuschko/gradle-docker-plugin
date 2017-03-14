@@ -81,7 +81,6 @@ abstract class AbstractFunctionalTest extends Specification {
         }
     }
 
-
     protected BuildResult build(String... arguments) {
         createAndConfigureGradleRunner(arguments).build()
     }
