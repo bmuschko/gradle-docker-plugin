@@ -1,13 +1,23 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
-import org.apache.commons.lang.exception.ExceptionUtils
-import org.gradle.api.tasks.TaskExecutionException
-import org.gradle.internal.impldep.com.google.common.io.Files
 import org.gradle.testkit.runner.BuildResult
+
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class DockerfileFunctionalTest extends AbstractFunctionalTest {
     static final String DOCKERFILE_TASK_NAME = 'dockerfile'
+
+
+    private void setupDockerTemplateFile() {
+        File source = new File(TestConfiguration.class.getClassLoader().getResource("Dockerfile.template").toURI())
+        if (source.exists()) {
+            File resourcesDir = new File(projectDir, 'src/main/docker/')
+            resourcesDir.mkdirs()
+            Files.copy(source.toPath(),Paths.get(projectDir.path, 'src/main/docker/Dockerfile.template'))
+        }
+    }
 
     def "Executing a Dockerfile task without specified instructions throws exception"() {
         given:
@@ -159,6 +169,7 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 
     def "Can create Dockerfile from template file"() {
         given:
+        setupDockerTemplateFile()
         buildFile << """
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
@@ -174,21 +185,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
         dockerfile.text ==
             """FROM ubuntu:14.04
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
-CMD ["echo", "some", "command"]
-EXPOSE 8080 14500
-ENV ENV_VAR_KEY envVarVal
-ENV "ENV_VAR_A"="val_a"
-ENV "ENV_VAR_B"="val_b" "ENV_VAR_C"="val_c"
-ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
-COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
-ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]
-VOLUME ["/jenkins", "/myApp"]
-USER root
-WORKDIR /tmp
-ONBUILD RUN echo "Hello World"
-LABEL "version"="1.0
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com
 """
     }
 
