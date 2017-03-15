@@ -14,8 +14,11 @@ class DockerfileFunctionalTest extends AbstractFunctionalTest {
         File source = new File(TestConfiguration.class.getClassLoader().getResource("Dockerfile.template").toURI())
         if (source.exists()) {
             File resourcesDir = new File(projectDir, 'src/main/docker/')
-            resourcesDir.mkdirs()
-            Files.copy(source.toPath(),Paths.get(projectDir.path, 'src/main/docker/Dockerfile.template'))
+            if (resourcesDir.mkdirs()) {
+                Files.copy(source.toPath(),Paths.get(projectDir.path, 'src/main/docker/Dockerfile.template'))
+            } else {
+                throw new IOException("can not create the directory ${resourcesDir.absolutePath}")
+            }
         }
     }
 
