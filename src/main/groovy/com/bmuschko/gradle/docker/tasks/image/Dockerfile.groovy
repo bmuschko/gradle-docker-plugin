@@ -56,7 +56,7 @@ class Dockerfile extends DefaultTask {
         if (!template.exists()) {
             throw new FileNotFoundException("docker template file not found at location : ${template.getAbsolutePath()}")
         }
-        template.readLines().each { String instruction ->
+        template.readLines().findAll {it.length()>0} each { String instruction ->
             instructions << new GenericInstruction(instruction)
         }
     }
