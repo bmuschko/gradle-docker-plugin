@@ -43,7 +43,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
         project.plugins.withType(ApplicationPlugin) {
             Tar tarTask = project.tasks.getByName(ApplicationPlugin.TASK_DIST_TAR_NAME)
-
+            dockerJavaApplication.exec = determineEntryPoint(project, tarTask)
             Dockerfile createDockerfileTask = createDockerfileTask(project, tarTask, dockerJavaApplication)
             Copy copyTarTask = createDistCopyResourcesTask(project, tarTask, createDockerfileTask)
             createDockerfileTask.dependsOn copyTarTask
@@ -72,12 +72,15 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
             description = 'Creates the Docker image for the Java application.'
             dependsOn tarTask
-
             from { dockerJavaApplication.baseImage }
             maintainer { dockerJavaApplication.maintainer }
             addFile({ tarTask.archivePath.name }, { '/' })
-            entryPoint { determineEntryPoint(project, tarTask) }
-            exposePort { dockerJavaApplication.getPorts() }
+            project.afterEvaluate {
+                // pass current delegate on to config closure
+                dockerJavaApplication.exec?.delegate = delegate
+                dockerJavaApplication.exec?.call()
+                exposePort { dockerJavaApplication.getPorts() }
+            }
         }
     }
 
@@ -91,9 +94,11 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private String determineEntryPoint(Project project, Tar tarTask) {
-        String installDir = tarTask.archiveName - ".${tarTask.extension}"
-        "/$installDir/bin/$project.applicationName".toString()
+    private Closure<Void> determineEntryPoint(Project project, Tar tarTask) {
+        { ->
+            String installDir = tarTask.archiveName - ".${tarTask.extension}"
+            entryPoint { "/$installDir/bin/$project.applicationName".toString() }
+        }
     }
 
     private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {

@@ -15,8 +15,11 @@
  */
 package com.bmuschko.gradle.docker
 
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
 class DockerJavaApplication {
     String baseImage = 'java'
+    Closure<Void> exec
     String maintainer = System.getProperty('user.name')
     @Deprecated
     Integer port = 8080
@@ -27,4 +30,7 @@ class DockerJavaApplication {
         return ports.size() > 0 ? ports : [port]
     }
 
+    void exec(@DelegatesTo(Dockerfile) Closure<Void> closure) {
+        this.exec = closure
+    }
 }
