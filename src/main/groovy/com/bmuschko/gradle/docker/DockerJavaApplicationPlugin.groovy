@@ -43,7 +43,9 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
         project.plugins.withType(ApplicationPlugin) {
             Tar tarTask = project.tasks.getByName(ApplicationPlugin.TASK_DIST_TAR_NAME)
-            dockerJavaApplication.exec = determineEntryPoint(project, tarTask)
+            dockerJavaApplication.exec {
+                entryPoint { determineEntryPoint(project, tarTask) }
+            }
             Dockerfile createDockerfileTask = createDockerfileTask(project, tarTask, dockerJavaApplication)
             Copy copyTarTask = createDistCopyResourcesTask(project, tarTask, createDockerfileTask)
             createDockerfileTask.dependsOn copyTarTask
@@ -75,12 +77,8 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             from { dockerJavaApplication.baseImage }
             maintainer { dockerJavaApplication.maintainer }
             addFile({ tarTask.archivePath.name }, { '/' })
-            project.afterEvaluate {
-                // pass current delegate on to config closure
-                dockerJavaApplication.exec?.delegate = delegate
-                dockerJavaApplication.exec?.call()
-                exposePort { dockerJavaApplication.getPorts() }
-            }
+            instructions << dockerJavaApplication.exec
+            exposePort { dockerJavaApplication.getPorts() }
         }
     }
 
@@ -94,11 +92,9 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private Closure<Void> determineEntryPoint(Project project, Tar tarTask) {
-        { ->
-            String installDir = tarTask.archiveName - ".${tarTask.extension}"
-            entryPoint { "/$installDir/bin/$project.applicationName".toString() }
-        }
+    private String determineEntryPoint(Project project, Tar tarTask) {
+        String installDir = tarTask.archiveName - ".${tarTask.extension}"
+        "/$installDir/bin/$project.applicationName".toString()
     }
 
     private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {

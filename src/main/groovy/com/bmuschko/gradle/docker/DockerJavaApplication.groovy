@@ -16,10 +16,11 @@
 package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile.CompositeExecInstruction
 
 class DockerJavaApplication {
     String baseImage = 'java'
-    Closure<Void> exec
+    final CompositeExecInstruction exec = new CompositeExecInstruction()
     String maintainer = System.getProperty('user.name')
     @Deprecated
     Integer port = 8080
@@ -30,7 +31,8 @@ class DockerJavaApplication {
         return ports.size() > 0 ? ports : [port]
     }
 
-    void exec(@DelegatesTo(Dockerfile) Closure<Void> closure) {
-        this.exec = closure
+    CompositeExecInstruction exec(@DelegatesTo(CompositeExecInstruction) Closure<Void> closure) {
+        exec.clear()
+        exec.apply(closure)
     }
 }

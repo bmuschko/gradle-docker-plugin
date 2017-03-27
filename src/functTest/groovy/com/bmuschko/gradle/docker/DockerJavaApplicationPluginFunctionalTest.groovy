@@ -132,7 +132,7 @@ EXPOSE 9090
 """
     }
 
-    def "Can create image for Java application with user-driven configuration with no cmd/entrpoint"() {
+    def "Can create image for Java application with user-driven configuration with no cmd/entrypoint"() {
         String projectName = temporaryFolder.root.name
         createJettyMainClass()
         writeBasicSetupToBuildFile()
@@ -160,6 +160,7 @@ EXPOSE 9090
                 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD ${projectName}-1.0.tar /
+
 EXPOSE 9090
 """
 
@@ -207,10 +208,10 @@ EXPOSE 9090
 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD ${projectName}-1.0.tar /
-ADD file1.txt /some/dir/file1.txt
-ADD file2.txt /other/dir/file2.txt
 ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
 EXPOSE 9090
+ADD file1.txt /some/dir/file1.txt
+ADD file2.txt /other/dir/file2.txt
 """
         new File(projectDir, 'build/docker/file1.txt').exists()
         new File(projectDir, 'build/docker/file2.txt').exists()

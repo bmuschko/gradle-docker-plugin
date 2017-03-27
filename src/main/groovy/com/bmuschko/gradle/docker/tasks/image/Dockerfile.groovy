@@ -806,4 +806,43 @@ class Dockerfile extends DefaultTask {
             "LABEL"
         }
     }
+
+    /**
+     * Helper Instruction used by DockerJavaApplicationPlugin
+     * to allow customizing generated ENTRYPOINT/CMD
+     */
+    static class CompositeExecInstruction implements Instruction {
+        @Internal
+        private final List<Instruction> instructions = new ArrayList<>()
+
+        @Override
+        String getKeyword() { '' }
+
+        @Override
+        String build() { instructions*.build().join('\n') }
+
+        CompositeExecInstruction apply(Closure<Void> closure) {
+            closure?.delegate = this
+            closure?.call()
+            this
+        }
+
+        public void clear() {
+            instructions.clear()
+        }
+
+        void defaultCommand(String... command) {
+            instructions << new DefaultCommandInstruction(command)
+        }
+        void defaultCommand(Closure command) {
+            instructions << new DefaultCommandInstruction(command)
+        }
+
+        void entryPoint(String... entryPoint) {
+            instructions << new EntryPointInstruction(entryPoint)
+        }
+        void entryPoint(Closure entryPoint) {
+            instructions << new EntryPointInstruction(entryPoint)
+        }
+    }
 }
