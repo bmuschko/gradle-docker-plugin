@@ -2,6 +2,7 @@ package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
+import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 
 import java.nio.file.Files
