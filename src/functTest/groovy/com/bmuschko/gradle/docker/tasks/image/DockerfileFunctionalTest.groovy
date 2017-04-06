@@ -16,7 +16,7 @@ class DockerfileFunctionalTest extends AbstractFunctionalTest {
         if (source.exists()) {
             File resourcesDir = new File(projectDir, 'src/main/docker/')
             if (resourcesDir.mkdirs()) {
-                if (Files.copy(source.toPath(),Paths.get(projectDir.path, 'src/main/docker/Dockerfile.template')) != source.length()) {
+                if (Files.copy(source.toPath(),Paths.get(projectDir.path, 'src/main/docker/Dockerfile.template')).toFile().length() != source.length()) {
                     throw new GradleException("File could not be successfully copied")
                 }
             } else {
