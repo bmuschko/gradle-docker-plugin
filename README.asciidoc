@@ -179,7 +179,7 @@ docker {
 ===== Working with a Docker instance without TLS
 
 The following example assumes that you disabled TLS on your Docker instance. You can do so by setting `DOCKER_TLS=no` in the file
- `/var/lib/boot2docker/profile`. Additionally, this code snippet shows how to set the user credentials.
+ `/var/lib/boot2docker/profile`.
 
 [source,groovy]
 ----
