@@ -20,38 +20,45 @@ import org.gradle.api.tasks.Optional
 
 class DockerExecContainer extends DockerExistingContainer {
 
-  	@Input
-  	String[] cmd
+    @Input
+    String[] cmd
 
-  	@Input
-  	@Optional
-  	Boolean attachStdout = true
+    @Input
+    @Optional
+    Boolean attachStdout = true
 
-  	@Input
-  	@Optional
-  	Boolean attachStderr = true
+    @Input
+    @Optional
+    Boolean attachStderr = true
 
+    String execId
 
-  	@Override
-	void runRemoteCommand(dockerClient) {
-  		logger.quiet "Executing '${getCmd()}' on container with ID '${getContainerId()}'."
-    	def execCallback = onNext ? threadContextClassLoader.createExecCallback(onNext) : threadContextClassLoader.createExecCallback(System.out, System.err)
-    	def execCmd = dockerClient.execCreateCmd(getContainerId())
-    	setContainerCommandConfig(execCmd)
-    	dockerClient.execStartCmd(execCmd.exec().getId()).withDetach(false).exec(execCallback).awaitCompletion();
-  	}
+    DockerExecContainer() {
+        ext.getExecId = { execId }
+    }
 
-  	private void setContainerCommandConfig(containerCommand) {
-  	    if (getCmd()) {
-  	    	containerCommand.withCmd(getCmd())
-  	    }
+    @Override
+    void runRemoteCommand(dockerClient) {
+        logger.quiet "Executing '${getCmd()}' on container with ID '${getContainerId()}'."
+        def execCallback = onNext ? threadContextClassLoader.createExecCallback(onNext) : threadContextClassLoader.createExecCallback(System.out, System.err)
+        def execCmd = dockerClient.execCreateCmd(getContainerId())
+        setContainerCommandConfig(execCmd)
+        execId = execCmd.exec().getId()
+        logger.quiet "Exec ID '${execId}'."
+        dockerClient.execStartCmd(execId).withDetach(false).exec(execCallback).awaitCompletion()
+    }
+
+    private void setContainerCommandConfig(containerCommand) {
+        if (getCmd()) {
+            containerCommand.withCmd(getCmd())
+        }
 
         if (getAttachStderr()) {
-  	    	containerCommand.withAttachStderr(getAttachStderr())
+            containerCommand.withAttachStderr(getAttachStderr())
         }
 
         if (getAttachStdout()) {
-  	    	containerCommand.withAttachStdout(getAttachStdout())
+            containerCommand.withAttachStdout(getAttachStdout())
         }
     }
 }
