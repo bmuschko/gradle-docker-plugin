@@ -26,7 +26,7 @@ class DockerInspectImage extends DockerExistingImage {
         logger.quiet "Inspecting image for with ID '${getImageId()}'."
         def image = dockerClient.inspectImageCmd(getImageId()).exec()
         if(onNext) {
-            onNext(image)
+            onNext.call(image)
         } else {
             responseHandler.handle(image)
         }
