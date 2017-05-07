@@ -1,7 +1,7 @@
 package com.bmuschko.gradle.docker
 
 final class TestPrecondition {
-    public static final List<String> ALLOWED_PING_PROTOCOLS = ['http', 'https']
+    public static final List<String> ALLOWED_PING_PROTOCOLS = ['tcp', 'http', 'https', 'unix']
     public static final boolean DOCKER_SERVER_INFO_URL_REACHABLE = isDockerServerInfoUrlReachable()
     public static final boolean DOCKER_PRIVATE_REGISTRY_REACHABLE = isPrivateDockerRegistryReachable()
     public static final boolean DOCKERHUB_CREDENTIALS_AVAILABLE = hasDockerHubCredentials()
@@ -9,26 +9,32 @@ final class TestPrecondition {
     private TestPrecondition() {}
 
     private static boolean isDockerServerInfoUrlReachable() {
-        isUrlReachable(new URL("${TestConfiguration.dockerHost}/info"))
+        isUrlReachable(new URI("${TestConfiguration.dockerHost}"), "_ping")
     }
 
     private static boolean isPrivateDockerRegistryReachable() {
-        isUrlReachable(new URL(TestConfiguration.dockerPrivateRegistryUrl))
+        isUrlReachable(new URI(TestConfiguration.dockerPrivateRegistryUrl), null)
     }
 
-    private static boolean isUrlReachable(URL url) {
-        if(!ALLOWED_PING_PROTOCOLS.contains(url.protocol)) {
-            throw new IllegalArgumentException("Unsupported URL protocol '$url.protocol'")
+    private static boolean isUrlReachable(URI url, String part) {
+        if(!ALLOWED_PING_PROTOCOLS.contains(url.scheme)) {
+            throw new IllegalArgumentException("Unsupported URI protocol '$url.scheme'")
         }
 
-        try {
-            HttpURLConnection connection = url.openConnection()
-            connection.requestMethod = 'GET'
-            connection.connectTimeout = 3000
-            return connection.responseCode == HttpURLConnection.HTTP_OK
-        }
-        catch(Exception e) {
-            return false
+        if (url.scheme.startsWith('http') || url.scheme.startsWith('tcp')) {
+            try {
+                HttpURLConnection connection = ((part != null) ? new URL(url.toString + "/" + part) : url).openConnection()
+                connection.requestMethod = 'GET'
+                connection.connectTimeout = 3000
+                return connection.responseCode == HttpURLConnection.HTTP_OK
+            } catch(Exception e) {
+                return false
+            }
+        } else {
+            
+            // TODO: should really use something like kohlschutter unix domain socket library 
+            // or netty to test if the socket is live and can be pinged.
+            return new File(url.path).exists()
         }
     }
 

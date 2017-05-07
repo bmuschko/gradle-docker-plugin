@@ -18,22 +18,30 @@ tasks.withType(Test) { task ->
         events 'skipped'
     }
 
-    def dockerServerUrl = System.properties['dockerServerUrl']
-
-    if(dockerServerUrl) {
-        logger.quiet "Using Docker server URL '$dockerServerUrl' for executing tests with task '$task.name'."
+    if (project.hasProperty('bootstrapDocker') && Boolean.parseBoolean(project.getProperty('bootstrapDocker'))) {
+        systemProperty 'dockerServerUrl', 'http://localhost:2375'
+    } else {
+        
+        // TODO: remove `dockerServerUrl` properties with version 3.0.10
+        def dockerServerUrl = project.findProperty('dockerServerUrl') ?: (System.properties['dockerServerUrl'] ?: System.getenv('DOCKER_SERVER_URL'))
+        if(!dockerServerUrl) {
+            dockerServerUrl = project.findProperty('dockerHost') ?: (System.properties['dockerHost'] ?: System.getenv('DOCKER_HOST'))
+            if (!dockerServerUrl) {
+                dockerServerUrl = 'unix:///var/run/docker.sock'
+            }
+        }
+        
         systemProperty 'dockerServerUrl', dockerServerUrl
+        logger.quiet "Using Docker server URL '$dockerServerUrl' for executing tests with task '$task.name'."
     }
 
-    def dockerCertPath = System.properties['dockerCertPath']
-
+    def dockerCertPath = project.findProperty('dockerCertPath') ?: (System.properties['dockerCertPath'] ?: System.getenv('DOCKER_CERT_PATH'))
     if(dockerCertPath) {
         logger.quiet "Using Docker cert path '$dockerCertPath' for executing tests with task '$task.name'."
         systemProperty 'dockerCertPath', dockerCertPath
     }
-
-    def dockerPrivateRegistryUrl = System.properties['dockerPrivateRegistryUrl']
-
+    
+    def dockerPrivateRegistryUrl = project.findProperty('dockerPrivateRegistryUrl') ?: (System.properties['dockerPrivateRegistryUrl'] ?: System.getenv('DOCKER_REGISTRY_HOST'))
     if(dockerPrivateRegistryUrl) {
         logger.quiet "Using Docker private registry URL '$dockerPrivateRegistryUrl' for executing tests with task '$task.name'."
         systemProperty 'dockerPrivateRegistryUrl', dockerPrivateRegistryUrl
