@@ -163,7 +163,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         logger.quiet "Created container with ID '$container.id'."
         containerId = container.id
         if(onNext) {
-            onNext(container)
+            onNext.call(container)
         }
     }
 
