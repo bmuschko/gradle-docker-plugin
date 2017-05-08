@@ -36,4 +36,23 @@ task listImages(type: DockerListImages) {
         then:
         noExceptionThrown()
     }
+
+    def "can list images and handle empty result"() {
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.DockerListImages
+
+task listImages(type: DockerListImages) {
+    showAll = true
+    filters = "project=none-image-match"
+    onNext {
+    }
+}
+"""
+
+        when:
+        build('listImages')
+
+        then:
+        noExceptionThrown()
+    }
 }

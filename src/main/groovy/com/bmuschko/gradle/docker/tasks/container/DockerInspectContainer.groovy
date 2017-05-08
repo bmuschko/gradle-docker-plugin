@@ -27,7 +27,7 @@ class DockerInspectContainer extends DockerExistingContainer {
         def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
 
         if (onNext) {
-            onNext(container)
+            onNext.call(container)
         } else if (responseHandler) {
             responseHandler.handle(container)
         }

@@ -45,9 +45,8 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
         }
 
         def images = listImagesCmd.exec()
-
         if (onNext) {
-            onNext(images)
+            onNext.call(images)
         } else if (responseHandler) {
             responseHandler.handle(images)
         }
