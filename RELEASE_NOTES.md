@@ -1,4 +1,5 @@
 ### Version 3.0.7 (TBA)
+* Invoke onNext closures call() method explicitly - [Pull request 368](https://github.com/bmuschko/gradle-docker-plugin/pull/368)
 
 ### Version 3.0.6 (March 2, 2017)
 
