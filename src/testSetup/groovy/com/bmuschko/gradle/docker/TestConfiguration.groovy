@@ -8,15 +8,15 @@ final class TestConfiguration {
     private TestConfiguration() {}
 
     static String getDockerHost() {
-        System.properties[DOCKER_HOST_SYS_PROP] ?: 'unix:///var/run/docker.sock'
+        System.getProperty(DOCKER_HOST_SYS_PROP) ?: 'unix:///var/run/docker.sock'
     }
 
     static File getDockerCertPath() {
-        System.properties[DOCKER_CERT_PATH_SYS_PROP] ? new File(System.properties[DOCKER_CERT_PATH_SYS_PROP]) : null
+        System.getProperty(DOCKER_CERT_PATH_SYS_PROP) ? new File(System.properties[DOCKER_CERT_PATH_SYS_PROP]) : null
     }
 
     static String getDockerPrivateRegistryUrl() {
-        System.properties[DOCKER_PRIVATE_REGISTRY_URL_SYS_PROP] ?: 'http://localhost:5000'
+        System.getProperty(DOCKER_PRIVATE_REGISTRY_URL_SYS_PROP) ?: 'http://localhost:5000'
     }
 
     static String getDockerPrivateRegistryDomain() {

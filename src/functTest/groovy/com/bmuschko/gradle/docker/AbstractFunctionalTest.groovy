@@ -90,7 +90,11 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     private GradleRunner createAndConfigureGradleRunner(String... arguments) {
-        GradleRunner.create().withProjectDir(projectDir).withArguments(arguments).withPluginClasspath()
+        def args = ['--stacktrace']
+        if (arguments) {
+            args.addAll(arguments)
+        }
+        GradleRunner.create().withProjectDir(projectDir).withArguments(args).withPluginClasspath()
     }
 
     protected String createUniqueImageId() {

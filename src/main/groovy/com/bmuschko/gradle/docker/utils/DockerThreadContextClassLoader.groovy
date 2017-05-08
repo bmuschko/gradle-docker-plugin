@@ -513,7 +513,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setCallback([
             invoke: { Object proxy, Method method, Object[] args ->
                 if ("onNext" == method.name) {
-                    onNext(args[0])
+                    onNext.call(args[0])
                 }
                 try {
                     method.invoke(defaultHandler, args)
@@ -547,7 +547,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setCallback([
             invoke: { Object proxy, Method method, Object[] args ->
                 if ("onNext" == method.name) {
-                    onNext(args[0])
+                    onNext.call(args[0])
                 }
                 try {
                     method.invoke(defaultHandler, args)

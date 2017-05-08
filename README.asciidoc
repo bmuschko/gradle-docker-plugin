@@ -455,8 +455,6 @@ OR
 ./gradlew build functionalTest -PdockerServerUrl=http://192.168.59.103:2376
 ----
 
-**Note:** At the moment the plugin code does not support executing the tests against a Docker instance with TLS enabled.
-
 ==== Using a Vagrant box to bootstrap Docker
 
 Docker does not need to be installed on the local or another remote machine. This project provides a
