@@ -6,7 +6,6 @@ import spock.lang.Requires
 /**
  * System tests for {@link com.bmuschko.gradle.docker.tasks.container.DockerInspectExecContainer} class.
  */
-@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
 
     def "Inspect executed command within running container"() {

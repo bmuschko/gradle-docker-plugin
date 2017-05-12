@@ -3,7 +3,6 @@ package com.bmuschko.gradle.docker
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
-@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
     public static final CUSTOM_BASE_IMAGE = 'yaronr/openjdk-7-jre'
 

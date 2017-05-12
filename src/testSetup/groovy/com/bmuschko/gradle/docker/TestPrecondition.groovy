@@ -1,19 +1,14 @@
 package com.bmuschko.gradle.docker
 
 final class TestPrecondition {
-    public static final List<String> ALLOWED_PING_PROTOCOLS = ['http', 'https', 'unix']
-    public static final boolean DOCKER_SERVER_INFO_URL_REACHABLE = isDockerServerInfoUrlReachable()
+    public static final List<String> ALLOWED_PING_PROTOCOLS = ['tcp', 'http', 'https', 'unix']
     public static final boolean DOCKER_PRIVATE_REGISTRY_REACHABLE = isPrivateDockerRegistryReachable()
     public static final boolean DOCKERHUB_CREDENTIALS_AVAILABLE = hasDockerHubCredentials()
 
     private TestPrecondition() {}
 
-    private static boolean isDockerServerInfoUrlReachable() {
-        isUriReachable(new URI("${TestConfiguration.dockerHost}".replaceFirst('tcp', 'http')), "info")
-    }
-
     private static boolean isPrivateDockerRegistryReachable() {
-        isUriReachable(new URI(TestConfiguration.dockerPrivateRegistryUrl), null)
+        isUriReachable(new URI("${TestConfiguration.dockerPrivateRegistryUrl}".replaceFirst('tcp', 'http')), null)
     }
 
     private static boolean isUriReachable(URI dockerUri, String extraPath) {

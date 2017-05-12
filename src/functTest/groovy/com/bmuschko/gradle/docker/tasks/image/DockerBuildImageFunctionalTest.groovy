@@ -6,7 +6,6 @@ import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 import spock.lang.Unroll
 
-@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
 
     def "prints error message when image build fails"() {
