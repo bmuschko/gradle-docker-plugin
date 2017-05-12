@@ -47,6 +47,16 @@ abstract class AbstractFunctionalTest extends Specification {
         setupDockerServerUrl()
         setupDockerCertPath()
         setupDockerPrivateRegistryUrl()
+        
+        buildFile << """
+            task dockerVersion(type: com.bmuschko.gradle.docker.tasks.DockerVersion)
+        """
+
+        when:
+        BuildResult result = build('dockerVersion')
+
+        then:
+        result.output.contains('Retrieving Docker version.')
     }
 
     private void setupDockerServerUrl() {
@@ -90,7 +100,11 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     private GradleRunner createAndConfigureGradleRunner(String... arguments) {
-        GradleRunner.create().withProjectDir(projectDir).withArguments(arguments).withPluginClasspath()
+        def args = ['--stacktrace']
+        if (arguments) {
+            args.addAll(arguments)
+        }
+        GradleRunner.create().withProjectDir(projectDir).withArguments(args).withPluginClasspath()
     }
 
     protected String createUniqueImageId() {

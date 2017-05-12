@@ -4,7 +4,6 @@ import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.TestPrecondition
 import spock.lang.Requires
 
-@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
     def "Can list images with default property values"() {
         buildFile << """

@@ -422,26 +422,38 @@ docker {
 
 === Executing the plugin's test suite with custom configuration
 
-Functional tests that are executed against a Docker instance assume a specific setup. This setup
-uses the Docker server URL `http://localhost:2375` with TLS being disabled. The default setup can be configured with the
-help of system properties shown in the table below:
+The default setup can be configured with the help of the properties shown in the table below:
 
 [options="header"]
 |=======
-|Description                 |System property          |Default Value
-|Docker server URL           |dockerServerUrl          |http://localhost:2375
-|Docker cert path            |dockerCertPath           |null
-|Docker private registry URL |dockerPrivateRegistryUrl |http://localhost:5000
+|Description                 |System/Project/Environment variable          |Default Value
+|Docker server URL           |dockerServerUrl/dockerServerUrl/DOCKER_HOST          |unix:///var/run/docker.sock
+|Docker cert path            |dockerCertPath/dockerCertPath/DOCKER_CERT_PATH           |null
+|Docker private registry URL |dockerPrivateRegistryUrl/dockerPrivateRegistryUrl/DOCKER_REGISTRY_HOST |http://localhost:5000
 |=======
 
-The following usage example demonstrates running the tests against a Docker instance using HTTPS:
+The following usage examples demonstrates running functional tests against the a docker instance:
 
 [source,shell]
 ----
-./gradlew build -DdockerServerUrl=https://192.168.59.103:2376 -DdockerCertPath=/Users/ben/.boot2docker/certs/boot2docker-vm
-----
+./gradlew build functionalTest
 
-**Note:** At the moment the plugin code does not support executing the tests against a Docker instance with TLS enabled.
+OR
+
+./gradlew build functionalTest -PdockerServerUrl=unix:///var/run/docker.sock
+
+OR
+
+./gradlew build functionalTest -DdockerServerUrl=unix:///var/run/docker.sock
+
+OR
+
+export DOCKER_HOST=unix:///var/run/docker.sock && ./gradlew build functionalTest
+
+OR
+
+./gradlew build functionalTest -PdockerServerUrl=http://192.168.59.103:2376
+----
 
 ==== Using a Vagrant box to bootstrap Docker
 

@@ -19,7 +19,6 @@ import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
-@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     def "Can create Dockerfile and build an image from it"() {
         buildFile << """
