@@ -5,12 +5,16 @@ jobs:
   include:
     - stage: compile
       script: ./gradlew classes
+      install: skip
     - stage: unit-test
       script: ./gradlew test
+      install: skip
     - stage: integration-test
       script: ./gradlew integrationTest
+      install: skip
     - stage: functional-test
       script: ./gradlew functionalTest
+      install: skip
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
