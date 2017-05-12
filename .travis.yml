@@ -1,13 +1,10 @@
-language: java
-install: true
-
 jdk:
   - oraclejdk8
 
 jobs:
   include:
     - stage: compile
-      script: ./gradlew compileJava
+      script: ./gradlew classes
     - stage: unit-test
       script: ./gradlew test
     - stage: integration-test
