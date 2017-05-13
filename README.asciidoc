@@ -1,27 +1,13 @@
-Gradle Docker plugin
-====================
+= Gradle Docker plugin image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
 
 image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout.png[Docker Logo]
 
-|=======
-| Over the past couple of years this plugin has seen many releases. Thanks to everyone involved!
-Unfortunately, I don't have much time to contribute anymore. In practice this means far less activity,
-responsiveness on issues and new releases from my end.
-|I am
-link:https://discuss.gradle.org/t/looking-for-new-owners-for-gradle-plugins/9735[actively looking for contributors]
-willing to take on maintenance and implementation of the project. If you are interested and would love to see this
-plugin continue to thrive, shoot me a mailto:benjamin.muschko@gmail.com[mail].
-|=======
-
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
 link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
-Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Currently,
-version 2.2.3. Please refer to the library's documentation for more information on the supported Docker's client API
-and Docker server version.
+Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Please
+refer to the library's documentation for more information on the supported Docker's client API and Docker server version.
 
 *This plugin requires Gradle >= 2.5 to work properly.*
-
-link:https://snap-ci.com/bmuschko/gradle-docker-plugin/branch/master[image:https://snap-ci.com/bmuschko/gradle-docker-plugin/branch/master/build_image[Build Image]]
 
 == Usage
 
@@ -35,7 +21,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:2.6.7'
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.6'
     }
 }
 ----
@@ -61,6 +47,11 @@ code snippet in your build script:
 [source,groovy]
 ----
 apply plugin: 'com.bmuschko.docker-remote-api'
+----
+If you're using this plugin from a build file which is not the *main* build file you must apply plugin like so:
+[source,groovy]
+----
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 ----
 
 The plugin automatically resolves the Docker Java library with the pre-configured version under the covers. The only
@@ -114,6 +105,7 @@ The plugin provides the following custom task types for managing containers:
 [options="header"]
 |=======
 |Type                                                                                                                                                                        |Description
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileToContainer.html[DockerCopyFileToContainer] |Copies a path from the host into the container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileFromContainer.html[DockerCopyFileFromContainer] |Copies a path from the container as a tar file on to the host.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCreateContainer.html[DockerCreateContainer]             |Creates a container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html[DockerInspectContainer]           |Returns low-level information on the container.
@@ -122,8 +114,9 @@ The plugin provides the following custom task types for managing containers:
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRestartContainer.html[DockerRestartContainer]           |Restarts the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStartContainer.html[DockerStartContainer]               |Starts the container for a given id.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStopContainer.html[DockerStopContainer]                 |Stops the container for a given id.
-|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops, then returns the exit code.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerLogsContainer.html[DockerLogsContainer]                 |Copies the container output to the Gradle process standard out/err.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerExecContainer.html[DockerExecContainer]                 |Executes a command within a running container.
 |=======
 
 
@@ -134,9 +127,15 @@ The plugin defines the following extension properties in the `docker` closure:
 [options="header"]
 |=======
 |Property name   |Type      |Default value            |Description
-|`url`           |String    |http://localhost:2375    |The server URL to connect to via Docker's remote API.
+|`url`           |String    |see below                |The server URL to connect to via Docker's remote API.
 |`certPath`      |File      |null                     |The path to certificates for communicating with link:https://docs.docker.com/articles/https/[Docker over SSL].
+|`apiVersion`    |String    |null                     |The remote API version. For most cases this can be left null.
 |=======
+
+*The default value is now generated based on a best guess attempt given the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[OperatingSystem and Environment]:*
+
+    Unix-based machine: unix:///var/run/docker.sock
+    Windows-based machine (and everything else): tcp://127.0.0.1:2375 
 
 Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.
 You can provide those credentials in the `registryCredentials` closure:
@@ -144,7 +143,7 @@ You can provide those credentials in the `registryCredentials` closure:
 [options="header"]
 |=======
 |Property name   |Type      |Default value               |Description
-|`url`           |String    |https://index.docker.io/v1  |The registry URL.
+|`url`           |String    |https://index.docker.io/v1/ |The registry URL.
 |`username`      |String    |null                        |The registry username.
 |`password`      |String    |null                        |The registry password.
 |`email`         |String    |null                        |The registry email address.
@@ -166,7 +165,7 @@ docker {
     certPath = new File(System.properties['user.home'], '.boot2docker/certs/boot2docker-vm')
 
     registryCredentials {
-        url = 'https://index.docker.io/v1'
+        url = 'https://index.docker.io/v1/'
         username = 'bmuschko'
         password = 'pwd'
         email = 'benjamin.muschko@gmail.com'
@@ -177,14 +176,17 @@ docker {
 ===== Working with a Docker instance without TLS
 
 The following example assumes that you disabled TLS on your Docker instance. You can do so by setting `DOCKER_TLS=no` in the file
- `/var/lib/boot2docker/profile`. Additionally, this code snippet shows how to set the user credentials.
+ `/var/lib/boot2docker/profile`.
 
 [source,groovy]
 ----
 docker {
-    url = 'http://192.168.59.103:2375'
+    url = 'tcp://192.168.59.103:2375'
 }
 ----
+On Unix the Docker daemon listens by default on `unix:///var/run/docker.sock`.
+
+On Windows the Docker daemon listens by default on `npipe:////./pipe/docker_engine` though this is not currently supported. We instead fall back to `tcp://127.0.0.1:2375`.
 
 === Usage examples
 
@@ -215,7 +217,80 @@ task buildImage(type: DockerBuildImage) {
 }
 ----
 
-==== Executing functional tests against a running container
+== Reactive-Streams
+
+As needed, we will implement reactive methods as described in link:https://github.com/reactive-streams/reactive-streams-jvm[reactive-streams]. 
+We implement these here as optional closures for all tasks. Currently the only supported methods are `onError`, `onNext`, `onComplete`. Various examples  
+on how to use these can be found in our link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests]
+
+==== onError
+
+The `onError` closure is passed the exception that is thrown for YOU to handle. If you silently ignore we will not throw the exception behind the scenes. 
+The below example is a common use-case that arises when someone wants to remove a container whether it exists or not but does not want to fail hard.
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+
+task removeContainer(type: DockerRemoveContainer) {
+    targetContainerId { "container-that-does-not-exist" }
+    onError { exception ->
+        if (!exception.message.contains('No such container')) // ignore exception if container does not exist otherwise throw it
+            throw exception
+    }
+}
+----
+
+==== onNext
+
+The `onNext` closure is passed the next iterative response upon execution. For all other tasks we simply hand you back the object that is given to us by `docker-java` 
+which is a pojo representation of the json handed back by `docker`. Thus, and much like the `onException` closure, all delegation is now in your control. Any properties/values 
+expected to be set will not be done unless YOU do them.
+
+Iterative tasks are things like `DockerBuildImage`, `DockerLogsContainer`, `DockerListImages`. These tasks have output which can be iterated over. The example below demonstrates how 
+we iterate over each log message passing that to the closure for the user to work on.
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+
+task logContainer(type: DockerLogsContainer) {
+    targetContainerId { "container-that-does-exist" }
+    follow = true
+    tailAll = true
+    onNext { message ->
+        logger.quiet message.toString() // each log message from the container will be passed as it's made available
+    }
+}
+----
+
+==== onComplete
+
+The `onComplete` closure is not passed anything upon execution. It works in the same fashion that `doLast` does but is instead part of this task and thus executes
+before `doLast` does. This closure executes ONLY upon success. The below example demonstrates how this works.
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+
+task removeContainer(type: DockerRemoveContainer) {
+    targetContainerId { "container-that-does-exist" }
+    onComplete { 
+        println "Executes first"
+    }
+    doLast {
+        println "Executes second"
+    }
+}
+----
+
+== Executing functional tests against a running container
 
 The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this
 image and exercises functional tests agains the running container. At the end of this operation, the container is stopped.
@@ -275,7 +350,8 @@ The plugin defines the following extension properties in the `javaApplication` c
 |Property name   |Type      |Default value                                         |Description
 |`baseImage`     |String    |java                                                  |The Docker base image used for Java application.
 |`maintainer`    |String    |Value of `user.home` system property                  |The name and email address of the image maintainer.
-|`port`          |Integer   |8080                                                  |The Docker image entry point port used for the Java application.
+|`port`          |Integer   |8080                                                  |The Docker image entry point port used for the Java application (Deprecated)
+|`ports`         |Integer[] |[]                                                    |The Docker image exposed ports (if provided, this values will override `port` configuration property)
 |`tag`           |String    |<project.group>/<applicationName>:<project.version>   |The tag used for the Docker image.
 |=======
 
@@ -288,7 +364,7 @@ docker {
     javaApplication {
         baseImage = 'dockerfile/java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
-        port = 9090
+        ports = [9090, 5701]
         tag = 'jettyapp:1.115'
     }
 }
@@ -343,26 +419,38 @@ docker {
 
 === Executing the plugin's test suite with custom configuration
 
-Functional tests that are executed against a Docker instance assume a specific setup. This setup
-uses the Docker server URL `http://localhost:2375` with TLS being disabled. The default setup can be configured with the
-help of system properties shown in the table below:
+The default setup can be configured with the help of the properties shown in the table below:
 
 [options="header"]
 |=======
-|Description                 |System property          |Default Value
-|Docker server URL           |dockerServerUrl          |http://localhost:2375
-|Docker cert path            |dockerCertPath           |null
-|Docker private registry URL |dockerPrivateRegistryUrl |http://localhost:5000
+|Description                 |System/Project/Environment variable          |Default Value
+|Docker server URL           |dockerServerUrl/dockerServerUrl/DOCKER_HOST          |unix:///var/run/docker.sock
+|Docker cert path            |dockerCertPath/dockerCertPath/DOCKER_CERT_PATH           |null
+|Docker private registry URL |dockerPrivateRegistryUrl/dockerPrivateRegistryUrl/DOCKER_REGISTRY_HOST |http://localhost:5000
 |=======
 
-The following usage example demonstrates running the tests against a Docker instance using HTTPS:
+The following usage examples demonstrates running functional tests against the a docker instance:
 
 [source,shell]
 ----
-./gradlew build -DdockerServerUrl=https://192.168.59.103:2376 -DdockerCertPath=/Users/ben/.boot2docker/certs/boot2docker-vm
-----
+./gradlew build functionalTest
 
-**Note:** At the moment the plugin code does not support executing the tests against a Docker instance with TLS enabled.
+OR
+
+./gradlew build functionalTest -PdockerServerUrl=unix:///var/run/docker.sock
+
+OR
+
+./gradlew build functionalTest -DdockerServerUrl=unix:///var/run/docker.sock
+
+OR
+
+export DOCKER_HOST=unix:///var/run/docker.sock && ./gradlew build functionalTest
+
+OR
+
+./gradlew build functionalTest -PdockerServerUrl=http://192.168.59.103:2376
+----
 
 ==== Using a Vagrant box to bootstrap Docker
 

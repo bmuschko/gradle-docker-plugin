@@ -1,5 +1,5 @@
 group = 'com.bmuschko'
-version = '2.6.7'
+version = '3.0.6'
 
 apply plugin: 'groovy'
 apply plugin: 'idea'
@@ -17,10 +17,9 @@ repositories {
 }
 
 dependencies {
-    compile localGroovy()
-    compile gradleApi()
+    compile localGroovy(), gradleApi()
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
-        exclude module: 'groovy-all'
+        exclude group: 'org.codehaus.groovy'
     }
 }
 

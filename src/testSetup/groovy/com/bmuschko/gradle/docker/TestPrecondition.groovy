@@ -1,34 +1,35 @@
 package com.bmuschko.gradle.docker
 
 final class TestPrecondition {
-    public static final List<String> ALLOWED_PING_PROTOCOLS = ['http', 'https']
-    public static final boolean DOCKER_SERVER_INFO_URL_REACHABLE = isDockerServerInfoUrlReachable()
+    public static final List<String> ALLOWED_PING_PROTOCOLS = ['tcp', 'http', 'https', 'unix']
     public static final boolean DOCKER_PRIVATE_REGISTRY_REACHABLE = isPrivateDockerRegistryReachable()
     public static final boolean DOCKERHUB_CREDENTIALS_AVAILABLE = hasDockerHubCredentials()
 
     private TestPrecondition() {}
 
-    private static boolean isDockerServerInfoUrlReachable() {
-        isUrlReachable(new URL("${TestConfiguration.dockerServerUrl}/info"))
-    }
-
     private static boolean isPrivateDockerRegistryReachable() {
-        isUrlReachable(new URL(TestConfiguration.dockerPrivateRegistryUrl))
+        isUriReachable(new URI("${TestConfiguration.dockerPrivateRegistryUrl}".replaceFirst('tcp', 'http')), null)
     }
 
-    private static boolean isUrlReachable(URL url) {
-        if(!ALLOWED_PING_PROTOCOLS.contains(url.protocol)) {
-            throw new IllegalArgumentException("Unsupported URL protocol '$url.protocol'")
+    private static boolean isUriReachable(URI dockerUri, String extraPath) {
+        if(!ALLOWED_PING_PROTOCOLS.contains(dockerUri.scheme)) {
+            throw new IllegalArgumentException("Unsupported URI protocol '$dockerUri.scheme'")
         }
 
-        try {
-            HttpURLConnection connection = url.openConnection()
-            connection.requestMethod = 'GET'
-            connection.connectTimeout = 3000
-            return connection.responseCode == HttpURLConnection.HTTP_OK
-        }
-        catch(Exception e) {
-            return false
+        if (dockerUri.scheme.startsWith('http')) {
+            try {
+                HttpURLConnection connection = ((extraPath != null) ? new URL(dockerUri.toString() + "/" + extraPath) : dockerUri).openConnection()
+                connection.requestMethod = 'GET'
+                connection.connectTimeout = 3000
+                return (connection.responseCode >= 200 && connection.responseCode <= 399)
+            } catch(Exception e) {
+                return false
+            }
+        } else {
+            
+            // TODO: should really use something like kohlschutter unix domain socket library 
+            // or netty to test if the socket is live and can be pinged.
+            return new File(dockerUri.path).exists()
         }
     }
 

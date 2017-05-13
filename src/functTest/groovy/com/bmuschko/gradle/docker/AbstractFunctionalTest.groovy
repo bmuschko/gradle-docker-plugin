@@ -28,32 +28,17 @@ abstract class AbstractFunctionalTest extends Specification {
     File projectDir
     File buildFile
 
+    String dockerServerUrl
+
     def setup() {
         projectDir = temporaryFolder.root
         buildFile = temporaryFolder.newFile('build.gradle')
 
-        def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.txt")
-        if (pluginClasspathResource == null) {
-            throw new IllegalStateException("Did not find plugin classpath resource, run 'functionalTestClasses' build task.")
-        }
-
-        def pluginClasspath = pluginClasspathResource.readLines()
-                .collect { it.replace('\\', '\\\\') } // escape backslashes in Windows paths
-                .collect { "'$it'" }
-                .join(", ")
-
-        // Add the logic under test to the test build
         buildFile << """
-            buildscript {
-                dependencies {
-                    classpath files($pluginClasspath)
-                }
+            plugins {
+                id 'com.bmuschko.docker-remote-api'
             }
-        """
-
-        buildFile << """
-            apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-
+			
             repositories {
                 mavenCentral()
             }
@@ -62,12 +47,22 @@ abstract class AbstractFunctionalTest extends Specification {
         setupDockerServerUrl()
         setupDockerCertPath()
         setupDockerPrivateRegistryUrl()
+        
+        buildFile << """
+            task dockerVersion(type: com.bmuschko.gradle.docker.tasks.DockerVersion)
+        """
+
+        when:
+        BuildResult result = build('dockerVersion')
+
+        then:
+        result.output.contains('Retrieving Docker version.')
     }
 
     private void setupDockerServerUrl() {
-        String dockerServerUrl = TestConfiguration.dockerServerUrl
+        dockerServerUrl = TestConfiguration.dockerHost
 
-        if(dockerServerUrl) {
+        if (dockerServerUrl) {
             buildFile << """
                 docker.url = '$dockerServerUrl'
             """
@@ -77,7 +72,7 @@ abstract class AbstractFunctionalTest extends Specification {
     private void setupDockerCertPath() {
         File dockerCertPath = TestConfiguration.dockerCertPath
 
-        if(dockerCertPath) {
+        if (dockerCertPath) {
             buildFile << """
                 docker.certPath = new File('$dockerCertPath.canonicalPath')
             """
@@ -87,7 +82,7 @@ abstract class AbstractFunctionalTest extends Specification {
     private void setupDockerPrivateRegistryUrl() {
         String dockerPrivateRegistryUrl = TestConfiguration.dockerPrivateRegistryUrl
 
-        if(dockerPrivateRegistryUrl) {
+        if (dockerPrivateRegistryUrl) {
             buildFile << """
                 docker.registryCredentials {
                     url = '$dockerPrivateRegistryUrl'
@@ -105,7 +100,11 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     private GradleRunner createAndConfigureGradleRunner(String... arguments) {
-        GradleRunner.create().withProjectDir(projectDir).withArguments(arguments)
+        def args = ['--stacktrace']
+        if (arguments) {
+            args.addAll(arguments)
+        }
+        GradleRunner.create().withProjectDir(projectDir).withArguments(args).withPluginClasspath()
     }
 
     protected String createUniqueImageId() {

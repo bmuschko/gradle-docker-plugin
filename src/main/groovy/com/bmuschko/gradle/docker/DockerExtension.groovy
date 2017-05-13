@@ -15,15 +15,51 @@
  */
 package com.bmuschko.gradle.docker
 
-import org.gradle.util.ConfigureUtil
+import org.gradle.api.file.FileCollection
+import org.gradle.api.Project
 
 class DockerExtension {
-    String url = 'http://localhost:2375'
+    FileCollection classpath
+    String url
     File certPath
-    DockerRegistryCredentials registryCredentials
+    String apiVersion
 
+    DockerRegistryCredentials registryCredentials
+    private Project project
+    
+    public DockerExtension(Project project) {
+        this.project = project
+        this.url = getDefaultDockerUrl()
+    }
+    
     void registryCredentials(Closure closure) {
         registryCredentials = new DockerRegistryCredentials()
-        ConfigureUtil.configure(closure, registryCredentials)
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = registryCredentials
+        closure()
+    }
+    
+    public String getDefaultDockerUrl() {
+        String dockerUrl = System.getenv("DOCKER_HOST")
+        if (!dockerUrl) {
+            boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+            if (!isWindows && new File('/var/run/docker.sock').exists()) {
+                dockerUrl = 'unix:///var/run/docker.sock'
+            } else {
+                if (isWindows && new File("\\\\.\\pipe\\docker_engine").exists()) {
+                    // TODO: re-enable once docker-java supports named pipes. Relevant links:
+                    // 
+                    //     https://github.com/bmuschko/gradle-docker-plugin/pull/313
+                    //     https://github.com/docker-java/docker-java/issues/765
+                    // 
+                    // dockerUrl = 'npipe:////./pipe/docker_engine'
+                    dockerUrl = 'tcp://127.0.0.1:2375'
+                } else {
+                    dockerUrl = 'tcp://127.0.0.1:2375'
+                }
+            }
+        }
+        project.logger.info("Default docker.url set to $dockerUrl")
+        dockerUrl
     }
 }

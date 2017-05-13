@@ -59,6 +59,14 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     Boolean pull
 
+    @Input
+    @Optional
+    Map<String, String> labels = [:]
+
+    @Input
+    @Optional
+    Map<String, String> buildArgs = [:]
+
     /**
      * The target Docker registry credentials for building image.
      */
@@ -66,6 +74,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     DockerRegistryCredentials registryCredentials
 
+    @Internal
     String imageId
 
     DockerBuildImage() {
@@ -77,45 +86,53 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         logger.quiet "Building image using context '${getInputDir()}'."
         def buildImageCmd
 
-        if(getDockerFile()) {
+        if (getDockerFile()) {
             logger.quiet "Using Dockerfile '${getDockerFile()}'"
             buildImageCmd = dockerClient.buildImageCmd()
                     .withBaseDirectory(getInputDir())
                     .withDockerfile(getDockerFile())
-        }
-        else {
+        } else {
             buildImageCmd = dockerClient.buildImageCmd(getInputDir())
         }
 
-        if(getTag()) {
+        if (getTag()) {
             logger.quiet "Using tag '${getTag()}' for image."
             buildImageCmd.withTag(getTag())
         }
 
-        if(getNoCache()) {
+        if (getNoCache()) {
             buildImageCmd.withNoCache(getNoCache())
         }
 
-        if(getRemove()) {
+        if (getRemove()) {
             buildImageCmd.withRemove(getRemove())
         }
 
-        if(getQuiet()) {
+        if (getQuiet()) {
             buildImageCmd.withQuiet(getQuiet())
         }
 
-        if(getPull()) {
+        if (getPull()) {
             buildImageCmd.withPull(getPull())
         }
 
-        if(getRegistryCredentials()) {
+        if (getLabels()) {
+            buildImageCmd.withLabels(getLabels())
+        }
+
+        if (getRegistryCredentials()) {
             def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
             def authConfigurations = threadContextClassLoader.createAuthConfigurations([authConfig])
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }
 
-        def response = buildImageCmd.exec(threadContextClassLoader.createBuildImageResultCallback(logger))
-        imageId = response.awaitImageId()
+        buildArgs.each { arg, value ->
+            buildImageCmd = buildImageCmd.withBuildArg(arg, value);
+        }
+
+        def callback = onNext ? threadContextClassLoader.createBuildImageResultCallback(this.onNext)
+                              : threadContextClassLoader.createBuildImageResultCallback(logger)
+        imageId = buildImageCmd.exec(callback).awaitImageId()
         logger.quiet "Created image with ID '$imageId'."
     }
 }

@@ -1,0 +1,24 @@
+language: java
+install: true
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker run -d -p 5000:5000 --restart=always --name registry registry:2
+
+jdk:
+  - oraclejdk8
+
+script:
+  - ./gradlew build -s
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/

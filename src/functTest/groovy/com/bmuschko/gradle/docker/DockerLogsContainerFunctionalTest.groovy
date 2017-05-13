@@ -18,7 +18,6 @@ package com.bmuschko.gradle.docker
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
-@Requires({ TestPrecondition.DOCKER_SERVER_INFO_URL_REACHABLE })
 class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
     def setup() {
         buildFile << """
@@ -29,8 +28,8 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'busybox'
-                tag = 'latest'
+                repository = 'alpine'
+                tag = '3.4'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -156,6 +155,34 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
         expect:
         BuildResult result = build('workflow')
         result.output ==~ ~/(?s).*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][.][0-9]+Z\s+Hello World.*/
+    }
+
+    def "sink output to file"() {
+        buildFile << """
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                sink = project.file("${projectDir.path}/log-sink.txt").newWriter()
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        File outputFile = new File("${projectDir.path}/log-sink.txt")
+        outputFile.exists() && outputFile.text.contains("Hello World")
+    }
+
+    def "prints error message when obtaining logs fails"() {
+        buildFile << """
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { "not_existimg_container" }
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('workflow')
+        result.output.contains("No such container: not_existimg_container")
     }
 }
 

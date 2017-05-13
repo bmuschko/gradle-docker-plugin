@@ -15,10 +15,34 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+
+import java.util.concurrent.TimeUnit
+
 class DockerWaitContainer extends DockerExistingContainer {
+
+    protected int exitCode
+
+    /**
+     * Wait timeout in seconds.
+     */
+    @Input
+    @Optional
+    Integer timeout
+
+    DockerWaitContainer() {
+        ext.getExitCode = { exitCode }
+    }
+
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Waiting for container with ID '${getContainerId()}'."
-        dockerClient.waitContainerCmd(getContainerId()).exec()
+        String possibleTimeout = timeout ? " for ${timeout} seconds" : ''
+        logger.quiet "Waiting for container with ID '${getContainerId()}'${possibleTimeout}."
+        def containerCommand = dockerClient.waitContainerCmd(getContainerId())
+        def callback = threadContextClassLoader.createWaitContainerResultCallback(onNext)
+        callback = containerCommand.exec(callback)
+        exitCode = timeout ? callback.awaitStatusCode(timeout, TimeUnit.SECONDS) : callback.awaitStatusCode()
+        logger.quiet "Container exited with code ${exitCode}"
     }
 }

@@ -1,6 +1,67 @@
-### Version 2.6.8 (TBA)
+### Version 3.0.7 (TBA)
+* Invoke onNext closures call() method explicitly - [Pull request 368](https://github.com/bmuschko/gradle-docker-plugin/pull/368)
+* Adds new task DockerInspectExecContainer which allows to inspect exec instance - [Pull request 362](https://github.com/bmuschko/gradle-docker-plugin/pull/362)
+* `functionalTest`'s can now run against a native docker instance - [Pull request 369](https://github.com/bmuschko/gradle-docker-plugin/pull/369)
+
+### Version 3.0.6 (March 2, 2017)
+
+* Bump version of docker-java to 3.0.7 - [Pull request 331](https://github.com/bmuschko/gradle-docker-plugin/pull/331)
+* Add support for label parameter on docker image creation - [Pull request 332](https://github.com/bmuschko/gradle-docker-plugin/pull/332)
+
+### Version 3.0.5 (December 27, 2016)
+
+* Support multiple variables per singled ENV cmd - [Pull request 311](https://github.com/bmuschko/gradle-docker-plugin/pull/311)
+* Implement a sane default docker URL based on environment - [Pull request 313](https://github.com/bmuschko/gradle-docker-plugin/pull/313)
+* Implement [reactive-stream](https://github.com/reactive-streams/reactive-streams-jvm/#2-subscriber-code) methods `onNext` and `onComplete` for all tasks - [Pull request 307](https://github.com/bmuschko/gradle-docker-plugin/pull/307)
+
+### Version 3.0.4 (December 1, 2016)
+
+* Implement [reactive-stream](https://github.com/reactive-streams/reactive-streams-jvm/#2-subscriber-code) method `onError` for all tasks - [Pull request 302](https://github.com/bmuschko/gradle-docker-plugin/pull/302)
+* Bump docker-java to 3.0.6 - [Pull request 279](https://github.com/bmuschko/gradle-docker-plugin/pull/279)
+
+### Version 3.0.3 (September 6, 2016)
+
+* Print error messages received from docker engine when build fails - [Pull request 265](https://github.com/bmuschko/gradle-docker-plugin/pull/265)
+* Bump docker-java to 3.0.5 - [Pull request 263](https://github.com/bmuschko/gradle-docker-plugin/pull/263)
+* Add support for `force` removal on `DockerRemoveImage` - [Pull request 266](https://github.com/bmuschko/gradle-docker-plugin/pull/266)
+* Various fixes and cleanups as well default to alpine image for all functional tests - [Pull request 269](https://github.com/bmuschko/gradle-docker-plugin/pull/269)
+* Added `editorconfig` file with some basic defaults - [Pull request 270](https://github.com/bmuschko/gradle-docker-plugin/pull/270)
+
+### Version 3.0.2 (August 14, 2016)
+
+* Add support for build-time variables in `DockerBuildImage` task - [Pull request 240](https://github.com/bmuschko/gradle-docker-plugin/pull/240)
+* Fix incorrect docker-java method name in `DockerCreateContainer` task - [Pull request 242](https://github.com/bmuschko/gradle-docker-plugin/pull/242)
+* Can define devices on `DockerCreateContainer` task - [Pull request 245](https://github.com/bmuschko/gradle-docker-plugin/pull/245)
+* Can now supply multiple ports when working with `docker-java-application` - [Pull request 254](https://github.com/bmuschko/gradle-docker-plugin/pull/254)
+* Bump docker-java to 3.0.2 - [Pull request 259](https://github.com/bmuschko/gradle-docker-plugin/pull/259)
+* If buildscript repos are required make sure they are added after evaluation - [Pull request 260](https://github.com/bmuschko/gradle-docker-plugin/pull/260)
+
+### Version 3.0.1 (July 6, 2016)
+
+* Simplify Gradle TestKit usage - [Pull request 225](https://github.com/bmuschko/gradle-docker-plugin/pull/225)
+* Ensure `tlsVerify` is set in addition to `certPath` for DockerClientConfig setup - [Pull request 230](https://github.com/bmuschko/gradle-docker-plugin/pull/230)
+* Upgrade to Gradle 2.14.
+
+### Version 3.0.0 (June 5, 2016)
+
+* Task `DockerLogsContainer` gained attribute `sink` - [Pull request 203](https://github.com/bmuschko/gradle-docker-plugin/pull/203)
+* Task `DockerBuildImage` will no longer insert extra newline as part of build output - [Pull request 206](https://github.com/bmuschko/gradle-docker-plugin/pull/206)
+* Upgrade to docker-java 3.0.0 - [Pull request 217](https://github.com/bmuschko/gradle-docker-plugin/pull/217)
+* Fallback to buildscript.repositories for internal dependency resolution if no repositories were defined - [Pull request 218](https://github.com/bmuschko/gradle-docker-plugin/pull/218)
+* Added task `DockerExecContainer` - [Pull request 221](https://github.com/bmuschko/gradle-docker-plugin/pull/221)
+* Added task `DockerCopyFileToContainer` - [Pull request 222](https://github.com/bmuschko/gradle-docker-plugin/pull/222)
+* Task `DockerCreateContainer` gained attribute `restartPolicy` - [Pull request 224](https://github.com/bmuschko/gradle-docker-plugin/pull/224)
+* Remove use of Gradle internal methods.
+* Added ISSUES.md file.
+* Upgrade to Gradle 2.13.
+
+### Version 2.6.8 (April 10, 2016)
 * Added task `DockerLogsContainer` - [Pull request 181](https://github.com/bmuschko/gradle-docker-plugin/pull/181)
 * Bump docker-java to version 2.3.3 - [Pull request 183](https://github.com/bmuschko/gradle-docker-plugin/pull/183)
+* Bug fix when not checking if parent dir already exists before creating with `DockerCopyFileToContainer` - [Pull request 186](https://github.com/bmuschko/gradle-docker-plugin/pull/186)
+* `DockerWaitContainer` now produces exitCode - [Pull request 189](https://github.com/bmuschko/gradle-docker-plugin/pull/189)
+* `apiVersion` can now be set on `DockerExtension` and overriden on all tasks - [Pull request 182](https://github.com/bmuschko/gradle-docker-plugin/pull/182)
+* Internal fix where task variables had to be defined - [Pull request 194](https://github.com/bmuschko/gradle-docker-plugin/pull/194)
 
 ### Version 2.6.7 (March 10, 2016)
 

@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
     }
 }
 
@@ -50,6 +50,7 @@ bintray {
     user = resolveProperty('BINTRAY_USER', 'bintrayUser')
     key = resolveProperty('BINTRAY_KEY', 'bintrayKey')
     publications = ['mavenJava']
+    publish = true
 
     pkg {
         repo = 'gradle-plugins'
@@ -61,8 +62,11 @@ bintray {
         licenses = ['Apache-2.0']
         labels = ['gradle', 'docker', 'container', 'image', 'lightweight', 'vm', 'linux']
         publicDownloadNumbers = true
+        githubRepo = "bmuschko/${project.name}"
+        githubReleaseNotesFile = 'RELEASE_NOTES.md'
 
         version {
+            released  = new Date()
             vcsTag = "v$project.version"
             attributes = ['gradle-plugin': ["com.bmuschko.docker-remote-api:${project.group}:${project.name}",
                                             "com.bmuschko.docker-java-application:${project.group}:${project.name}"]]

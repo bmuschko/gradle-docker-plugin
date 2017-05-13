@@ -18,6 +18,13 @@ package com.bmuschko.gradle.docker
 class DockerJavaApplication {
     String baseImage = 'java'
     String maintainer = System.getProperty('user.name')
+    @Deprecated
     Integer port = 8080
+    Set<Integer> ports = []
     String tag
+
+    Integer[] getPorts() {
+        return ports.size() > 0 ? ports : [port]
+    }
+
 }

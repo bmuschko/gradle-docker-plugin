@@ -52,20 +52,24 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(dockerClient) {
 
-        def containerCommand = dockerClient.copyFileFromContainerCmd(getContainerId(), getRemotePath())
+        def containerCommand = dockerClient.copyArchiveFromContainerCmd(getContainerId(), getRemotePath())
         logger.quiet "Copying '${getRemotePath()}' from container with ID '${getContainerId()}' to '${getHostPath()}'."
 
         def tarStream
         try {
-
             tarStream = containerCommand.exec()
-            def hostDestination = new File(hostPath)
 
-            // if compressed leave file as is otherwise untar
-            if (compressed) {
-                copyFileCompressed(tarStream, hostDestination)
+            if(onNext) {
+                onNext.call(tarStream)
             } else {
-                copyFile(tarStream, hostDestination)
+                def hostDestination = new File(hostPath)
+
+                // if compressed leave file as is otherwise untar
+                if (compressed) {
+                    copyFileCompressed(tarStream, hostDestination)
+                } else {
+                    copyFile(tarStream, hostDestination)
+                }
             }
         } finally {
             tarStream?.close()
@@ -97,7 +101,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
                     throw new GradleException("Failed deleting previously existing file at ${hostDestination.path}")
 
         } else {
-            if (!hostDestination.parentFile.mkdirs())
+            if (!hostDestination.parentFile.exists() && !hostDestination.parentFile.mkdirs())
                 throw new GradleException("Failed creating parent directory for ${hostDestination.path}")
         }
 
@@ -186,7 +190,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
 
         // create parent files of hostPath should they not exist
         if (!hostDestination.exists())
-            if(!hostDestination.parentFile.mkdirs())
+            if(!hostDestination.parentFile.exists() && !hostDestination.parentFile.mkdirs())
                 throw new GradleException("Failed creating parent directory for ${hostDestination.path}")
 
         def parentDirectory = hostDestination.isDirectory() ? hostDestination : hostDestination.parentFile

@@ -15,8 +15,8 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.response.image.ListImagesResponseHandler
 import com.bmuschko.gradle.docker.response.ResponseHandler
+import com.bmuschko.gradle.docker.response.image.ListImagesResponseHandler
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -36,18 +36,27 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
     void runRemoteCommand(dockerClient) {
         def listImagesCmd = dockerClient.listImagesCmd()
 
-        if(getShowAll()) {
+        if (getShowAll()) {
             listImagesCmd.withShowAll(getShowAll())
         }
 
-        if(getFilters()) {
-            listImagesCmd.withFilters(getFilters())
+        if (getFilters()) {
+            listImagesCmd.withLabelFilter(getFilters())
         }
 
         def images = listImagesCmd.exec()
-        responseHandler.handle(images)
+        if (onNext) {
+            onNext.call(images)
+        } else if (responseHandler) {
+            responseHandler.handle(images)
+        }
     }
 
+    /**
+     * Deprecated. Use {@link #onNext} instead.
+     * @param responseHandler
+     */
+    @Deprecated
     void setResponseHandler(ResponseHandler<Void, List<Object>> responseHandler) {
         this.responseHandler = responseHandler
     }

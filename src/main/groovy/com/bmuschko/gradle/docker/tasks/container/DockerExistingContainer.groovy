@@ -17,11 +17,13 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 
 abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
     /**
      * Container ID used to perform operation. The container for the provided ID has to be created first.
      */
+    @Internal
     String containerId
 
     void targetContainerId(Closure containerId) {

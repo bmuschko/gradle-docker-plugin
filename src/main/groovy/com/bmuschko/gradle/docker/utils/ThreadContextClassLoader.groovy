@@ -196,6 +196,20 @@ interface ThreadContextClassLoader {
     def createLogConfig(String type, Map<String, String> parameters)
 
     /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/RestartPolicy.java">RestartPolicy</a>
+     * @param restartPolicy a string with serialized value which can be parsed RestartPolicy.parse method
+     * @return Instance of RestartPolicy
+     */
+    def createRestartPolicy(String restartPolicy)
+
+    /**
+     * Creates instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/api/model/Device.java">Device</a>
+     * @param  a string with serialized value which can be parsed by the Device.parse method
+     * @return Instance of Device
+     */
+    def createDevice(String device)
+
+    /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/BuildImageResultCallback.java">BuildImageResultCallback</a>
      * from thread context classloader.
      *
@@ -204,13 +218,15 @@ interface ThreadContextClassLoader {
      */
     def createBuildImageResultCallback(Logger logger)
 
+    def createBuildImageResultCallback(Closure onNext)
+
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/PushImageResultCallback.java">PushImageResultCallback</a>
      * from thread context classloader.
      *
      * @return Callback instance
      */
-    def createPushImageResultCallback()
+    def createPushImageResultCallback(Closure onNext)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/PullImageResultCallback.java">PullImageResultCallback</a>
@@ -218,13 +234,43 @@ interface ThreadContextClassLoader {
      *
      * @return Callback instance
      */
-    def createPullImageResultCallback()
+    def createPullImageResultCallback(Closure onNext)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/LogContainerResultCallback.java">LogContainerResultCallback</a>
      * from thread context classloader. The callback is modified to send log lines to standard out and error.
      *
+     * @param logger The logger instance which docker stream items will be printed to
      * @return Callback instance
      */
     def createLoggingCallback(Logger logger)
+
+    def createLoggingCallback(Closure onNext)
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/ExecStartResultCallback.java">ExecStartResultCallback</a>
+     * from thread context classloader.
+     *
+     * @param out The output stream instance which docker will print the standard output to
+     * @param err The output stream instance which docker will print the standard error to
+     * @return Callback instance
+     */
+    def createExecCallback(OutputStream out, OutputStream err)
+
+    def createExecCallback(Closure onNext)
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/LogContainerResultCallback.java">LogContainerResultCallback</a>
+     * from thread context classloader. The callback is modified to send log lines to standard out and error.
+     *
+     * @param sink The Writer instance which docker stream items will be written to
+     * @return Callback instance
+     */
+    def createLoggingCallback(Writer sink)
+
+    /**
+     * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/WaitContainerResultCallback.java">WaitContainerResultCallback</a> from thread context classloader.
+     * @return Callback instance
+     */
+    def createWaitContainerResultCallback(Closure onNext)
 }

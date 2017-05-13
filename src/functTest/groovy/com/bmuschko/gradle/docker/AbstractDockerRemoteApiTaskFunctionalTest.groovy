@@ -22,12 +22,13 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
                 @Override
                 void runRemoteCommand(dockerClient) {
                     assert dockerClient
-                    assert dockerClient.dockerClientConfig.uri == new URI('$TestConfiguration.dockerServerUrl')
-                    assert dockerClient.dockerClientConfig.dockerCfgPath == "${System.properties['user.home']}/.dockercfg"
-                    assert dockerClient.dockerClientConfig.serverAddress == 'https://index.docker.io/v1/'
-                    assert dockerClient.dockerClientConfig.username == '${username}'
-                    assert !dockerClient.dockerClientConfig.password
-                    assert !dockerClient.dockerClientConfig.email
+                    assert dockerClient.dockerClientConfig.dockerHost.host == new URI('$TestConfiguration.dockerHost').host
+                    assert dockerClient.dockerClientConfig.dockerHost.port == new URI('$TestConfiguration.dockerHost').port
+                    assert dockerClient.dockerClientConfig.dockerConfig == "${System.properties['user.home']}/.docker"
+                    assert dockerClient.dockerClientConfig.registryUrl == 'https://index.docker.io/v1/'
+                    assert dockerClient.dockerClientConfig.registryUsername == '${username}'
+                    assert !dockerClient.dockerClientConfig.registryPassword
+                    assert !dockerClient.dockerClientConfig.registryEmail
                 }
             }
         """
@@ -43,7 +44,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
         File customCertPath = temporaryFolder.newFolder('mydocker')
         buildFile << """
             docker {
-                url = 'http://remote.docker.com:2375'
+                url = 'tcp://remote.docker.com:2375'
                 certPath = new File('${customCertPath.canonicalPath}')
 
                 registryCredentials {
@@ -62,12 +63,12 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
                 @Override
                 void runRemoteCommand(dockerClient) {
                     assert dockerClient
-                    assert dockerClient.dockerClientConfig.uri == new URI('http://remote.docker.com:2375')
-                    assert dockerClient.dockerClientConfig.dockerCfgPath == "${System.properties['user.home']}/.dockercfg"
-                    assert dockerClient.dockerClientConfig.serverAddress == 'https://index.docker.io/v1/'
-                    assert dockerClient.dockerClientConfig.username == '${username}'
-                    assert !dockerClient.dockerClientConfig.password
-                    assert !dockerClient.dockerClientConfig.email
+                    assert dockerClient.dockerClientConfig.dockerHost == new URI('tcp://remote.docker.com:2375')
+                    assert dockerClient.dockerClientConfig.dockerConfig == "${System.properties['user.home']}/.docker"
+                    assert dockerClient.dockerClientConfig.registryUrl == 'https://index.docker.io/v1/'
+                    assert dockerClient.dockerClientConfig.registryUsername == '${username}'
+                    assert !dockerClient.dockerClientConfig.registryPassword
+                    assert !dockerClient.dockerClientConfig.registryEmail
                 }
             }
         """
@@ -82,7 +83,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
     private String determineUsername() {
         String usernameSystemProp = System.properties[USERNAME_SYSTEM_PROPERTY_KEY]
 
-        if(usernameSystemProp) {
+        if (usernameSystemProp) {
             return usernameSystemProp
         }
 
@@ -90,7 +91,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
         File dockerIoPropertiesFile = new File(System.getProperty('user.home'), '.docker.io.properties')
         String dockerIoUsername = readRegistryUsernameProperty(dockerIoPropertiesFile)
 
-        if(dockerIoUsername) {
+        if (dockerIoUsername) {
             return dockerIoUsername
         }
 
@@ -98,7 +99,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
         File dockerJavaPropertiesFile = new File(System.getProperty('user.home'), 'docker-java.properties')
         String dockerJavaUsername = readRegistryUsernameProperty(dockerJavaPropertiesFile)
 
-        if(dockerJavaUsername) {
+        if (dockerJavaUsername) {
             return dockerJavaUsername
         }
 
@@ -106,7 +107,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
     }
 
     private String readRegistryUsernameProperty(File propertiesFile) {
-        if(propertiesFile.exists()) {
+        if (propertiesFile.exists()) {
             Properties properties = new Properties()
 
             propertiesFile.withInputStream {

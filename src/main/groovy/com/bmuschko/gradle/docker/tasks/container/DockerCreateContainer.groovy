@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.container
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.CollectionUtil
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
@@ -54,7 +55,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    Long memoryLimit
+    Long memory
 
     @Input
     @Optional
@@ -116,13 +117,13 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     String workingDir
 
-    @Nested
+    @Input
     List<ExposedPort> exposedPorts = []
 
     @Input
     @Optional
     Map<String,String> binds
-    
+
     @Input
     @Optional
     List<String> extraHosts
@@ -135,6 +136,19 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     Boolean privileged
 
+    @Input
+    @Optional
+    Boolean tty
+
+    @Input
+    @Optional
+    String restartPolicy
+
+    @Input
+    @Optional
+    List<String> devices
+
+    @Internal
     String containerId
 
     DockerCreateContainer() {
@@ -148,6 +162,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         def container = containerCommand.exec()
         logger.quiet "Created container with ID '$container.id'."
         containerId = container.id
+        if(onNext) {
+            onNext.call(container)
+        }
     }
 
     void targetImageId(Closure imageId) {
@@ -165,6 +182,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     void exposePorts(String internetProtocol, List<Integer> ports) {
         exposedPorts << new ExposedPort(internetProtocol, ports)
+    }
+
+    void restartPolicy(String name, int maximumRetryCount) {
+        restartPolicy = "${name}:${maximumRetryCount}"
     }
 
     private void setContainerCommandConfig(containerCommand) {
@@ -192,8 +213,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.withStdInOnce(getStdinOnce())
         }
 
-        if(getMemoryLimit()) {
-            containerCommand.withMemoryLimit(getMemoryLimit())
+        if(getMemory()) {
+            containerCommand.withMemory(getMemory())
         }
 
         if(getMemorySwap()) {
@@ -285,6 +306,19 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if(getPrivileged()) {
             containerCommand.withPrivileged(getPrivileged())
         }
+
+        if (getRestartPolicy()) {
+            containerCommand.withRestartPolicy(threadContextClassLoader.createRestartPolicy(getRestartPolicy()))
+        }
+
+        if (getDevices()) {
+            def createdDevices = getDevices().collect { threadContextClassLoader.createDevice(it) }
+            containerCommand.withDevices(CollectionUtil.toArray(createdDevices))
+        }
+
+        if(getTty()) {
+            containerCommand.withTty(getTty())
+        }
     }
 
     static class LogConfig {
@@ -293,8 +327,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     }
 
     static class ExposedPort {
-        @Input String internetProtocol
-        @Input List<Integer> ports
+        @Input final String internetProtocol
+        @Input final List<Integer> ports = []
 
         ExposedPort(String internetProtocol, List<Integer> ports) {
             this.internetProtocol = internetProtocol

@@ -18,24 +18,35 @@ tasks.withType(Test) { task ->
         events 'skipped'
     }
 
-    def dockerServerUrl = System.properties['dockerServerUrl']
-
-    if(dockerServerUrl) {
-        logger.quiet "Using Docker server URL '$dockerServerUrl' for executing tests with task '$task.name'."
-        systemProperty 'dockerServerUrl', dockerServerUrl
+    // TODO: remove `dockerServerUrl` properties with version 3.0.10
+    def dockerServerUrl = (project.hasProperty('bootstrapDocker') && Boolean.parseBoolean(project.getProperty('bootstrapDocker'))) ? 'http://localhost:2375' : null    
+    if (!dockerServerUrl) {
+        dockerServerUrl = getConfigProperty('dockerServerUrl') ?: System.getenv('DOCKER_SERVER_URL')
+        if(!dockerServerUrl) {
+            dockerServerUrl = getConfigProperty('dockerHost') ?: System.getenv('DOCKER_HOST')
+            if (!dockerServerUrl) {
+                dockerServerUrl = 'unix:///var/run/docker.sock'
+            }
+        }
     }
 
-    def dockerCertPath = System.properties['dockerCertPath']
+    System.setProperty('dockerServerUrl', dockerServerUrl)
+    systemProperty 'dockerServerUrl', dockerServerUrl
+    logger.quiet "Using Docker server URL '$dockerServerUrl' for executing tests with task '$task.name'."
 
+    def dockerCertPath = getConfigProperty('dockerCertPath') ?: System.getenv('DOCKER_CERT_PATH')
     if(dockerCertPath) {
         logger.quiet "Using Docker cert path '$dockerCertPath' for executing tests with task '$task.name'."
         systemProperty 'dockerCertPath', dockerCertPath
     }
-
-    def dockerPrivateRegistryUrl = System.properties['dockerPrivateRegistryUrl']
-
+    
+    def dockerPrivateRegistryUrl = getConfigProperty('dockerPrivateRegistryUrl') ?: System.getenv('DOCKER_REGISTRY_HOST')
     if(dockerPrivateRegistryUrl) {
         logger.quiet "Using Docker private registry URL '$dockerPrivateRegistryUrl' for executing tests with task '$task.name'."
         systemProperty 'dockerPrivateRegistryUrl', dockerPrivateRegistryUrl
     }
+}
+
+String getConfigProperty(String key) {
+   project.properties.getOrDefault(key, System.getProperty(key, System.getenv(key)))
 }

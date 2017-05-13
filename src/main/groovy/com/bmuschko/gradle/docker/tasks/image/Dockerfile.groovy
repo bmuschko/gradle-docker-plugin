@@ -16,10 +16,12 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class Dockerfile extends DefaultTask {
+    @Internal
     List<Instruction> instructions = new ArrayList<Instruction>()
 
     @OutputFile
@@ -48,6 +50,23 @@ class Dockerfile extends DefaultTask {
         if(!(getInstructions()[0].keyword == 'FROM')) {
             throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM')
         }
+    }
+
+    void instructionsFromTemplate(File template) {
+        if (!template.exists()) {
+            throw new FileNotFoundException("docker template file not found at location : ${template.getAbsolutePath()}")
+        }
+        template.readLines().findAll { it.length() > 0 } each { String instruction ->
+            instructions << new GenericInstruction(instruction)
+        }
+    }
+
+    void instructionsFromTemplate(String templatePath) {
+        instructionsFromTemplate(project.file(templatePath))
+    }
+
+    void instructionsFromTemplate(Closure templatePath) {
+        instructionsFromTemplate(project.file(templatePath()))
     }
 
     /**
@@ -94,6 +113,16 @@ class Dockerfile extends DefaultTask {
      */
     void from(String image) {
         instructions << new FromInstruction(image)
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#from">FROM instruction</a> sets the Base Image for
+     * subsequent instructions.
+     *
+     * @param image Base image name
+     */
+    void arg(String arg) {
+        instructions << new ArgInstruction(arg)
     }
 
     /**
@@ -195,6 +224,26 @@ class Dockerfile extends DefaultTask {
      */
     void environmentVariable(String key, String value) {
         instructions << new EnvironmentVariableInstruction(key, value)
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#env">ENV instruction</a> sets multiple environment
+     * variables at once.
+     *
+     * @param envVars Environment variables
+     */
+    void environmentVariable(Map<String, String> envVars) {
+        instructions << new EnvironmentVariableInstruction(envVars)
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/reference/builder/#env">ENV instruction</a> sets multiple environment
+     * variables at once.
+     *
+     * @param envVars Environment variables
+     */
+    void environmentVariable(Closure envVars) {
+        instructions << new EnvironmentVariableInstruction(envVars)
     }
 
     /**
@@ -451,33 +500,54 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    interface ItemJoiner {
+        String join(Map map)
+    }
+
+    static class MultiItemJoiner implements ItemJoiner {
+        @Override
+        String join(Map map) {
+            map.inject([]) { result, entry -> result << "\"$entry.key\"=\"$entry.value\"" }.join(' ')
+        }
+    }
+
+    static class SingleItemJoiner implements ItemJoiner {
+        @Override
+        String join(Map map) {
+            map.inject([]) { result, entry -> result << "$entry.key $entry.value" }.join(' ')
+        }
+    }
+
     static abstract class MapInstruction implements Instruction {
         final Object command
+        final ItemJoiner joiner
+
+        MapInstruction(Map<String, String> command, ItemJoiner joiner) {
+            this.command = command
+            this.joiner = joiner
+        }
 
         MapInstruction(Map<String, String> command) {
-            this.command = command
+            this(command, new MultiItemJoiner())
         }
 
         MapInstruction(Closure command) {
             this.command = command
+            this.joiner = new MultiItemJoiner()
         }
 
         @Override
         String build() {
             if (command instanceof Map<String, String>) {
-                "$keyword ${join(command)}"
+                "$keyword ${joiner.join(command)}"
             }
             else if(command instanceof Closure) {
                 def evaluatedCommand = command()
 
                 if(evaluatedCommand instanceof Map) {
-                    "$keyword ${join(evaluatedCommand)}"
+                    "$keyword ${joiner.join(evaluatedCommand)}"
                 }
             }
-        }
-
-        private String join(Map command) {
-            command.inject([]) { result, entry -> result << "\"$entry.key\"=\"$entry.value\"" }.join(' ')
         }
     }
 
@@ -518,6 +588,21 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             "FROM"
+        }
+    }
+
+    static class ArgInstruction extends StringCommandInstruction {
+        ArgInstruction(String arg) {
+            super(arg)
+        }
+
+        ArgInstruction(Closure arg) {
+            super(arg)
+        }
+
+        @Override
+        String getKeyword() {
+            "ARG"
         }
     }
 
@@ -600,23 +685,22 @@ class Dockerfile extends DefaultTask {
         }
     }
 
-    static class EnvironmentVariableInstruction implements Instruction {
-        final String key
-        final String value
-
+    static class EnvironmentVariableInstruction extends MapInstruction {
         EnvironmentVariableInstruction(String key, String value) {
-            this.key = key
-            this.value = value
+            super([(key): value], new SingleItemJoiner())
+        }
+
+        EnvironmentVariableInstruction(Map envVars) {
+            super(envVars)
+        }
+
+        EnvironmentVariableInstruction(Closure envVars) {
+            super(envVars)
         }
 
         @Override
         String getKeyword() {
             "ENV"
-        }
-
-        @Override
-        String build() {
-            "$keyword $key $value"
         }
     }
 
