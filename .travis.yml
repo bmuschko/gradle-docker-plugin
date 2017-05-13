@@ -5,16 +5,7 @@ jdk:
   - oraclejdk8
 
 script:
-  - ./gradlew test
-
-jobs:
-  include:
-    - stage: integration-test
-      jdk: oraclejdk8
-      script: ./gradlew integrationTest
-    - stage: functional-test
-      jdk: oraclejdk8
-      script: ./gradlew functionalTest
+  - ./gradlew build -s
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
