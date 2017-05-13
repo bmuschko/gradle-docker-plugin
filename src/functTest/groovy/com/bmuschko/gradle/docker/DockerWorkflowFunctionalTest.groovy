@@ -17,7 +17,6 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 
 class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     def "Can create Dockerfile and build an image from it"() {
@@ -233,7 +232,6 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
     }
 
-    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
         File dockerFileLocation = new File(getProjectDir(), 'build/private-reg/Dockerfile')
         if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
@@ -417,7 +415,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output.contains("LogConfig : none")
     }
-    
+
     def "Can build an image, create a container and set RestartPolicy"() {
         File imageDir = temporaryFolder.newFolder('images', 'minimal')
         File dockerFile = createDockerfile(imageDir)
