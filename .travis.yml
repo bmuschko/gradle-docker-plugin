@@ -10,8 +10,10 @@ script:
 jobs:
   include:
     - stage: integration-test
+      jdk: oraclejdk8
       script: ./gradlew integrationTest
     - stage: functional-test
+      jdk: oraclejdk8
       script: ./gradlew functionalTest
 
 before_cache:
