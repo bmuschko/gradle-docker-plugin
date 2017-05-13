@@ -17,7 +17,6 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 
 class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
@@ -419,7 +418,6 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         result.output.contains('Pull complete')
     }
 
-    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
         File dockerFileLocation = new File(getProjectDir(), 'build/private-reg-reactive/Dockerfile')
         if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())

@@ -185,7 +185,6 @@ EXPOSE 8080
 """
     }
 
-    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can create image for Java application and push to private registry"() {
         createJettyMainClass()
         writeBasicSetupToBuildFile()
