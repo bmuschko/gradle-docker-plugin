@@ -35,7 +35,7 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
                 targetImageId { pullImage.repository+":"+pullImage.tag }
-                cmd = ['/bin/sh','-c',"echo Hello World"]
+                cmd = ['/bin/sh','-c','echo -e "Hello World\\n  indent"']
             }
 
             task startContainer(type: DockerStartContainer) {
@@ -69,7 +69,7 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains("Hello World")
+        result.output =~ /.*[\n\r]Hello World[\n\r]  indent[\n\r].*/
     }
 
     def "Container logs are limited by the since parameter"() {
@@ -139,7 +139,7 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains("Hello World")
+        result.output.contains("  indent")
     }
 
     def "showTimestamps works"() {
