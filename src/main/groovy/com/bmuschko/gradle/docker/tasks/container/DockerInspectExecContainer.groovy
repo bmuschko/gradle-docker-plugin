@@ -13,6 +13,7 @@ class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
      * Exec ID used to perform operation. The exec for the provided
      * ID has to be created and started first.
      */
+    @Input
     String execId
 
     void targetExecId(Closure execId) {
