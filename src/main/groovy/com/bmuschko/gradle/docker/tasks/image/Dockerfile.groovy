@@ -28,7 +28,7 @@ class Dockerfile extends DefaultTask {
     File destFile = project.file("$project.buildDir/docker/Dockerfile")
 
     Dockerfile() {
-        outputs.upToDateWhen { false }
+
     }
 
     @TaskAction
