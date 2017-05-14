@@ -36,11 +36,11 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile)
         BuildResult buildResult = buildAndFail(DOCKERFILE_TASK_NAME)
 
         then:
-        buildResult.output.contains('Please specify instructions for your Dockerfile')
+        buildResult.output.contains('Please specify a FROM instruction for your Dockerfile')
         !new File(projectDir, 'build/docker/Dockerfile').exists()
     }
 
-    def "Specifying FROM instruction as first statement is mandatory"() {
+    def "Specifying FROM instruction is mandatory"() {
         given:
         buildFile << """
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -53,7 +53,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         BuildResult buildResult = buildAndFail(DOCKERFILE_TASK_NAME)
 
         then:
-        buildResult.output.contains('The first instruction of a Dockerfile has to be FROM')
+        buildResult.output.contains('Please specify a FROM instruction for your Dockerfile')
         !new File(projectDir, 'build/docker/Dockerfile').exists()
     }
 
@@ -229,6 +229,30 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         then:
         !isDockerfileTaskUpToDate(result)
         dockerfile.exists()
+    }
+
+    def "From instruction will be put on top of the build file"(){
+        File dockerfileDir = temporaryFolder.newFolder('build', 'docker')
+        File dockerFile = new File(dockerfileDir, 'Dockerfile')
+
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+    maintainer 'Thijs Lemmens "thijs@thijslemmens.eu"'
+    from 'alpine:3.5'
+}
+"""
+
+        when:
+        BuildResult result = build(DOCKERFILE_TASK_NAME)
+
+        then:
+        dockerFile.exists()
+        dockerFile.text ==
+            """FROM alpine:3.5
+MAINTAINER Thijs Lemmens "thijs@thijslemmens.eu"
+"""
     }
 
     def "Adding more instructions does not mark task UP-TO-DATE"() {
