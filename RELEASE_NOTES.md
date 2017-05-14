@@ -3,6 +3,8 @@
 * Adds new task DockerInspectExecContainer which allows to inspect exec instance - [Pull request 362](https://github.com/bmuschko/gradle-docker-plugin/pull/362)
 * `functionalTest`'s can now run against a native docker instance - [Pull request 369](https://github.com/bmuschko/gradle-docker-plugin/pull/369)
 * `DockerLogsContainer` now preserves leading space - [Pull request 370](https://github.com/bmuschko/gradle-docker-plugin/pull/370)
+* Allow customization of app plugin entrypoint/cmd instructions - [Pull request 359](https://github.com/bmuschko/gradle-docker-plugin/pull/359)
+* Task `Dockerfile` will no longer be forced as `UP-TO-DATE`, instead the onus will be put on developers to code this should they want this functionality. - [ISSUE 357](https://github.com/bmuschko/gradle-docker-plugin/issues/357)
 
 ### Version 3.0.6 (March 2, 2017)
 
