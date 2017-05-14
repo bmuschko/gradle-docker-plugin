@@ -43,7 +43,9 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
         project.plugins.withType(ApplicationPlugin) {
             Tar tarTask = project.tasks.getByName(ApplicationPlugin.TASK_DIST_TAR_NAME)
-
+            dockerJavaApplication.exec {
+                entryPoint { determineEntryPoint(project, tarTask) }
+            }
             Dockerfile createDockerfileTask = createDockerfileTask(project, tarTask, dockerJavaApplication)
             Copy copyTarTask = createDistCopyResourcesTask(project, tarTask, createDockerfileTask)
             createDockerfileTask.dependsOn copyTarTask
@@ -72,11 +74,10 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
             description = 'Creates the Docker image for the Java application.'
             dependsOn tarTask
-
             from { dockerJavaApplication.baseImage }
             maintainer { dockerJavaApplication.maintainer }
             addFile({ tarTask.archivePath.name }, { '/' })
-            entryPoint { determineEntryPoint(project, tarTask) }
+            instructions << dockerJavaApplication.exec
             exposePort { dockerJavaApplication.getPorts() }
         }
     }
