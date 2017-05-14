@@ -29,6 +29,7 @@ import java.lang.reflect.Method
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
+    private static final TRAILING_WHIESPACE = /\s+$/
 
     private DockerExtension dockerExtension
 
@@ -434,10 +435,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                     switch (frame.streamType as String) {
                         case "STDOUT":
                         case "RAW":
-                            logger.quiet(new String(frame.payload).trim())
+                            logger.quiet(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
                             break
                         case "STDERR":
-                            logger.error(new String(frame.payload).trim())
+                            logger.error(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
                             break
                     }
                 }
