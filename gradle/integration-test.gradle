@@ -18,6 +18,10 @@ task integrationTest(type: Test) {
         html.destination = project.file("$html.destination/integration")
         junitXml.destination = project.file("$junitXml.destination/integration")
     }
+    testLogging {
+        showStandardStreams = true
+        events 'started', 'passed', 'failed'
+    }
 }
 
 check.dependsOn integrationTest
