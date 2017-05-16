@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
 class DockerExecContainer extends DockerExistingContainer {
@@ -31,7 +32,8 @@ class DockerExecContainer extends DockerExistingContainer {
     @Optional
     Boolean attachStderr = true
 
-    String execId
+    @Internal
+    private String execId
 
     DockerExecContainer() {
         ext.getExecId = { execId }
@@ -60,5 +62,9 @@ class DockerExecContainer extends DockerExistingContainer {
         if (getAttachStdout()) {
             containerCommand.withAttachStdout(getAttachStdout())
         }
+    }
+    
+    def getExecId() {
+        execId
     }
 }

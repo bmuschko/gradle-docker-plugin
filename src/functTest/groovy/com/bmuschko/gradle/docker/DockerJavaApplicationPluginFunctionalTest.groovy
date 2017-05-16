@@ -94,6 +94,80 @@ EXPOSE 9090 8080
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
+    def "Can create image for Java application with user-driven configuration with custom cmd/entrypoint"() {
+        String projectName = temporaryFolder.root.name
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+
+        buildFile << """
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    port = 9090
+                    tag = 'jettyapp:1.115'
+                    exec {
+                        defaultCommand 'arg1'
+                        entryPoint 'bin/run.sh'
+                    }
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('dockerBuildImage')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+                """FROM $CUSTOM_BASE_IMAGE
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+ADD ${projectName}-1.0.tar /
+CMD ["arg1"]
+ENTRYPOINT ["bin/run.sh"]
+EXPOSE 9090
+"""
+    }
+
+    def "Can create image for Java application with user-driven configuration with no cmd/entrypoint"() {
+        String projectName = temporaryFolder.root.name
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+
+        buildFile << """
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    port = 9090
+                    tag = 'jettyapp:1.115'
+                    ${execDirective}
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('dockerBuildImage')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+                """FROM $CUSTOM_BASE_IMAGE
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+ADD ${projectName}-1.0.tar /
+
+EXPOSE 9090
+"""
+
+        where:
+        execDirective << ['exec null',
+                          'exec {}']
+    }
+
     def "Can create image for Java application with additional files"() {
         String projectName = temporaryFolder.root.name
         temporaryFolder.newFile('file1.txt')

@@ -20,6 +20,10 @@ task functionalTest(type: Test) {
         html.destination = project.file("$html.destination/functional")
         junitXml.destination = project.file("$junitXml.destination/functional")
     }
+    testLogging {
+        showStandardStreams = true
+        events 'started', 'passed', 'failed'
+    }
 }
 
 check.dependsOn functionalTest

@@ -2,6 +2,10 @@
 * Invoke onNext closures call() method explicitly - [Pull request 368](https://github.com/bmuschko/gradle-docker-plugin/pull/368)
 * Adds new task DockerInspectExecContainer which allows to inspect exec instance - [Pull request 362](https://github.com/bmuschko/gradle-docker-plugin/pull/362)
 * `functionalTest`'s can now run against a native docker instance - [Pull request 369](https://github.com/bmuschko/gradle-docker-plugin/pull/369)
+* `DockerLogsContainer` now preserves leading space - [Pull request 370](https://github.com/bmuschko/gradle-docker-plugin/pull/370)
+* Allow customization of app plugin entrypoint/cmd instructions - [Pull request 359](https://github.com/bmuschko/gradle-docker-plugin/pull/359)
+* Task `Dockerfile` will no longer be forced as `UP-TO-DATE`, instead the onus will be put on developers to code this should they want this functionality. - [ISSUE 357](https://github.com/bmuschko/gradle-docker-plugin/issues/357)
+* Now that `functionalTest`'s work natively, and in CI, add the test `started`, `passed` and `failed` logging messages so as to make it absolutely clear to users what is being run vs having no output at all. - [Pull request 373](https://github.com/bmuschko/gradle-docker-plugin/pull/373)
 
 ### Version 3.0.6 (March 2, 2017)
 
