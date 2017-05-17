@@ -33,6 +33,7 @@
     <div class="indexContainer">
         <ul>
         <li><a href="com/bmuschko/gradle/docker/tasks/AbstractDockerRemoteApiTask.html" title="class in com.bmuschko.gradle.docker.tasks" target="classFrame">AbstractDockerRemoteApiTask</a></li>
+<li><a href="com/bmuschko/gradle/docker/tasks/AbstractReactiveStreamsTask.html" title="class in com.bmuschko.gradle.docker.tasks" target="classFrame">AbstractReactiveStreamsTask</a></li>
 <li><a href="com/bmuschko/gradle/docker/utils/CollectionUtil.html" title="class in com.bmuschko.gradle.docker.utils" target="classFrame">CollectionUtil</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html" title="class in com.bmuschko.gradle.docker.tasks.image" target="classFrame">DockerBuildImage</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/DockerClientConfiguration.html" title="class in com.bmuschko.gradle.docker.tasks" target="classFrame">DockerClientConfiguration</a></li>
@@ -48,6 +49,7 @@
 <li><a href="com/bmuschko/gradle/docker/DockerExtension.html" title="class in com.bmuschko.gradle.docker" target="classFrame">DockerExtension</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/DockerInfo.html" title="class in com.bmuschko.gradle.docker.tasks" target="classFrame">DockerInfo</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html" title="class in com.bmuschko.gradle.docker.tasks.container" target="classFrame">DockerInspectContainer</a></li>
+<li><a href="com/bmuschko/gradle/docker/tasks/container/DockerInspectExecContainer.html" title="class in com.bmuschko.gradle.docker.tasks.container" target="classFrame">DockerInspectExecContainer</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/DockerInspectImage.html" title="class in com.bmuschko.gradle.docker.tasks.image" target="classFrame">DockerInspectImage</a></li>
 <li><a href="com/bmuschko/gradle/docker/DockerJavaApplication.html" title="class in com.bmuschko.gradle.docker" target="classFrame">DockerJavaApplication</a></li>
 <li><a href="com/bmuschko/gradle/docker/DockerJavaApplicationPlugin.html" title="class in com.bmuschko.gradle.docker" target="classFrame">DockerJavaApplicationPlugin</a></li>
@@ -70,6 +72,7 @@
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.html" title="class in com.bmuschko.gradle.docker.tasks.image" target="classFrame">Dockerfile</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.AddFileInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.AddFileInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.ArgInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.ArgInstruction</a></li>
+<li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.CompositeExecInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.CompositeExecInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.CopyFileInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.CopyFileInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.DefaultCommandInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.DefaultCommandInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.EntryPointInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.EntryPointInstruction</a></li>
@@ -79,11 +82,14 @@
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.FromInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.FromInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.GenericInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.GenericInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.Instruction.html" title="interface in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame"><I>Dockerfile.Instruction</I></a></li>
+<li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.ItemJoiner.html" title="interface in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame"><I>Dockerfile.ItemJoiner</I></a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.LabelInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.LabelInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.MaintainerInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.MaintainerInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.MapInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.MapInstruction</a></li>
+<li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.MultiItemJoiner.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.MultiItemJoiner</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.OnBuildInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.OnBuildInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.RunCommandInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.RunCommandInstruction</a></li>
+<li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.SingleItemJoiner.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.SingleItemJoiner</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.StringArrayInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.StringArrayInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.StringCommandInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.StringCommandInstruction</a></li>
 <li><a href="com/bmuschko/gradle/docker/tasks/image/Dockerfile.UserInstruction.html" title="class in com.bmuschko.gradle.docker.tasks.image.Dockerfile" target="classFrame">Dockerfile.UserInstruction</a></li>
