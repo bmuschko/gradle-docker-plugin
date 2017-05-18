@@ -34,7 +34,7 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository+":"+pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ['/bin/sh','-c','echo -e "Hello World\\n  indent"']
             }
 

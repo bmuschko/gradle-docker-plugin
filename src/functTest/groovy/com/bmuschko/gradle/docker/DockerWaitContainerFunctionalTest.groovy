@@ -33,7 +33,7 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer){
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd 'sh', '-c', 'exit 0'
             }
 
@@ -74,7 +74,7 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer){
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd 'sh', '-c', 'exit 1'
             }
 
@@ -115,7 +115,7 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer){
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd 'sh', '-c', 'sleep 15'
             }
 

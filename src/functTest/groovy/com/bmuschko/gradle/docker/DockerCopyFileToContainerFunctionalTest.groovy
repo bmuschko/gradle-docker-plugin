@@ -41,7 +41,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ['echo', 'Hello World']
             }
 
@@ -98,7 +98,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ['echo', 'Hello World']
             }
 
@@ -146,7 +146,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ['echo', 'Hello World']
             }
 

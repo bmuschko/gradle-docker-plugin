@@ -112,7 +112,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository+":"+pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ["/bin/sh","-c","echo Hello World"]
             }
 
@@ -366,7 +366,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn pullImage
-                targetImageId { 'alpine:3.4' }
+                targetImageId { pullImage.getImageId() }
                 
                 onNext { image ->
                     logger.quiet 'Cmd:        ' + image.config.cmd

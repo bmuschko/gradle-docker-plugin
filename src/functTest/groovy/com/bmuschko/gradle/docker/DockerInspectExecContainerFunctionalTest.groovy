@@ -24,7 +24,7 @@ class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ['sleep','10']
             }
 
@@ -77,7 +77,7 @@ class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ['sleep','10']
             }
 

@@ -42,7 +42,7 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     @Nested
     @Optional
     DockerRegistryCredentials registryCredentials
-
+    
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Pulling repository '${getRepository()}'."
@@ -59,5 +59,9 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
         def response = pullImageCmd.exec(threadContextClassLoader.createPullImageResultCallback(onNext))
         response.awaitSuccess()
+    }
+    
+    public String getImageId() {
+        tag?.trim() ? "${repository}:${tag}" : repository
     }
 }
