@@ -36,7 +36,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ['sleep','10']
             }
 
@@ -88,7 +88,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.repository + ":" + pullImage.tag }
+                targetImageId { pullImage.getImageId() }
                 cmd = ['sleep','10']
             }
 
@@ -104,10 +104,10 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
         """
 
         when:
-        	build('workflow')
+            build('workflow')
         	
        	then:
-       		Exception ex = thrown()
-			ex.message.contains('is not running')
+            Exception ex = thrown()
+            ex.message.contains('is not running')
     }
 }
