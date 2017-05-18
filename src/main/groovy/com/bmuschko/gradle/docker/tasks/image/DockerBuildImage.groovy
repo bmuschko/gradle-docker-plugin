@@ -37,10 +37,19 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     File dockerFile
 
     /**
-     * Tag for image.
+     * Tags for image.
      */
     @Input
     @Optional
+    Set<String> tags = []
+
+    /**
+     * Tag for image.
+     * @deprecated use {@link #tags}
+     */
+    @Input
+    @Optional
+    @Deprecated
     String tag
 
     @Input
@@ -95,9 +104,13 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd = dockerClient.buildImageCmd(getInputDir())
         }
 
-        if (getTag()) {
+        if(getTag()) {
             logger.quiet "Using tag '${getTag()}' for image."
             buildImageCmd.withTag(getTag())
+        } else if (getTags()) {
+            def tagListString = getTags().collect {"'${it}'"}.join(", ")
+            logger.quiet "Using tags ${tagListString} for image."
+            buildImageCmd.withTags(getTags())
         }
 
         if (getNoCache()) {

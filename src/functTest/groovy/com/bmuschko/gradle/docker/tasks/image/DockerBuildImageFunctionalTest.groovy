@@ -1,9 +1,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
-import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 import spock.lang.Unroll
 
 class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
@@ -55,13 +53,26 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         gradleTaskDefinition << [imageCreationWithBuildArgs(), imageCreationWithLabelParameter()]
     }
 
+    def "can build image with multiple tags"() {
+        buildFile << buildImageWithTags()
+
+        when:
+        BuildResult result = build('buildImageWithTags', 'buildImageWithTag')
+
+        then:
+        result.output.contains("Using tags 'test/image:123', 'registry.com:5000/test/image:123' for image.")
+        result.output.contains("Using tag 'test/image:123' for image.")
+    }
+
+
+
     private String imageCreation() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'ubuntu:12.04'
+                from 'alpine'
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -78,7 +89,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task dockerfile(type: Dockerfile) {
-                from 'ubuntu:12.04'
+                from 'alpine'
 
                 arg('arg1')
                 arg('arg2')
@@ -106,7 +117,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task dockerfile(type: Dockerfile) {
-                from 'ubuntu:12.04'
+                from 'alpine'
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -118,6 +129,29 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
                 targetImageId { buildImage.getImageId() }
+            }
+        """
+    }
+
+    private String buildImageWithTags() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            task dockerfile(type: Dockerfile) {
+                from 'alpine'
+            }
+
+            task buildImageWithTags(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+                tags = ['test/image:123', 'registry.com:5000/test/image:123']
+            }
+            
+            task buildImageWithTag(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+                tag = 'test/image:123'
             }
         """
     }
