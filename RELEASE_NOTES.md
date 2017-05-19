@@ -1,3 +1,7 @@
+### Version 3.0.8 (TBA)
+* Task `DockerPullImage` gained method `getImageId()` which returns the fully qualified imageId of the image that was just pulled - [Pull request 379](https://github.com/bmuschko/gradle-docker-plugin/pull/379)
+* Task `DockerBuildImage` gained property `tags` which allows for multiple tags to be specified when building an image - [Pull request 380](https://github.com/bmuschko/gradle-docker-plugin/pull/380)
+
 ### Version 3.0.7 (May 17, 2017)
 * Invoke onNext closures call() method explicitly - [Pull request 368](https://github.com/bmuschko/gradle-docker-plugin/pull/368)
 * Adds new task DockerInspectExecContainer which allows to inspect exec instance - [Pull request 362](https://github.com/bmuschko/gradle-docker-plugin/pull/362)
