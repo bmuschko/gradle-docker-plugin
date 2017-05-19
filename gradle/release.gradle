@@ -22,5 +22,3 @@ release {
         generateMessage = { version -> "Version ${project.version.version}" }
     }
 }
-
-tasks.release.dependsOn 'assemble', 'bintrayUpload'
