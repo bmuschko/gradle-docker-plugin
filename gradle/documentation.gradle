@@ -10,8 +10,21 @@ buildscript {
 
 apply plugin: org.ajoberstar.gradle.git.ghpages.GithubPagesPlugin
 
+ext {
+    repoPath = 'bmuschko/gradle-docker-plugin'
+    ghToken = System.getenv('GH_TOKEN')
+}
+
 githubPages {
-    repoUri = 'git@github.com:bmuschko/gradle-docker-plugin.git'
+    if (ghToken) {
+        repoUri = "https://github.com/${repoPath}.git"
+        credentials {
+            username = ghToken
+            password = ''
+        }
+    } else {
+        repoUri = "git@github.com:${repoPath}.git"
+    }
 
     pages {
         from(javadoc.outputs.files) {
