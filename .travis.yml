@@ -11,8 +11,16 @@ before_install:
 jdk:
   - oraclejdk8
 
-script:
-  - ./gradlew build -s
+jobs:
+  include:
+    - script: ./gradlew build -s
+    - stage: release
+    - script: skip
+      deploy:
+        provider: script
+        script: ./gradlew release
+        on:
+          tags: true
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
