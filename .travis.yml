@@ -16,7 +16,6 @@ script: ./gradlew build -s
 jobs:
   include:
     - stage: release
-      install: skip 
       script: skip
       deploy:
         provider: script
