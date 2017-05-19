@@ -1,16 +1,25 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.ajoberstar:gradle-git:1.7.1"
+    }
+}
+
 group = 'com.bmuschko'
-version = '3.0.8'
 
 apply plugin: 'groovy'
 apply plugin: 'idea'
-apply from: "$rootDir/gradle/dependencies.gradle"
+apply plugin: 'org.ajoberstar.release-opinion'
 apply from: "$rootDir/gradle/test-setup.gradle"
 apply from: "$rootDir/gradle/integration-test.gradle"
 apply from: "$rootDir/gradle/functional-test.gradle"
 apply from: "$rootDir/gradle/additional-artifacts.gradle"
+apply from: "$rootDir/gradle/release.gradle"
 apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/documentation.gradle"
-apply from: "$rootDir/gradle/release.gradle"
 
 repositories {
     mavenCentral()
