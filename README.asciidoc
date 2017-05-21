@@ -1,5 +1,6 @@
 image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
 image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/images/download.svg["Build Status", link="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/_latestVersion"]
+image:https://img.shields.io/badge/stack%20overflow-gradle%20docker%20plugin-blue.svg["Build Status", link="https://stackoverflow.com/questions/tagged/gradle-docker-plugin"]
 
 = Gradle Docker plugin 
 
