@@ -1,4 +1,7 @@
-= Gradle Docker plugin image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
+image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
+image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/images/download.svg["Build Status", link="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/_latestVersion"]
+
+= Gradle Docker plugin 
 
 image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout.png[Docker Logo]
 
