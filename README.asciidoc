@@ -502,3 +502,31 @@ as needed. Use the command line option `-PbootstrapDocker=true` for this purpose
 ----
 ./gradlew functionalTest -PbootstrapDocker=true
 ----
+
+=== How to run the functional tests in a Vagrant box?
+
+[source,shell]
+----
+cd vagrant/
+vagrant up --provider=virtualbox
+cd ..
+./gradlew functionalTest
+----
+
+=== How does this plugin communicate with the Docker daemon and registry?
+
+This plugin sends commands to Docker daemon which listens either on non-networked Unix socket or HTTP one. The latter can be secured by TLS
+(see https://docs.docker.com/engine/security/https/[docs]).
+In our case - for tests - we do not require TLS to simplify things. Additionally we provide https://www.vagrantup.com/[Vagrant] box which automates installing
+and configuring Docker engine (see https://github.com/bmuschko/gradle-docker-plugin/blob/master/vagrant/Vagrantfile[Vagrantfile]) on developer machine.
+This box runs Docker daemon listening on `tcp://0.0.0.0:2375`
+and one container with https://docs.docker.com/registry[Docker Registry], which is used to test pushing images to private registry. It exposes its API on port 5000
+which is bind to host port 5000 (thus `http://localhost:5000` is passed in `-DdockerPrivateRegistryUrl`).
+
+Vast majority of tests for this plugin are written as a http://spockframework.org/[Spock] specifications. Functional tests are annotated with
+http://spockframework.org/spock/docs/1.1-rc-3/extensions.html#_requires[`@Require`]
+to avoid tests failures when running in environment without reachable Docker daemon.
+https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/testSetup/groovy/com/bmuschko/gradle/docker/TestPrecondition.groovy[TestPrecondition] and
+https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/testSetup/groovy/com/bmuschko/gradle/docker/TestConfiguration.groovy[TestConfiguration] classes are used
+to check if Docker daemon and Image Registry are available. You can tweak it if you have either of them in your infrastructure.
+
