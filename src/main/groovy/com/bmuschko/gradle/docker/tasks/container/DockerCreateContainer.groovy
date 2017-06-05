@@ -102,6 +102,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String[] networkAliases
+
+    @Input
+    @Optional
     String image
 
     @Input
@@ -250,6 +254,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getNetworkMode()) {
             containerCommand.withNetworkMode(getNetworkMode())
+        }
+
+        if(getNetworkAliases()) {
+            containerCommand.withAliases(getNetworkAliases())
         }
 
         if(getImage()) {
