@@ -281,7 +281,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         String uniqueContainerName = createUniqueContainerName()
 
         // required for task `copyFileFromContainerToHostDir`
-        File hostPathDir = new File(getProjectDir(),"copy-file-host-dir")
+        File hostPathDir = new File(getProjectDir(), "copy-file-host-dir")
         if (!hostPathDir.mkdirs())
             throw new GradleException("Could not successfully create hostPathDir @ ${hostPathDir.path}")
 

@@ -47,7 +47,7 @@ abstract class AbstractFunctionalTest extends Specification {
         setupDockerServerUrl()
         setupDockerCertPath()
         setupDockerPrivateRegistryUrl()
-        
+
         buildFile << """
             task dockerVersion(type: com.bmuschko.gradle.docker.tasks.DockerVersion)
         """
