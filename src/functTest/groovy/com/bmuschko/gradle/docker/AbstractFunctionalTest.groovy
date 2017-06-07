@@ -47,7 +47,7 @@ abstract class AbstractFunctionalTest extends Specification {
         setupDockerServerUrl()
         setupDockerCertPath()
         setupDockerPrivateRegistryUrl()
-        
+
         buildFile << """
             task dockerVersion(type: com.bmuschko.gradle.docker.tasks.DockerVersion)
         """
@@ -112,6 +112,10 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     protected String createUniqueContainerName() {
+        generateRandomUUID()
+    }
+
+    protected String createUniqueNetworkName() {
         generateRandomUUID()
     }
 

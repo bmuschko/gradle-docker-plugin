@@ -19,7 +19,6 @@ import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.CollectionUtil
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
@@ -100,6 +99,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     String networkMode
+
+    @Input
+    @Optional
+    String[] networkAliases
 
     @Input
     @Optional
@@ -251,6 +254,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getNetworkMode()) {
             containerCommand.withNetworkMode(getNetworkMode())
+        }
+
+        if(getNetworkAliases()) {
+            containerCommand.withAliases(getNetworkAliases())
         }
 
         if(getImage()) {
