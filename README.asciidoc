@@ -502,3 +502,40 @@ as needed. Use the command line option `-PbootstrapDocker=true` for this purpose
 ----
 ./gradlew functionalTest -PbootstrapDocker=true
 ----
+
+==== Helpers for link:https://github.com/gradle/gradle-script-kotlin[Gradle Script Kotlin (GSK)]
+
+Some of the groovy syntax features this plugin utilizes don't work well in strongly typed languages like Kotlin.
+
+These are some of the helper methods that GSK developers may find useful.
+
+[source,kotlin]
+----
+/**
+ * Kotlin helper for configuring the `javaApplication` property on the `com.bmuschko.gradle.docker.DockerExtension`.
+ */
+fun com.bmuschko.gradle.docker.DockerExtension.javaApplication(configure : com.bmuschko.gradle.docker.DockerJavaApplication.() -> Unit = {}) =
+    with(getProperty("javaApplication") as com.bmuschko.gradle.docker.DockerJavaApplication) { configure() }
+
+
+// Helpers for configuring specific tasks.
+/**
+ * A [groovy.lang.Closure] that takes no arguments and behaves like a value supplier.
+ */
+open class NoArgKotlinClosure<V : Any>(
+    val function : () -> V?,
+    owner: Any? = null,
+    thisObject: Any? = null) : groovy.lang.Closure<V?>(owner, thisObject) {
+
+    @Suppress("unused") // to be called dynamically by Groovy
+    fun doCall() : V? = function()
+}
+
+fun DockerExistingContainer.targetContainerId(containerIdSupplier: () -> String) =
+    targetContainerId(NoArgKotlinClosure(containerIdSupplier))
+
+fun DockerCreateContainer.targetImageId(imageIdSupplier : () -> String) =
+    targetImageId(NoArgKotlinClosure(imageIdSupplier))
+----
+
+
