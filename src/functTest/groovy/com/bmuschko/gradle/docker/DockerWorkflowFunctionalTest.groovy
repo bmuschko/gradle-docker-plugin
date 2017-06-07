@@ -494,6 +494,70 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("Devices : [/dev/sda:/dev/xvda:rwm]")
     }
 
+    def "Can build an image, create a container and assign a network and alias"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+        String uniqueNetworkName = createUniqueNetworkName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            class DockerCreateNetworkTask extends AbstractDockerRemoteApiTask {
+                @Override
+                void runRemoteCommand(dockerClient) {
+                    dockerClient.createNetworkCmd().withName("${uniqueNetworkName}").exec()
+                }
+            }
+            class DockerRemoveNetworkTask extends AbstractDockerRemoteApiTask {
+                @Override
+                void runRemoteCommand(dockerClient) {
+                    dockerClient.removeNetworkCmd("${uniqueNetworkName}").exec()
+                }
+            }
+
+            task removeNetwork(type: DockerRemoveNetworkTask)
+            task createNetwork(type: DockerCreateNetworkTask)
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage, createNetwork
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                networkMode = "${uniqueNetworkName}"
+                networkAliases = ["some-alias"]
+                cmd = ['/bin/sh']
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                onNext { container ->
+                    println container.networkSettings.networks["${uniqueNetworkName}"].aliases
+                }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+
+            removeNetwork.mustRunAfter workflow
+            createNetwork.finalizedBy removeNetwork
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains('[some-alias]')
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """

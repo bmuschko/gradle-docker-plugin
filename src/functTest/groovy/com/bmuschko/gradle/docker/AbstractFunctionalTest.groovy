@@ -115,6 +115,10 @@ abstract class AbstractFunctionalTest extends Specification {
         generateRandomUUID()
     }
 
+    protected String createUniqueNetworkName() {
+        generateRandomUUID()
+    }
+
     private String generateRandomUUID() {
         UUID.randomUUID().toString().replaceAll('-', '')
     }
