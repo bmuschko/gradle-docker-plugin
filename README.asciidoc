@@ -443,7 +443,7 @@ docker {
 
 [TIP]
 ====
-You can add additional instructions in resulted dockerfile using `dockerDistTar` and _Dockerfile_ task dsl:
+You can add additional instructions to the dockerfile using `dockerDistTar` and http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task] task dsl:
 
 [source,groovy]
 ----
@@ -457,7 +457,7 @@ docker {
 }
 ----
 
-will result  to 
+will result to 
 
 ----
 FROM java
@@ -466,6 +466,13 @@ ADD javaapp-1.0.0-SNAPSHOT.tar /
 ENTRYPOINT ["/javaapp-1.0.0-SNAPSHOT/bin/javaapp"]
 EXPOSE 8080
 RUN ls -la
+----
+
+Or you can use form
+
+[source,groovy]
+----
+project.tasks.getByName("dockerDistTar").instructionsFromTemplate file("Dockerfile.tmpl")
 ----
 ====
 
