@@ -441,9 +441,9 @@ docker {
 }
 ----
 
-[TIP]
-====
-You can add additional instructions to the dockerfile using `dockerDistTar` and http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task] task dsl:
+=== Additional instructions in Dockerfile
+
+You can add additional instructions to the dockerfile using `dockerDistTar` and http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task] dsl:
 
 [source,groovy]
 ----
@@ -457,7 +457,7 @@ docker {
 }
 ----
 
-will result to 
+will result in 
 
 ----
 FROM java
@@ -474,7 +474,7 @@ Or you can use form
 ----
 project.tasks.getByName("dockerDistTar").instructionsFromTemplate file("Dockerfile.tmpl")
 ----
-====
+
 
 == FAQ
 
