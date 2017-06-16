@@ -1,4 +1,4 @@
-### Version 3.0.8 (TBA)
+### Version 3.0.8 (June 16, 2017)
 * Task `DockerPullImage` gained method `getImageId()` which returns the fully qualified imageId of the image that was just pulled - [Pull request 379](https://github.com/bmuschko/gradle-docker-plugin/pull/379)
 * Task `DockerBuildImage` gained property `tags` which allows for multiple tags to be specified when building an image - [Pull request 380](https://github.com/bmuschko/gradle-docker-plugin/pull/380)
 * Task `DockerCreateContainer` gained property `networkAliases` - [Pull request 384](https://github.com/bmuschko/gradle-docker-plugin/pull/384)
