@@ -377,7 +377,7 @@ docker {
 ----
 
 === `exec` property
-The `exec` extension property accepts a Closure which delegates to the link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
+The `exec` extension property accepts a Closure which delegates to the link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.CompositeExecInstruction.html[Dockerfile.CompositeExecInstruction] subset of the http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
 It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate location in the Dockerfile.
 
 ==== Usage example
@@ -440,6 +440,41 @@ docker {
     }
 }
 ----
+
+=== Additional instructions in Dockerfile
+
+You can add additional instructions to the dockerfile using `dockerDistTar` and http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task] dsl:
+
+[source,groovy]
+----
+dockerDistTar {
+    instruction {'RUN ls -la'}
+}
+
+docker {
+    javaApplication {
+    }
+}
+----
+
+will result in 
+
+----
+FROM java
+MAINTAINER user
+ADD javaapp-1.0.0-SNAPSHOT.tar /
+ENTRYPOINT ["/javaapp-1.0.0-SNAPSHOT/bin/javaapp"]
+EXPOSE 8080
+RUN ls -la
+----
+
+Or you can use form
+
+[source,groovy]
+----
+project.tasks.getByName("dockerDistTar").instructionsFromTemplate file("Dockerfile.tmpl")
+----
+
 
 == FAQ
 
