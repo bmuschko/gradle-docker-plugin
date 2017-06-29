@@ -85,7 +85,9 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
                 onNext {
-                    logger.quiet "docker: " + it.stream.trim()
+                    if (it.stream) {
+                        logger.quiet "docker: " + it.stream.trim()
+                    }
                 }
             }
         """
