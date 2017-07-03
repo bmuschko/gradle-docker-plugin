@@ -1,17 +1,17 @@
 # Introduction
-This document describes the release process designed and implemented for `gradle-docker-plugin`. Its main purpose is to explain developers and maintainers how to prepare and release new version of this software.
+This document describes the release process designed and implemented for `gradle-docker-plugin`. Its main purpose is to explain to developers and maintainers how to prepare and release a new version of this plugin.
 
 # Tools
-The release process uses some external libraries and services described in some details below. 
+The release process uses some external libraries and services described in detail below. 
 
-## `gradle-git`
+## gradle-git
 The [`gradle-git`](https://github.com/ajoberstar/gradle-git) Gradle plugin is used to automatically determine the project version. `org.ajoberstar.release-opinion` is applied in the main [build.gradle](build.gradle#L15) and configured in [gradle/release.gradle](gradle/release.gradle#L16). Please refer to the plugin [documentation](https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins#how-do-i-use-the-opinion-plugin) for more details.
 
 ## Travis CI
-[Travis CI](https://travis-ci.com) service is used as [CI/CD](https://en.wikipedia.org/wiki/CI/CD) server. Build and deploy jobs are configured in [.travis.yml](.travis.yml) file. Please reffer the [documentation](https://docs.travis-ci.com/) for details.
+[Travis CI](https://travis-ci.com) service is used as our current [CI/CD](https://en.wikipedia.org/wiki/CI/CD) server. Build and deploy jobs are configured in [.travis.yml](.travis.yml) file. Please refer its [documentation](https://docs.travis-ci.com/) for more details.
 
 ## Bintray
-[Bintray](https://bintray.com) service is used to publish plugin versions. With [BintrayPlugin](https://github.com/bintray/gradle-bintray-plugin) artifacts are uploaded to remote reposiotry. Plugin configuration is in [gradle/publishing.gradle](gradle/publishing.gradle) file.
+[Bintray](https://bintray.com) service is used to publish plugin versions. With [BintrayPlugin](https://github.com/bintray/gradle-bintray-plugin) artifacts are uploaded to a remote reposiotry. Plugin configuration is in the [gradle/publishing.gradle](gradle/publishing.gradle) file.
 
 # Workflow
 The release process is automated to some extent. The following steps describe the workflow.
