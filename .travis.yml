@@ -18,7 +18,7 @@ jobs:
       script: skip
       deploy:
         provider: script
-        script: ./gradlew -s assemble bintrayUpload
+        script: ./gradlew -s assemble bintrayUpload gitPublishPush
         on:
           tags: true
 

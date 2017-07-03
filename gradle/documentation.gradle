@@ -12,7 +12,8 @@ apply plugin: org.ajoberstar.gradle.git.publish.GitPublishPlugin
 
 gitPublish {
     repoUri = 'git@github.com:bmuschko/gradle-docker-plugin.git'
-
+    branch = 'gh-pages'
+    
     contents {
         from(javadoc.outputs.files) {
             into 'docs/javadoc'
