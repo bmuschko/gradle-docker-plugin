@@ -1,5 +1,6 @@
 ### Version 3.0.9 (TBA)
 * Bump verison of docker-java to 3.0.11 - [Pull request 403](https://github.com/bmuschko/gradle-docker-plugin/pull/403)
+* New release process - [Pull request 402](https://github.com/bmuschko/gradle-docker-plugin/pull/402)
 
 ### Version 3.0.8 (June 16, 2017)
 * Task `DockerPullImage` gained method `getImageId()` which returns the fully qualified imageId of the image that was just pulled - [Pull request 379](https://github.com/bmuschko/gradle-docker-plugin/pull/379)
