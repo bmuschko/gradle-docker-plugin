@@ -1,4 +1,4 @@
-### Version 3.0.9 (TBA)
+### Version 3.0.9 (July 4, 2017)
 * Bump verison of docker-java to 3.0.11 - [Pull request 403](https://github.com/bmuschko/gradle-docker-plugin/pull/403)
 * New release process - [Pull request 402](https://github.com/bmuschko/gradle-docker-plugin/pull/402)
 
