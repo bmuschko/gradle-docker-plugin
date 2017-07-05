@@ -19,6 +19,6 @@ release {
     defaultVersionStrategy = Strategies.SNAPSHOT
 
     tagStrategy {
-        generateMessage = { version -> "Version ${project.version.version}" }
+        generateMessage = { version -> "Version ${project.version}" }
     }
 }
