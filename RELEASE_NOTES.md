@@ -1,3 +1,7 @@
+### Version 3.0.10 (July 7, 2017)
+* Bump verison of docker-java to 3.0.12 - [Pull request 408](https://github.com/bmuschko/gradle-docker-plugin/pull/408)
+* Publish javadocs on new release - [Pull request 405](https://github.com/bmuschko/gradle-docker-plugin/pull/405)
+
 ### Version 3.0.9 (July 4, 2017)
 * Bump verison of docker-java to 3.0.11 - [Pull request 403](https://github.com/bmuschko/gradle-docker-plugin/pull/403)
 * New release process - [Pull request 402](https://github.com/bmuschko/gradle-docker-plugin/pull/402)
