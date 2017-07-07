@@ -11,7 +11,7 @@ buildscript {
 apply plugin: org.ajoberstar.gradle.git.publish.GitPublishPlugin
 
 gitPublish {
-    repoUri = 'https://github.com/bmuschko/gradle-docker-plugin.git'
+    repoUri = 'git@github.com:bmuschko/gradle-docker-plugin.git'
     branch = 'gh-pages'
     
     contents {
