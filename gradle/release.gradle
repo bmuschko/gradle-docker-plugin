@@ -15,6 +15,7 @@ ext.repo = Grgit.open(rootDir)
 
 release {
     grgit = Grgit.open(rootDir)
+    versionStrategy Strategies.FINAL
     tagStrategy {
         generateMessage = { version -> "Version ${project.version}" }
     }
