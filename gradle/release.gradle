@@ -11,12 +11,11 @@ buildscript {
     }
 }
 
-ext.repo = Grgit.open(rootDir)
+apply plugin: org.ajoberstar.gradle.git.base.GrgitPlugin
 
 release {
-    grgit = Grgit.open(rootDir)
     versionStrategy Strategies.FINAL
-    defaultVersionStrategy = Strategies.FINAL
+    defaultVersionStrategy = Strategies.SNAPSHOT
     tagStrategy {
         generateMessage = { version -> "Version ${project.version}" }
     }
