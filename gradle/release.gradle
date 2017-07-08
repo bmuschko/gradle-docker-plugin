@@ -15,7 +15,7 @@ apply plugin: org.ajoberstar.gradle.git.base.GrgitPlugin
 
 release {
     versionStrategy Strategies.FINAL
-    defaultVersionStrategy = Strategies.FINAL
+    defaultVersionStrategy = Strategies.SNAPSHOT
     tagStrategy {
         generateMessage = { version -> "Version ${project.version}" }
     }
