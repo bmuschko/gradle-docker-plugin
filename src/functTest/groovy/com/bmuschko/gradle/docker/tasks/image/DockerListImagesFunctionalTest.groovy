@@ -1,13 +1,11 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
-import com.bmuschko.gradle.docker.TestPrecondition
-import spock.lang.Requires
 import org.gradle.testkit.runner.BuildResult
 
 class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
 
-    static final String ImageName = "docker-list-images-functional-test"
+    final String ImageId = createUniqueImageId()
 
     def setup() {
         buildFile << """
@@ -21,28 +19,36 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
-                tag = "${ImageName}"
-                labels = ["setup":"${ImageName}"]
+                tag = "${ImageId}"
+                labels = ["setup":"${ImageId}"]
             }
         """
 
         when:
-        build('buildImage')
+        BuildResult result = build('buildImage')
+
+        then:
+        result.output.contains("Created image with ID")
     }
 
     def "Can list images with default property values"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerListImages
 
-            task listImages(type: DockerListImages)
+            task listImages(type: DockerListImages) {
+                onNext { images ->
+                    if (images.size() == 0) {
+                        throw new GradleException("should find the image from setup")
+                    }
+                }
+            }
         """
 
         when:
-        BuildResult result = build('listImages')
+        build('listImages')
 
         then:
         noExceptionThrown()
-        result.output.contains(ImageName)
     }
 
     def "Can list images with labels filter"() {
@@ -51,16 +57,21 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
 
             task listImages(type: DockerListImages) {
                 showAll = true
-                labels = ["setup":"${ImageName}"]
+                labels = ["setup":"${ImageId}"]
+
+                onNext { images ->
+                    if (images.size() != 1 || !images[0].getRepoTags().contains("${ImageId}:latest")) {
+                        throw new GradleException("should only find the image from setup")
+                    }
+                }
             }
         """
 
         when:
-        BuildResult result = build('listImages')
+        build('listImages')
 
         then:
         noExceptionThrown()
-        result.output.contains(ImageName)
     }
 
     def "Can list images with image name filter"() {
@@ -69,16 +80,21 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
 
             task listImages(type: DockerListImages) {
                 showAll = true
-                imageName = "${ImageName}"
+                imageName = "${ImageId}"
+
+                onNext { images ->
+                    if (images.size() != 1 || !images[0].getRepoTags().contains("${ImageId}:latest")) {
+                        throw new GradleException("should only find the image from setup")
+                    }
+                }
             }
         """
 
         when:
-        BuildResult result = build('listImages')
+        build('listImages')
 
         then:
         noExceptionThrown()
-        result.output.contains(ImageName)
     }
 
     def "can list images and handle empty result"() {
@@ -87,15 +103,18 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
 
             task listImages(type: DockerListImages) {
                 showAll = true
-                imageName = "blah-blah"
+                imageName = "${ImageId}:blah"
 
-                onNext {
+                onNext { images ->
+                    if (images.size() != 0) {
+                        throw new GradleException("should not find any image")
+                    }
                 }
             }
         """
 
         when:
-        BuildResult result = build('listImages')
+        build('listImages')
 
         then:
         noExceptionThrown()
