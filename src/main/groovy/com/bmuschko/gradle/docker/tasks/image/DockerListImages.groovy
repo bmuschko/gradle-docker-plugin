@@ -30,7 +30,15 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    String filters
+    Boolean dangling
+
+    @Input
+    @Optional
+    Map<String, String> labels
+
+    @Input
+    @Optional
+    String imageName
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -40,8 +48,16 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
             listImagesCmd.withShowAll(getShowAll())
         }
 
-        if (getFilters()) {
-            listImagesCmd.withLabelFilter(getFilters())
+        if (getDangling()) {
+            listImagesCmd.withDanglingFilter(getDangling())
+        }
+
+        if (getLabels()) {
+            listImagesCmd.withLabelFilter(getLabels())
+        }
+
+        if (getImageName()) {
+            listImagesCmd.withImageNameFilter(getImageName())
         }
 
         def images = listImagesCmd.exec()

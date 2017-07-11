@@ -36,7 +36,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             task removeImageAndCheckRemoval(type: DockerListImages) {
                 dependsOn removeImage
                 showAll = true
-                filters = '{"dangling":["true"]}'
+                dangling = true
             }
         """
 
@@ -88,7 +88,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             task removeImageAndCheckRemoval(type: DockerListImages) {
                 dependsOn removeImage
                 showAll = true
-                filters = '{"dangling":["true"]}'
+                dangling = true
             }
         """
 
