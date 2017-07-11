@@ -37,7 +37,7 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
 
             task listImages(type: DockerListImages) {
                 onNext { images ->
-                    if (images.size() == 0) {
+                    if (!images) {
                         throw new GradleException("should find the image from setup")
                     }
                 }
@@ -60,7 +60,7 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
                 labels = ["setup":"${ImageId}"]
 
                 onNext { images ->
-                    if (images.size() != 1 || !images[0].getRepoTags().contains("${ImageId}:latest")) {
+                    if(!images.every { image -> image.repoTags.contains("${ImageId}:latest") }) {
                         throw new GradleException("should only find the image from setup")
                     }
                 }
@@ -83,7 +83,7 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
                 imageName = "${ImageId}"
 
                 onNext { images ->
-                    if (images.size() != 1 || !images[0].getRepoTags().contains("${ImageId}:latest")) {
+                    if(!images.every { image -> image.repoTags.contains("${ImageId}:latest") }) {
                         throw new GradleException("should only find the image from setup")
                     }
                 }
@@ -106,7 +106,7 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
                 imageName = "${ImageId}:blah"
 
                 onNext { images ->
-                    if (images.size() != 0) {
+                    if (images) {
                         throw new GradleException("should not find any image")
                     }
                 }
