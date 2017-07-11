@@ -63,7 +63,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    from 'ubuntu:12.04'
+    from 'alpine:3.4'
     maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
 }
 """
@@ -74,7 +74,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM ubuntu:12.04
+                """FROM alpine:3.4
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
     }
@@ -85,7 +85,7 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    from 'ubuntu:14.04'
+    from 'alpine:3.4'
     maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
     runCommand 'echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
     defaultCommand 'echo', 'some', 'command'
@@ -110,7 +110,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM ubuntu:14.04
+                """FROM alpine:3.4
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
 CMD ["echo", "some", "command"]
@@ -135,7 +135,7 @@ LABEL "version"="1.0"
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    instructions = [new Dockerfile.FromInstruction('ubuntu:12.04'),
+    instructions = [new Dockerfile.FromInstruction('alpine:3.4'),
                     new Dockerfile.MaintainerInstruction('Benjamin Muschko "benjamin.muschko@gmail.com"')]
 }
 """
@@ -146,7 +146,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM ubuntu:12.04
+                """FROM alpine:3.4
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
     }
@@ -157,7 +157,7 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    instruction 'FROM ubuntu:12.04'
+    instruction 'FROM alpine:3.4'
     instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
 }
 """
@@ -168,7 +168,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-                """FROM ubuntu:12.04
+                """FROM alpine:3.4
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
     }
@@ -190,7 +190,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-            """FROM ubuntu:14.04
+            """FROM alpine:3.4
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com
 """
     }

@@ -432,7 +432,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file("${dockerFileLocation.path}")
-                from 'alpine:3.1'
+                from 'alpine:3.4'
                 maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
                 runCommand 'mkdir -p /tmp/${createUniqueImageId()}'
             }
