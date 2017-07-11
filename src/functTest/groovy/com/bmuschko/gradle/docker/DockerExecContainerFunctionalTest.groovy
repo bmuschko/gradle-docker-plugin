@@ -29,8 +29,8 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -81,8 +81,8 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {

@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 
 class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
     def setup() {
@@ -28,8 +27,8 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -176,13 +175,13 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
         buildFile << """
             task logContainer(type: DockerLogsContainer) {
                 dependsOn startContainer
-                targetContainerId { "not_existimg_container" }
+                targetContainerId { "not_existing_container" }
             }
         """
 
         expect:
         BuildResult result = buildAndFail('workflow')
-        result.output.contains("No such container: not_existimg_container")
+        result.output.contains("No such container: not_existing_container")
     }
 }
 

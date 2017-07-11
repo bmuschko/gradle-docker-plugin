@@ -1,7 +1,6 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 
 /**
  * System tests for {@link com.bmuschko.gradle.docker.tasks.container.DockerInspectExecContainer} class.
@@ -18,8 +17,8 @@ class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -71,8 +70,8 @@ class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {

@@ -27,7 +27,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file('build/mydockerfile/Dockerfile')
-                from 'alpine:3.4'
+                from '$TEST_IMAGE_WITH_TAG'
                 maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
             }
 
@@ -244,7 +244,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file("${dockerFileLocation.path}")
-                from 'alpine:3.4'
+                from '$TEST_IMAGE_WITH_TAG'
                 maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
                 doLast {
                     if (new File("${dockerFileLocation.path}").exists()) {
@@ -561,7 +561,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """
-FROM alpine:3.4
+FROM $TEST_IMAGE_WITH_TAG
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 """
         dockerFile

@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 
 class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
     def "Wait for a container to finish and get the exit code"() {
@@ -27,8 +26,8 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer){
@@ -68,8 +67,8 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer){
@@ -109,8 +108,8 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer){
