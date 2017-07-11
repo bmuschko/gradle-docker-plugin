@@ -507,7 +507,7 @@ class Dockerfile extends DefaultTask {
     static class MultiItemJoiner implements ItemJoiner {
         @Override
         String join(Map map) {
-            map.inject([]) { result, entry -> result << "\"$entry.key\"=\"$entry.value\"" }.join(' ')
+            map.inject([]) { result, entry -> result << "$entry.key=$entry.value" }.join(' ')
         }
     }
 
