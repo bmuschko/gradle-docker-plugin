@@ -13,7 +13,7 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
             }
 
             task buildImage(type: DockerBuildImage) {

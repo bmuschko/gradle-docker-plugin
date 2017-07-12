@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 
 class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
 
@@ -30,8 +29,8 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -74,7 +73,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output.contains("Hello World")
     }
-    
+
     def "Execute command within stopped container"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
@@ -82,8 +81,8 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -105,7 +104,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
 
         when:
             build('workflow')
-        	
+
        	then:
             Exception ex = thrown()
             ex.message.contains('is not running')

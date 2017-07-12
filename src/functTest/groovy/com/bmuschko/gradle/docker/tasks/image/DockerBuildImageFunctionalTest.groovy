@@ -12,7 +12,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
                 addFile('./aaa', 'aaa')
             }
 
@@ -72,7 +72,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -89,7 +89,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
 
                 arg('arg1')
                 arg('arg2')
@@ -117,7 +117,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -139,7 +139,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
             }
 
             task buildImageWithTags(type: DockerBuildImage) {

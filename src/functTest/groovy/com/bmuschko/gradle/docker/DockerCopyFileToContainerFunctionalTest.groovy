@@ -15,17 +15,14 @@
  */
 package com.bmuschko.gradle.docker
 
-import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
-
 class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
 
     def "Copy file into container"() {
-            
-        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') { 
+
+        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
             it.write('Hello, World!')
-        }    
-            
+        }
+
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -35,8 +32,8 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -67,13 +64,13 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
         expect:
         build('workflow')
     }
-    
+
     def "Copy tarfile into container"() {
-            
-        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') { 
+
+        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
             it.write('Hello, World!')
-        }    
-            
+        }
+
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -92,8 +89,8 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
 			
             task pullImage(type: DockerPullImage) {
                 dependsOn createTarFile
-                repository = 'alpine'
-                tag = 'latest'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -124,13 +121,13 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
         expect:
         build('workflow')
     }
-    
+
     def "Fail if both hostPath and tarFile are specified"() {
-            
-        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') { 
+
+        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
             it.write('Hello, World!')
-        }    
-            
+        }
+
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -140,8 +137,8 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = 'latest'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {

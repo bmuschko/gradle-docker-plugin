@@ -77,7 +77,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine:3.4'
+                from '$TEST_IMAGE_WITH_TAG'
                 maintainer 'John Doe <john.doe@example.com>'
             }
 
@@ -108,8 +108,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -158,8 +158,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
     
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task listImages(type: DockerListImages) {
@@ -190,7 +190,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { 'alpine:3.4' }
+                targetImageId { '$TEST_IMAGE_WITH_TAG' }
                 containerName = "$uniqueContainerName"
                 cmd = ['/bin/sh']
             }
@@ -222,7 +222,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { 'alpine:3.4' }
+                targetImageId { '$TEST_IMAGE_WITH_TAG' }
                 containerName = "$uniqueContainerName"
                 cmd = ['/bin/sh']
                 
@@ -249,7 +249,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { 'alpine:3.4' }
+                targetImageId { '$TEST_IMAGE_WITH_TAG' }
                 cmd = ['sleep','10']
             }
 
@@ -292,7 +292,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { 'alpine:3.4' }
+                targetImageId { '$TEST_IMAGE_WITH_TAG' }
                 cmd = ['sleep','10']
             }
 
@@ -331,7 +331,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 
             task createContainer(type: DockerCreateContainer){
-                targetImageId { 'alpine:3.4' }
+                targetImageId { '$TEST_IMAGE_WITH_TAG' }
                 cmd 'sh', '-c', 'exit 1'
             }
 
@@ -362,8 +362,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task pullImage(type: DockerPullImage) {
-                repository = 'alpine'
-                tag = '3.4'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task inspectImage(type: DockerInspectImage) {
@@ -432,7 +432,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file("${dockerFileLocation.path}")
-                from 'alpine:3.1'
+                from '$TEST_IMAGE_WITH_TAG'
                 maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
                 runCommand 'mkdir -p /tmp/${createUniqueImageId()}'
             }

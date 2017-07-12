@@ -1,12 +1,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
-import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
-
-import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
-import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
 
@@ -18,7 +13,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine:3.4'
+                from '$TEST_IMAGE_WITH_TAG'
                 maintainer 'Jane Doe <jane.doe@example.com>'
             }
 
@@ -56,7 +51,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine:3.4'
+                from '$TEST_IMAGE_WITH_TAG'
                 maintainer 'Jane Doe <jane.doe@example.com>'
             }
 

@@ -28,6 +28,10 @@ abstract class AbstractFunctionalTest extends Specification {
     File projectDir
     File buildFile
 
+    static final String TEST_IMAGE = "alpine"
+    static final String TEST_IMAGE_TAG = "3.4"
+    static final String TEST_IMAGE_WITH_TAG = "${TEST_IMAGE}:${TEST_IMAGE_TAG}"
+
     String dockerServerUrl
 
     def setup() {
