@@ -116,10 +116,10 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * The <a href="https://docs.docker.com/reference/builder/#from">FROM instruction</a> sets the Base Image for
-     * subsequent instructions.
+     * The <a href="https://docs.docker.com/reference/builder/#arg">ARG instruction</a> defines a variable that 
+     * users can pass at build-time to the builder.
      *
-     * @param image Base image name
+     * @param arg Argument to pass, possibly with default value.
      */
     void arg(String arg) {
         instructions << new ArgInstruction(arg)
