@@ -77,6 +77,15 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     Map<String, String> buildArgs = [:]
 
     /**
+     * Size of <code>/dev/shm</code> in bytes.
+     * The size must be greater than 0.
+     * If omitted the system uses 64MB.
+     */
+    @Input
+    @Optional
+    Long shmSize
+
+    /**
      * The target Docker registry credentials for building image.
      */
     @Nested
@@ -133,6 +142,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withLabels(getLabels())
         }
 
+        if(getShmSize() != null) { // 0 is valid input
+            buildImageCmd.withShmsize(getShmSize())
+        }
+
         if (getRegistryCredentials()) {
             def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
             def authConfigurations = threadContextClassLoader.createAuthConfigurations([authConfig])
@@ -140,7 +153,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         buildArgs.each { arg, value ->
-            buildImageCmd = buildImageCmd.withBuildArg(arg, value);
+            buildImageCmd = buildImageCmd.withBuildArg(arg, value)
         }
 
         def callback = onNext ? threadContextClassLoader.createBuildImageResultCallback(this.onNext)

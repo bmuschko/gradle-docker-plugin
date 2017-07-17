@@ -494,6 +494,49 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("Devices : [/dev/sda:/dev/xvda:rwm]")
     }
 
+    def "Can build an image, create a container and set /dev/shm size"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                shmSize = 128000
+                cmd = ['/bin/sh']
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                onNext { c ->
+                    if(c.hostConfig.shmSize != 128000) {
+                        throw new GradleException("Invalid ShmSize value!")
+                    }
+                }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+        """
+
+        expect:
+        build('workflow')
+    }
+
     def "Can build an image, create a container and assign a network and alias"() {
         File imageDir = temporaryFolder.newFolder('images', 'minimal')
         File dockerFile = createDockerfile(imageDir)

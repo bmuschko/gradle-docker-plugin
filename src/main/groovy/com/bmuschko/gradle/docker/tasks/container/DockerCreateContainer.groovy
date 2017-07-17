@@ -151,6 +151,15 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     List<String> devices
 
+    /**
+     * Size of <code>/dev/shm</code> in bytes.
+     * The size must be greater than 0.
+     * If omitted the system uses 64MB.
+     */
+    @Input
+    @Optional
+    Long shmSize
+
     @Internal
     String containerId
 
@@ -325,6 +334,11 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getTty()) {
             containerCommand.withTty(getTty())
+        }
+
+        if(getShmSize() != null) { // 0 is valid input
+            def hostConfig = threadContextClassLoader.createHostConfig([shmSize: getShmSize()])
+            containerCommand.withHostConfig(hostConfig)
         }
     }
 

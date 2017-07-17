@@ -65,6 +65,32 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
     }
 
 
+    def "can set /dev/shm size for image build"() {
+        buildFile << buildImageWithShmSize()
+
+        when:
+        build("buildWithShmSize")
+
+        then:
+        noExceptionThrown()
+    }
+
+    private String buildImageWithShmSize() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            task dockerfile(type: Dockerfile) {
+                from 'alpine'
+            }
+
+            task buildWithShmSize(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+                shmSize = 128000
+            }
+        """
+    }
 
     private String imageCreation() {
         """
