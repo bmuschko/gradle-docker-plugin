@@ -43,11 +43,11 @@ class Dockerfile extends DefaultTask {
     }
 
     private void verifyValidInstructions() {
-        if(getInstructions().empty) {
+        if (getInstructions().empty) {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
-        if(!(getInstructions()[0].keyword == 'FROM')) {
+        if (!(getInstructions()[0].keyword == 'FROM')) {
             throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM')
         }
     }
@@ -75,11 +75,9 @@ class Dockerfile extends DefaultTask {
      * Example:
      *
      * <pre>
-     * task createDockerfile(type: Dockerfile) {
-     *     instruction 'FROM ubuntu:14.04'
+     * task createDockerfile(type: Dockerfile) {*     instruction 'FROM ubuntu:14.04'
      *     instruction 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
-     * }
-     * </pre>
+     *}* </pre>
      *
      * @param instruction Instruction as String
      */
@@ -93,11 +91,7 @@ class Dockerfile extends DefaultTask {
      * Example:
      *
      * <pre>
-     * task createDockerfile(type: Dockerfile) {
-     *     instruction { 'FROM ubuntu:14.04' }
-     *     instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
-     * }
-     * </pre>
+     * task createDockerfile(type: Dockerfile) {*     instruction { 'FROM ubuntu:14.04' }*     instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }*}* </pre>
      *
      * @param instruction Instruction as Closure
      */
@@ -410,6 +404,7 @@ class Dockerfile extends DefaultTask {
 
     static interface Instruction {
         String getKeyword()
+
         String build()
     }
 
@@ -426,10 +421,9 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getKeyword() {
-            if(instruction instanceof String) {
+            if (instruction instanceof String) {
                 parseKeyword(instruction)
-            }
-            else if(instruction instanceof Closure) {
+            } else if (instruction instanceof Closure) {
                 parseKeyword(instruction())
             }
         }
@@ -440,10 +434,9 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(instruction instanceof String) {
-               instruction
-            }
-            else if(instruction instanceof Closure) {
+            if (instruction instanceof String) {
+                instruction
+            } else if (instruction instanceof Closure) {
                 instruction()
             }
         }
@@ -462,10 +455,9 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(command instanceof String) {
+            if (command instanceof String) {
                 "$keyword $command"
-            }
-            else if(command instanceof Closure) {
+            } else if (command instanceof Closure) {
                 "$keyword ${command()}"
             }
         }
@@ -484,16 +476,14 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(command instanceof String[]) {
+            if (command instanceof String[]) {
                 keyword + ' ["' + command.join('", "') + '"]'
-            }
-            else if(command instanceof Closure) {
+            } else if (command instanceof Closure) {
                 def evaluatedCommand = command()
 
-                if(evaluatedCommand instanceof String) {
+                if (evaluatedCommand instanceof String) {
                     keyword + ' ["' + evaluatedCommand + '"]'
-                }
-                else {
+                } else {
                     keyword + ' ["' + command().join('", "') + '"]'
                 }
             }
@@ -501,20 +491,31 @@ class Dockerfile extends DefaultTask {
     }
 
     interface ItemJoiner {
-        String join(Map map)
+        String join(Map<String, String> map)
     }
 
     static class MultiItemJoiner implements ItemJoiner {
         @Override
-        String join(Map map) {
-            map.inject([]) { result, entry -> result << "$entry.key=$entry.value" }.join(' ')
+        String join(Map<String, String> map) {
+            map.inject([]) { result, entry ->
+                // TODO: clarify if assert should be used even in productive code and if this would be a valid one either
+                assert !entry.key.matches('.*(?: |(?:\r{0,1}\n)).*')
+                def key = !entry.key.matches('["].*["]') && entry.key.contains(' ') ? "$entry.key" : entry.key
+                def value = !entry.value.matches('["].*["]') && entry.value.matches('.*(?: |(?:\r{0,1}\n)).*') ? '"'.concat(entry.value.replaceAll('"', '\\\\"')).concat('"') : entry.value
+                value = value.replaceAll("(\r)*\n", "\\\\\n")
+                result << "$key=$value"
+            }.join(' ')
         }
     }
 
     static class SingleItemJoiner implements ItemJoiner {
         @Override
-        String join(Map map) {
-            map.inject([]) { result, entry -> result << "$entry.key $entry.value" }.join(' ')
+        String join(Map<String, String> map) {
+            map.inject([]) { result, entry ->
+                assert !entry.key.matches('.*(?: |(?:\r{0,1}\n)).*')
+                def value = entry.value.replaceAll("(\r)*\n", "\\\\\n")
+                result << "$entry.key $value"
+            }.join(' ')
         }
     }
 
@@ -540,11 +541,10 @@ class Dockerfile extends DefaultTask {
         String build() {
             if (command instanceof Map<String, String>) {
                 "$keyword ${joiner.join(command)}"
-            }
-            else if(command instanceof Closure) {
+            } else if (command instanceof Closure) {
                 def evaluatedCommand = command()
 
-                if(evaluatedCommand instanceof Map) {
+                if (evaluatedCommand instanceof Map) {
                     "$keyword ${joiner.join(evaluatedCommand)}"
                 }
             }
@@ -567,10 +567,9 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(src instanceof String && dest instanceof String) {
+            if (src instanceof String && dest instanceof String) {
                 "$keyword $src $dest"
-            }
-            else if(src instanceof Closure && dest instanceof Closure) {
+            } else if (src instanceof Closure && dest instanceof Closure) {
                 "$keyword ${src()} ${dest()}"
             }
         }
@@ -622,7 +621,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static class RunCommandInstruction extends StringCommandInstruction {
-       RunCommandInstruction(String command) {
+        RunCommandInstruction(String command) {
             super(command)
         }
 
@@ -669,16 +668,14 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(ports instanceof Integer[]) {
+            if (ports instanceof Integer[]) {
                 "$keyword ${ports.join(' ')}"
-            }
-            else if(ports instanceof Closure) {
+            } else if (ports instanceof Closure) {
                 def evaluatedPorts = ports()
 
-                if(evaluatedPorts instanceof String || evaluatedPorts instanceof Integer) {
+                if (evaluatedPorts instanceof String || evaluatedPorts instanceof Integer) {
                     "$keyword ${evaluatedPorts}"
-                }
-                else {
+                } else {
                     "$keyword ${evaluatedPorts.join(' ')}"
                 }
             }
@@ -851,6 +848,7 @@ class Dockerfile extends DefaultTask {
         void defaultCommand(String... command) {
             instructions << new DefaultCommandInstruction(command)
         }
+
         void defaultCommand(Closure command) {
             instructions << new DefaultCommandInstruction(command)
         }
@@ -858,6 +856,7 @@ class Dockerfile extends DefaultTask {
         void entryPoint(String... entryPoint) {
             instructions << new EntryPointInstruction(entryPoint)
         }
+
         void entryPoint(Closure entryPoint) {
             instructions << new EntryPointInstruction(entryPoint)
         }
