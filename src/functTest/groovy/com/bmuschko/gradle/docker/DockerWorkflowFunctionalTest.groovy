@@ -549,22 +549,16 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+            import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
+            import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
 
-            class DockerCreateNetworkTask extends AbstractDockerRemoteApiTask {
-                @Override
-                void runRemoteCommand(dockerClient) {
-                    dockerClient.createNetworkCmd().withName("${uniqueNetworkName}").exec()
-                }
-            }
-            class DockerRemoveNetworkTask extends AbstractDockerRemoteApiTask {
-                @Override
-                void runRemoteCommand(dockerClient) {
-                    dockerClient.removeNetworkCmd("${uniqueNetworkName}").exec()
-                }
+            task createNetwork(type: DockerCreateNetwork) {
+                networkId = "${uniqueNetworkName}"
             }
 
-            task removeNetwork(type: DockerRemoveNetworkTask)
-            task createNetwork(type: DockerCreateNetworkTask)
+            task removeNetwork(type: DockerRemoveNetwork) {
+                targetNetworkId { createNetwork.getNetworkId() }
+            }
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
@@ -575,7 +569,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn buildImage, createNetwork
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}"
-                networkMode = "${uniqueNetworkName}"
+                networkMode = createNetwork.getNetworkId()
                 networkAliases = ["some-alias"]
                 cmd = ['/bin/sh']
             }
@@ -584,7 +578,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 onNext { container ->
-                    println container.networkSettings.networks["${uniqueNetworkName}"].aliases
+                    println container.networkSettings.networks[createNetwork.getNetworkId()].aliases
                 }
             }
 

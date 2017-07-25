@@ -126,6 +126,19 @@ The plugin provides the following custom task types for managing containers:
 |=======
 
 
+==== Networks
+
+The plugin provides the following custom task types for managing networks:
+
+[options="header"]
+|=======
+|Type                                                                                                                                                        |Description
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerCreateNetwork.html[DockerCreateNetwork]   |Creates a network.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerInspectNetwork.html[DockerInspectNetwork] |Returns low-level information on the network.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerRemoveNetwork.html[DockerRemoveNetwork]   |Removes the network.
+|=======
+
+
 === Extension properties
 
 The plugin defines the following extension properties in the `docker` closure:
