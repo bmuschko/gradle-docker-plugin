@@ -75,6 +75,12 @@ bintray {
                 sign = true
                 passphrase = resolveProperty('GPG_PASSPHRASE', 'gpgPassphrase')
             }
+            mavenCentralSync {
+                sync = true 
+                user = resolveProperty('MAVEN_CENTRAL_USER_TOKEN', 'mavenCentralUserToken')
+                password = resolveProperty('MAVEN_CENTRAL_PASSWORD', 'mavenCentralPassword')
+                close = '1' 
+            } 
         }
     }
 }
