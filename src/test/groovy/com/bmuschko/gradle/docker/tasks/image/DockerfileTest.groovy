@@ -27,6 +27,8 @@ class DockerfileTest extends Specification {
         new ExposePortInstruction(8080, 9090)                                           | 'EXPOSE'        | 'EXPOSE 8080 9090'
         new ExposePortInstruction({ [8080, 9090] })                                     | 'EXPOSE'        | 'EXPOSE 8080 9090'
         new EnvironmentVariableInstruction('OS', 'Linux')                               | 'ENV'           | 'ENV OS Linux'
+        // TODO: negative test:
+        // new EnvironmentVariableInstruction('', 'Linux')                                 | 'ENV'           | InvalidCharacterException.class
         new EnvironmentVariableInstruction('OS', '"Linux"')                             | 'ENV'           | 'ENV OS "Linux"'
         new EnvironmentVariableInstruction('OS', 'Linux or Windows')                    | 'ENV'           | 'ENV OS Linux or Windows'
         new EnvironmentVariableInstruction('long', '''Multiple line env 
@@ -58,7 +60,7 @@ with linebreaks in between\""
         new OnBuildInstruction({ 'ENV JAVA_HOME /usr/java' })                           | 'ONBUILD'       | 'ONBUILD ENV JAVA_HOME /usr/java'
         new LabelInstruction(['group': 'artificial' ])                                  | 'LABEL'         | 'LABEL group=artificial'
         new LabelInstruction(['description': 'Single label' ])                          | 'LABEL'         | 'LABEL description="Single label"'
-        // TODO: negative test:
+        // TODO:
         // new LabelInstruction(['"un subscribe"': 'true' ])                               | 'LABEL'         | 'LABEL "un subscribe"=true'
         new LabelInstruction({ ['description': 'Single label' ] })                      | 'LABEL'         | 'LABEL description="Single label"'
         new LabelInstruction(['description': 'Multiple labels', 'version': '1.0' ])     | 'LABEL'         | 'LABEL description="Multiple labels" version=1.0'
