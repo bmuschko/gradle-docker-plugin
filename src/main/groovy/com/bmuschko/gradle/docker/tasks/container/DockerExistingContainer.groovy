@@ -16,8 +16,11 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import groovy.transform.CompileStatic
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+
+import java.util.concurrent.Callable
 
 abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
     /**
@@ -28,6 +31,11 @@ abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
 
     void targetContainerId(Closure containerId) {
         conventionMapping.containerId = containerId
+    }
+
+    @CompileStatic
+    void targetContainerId(Callable<String> containerId) {
+        targetContainerId { containerId.call() }
     }
 
     @Input

@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import groovy.transform.PackageScope
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
@@ -29,6 +30,7 @@ import org.gradle.util.ConfigureUtil
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
  */
 class DockerJavaApplicationPlugin implements Plugin<Project> {
+    static final String JAVA_APPLICATION_EXTENSION_NAME = "javaApplication"
     public static final String COPY_DIST_RESOURCES_TASK_NAME = 'dockerCopyDistResources'
     public static final String DOCKERFILE_TASK_NAME = 'dockerDistTar'
     public static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
@@ -60,14 +62,9 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
      * @param dockerExtension Docker extension
      * @return Java application configuration
      */
-    private DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
-        DockerJavaApplication dockerJavaApplication = new DockerJavaApplication()
-        dockerExtension.metaClass.javaApplication = dockerJavaApplication
-        dockerExtension.metaClass.javaApplication = { Closure closure ->
-            ConfigureUtil.configure(closure, dockerJavaApplication)
-        }
-
-        dockerJavaApplication
+    private static DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
+        dockerExtension.extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication)
+        return dockerExtension.javaApplication
     }
 
     private Dockerfile createDockerfileTask(Project project, Tar tarTask, DockerJavaApplication dockerJavaApplication) {

@@ -1,6 +1,8 @@
 package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import groovy.transform.CompileStatic
+import groovy.transform.TypeChecked
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 
@@ -69,6 +71,55 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
         task.tag == "${projectGroup}/${project.applicationName}:${projectVersion}"
+    }
+
+    def "Can access the dockerJava.javaApplication extension dynamically"() {
+        given:
+        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+        when:
+        project.docker.javaApplication
+        then:
+        noExceptionThrown()
+    }
+
+    @CompileStatic
+    def "Can access the dockerJava.javaApplication extension statically"() {
+        given:
+        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+        when:
+        project.extensions.getByType(DockerExtension).javaApplication
+        then:
+        noExceptionThrown()
+    }
+
+    @TypeChecked
+    def "Can configure the dockerJava.javaApplication extension statically"() {
+        given:
+        String testTagName = "some-test-tag"
+        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+        when:
+        project.extensions.getByType(DockerExtension).javaApplication {
+            // In kotlin this becomes much nicer.
+            it.tag = "some-test-tag"
+        }
+        then:
+        DockerBuildImage task = project
+            .tasks
+            .findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME) as DockerBuildImage
+        task.getTag() == testTagName
+    }
+
+    def "Can configure the dockerJava.javaApplication extension dynamically"() {
+        given:
+        String testTagName = "some-test-tag"
+        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+        when:
+        project.docker.javaApplication {
+            tag = testTagName
+        }
+        then:
+        DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
+        task.tag == testTagName
     }
 
     private void applyDockerJavaApplicationPluginWithoutApplicationPlugin(Project project) {
