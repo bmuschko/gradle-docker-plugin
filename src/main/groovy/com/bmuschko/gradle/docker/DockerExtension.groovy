@@ -15,8 +15,11 @@
  */
 package com.bmuschko.gradle.docker
 
+import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionContainer
 
 class DockerExtension {
     FileCollection classpath
@@ -26,19 +29,19 @@ class DockerExtension {
 
     DockerRegistryCredentials registryCredentials
     private Project project
-    
+
     public DockerExtension(Project project) {
         this.project = project
         this.url = getDefaultDockerUrl()
     }
-    
+
     void registryCredentials(Closure closure) {
         registryCredentials = new DockerRegistryCredentials()
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = registryCredentials
         closure()
     }
-    
+
     public String getDefaultDockerUrl() {
         String dockerUrl = System.getenv("DOCKER_HOST")
         if (!dockerUrl) {
@@ -48,10 +51,10 @@ class DockerExtension {
             } else {
                 if (isWindows && new File("\\\\.\\pipe\\docker_engine").exists()) {
                     // TODO: re-enable once docker-java supports named pipes. Relevant links:
-                    // 
+                    //
                     //     https://github.com/bmuschko/gradle-docker-plugin/pull/313
                     //     https://github.com/docker-java/docker-java/issues/765
-                    // 
+                    //
                     // dockerUrl = 'npipe:////./pipe/docker_engine'
                     dockerUrl = 'tcp://127.0.0.1:2375'
                 } else {
@@ -61,5 +64,16 @@ class DockerExtension {
         }
         project.logger.info("Default docker.url set to $dockerUrl")
         dockerUrl
+    }
+
+    @CompileStatic
+    public DockerJavaApplication getJavaApplication() {
+        return (getProperty("extensions") as ExtensionContainer)
+            .getByName(DockerJavaApplicationPlugin.JAVA_APPLICATION_EXTENSION_NAME) as DockerJavaApplication
+    }
+
+    @CompileStatic
+    public void javaApplication(final Action<DockerJavaApplication> closure) {
+        closure.execute(getJavaApplication())
     }
 }

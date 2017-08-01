@@ -17,9 +17,12 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.CollectionUtil
+import groovy.transform.CompileStatic
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+
+import java.util.concurrent.Callable
 
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     String imageId
@@ -181,6 +184,11 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     void targetImageId(Closure imageId) {
         conventionMapping.imageId = imageId
+    }
+
+    @CompileStatic
+    void targetImageId(Callable<String> imageId) {
+        targetImageId { imageId.call() }
     }
 
     @Input
