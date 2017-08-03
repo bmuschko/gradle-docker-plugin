@@ -25,7 +25,7 @@ class DockerfileTest extends Specification {
             actual = instructionInstance.build()
         }
         catch(Exception e) {
-            LOG.info "exception catched with message `${e.message}`"
+            LOG.info "Exception caught with message `${e.message}`"
             if(!expectedBuiltInstruction.equals(e.class)) {
                 LOG.log(Level.WARNING, e.stackTrace?.join('\n\t'))
             }
