@@ -28,7 +28,7 @@ class Dockerfile extends DefaultTask {
     File destFile = project.file("$project.buildDir/docker/Dockerfile")
 
     Dockerfile() {
-
+        inputs.property("instructionsCache", { instructions.collect { it.build() }.join('\n') })
     }
 
     @TaskAction
@@ -116,7 +116,7 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * The <a href="https://docs.docker.com/reference/builder/#arg">ARG instruction</a> defines a variable that 
+     * The <a href="https://docs.docker.com/reference/builder/#arg">ARG instruction</a> defines a variable that
      * users can pass at build-time to the builder.
      *
      * @param arg Argument to pass, possibly with default value.
