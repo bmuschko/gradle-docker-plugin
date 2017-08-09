@@ -254,4 +254,137 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         then:
         TaskOutcome.SUCCESS == result.tasks.first().outcome
     }
+
+    def "Dockerfile task can be up-to-date false by self defined rule"() {
+
+        given: // … a simple docker file …
+        buildFile << """
+                import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+                task dockerFile(type: Dockerfile) {
+                    from "$TEST_IMAGE"
+                }
+            """
+
+        when:
+        def result = build('dockerFile')
+
+        then: // … it is generated the first time
+        TaskOutcome.SUCCESS == result.tasks.first().outcome
+
+        when: // … a upToDate spec returns true …
+        super.setupBuildfile()
+        buildFile << """
+                import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+                task dockerFile(type: Dockerfile) {
+                    outputs.upToDateWhen { true }
+                    from "$TEST_IMAGE"
+                }
+            """
+        result = build('dockerFile')
+
+        then: // … this will have no effect
+        TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
+
+        when: // … we change the definition so output changes …
+        super.setupBuildfile()
+        buildFile << """
+                import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+                task dockerFile(type: Dockerfile) {
+                    outputs.upToDateWhen { true }
+                    from "$TEST_IMAGE"
+                    environmentVariable "Foo", "Bar"
+                }
+            """
+        result = build('dockerFile')
+
+        then: // … it is compiled, the additional spec is not relevant …
+        TaskOutcome.SUCCESS == result.tasks.first().outcome
+
+        when: // … just running the same …
+        result = build('dockerFile')
+
+        then: // … we are up to date …
+        TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
+
+        when: // … a user spec return false …
+        super.setupBuildfile()
+        buildFile << """
+                import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+                task dockerFile(type: Dockerfile) {
+                    outputs.upToDateWhen { false }
+                    from "$TEST_IMAGE"
+                    environmentVariable "Foo", "Bar"
+                }
+            """
+        // println buildFile.text
+        result = build('dockerFile')
+
+        then: // … it succeeds …
+        TaskOutcome.SUCCESS == result.tasks.first().outcome
+
+        when: // … always …
+        result = build('dockerFile')
+
+        then: // …
+        TaskOutcome.SUCCESS == result.tasks.first().outcome
+    }
+
+    def "Do not fail on configuration phase"() {
+
+        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
+            it.write('Hello, World!')
+        }
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+            task dockerFile(type: Dockerfile) {
+                defaultCommand "foo"
+                // expected missing from
+            }
+
+            task dockerFile2(type: Dockerfile) {
+                from "$TEST_IMAGE"
+                environmentVariable "", "value"
+            }
+
+            task clean {}
+        """
+
+        expect:
+        build('clean')
+    }
+
+    def "Do fail on task execution phase"() {
+
+        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
+            it.write('Hello, World!')
+        }
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+            task dockerFile(type: Dockerfile) {
+                defaultCommand "foo"
+                // expected missing from
+            }
+
+            task dockerFile2(type: Dockerfile) {
+                from "$TEST_IMAGE"
+                environmentVariable "", "value"
+            }
+
+            task clean {}
+        """
+
+        expect:
+        buildAndFail('dockerFile')
+
+        and:
+        buildAndFail('dockerFile2')
+    }
 }

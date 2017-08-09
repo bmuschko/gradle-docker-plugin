@@ -36,13 +36,26 @@ abstract class AbstractFunctionalTest extends Specification {
 
     def setup() {
         projectDir = temporaryFolder.root
+        setupBuildfile()
+
+        when:
+            BuildResult result = build('dockerVersion')
+
+        then:
+            result.output.contains('Retrieving Docker version.')
+    }
+
+    protected void setupBuildfile() {
+        if (buildFile) {
+            buildFile.delete()
+        }
         buildFile = temporaryFolder.newFile('build.gradle')
 
         buildFile << """
             plugins {
                 id 'com.bmuschko.docker-remote-api'
             }
-			
+
             repositories {
                 mavenCentral()
             }
@@ -55,12 +68,6 @@ abstract class AbstractFunctionalTest extends Specification {
         buildFile << """
             task dockerVersion(type: com.bmuschko.gradle.docker.tasks.DockerVersion)
         """
-
-        when:
-        BuildResult result = build('dockerVersion')
-
-        then:
-        result.output.contains('Retrieving Docker version.')
     }
 
     private void setupDockerServerUrl() {
