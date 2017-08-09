@@ -4,6 +4,7 @@
 * `DockerBuildImage` and `DockerCreateContainer` gained optional argument `shmSize` - [Pull request 413](https://github.com/bmuschko/gradle-docker-plugin/pull/413)
 * Added tasks `DockerInspectNetwork`, `DockerCreateNetwork`, and `DockerRemoveNetwork` - [Pull request 422](https://github.com/bmuschko/gradle-docker-plugin/pull/422)
 * Add statically typed methods for configuring plugin with Kotlin - [Pull request 426](https://github.com/bmuschko/gradle-docker-plugin/pull/426)
+* Fix `Dockerfile` task up-to-date logic - [Pull request 433](https://github.com/bmuschko/gradle-docker-plugin/pull/433)
 
 ### Version 3.0.10 (July 7, 2017)
 * Bump verison of docker-java to 3.0.12 - [Pull request 408](https://github.com/bmuschko/gradle-docker-plugin/pull/408)
