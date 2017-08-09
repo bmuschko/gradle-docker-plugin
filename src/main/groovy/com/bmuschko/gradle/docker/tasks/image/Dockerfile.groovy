@@ -501,25 +501,47 @@ class Dockerfile extends DefaultTask {
     }
 
     interface ItemJoiner {
-        String join(Map map)
+        String join(Map<String, String> map)
     }
 
     static class MultiItemJoiner implements ItemJoiner {
         @Override
-        String join(Map map) {
-            map.inject([]) { result, entry -> result << "\"$entry.key\"=\"$entry.value\"" }.join(' ')
+        String join(Map<String, String> map) {
+            map.inject([]) { result, entry ->
+                def key   = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key)   ? ItemJoinerUtil.toQuotedString(entry.key)   : entry.key
+                def value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.value) ? ItemJoinerUtil.toQuotedString(entry.value) : entry.value
+                value = value.replaceAll("(\r)*\n", "\\\\\n")
+                result << "$key=$value"
+            }.join(' ')
         }
     }
 
     static class SingleItemJoiner implements ItemJoiner {
         @Override
-        String join(Map map) {
-            map.inject([]) { result, entry -> result << "$entry.key $entry.value" }.join(' ')
+        String join(Map<String, String> map) {
+            map.inject([]) { result, entry ->
+                def key   = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key)   ? ItemJoinerUtil.toQuotedString(entry.key)   : entry.key
+                // preserve multiline value in a single item key value instruction but ignore any other whitespaces or quotings
+                def value = entry.value.replaceAll("(\r)*\n", "\\\\\n")
+                result << "$key $value"
+            }.join('')
+        }
+    }
+
+    private class ItemJoinerUtil {
+        private static boolean isUnquotedStringWithWhitespaces(String str) {
+            return !str.matches('["].*["]') &&
+                str.matches('.*(?: |(?:\r?\n)).*')
+        }
+
+        private static String toQuotedString(final String str) {
+            '"'.concat(str.replaceAll('"', '\\\\"')).concat('"')
         }
     }
 
     static abstract class MapInstruction implements Instruction {
-        final Object command
+        final Map<String, String> command
+        final Closure commandClosure
         final ItemJoiner joiner
 
         MapInstruction(Map<String, String> command, ItemJoiner joiner) {
@@ -532,20 +554,32 @@ class Dockerfile extends DefaultTask {
         }
 
         MapInstruction(Closure command) {
-            this.command = command
+            this.commandClosure = command
             this.joiner = new MultiItemJoiner()
         }
 
         @Override
         String build() {
-            if (command instanceof Map<String, String>) {
-                "$keyword ${joiner.join(command)}"
-            }
-            else if(command instanceof Closure) {
-                def evaluatedCommand = command()
+            Map<String, String> commandToJoin = command
+            if(commandClosure != null) {
+                def evaluatedCommand = commandClosure()
 
-                if(evaluatedCommand instanceof Map) {
-                    "$keyword ${joiner.join(evaluatedCommand)}"
+                if(!(evaluatedCommand instanceof Map<String, String>)) {
+                    throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provie a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
+                }
+                commandToJoin = evaluatedCommand as Map<String, String>
+            }
+            if(commandToJoin == null) {
+                throw new IllegalArgumentException("instruction has to be set for ${keyword}")
+            }
+            validateKeysAreNotBlank commandToJoin
+            "$keyword ${joiner.join(commandToJoin)}"
+        }
+
+        private void validateKeysAreNotBlank(Map<String, String> command) throws IllegalArgumentException {
+            command.each { entry ->
+                if(entry.key.trim().length() == 0) {
+                    throw new IllegalArgumentException("blank keys for a key=value pair are not allowed: please check instruction ${keyword} and given pair `${entry}`")
                 }
             }
         }
