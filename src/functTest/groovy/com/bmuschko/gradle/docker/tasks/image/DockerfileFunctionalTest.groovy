@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -193,5 +194,37 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
             """FROM $TEST_IMAGE_WITH_TAG
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com
 """
+    }
+
+    def "Dockerfile task can be up-to-date"() {
+        given:
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+ext.version = project.properties.getOrDefault('version', '1.0')
+
+task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+    instruction 'FROM $TEST_IMAGE_WITH_TAG'
+    instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
+    label([ver: version])
+}
+"""
+        when:
+        def result = build(DOCKERFILE_TASK_NAME)
+
+        then:
+        TaskOutcome.SUCCESS == result.tasks.first().outcome
+
+        when:
+        result = build(DOCKERFILE_TASK_NAME)
+
+        then:
+        TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
+
+        when:
+        result = build(DOCKERFILE_TASK_NAME, "-Pversion=1.1")
+
+        then:
+        TaskOutcome.SUCCESS == result.tasks.first().outcome
     }
 }
