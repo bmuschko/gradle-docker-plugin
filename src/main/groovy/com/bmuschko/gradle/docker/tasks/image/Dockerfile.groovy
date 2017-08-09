@@ -47,8 +47,10 @@ class Dockerfile extends DefaultTask {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
-        if(!(getInstructions()[0].keyword == 'FROM')) {
-            throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM')
+        def fromPos = getInstructions().findIndexOf { it.keyword == 'FROM' }
+        def othersPos = getInstructions().findIndexOf { it.keyword != 'ARG' && it.keyword != 'FROM' }
+        if(fromPos < 0 || (othersPos >= 0 && fromPos > othersPos)) {
+            throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
         }
     }
 
