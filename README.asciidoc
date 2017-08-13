@@ -3,7 +3,7 @@ image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agr
 image:https://img.shields.io/badge/stack%20overflow-gradle%20docker%20plugin-blue.svg["Stackoverflow", link="https://stackoverflow.com/questions/tagged/gradle-docker-plugin"]
 image:https://badges.gitter.im/Join%20Chat.svg["Gitter", link="https://gitter.im/gradle-docker-plugin/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge"]
 
-= Gradle Docker plugin 
+= Gradle Docker plugin
 
 image:https://d3oypxn00j2a10.cloudfront.net/0.12.6/img/nav/docker-logo-loggedout.png[Docker Logo]
 
@@ -154,7 +154,7 @@ The plugin defines the following extension properties in the `docker` closure:
 *The default value is now generated based on a best guess attempt given the link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[OperatingSystem and Environment]:*
 
     Unix-based machine: unix:///var/run/docker.sock
-    Windows-based machine (and everything else): tcp://127.0.0.1:2375 
+    Windows-based machine (and everything else): tcp://127.0.0.1:2375
 
 Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.
 You can provide those credentials in the `registryCredentials` closure:
@@ -238,13 +238,13 @@ task buildImage(type: DockerBuildImage) {
 
 == Reactive-Streams
 
-As needed, we will implement reactive methods as described in link:https://github.com/reactive-streams/reactive-streams-jvm[reactive-streams]. 
-We implement these here as optional closures for all tasks. Currently the only supported methods are `onError`, `onNext`, `onComplete`. Various examples  
+As needed, we will implement reactive methods as described in link:https://github.com/reactive-streams/reactive-streams-jvm[reactive-streams].
+We implement these here as optional closures for all tasks. Currently the only supported methods are `onError`, `onNext`, `onComplete`. Various examples
 on how to use these can be found in our link:https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests]
 
 ==== onError
 
-The `onError` closure is passed the exception that is thrown for YOU to handle. If you silently ignore we will not throw the exception behind the scenes. 
+The `onError` closure is passed the exception that is thrown for YOU to handle. If you silently ignore we will not throw the exception behind the scenes.
 The below example is a common use-case that arises when someone wants to remove a container whether it exists or not but does not want to fail hard.
 
 [source,groovy]
@@ -264,11 +264,11 @@ task removeContainer(type: DockerRemoveContainer) {
 
 ==== onNext
 
-The `onNext` closure is passed the next iterative response upon execution. For all other tasks we simply hand you back the object that is given to us by `docker-java` 
-which is a pojo representation of the json handed back by `docker`. Thus, and much like the `onException` closure, all delegation is now in your control. Any properties/values 
+The `onNext` closure is passed the next iterative response upon execution. For all other tasks we simply hand you back the object that is given to us by `docker-java`
+which is a pojo representation of the json handed back by `docker`. Thus, and much like the `onException` closure, all delegation is now in your control. Any properties/values
 expected to be set will not be done unless YOU do them.
 
-Iterative tasks are things like `DockerBuildImage`, `DockerLogsContainer`, `DockerListImages`. These tasks have output which can be iterated over. The example below demonstrates how 
+Iterative tasks are things like `DockerBuildImage`, `DockerLogsContainer`, `DockerListImages`. These tasks have output which can be iterated over. The example below demonstrates how
 we iterate over each log message passing that to the closure for the user to work on.
 
 [source,groovy]
@@ -300,7 +300,7 @@ import com.bmuschko.gradle.docker.tasks.container.*
 
 task removeContainer(type: DockerRemoveContainer) {
     targetContainerId { "container-that-does-exist" }
-    onComplete { 
+    onComplete {
         println "Executes first"
     }
     doLast {
@@ -312,7 +312,7 @@ task removeContainer(type: DockerRemoveContainer) {
 == Executing functional tests against a running container
 
 The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this
-image and exercises functional tests agains the running container. At the end of this operation, the container is stopped.
+image and exercises functional tests against the running container. At the end of this operation, the container is stopped.
 
 [source,groovy]
 ----
@@ -347,6 +347,52 @@ task functionalTestMyApp(type: Test) {
 }
 ----
 
+=== Linking with other containers
+
+In many situations your container does not start without dependencies like database. In that case you may wish using traditional linking:
+
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('docker/myapp')
+    tag = 'test/myapp'
+}
+
+task createDBContainer(type: DockerCreateContainer) {
+    targetImageId { 'postgres:latest' }
+    containerName "docker_auto_${buildMyAppImage.buildTagName}"
+}
+
+task createMyAppContainer(type: DockerCreateContainer, dependsOn: [buildMyAppImage, createDBContainer]) {
+    targetImageId { buildMyAppImage.getImageId() }
+    portBindings = ['8080:8080']
+
+    doFirst{ // doFirst required! #319
+        links = [ "${createDBContainer.getContainerId()}:database" ] // `database` there will be host used by application to DB connect
+    }
+
+    // If you use Systemd in containers you should also add lines: (#320):
+    binds = [ '/sys/fs/cgroup': '/sys/fs/cgroup' ]
+    tty = true
+}
+
+task startMyAppContainer(type: DockerStartContainer, dependsOn: createMyAppContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task stopMyAppContainer(type: DockerStopContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task functionalTestMyApp(type: Test, dependsOn: startMyAppContainer) {
+    finalizedBy stopMyAppContainer
+}
+----
 
 == Java application plugin
 
@@ -471,7 +517,7 @@ docker {
 }
 ----
 
-will result in 
+will result in
 
 ----
 FROM java
