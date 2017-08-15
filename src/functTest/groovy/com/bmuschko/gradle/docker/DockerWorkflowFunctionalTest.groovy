@@ -569,7 +569,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn buildImage, createNetwork
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}"
-                networkMode = createNetwork.getNetworkId()
+                network = createNetwork.getNetworkId()
                 networkAliases = ["some-alias"]
                 cmd = ['/bin/sh']
             }
