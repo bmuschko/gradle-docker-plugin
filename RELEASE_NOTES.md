@@ -6,6 +6,7 @@
 * Add statically typed methods for configuring plugin with Kotlin - [Pull request 426](https://github.com/bmuschko/gradle-docker-plugin/pull/426)
 * Fix `Dockerfile` task up-to-date logic - [Pull request 433](https://github.com/bmuschko/gradle-docker-plugin/pull/433)
 * Multiple ENVs are not set the same way as single ENV instructions - [Pull request 415](https://github.com/bmuschko/gradle-docker-plugin/pull/415)
+* `DockerCreateContainer` changed optional input `networkMode` to `network` to better align with docker standatds - [Pull request 440](https://github.com/bmuschko/gradle-docker-plugin/pull/440)
 
 ### Version 3.0.10 (July 7, 2017)
 * Bump verison of docker-java to 3.0.12 - [Pull request 408](https://github.com/bmuschko/gradle-docker-plugin/pull/408)
