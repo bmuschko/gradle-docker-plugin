@@ -49,13 +49,40 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
 }
+
+task ${DOCKERFILE_TASK_NAME}simple(type: Dockerfile) {
+    from '$TEST_IMAGE_WITH_TAG'
+}
+
+task ${DOCKERFILE_TASK_NAME}1705(type: Dockerfile) {
+    arg 'from=$TEST_IMAGE_WITH_TAG'
+    from '\$from'
+}
 """
+        def outcome = new File(projectDir, 'build/docker/Dockerfile')
+
         when:
         BuildResult buildResult = buildAndFail(DOCKERFILE_TASK_NAME)
 
         then:
-        buildResult.output.contains('The first instruction of a Dockerfile has to be FROM')
-        !new File(projectDir, 'build/docker/Dockerfile').exists()
+        buildResult.output.contains('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
+        !outcome.exists()
+
+        when:
+        buildResult = build("${DOCKERFILE_TASK_NAME}1705")
+
+        then:
+        TaskOutcome.SUCCESS == buildResult.tasks.first().outcome
+        outcome.exists()
+        outcome.text == "ARG from=$TEST_IMAGE_WITH_TAG\nFROM \$from\n"
+
+        when:
+        buildResult = build("${DOCKERFILE_TASK_NAME}simple")
+
+        then:
+        TaskOutcome.SUCCESS == buildResult.tasks.first().outcome
+        outcome.exists()
+        outcome.text == "FROM $TEST_IMAGE_WITH_TAG\n"
     }
 
     def "Can create minimal Dockerfile in default location"() {
