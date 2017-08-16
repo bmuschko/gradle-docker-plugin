@@ -192,6 +192,19 @@ docker {
 }
 ----
 
+===== Working with Google Cloud and using a key file
+
+[source,groovy]
+----
+docker {
+    registryCredentials {
+        url = 'https://gcr.io'
+        username = '_json_key'
+        password = file('keyfile.json").text
+    }
+}
+----
+
 ===== Working with a Docker instance without TLS
 
 The following example assumes that you disabled TLS on your Docker instance. You can do so by setting `DOCKER_TLS=no` in the file
