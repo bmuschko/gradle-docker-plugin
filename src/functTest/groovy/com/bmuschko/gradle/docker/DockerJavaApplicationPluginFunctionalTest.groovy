@@ -1,7 +1,6 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Requires
 
 class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
@@ -27,68 +26,6 @@ ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
 EXPOSE 8080
 """
         result.output.contains('Author           : ')
-    }
-
-    def "Can build image for Java application with default configuration and changes on changed application package"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
-        when:
-        BuildResult result = build('dockerBuildImage')
-
-        then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        File distTarFile = new File(projectDir, "build/distributions/${projectName}-1.0.tar")
-        distTarFile.exists()
-        long distTarFileLastTouched = distTarFile.lastModified()
-        dockerfile.exists()
-        dockerfile.text ==
-"""FROM java
-MAINTAINER ${System.getProperty('user.name')}
-ADD ${projectName}-1.0.tar /
-ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
-EXPOSE 8080
-"""
-
-        when:
-        result = build('dockerBuildImage')
-
-        then:
-        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
-
-        when:
-        temporaryFolder.newFile('file1.txt')
-        temporaryFolder.newFile('file2.txt')
-        buildFile << """
-        distTar {
-            from '${temporaryFolder}/file1.txt'
-            from '${temporaryFolder}/file2.txt'
-        }
-        """
-        result = build('dockerBuildImage')
-
-        then:
-        result.tasks.each { println "$it.path $it.outcome" }
-
-        distTarFileLastTouched < distTarFile.lastModified()
-        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
-
-        when:
-        buildFile << "version = 1.1"
-        build('dockerBuildImage')
-
-        then:
-        dockerfile.exists()
-        dockerfile.text ==
-"""FROM java
-MAINTAINER ${System.getProperty('user.name')}
-ADD ${projectName}-1.1.tar /
-ENTRYPOINT ["/${projectName}-1.1/bin/${projectName}"]
-EXPOSE 8080
-"""
-
     }
 
     def "Can create image for Java application with user-driven configuration"() {
