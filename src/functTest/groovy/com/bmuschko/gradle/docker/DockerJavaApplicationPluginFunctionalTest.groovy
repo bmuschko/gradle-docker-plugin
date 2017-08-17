@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Requires
 
 class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
@@ -26,6 +27,71 @@ ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
 EXPOSE 8080
 """
         result.output.contains('Author           : ')
+    }
+
+    def "Can build image for Java application with default configuration and changes on changed application package"() {
+        String projectName = temporaryFolder.root.name
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+
+        when: // … building an image …
+        BuildResult result = build('dockerBuildImage')
+
+        then: // … the Dockerfile is generated as expected along with the image …
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File distTarFile = new File(projectDir, "build/distributions/${projectName}-1.0.tar")
+        distTarFile.exists()
+        def distTarFileLastLength = distTarFile.length()
+        dockerfile.exists()
+        dockerfile.text ==
+"""FROM java
+MAINTAINER ${System.getProperty('user.name')}
+ADD ${projectName}-1.0.tar /
+ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
+EXPOSE 8080
+"""
+
+        when: // … just rebuilding …
+        result = build('dockerBuildImage')
+
+        then: // … the image is built again, since that way works docker build too  …
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+
+        when: // … any files are added to the distTar, i.e. input of the …
+        temporaryFolder.newFile('file1.txt')
+        buildFile << """
+        distTar {
+            from '${temporaryFolder}'
+            into '${temporaryFolder}'
+        }
+        """
+        result = build('dockerBuildImage')
+
+        then: // … the distTar is copied and anything is rebuild, except the Dockerfile …
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":distTar"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerCopyDistResources"}.outcome
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+
+        when: // … only the name changes …
+        buildFile << "version = 1.1"
+        result = build('dockerBuildImage')
+
+        then: // … both, image and Dockerfile changes
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":distTar"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerCopyDistResources"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+        dockerfile.exists()
+        dockerfile.text ==
+"""FROM java
+MAINTAINER ${System.getProperty('user.name')}
+ADD ${projectName}-1.1.tar /
+ENTRYPOINT ["/${projectName}-1.1/bin/${projectName}"]
+EXPOSE 8080
+"""
     }
 
     def "Can create image for Java application with user-driven configuration"() {
