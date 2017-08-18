@@ -15,11 +15,15 @@
  */
 package com.bmuschko.gradle.docker
 
+import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+
+import java.nio.file.Files
+import java.nio.file.Paths
 
 abstract class AbstractFunctionalTest extends Specification {
     @Rule
@@ -64,6 +68,7 @@ abstract class AbstractFunctionalTest extends Specification {
         setupDockerServerUrl()
         setupDockerCertPath()
         setupDockerPrivateRegistryUrl()
+        setupDockerTemplateFile()
 
         buildFile << """
             task dockerVersion(type: com.bmuschko.gradle.docker.tasks.DockerVersion)
@@ -99,6 +104,20 @@ abstract class AbstractFunctionalTest extends Specification {
                     url = '$dockerPrivateRegistryUrl'
                 }
             """
+        }
+    }
+
+    private void setupDockerTemplateFile() {
+        File source = new File(TestConfiguration.class.getClassLoader().getResource("Dockerfile.template").toURI())
+        if (source.exists()) {
+            File resourcesDir = new File(projectDir, 'src/main/docker/')
+            if (resourcesDir.mkdirs()) {
+                if (Files.copy(source.toPath(),Paths.get(projectDir.path, 'src/main/docker/Dockerfile.template')).toFile().length() != source.length()) {
+                    throw new GradleException("File could not be successfully copied")
+                }
+            } else {
+                throw new IOException("can not create the directory ${resourcesDir.absolutePath}")
+            }
         }
     }
 
