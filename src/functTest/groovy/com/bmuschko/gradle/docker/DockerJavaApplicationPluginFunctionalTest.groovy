@@ -29,14 +29,14 @@ EXPOSE 8080
         result.output.contains('Author           : ')
     }
 
-    def "Can build image for Java application with default configuration and changes on changed application package"() {
+    def "Do not rebuild image for Java application if nothing changes"() {
         String projectName = temporaryFolder.root.name
         createJettyMainClass()
         writeBasicSetupToBuildFile()
         writeCustomTasksToBuildFile()
 
         when: // … building an image …
-        BuildResult result = build('dockerBuildImage')
+        BuildResult result = build('dockerBuildImage', '-s')
 
         then: // … the Dockerfile is generated as expected along with the image …
         TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
@@ -57,7 +57,9 @@ EXPOSE 8080
         result = build('dockerBuildImage')
 
         then: // … the image is built again, since that way works docker build too  …
-        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerCopyDistResources"}.outcome
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SKIPPED == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
 
         when: // … any files are added to the distTar, i.e. input of the …
         temporaryFolder.newFile('file1.txt')
@@ -92,6 +94,92 @@ ADD ${projectName}-1.1.tar /
 ENTRYPOINT ["/${projectName}-1.1/bin/${projectName}"]
 EXPOSE 8080
 """
+    }
+
+    def "Do rebuild image for Java application if user provided copy or add instructions"() {
+        given:
+        String projectName = temporaryFolder.root.name
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        def userFile = temporaryFolder.newFile('file1.txt')
+
+        buildFile << """
+        dockerCopyDistResources {
+            from '$userFile.absolutePath'
+        }
+        dockerDistTar {
+            copyFile '$userFile.name', '/'
+        }
+"""
+
+        when: // … building an image …
+        BuildResult result = build('dockerBuildImage')
+
+        then: // … the Dockerfile is generated as expected along with the image …
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerCopyDistResources"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+
+        when: // … just rebuilding …
+        result = build('dockerBuildImage')
+
+        then: // … the image is built again, since that way works docker build too  …
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerCopyDistResources"}.outcome
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+
+        when: // … rebuilding but user defines a custom rule not to build the image …
+        buildFile << """
+        dockerBuildImage {
+            onlyIf { false }
+        }
+"""
+        result = build('dockerBuildImage')
+
+        then: // … the image is not built again due to custom rule …
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerCopyDistResources"}.outcome
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SKIPPED == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+    }
+
+    def "Do rebuild image for Java application if user provided copy or add instructions by dockerfile"() {
+        given:
+        String projectName = temporaryFolder.root.name
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+
+        buildFile << """
+        dockerDistTar {
+            instructionsFromTemplate 'src/main/docker/Dockerfile.template'
+        }
+"""
+
+        when: // … building an image …
+        BuildResult result = build('dockerBuildImage')
+
+        then: // … the Dockerfile is generated as expected along with the image …
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+
+        when: // … just rebuilding …
+        result = build('dockerBuildImage')
+
+        then: // … the image is built again, since we don't know anything about if there are changes to respect …
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SUCCESS == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
+
+        when: // … rebuilding but user defines a custom rule not to build the image …
+        buildFile << """
+        dockerBuildImage {
+            onlyIf { false }
+        }
+"""
+        result = build('dockerBuildImage')
+
+        then: // … the image is not built again due to custom rule …
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":distTar"}.outcome
+        TaskOutcome.UP_TO_DATE == result.tasks.find{it.path == ":dockerDistTar"}.outcome
+        TaskOutcome.SKIPPED == result.tasks.find{it.path == ":dockerBuildImage"}.outcome
     }
 
     def "Can create image for Java application with user-driven configuration"() {

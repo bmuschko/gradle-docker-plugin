@@ -23,8 +23,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Tar
-import org.gradle.util.ConfigureUtil
-
 /**
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
  */
@@ -50,7 +48,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             Dockerfile createDockerfileTask = createDockerfileTask(project, tarTask, dockerJavaApplication)
             Copy copyTarTask = createDistCopyResourcesTask(project, tarTask, createDockerfileTask)
             createDockerfileTask.dependsOn copyTarTask
-            DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerJavaApplication)
+            DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, tarTask, copyTarTask, createDockerfileTask, dockerJavaApplication)
             createPushImageTask(project, dockerBuildImageTask)
         }
     }
@@ -93,8 +91,18 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         "/$installDir/bin/$project.applicationName".toString()
     }
 
-    private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
+    private DockerBuildImage createBuildImageTask(Project project, Tar tarTask, Copy copyTarTask, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
         project.task(BUILD_IMAGE_TASK_NAME, type: DockerBuildImage) {
+            onlyIf {
+                !copyTarTask.state.upToDate ||
+                !createDockerfileTask.state.upToDate ||
+                // any generic instruction we can't check
+                createDockerfileTask.instructions.any { it instanceof Dockerfile.GenericInstruction } ||
+                // any add instruction that not comes from the plugin
+                createDockerfileTask.instructions.any { it instanceof Dockerfile.AddFileInstruction && !((it as Dockerfile.AddFileInstruction).src instanceof Closure && (it as Dockerfile.AddFileInstruction).src() == tarTask.archivePath.name) } ||
+                // any copy instruction that not comes from the plugin
+                createDockerfileTask.instructions.any { it instanceof Dockerfile.CopyFileInstruction }
+            }
             description = 'Builds the Docker image for the Java application.'
             dependsOn createDockerfileTask
             conventionMapping.inputDir = { createDockerfileTask.destFile.parentFile }
