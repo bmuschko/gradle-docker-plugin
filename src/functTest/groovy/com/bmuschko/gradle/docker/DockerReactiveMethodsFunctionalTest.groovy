@@ -424,6 +424,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         File dockerFileLocation = new File(getProjectDir(), 'build/private-reg-reactive/Dockerfile')
         if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
             throw new GradleException("Could not successfully create dockerFileLocation @ ${dockerFileLocation.path}")
+        startDockerRegistryContainer()
 
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -460,6 +461,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
         expect:
         BuildResult result = build('workflow')
         result.output.contains("Pushed")
+        removeDockerRegistryContainer()
     }
 
     def "should call onComplete when task finished without errors"() {

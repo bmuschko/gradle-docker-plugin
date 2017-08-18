@@ -262,6 +262,7 @@ EXPOSE 8080
     def "Can create image for Java application and push to private registry"() {
         createJettyMainClass()
         writeBasicSetupToBuildFile()
+        startDockerRegistryContainer()
         buildFile << """
             applicationName = 'javaapp'
 
@@ -287,6 +288,7 @@ ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
 EXPOSE 8080
 """
         noExceptionThrown()
+        removeDockerRegistryContainer()
     }
 
     private void createJettyMainClass() {

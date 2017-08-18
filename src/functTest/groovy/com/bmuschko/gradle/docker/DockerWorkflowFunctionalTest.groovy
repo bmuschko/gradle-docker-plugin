@@ -19,6 +19,16 @@ import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 
 class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
+
+    def setupSpec(){
+        startDockerRegistryContainer()
+    }
+
+    def cleanupSpec(){
+        removeDockerRegistryContainer()
+    }
+
+
     def "Can create Dockerfile and build an image from it"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -157,15 +167,15 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             task createContainer1(type: DockerCreateContainer) {
                 dependsOn buildImage
                 targetImageId { buildImage.getImageId() }
-                containerName = "${uniqueContainerName}1"
+                containerName = "${uniqueContainerName}"
                 cmd = ['/bin/sh']
             }
 
             task createContainer2(type: DockerCreateContainer) {
                 dependsOn createContainer1
                 targetImageId { buildImage.getImageId() }
-                containerName = "${uniqueContainerName}2"
-                links = ["${uniqueContainerName}1:container1"]
+                containerName = "${createUniqueContainerName()}"
+                links = ["${uniqueContainerName}:container1"]
                 cmd = ['/bin/sh']
             }
 
@@ -181,7 +191,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains("Links       : [${uniqueContainerName}1:container1]")
+        result.output.contains("Links       : [${uniqueContainerName}:container1]")
     }
 
     def "Can build an image, create a container and link its volumes into another container"() {
@@ -205,15 +215,15 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             task createContainer1(type: DockerCreateContainer) {
                 dependsOn buildImage
                 targetImageId { buildImage.getImageId() }
-                containerName = "${uniqueContainerName}-1"
+                containerName = "${uniqueContainerName}"
                 cmd = ['/bin/sh']
             }
 
             task createContainer2(type: DockerCreateContainer) {
                 dependsOn createContainer1
                 targetImageId { buildImage.getImageId() }
-                containerName = "${uniqueContainerName}-2"
-                volumesFrom = ["${uniqueContainerName}-1"]
+                containerName = "${createUniqueContainerName()}"
+                volumesFrom = ["${uniqueContainerName}"]
                 cmd = ['/bin/sh']
             }
 
@@ -229,7 +239,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
+        result.output.contains("VolumesFrom : [${uniqueContainerName}:rw]")
     }
 
     def "Can build an image and push to private registry"() {

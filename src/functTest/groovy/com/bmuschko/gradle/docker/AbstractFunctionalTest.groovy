@@ -15,13 +15,24 @@
  */
 package com.bmuschko.gradle.docker
 
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.command.CreateContainerResponse
+import com.github.dockerjava.api.exception.NotFoundException
+import com.github.dockerjava.api.model.PortBinding
+import com.github.dockerjava.api.model.Ports
+import com.github.dockerjava.core.DefaultDockerClientConfig
+import com.github.dockerjava.core.DockerClientBuilder
+import com.github.dockerjava.core.DockerClientConfig
+import com.github.dockerjava.core.command.PullImageResultCallback
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Shared
 import spock.lang.Specification
 
 abstract class AbstractFunctionalTest extends Specification {
+
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
 
@@ -33,6 +44,20 @@ abstract class AbstractFunctionalTest extends Specification {
     static final String TEST_IMAGE_WITH_TAG = "${TEST_IMAGE}:${TEST_IMAGE_TAG}"
 
     String dockerServerUrl
+
+    @Shared
+    DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+        .withDockerHost("unix:///var/run/docker.sock")
+        .build()
+
+    @Shared
+    DockerClient dockerClient = DockerClientBuilder.getInstance(config).build()
+
+    @Shared
+    private def dockerContainersBeforeTests = [] as Set
+
+    @Shared
+    private def dockerImagesBeforeTests = [] as Set
 
     def setup() {
         projectDir = temporaryFolder.root
@@ -62,6 +87,105 @@ abstract class AbstractFunctionalTest extends Specification {
         then:
         result.output.contains('Retrieving Docker version.')
     }
+
+    def setupSpec() {
+        dockerImagesBeforeTests = dockerClient.listImagesCmd().exec() as Set
+        dockerContainersBeforeTests = dockerClient.listContainersCmd().withShowAll(true).exec() as Set
+    }
+
+    def cleanupSpec() {
+        removeDockerContainers()
+        removeDockerImages()
+    }
+
+    private void removeDockerContainers() {
+
+        def dockerContainersAfterTests = dockerClient.listContainersCmd().withShowAll(true).exec() as Set
+
+        def removableDockerContainerIds = dockerContainersAfterTests.collect { it.id } - dockerContainersBeforeTests.collect { it.id }
+
+        println("Removing ${removableDockerContainerIds.size()} containers: ${removableDockerContainerIds}")
+        removableDockerContainerIds.each {
+            try {
+                dockerClient.removeContainerCmd(it)
+                    .withForce(true)
+                    .exec()
+            } catch (NotFoundException ex) {
+                println("Exception while removing container: ${ex.message} ")
+            }
+        }
+
+        println("Docker containers removed.")
+    }
+
+    private void removeDockerImages() {
+
+        def dockerImagesCreatedAfterTests = dockerClient.listImagesCmd().exec() as Set
+
+        def removableDockerImageIds = dockerImagesCreatedAfterTests.collect { it.id }  - dockerImagesBeforeTests.collect { it.id }
+
+        println("Removing ${removableDockerImageIds.size()} images: ${removableDockerImageIds}")
+
+        removableDockerImageIds.each {
+            try {
+                dockerClient.removeImageCmd(it)
+                    .withForce(true)
+                    .exec()
+            } catch (NotFoundException ex) {
+                println("Exception while removing image: ${ex.message} ")
+            }
+        }
+
+        println("Docker images removed.")
+    }
+
+    protected void startDockerRegistryContainer() {
+
+        def containers = dockerClient.listContainersCmd().exec()
+        println("Active dockerContainersBeforeTests: ${containers}")
+
+        boolean isRegistryAlreadyRunning
+
+        isRegistryAlreadyRunning = containers.find {
+            return it?.names?.contains("/registry")
+        }
+
+        if (!isRegistryAlreadyRunning) {
+            println("Docker registry container is not currently running.")
+
+            boolean isDockerRegistryImageAlreadyPulled = dockerClient.listImagesCmd().exec().find {
+                return it.repoTags.contains('registry:latest')
+            }
+
+            if (!isDockerRegistryImageAlreadyPulled) {
+                println("Pulling docker registry image.")
+                dockerClient.pullImageCmd('registry:latest').exec(new PullImageResultCallback()).awaitCompletion()
+            }
+
+            CreateContainerResponse registryContainer = dockerClient.createContainerCmd('registry')
+                .withPortBindings(new Ports(PortBinding.parse("5000:5000")))
+                .withName('registry')
+                .exec()
+
+            println("Starting docker registry container.")
+            dockerClient.startContainerCmd(registryContainer.getId()).exec()
+        }
+
+    }
+
+    protected void removeDockerRegistryContainer() {
+        println("Removing docker registry container.")
+        try {
+            dockerClient.removeContainerCmd('registry')
+                .withForce(true)
+                .exec()
+        } catch (NotFoundException ex) {
+            println("Exception while removing container: ${ex.message} ")
+        }
+    }
+
+
+
 
     private void setupDockerServerUrl() {
         dockerServerUrl = TestConfiguration.dockerHost
@@ -115,7 +239,7 @@ abstract class AbstractFunctionalTest extends Specification {
         "gradle/${generateRandomUUID()}"
     }
 
-    protected String createUniqueContainerName() {
+    protected final String createUniqueContainerName() {
         generateRandomUUID()
     }
 

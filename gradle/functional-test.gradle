@@ -30,6 +30,7 @@ check.dependsOn functionalTest
 
 dependencies {
     functionalTestCompile 'commons-lang:commons-lang:2.6'
+    functionalTestCompile 'com.github.docker-java:docker-java:3.0.12'
 }
 
 gradlePlugin {
