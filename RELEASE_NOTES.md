@@ -8,6 +8,7 @@
 * Multiple ENVs are not set the same way as single ENV instructions - [Pull request 415](https://github.com/bmuschko/gradle-docker-plugin/pull/415)
 * `DockerCreateContainer` changed optional input `networkMode` to `network` to better align with docker standatds - [Pull request 440](https://github.com/bmuschko/gradle-docker-plugin/pull/440)
 * The first instruction of a Dockerfile has to be FROM except for Docker versions later than 17.05 - [Pull request 435](https://github.com/bmuschko/gradle-docker-plugin/pull/435)
+* Bump verison of docker-java to 3.0.13 - [Commit b2d936](https://github.com/bmuschko/gradle-docker-plugin/commit/b2d93671ed0a0b7177a450d503c28eca6aa6795d)
 
 ### Version 3.0.10 (July 7, 2017)
 * Bump verison of docker-java to 3.0.12 - [Pull request 408](https://github.com/bmuschko/gradle-docker-plugin/pull/408)
