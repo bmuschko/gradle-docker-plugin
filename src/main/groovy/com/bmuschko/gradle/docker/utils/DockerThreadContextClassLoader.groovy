@@ -117,6 +117,11 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             dockerClientConfigBuilder.withApiVersion(apiVersion)
         }
 
+        String registryUrl = dockerExtension.registryCredentials?.url
+        if(registryUrl) {
+            dockerClientConfigBuilder.withRegistryUrl(registryUrl)
+        }
+
         def dockerClientConfig = dockerClientConfigBuilder.build()
 
         // Create client

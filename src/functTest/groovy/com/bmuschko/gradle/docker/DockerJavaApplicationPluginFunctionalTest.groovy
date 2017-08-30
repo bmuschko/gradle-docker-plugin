@@ -268,7 +268,7 @@ EXPOSE 8080
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
+                    tag = '${TestConfiguration.dockerPrivateRegyistryDomain}/javaapp'
                 }
             }
         """
