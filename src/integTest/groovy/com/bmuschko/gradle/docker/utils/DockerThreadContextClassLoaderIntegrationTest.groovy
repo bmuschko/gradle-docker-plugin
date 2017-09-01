@@ -16,13 +16,13 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
 
     @Shared
     Project project
-    
+
     @Shared
     DockerExtension dockerExtension
-    
+
     @Shared
     ThreadContextClassLoader threadContextClassLoader
-    
+
     @Shared
     DockerClientConfiguration dockerClientConfiguration
 
@@ -32,7 +32,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         project.repositories {
             mavenCentral()
         }
-        
+
         dockerExtension = new DockerExtension(project)
         threadContextClassLoader = new DockerThreadContextClassLoader(dockerExtension)
         dockerClientConfiguration = new DockerClientConfiguration(url: 'tcp://localhost:2375')
@@ -223,7 +223,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance = null
 
-        def binds = ['/my/path': 'my/volume', '/other/path': '/other/volume']
+        def binds = ['/this/path': 'this/volume', '/that/path': '/that/volume', '/other/path': '/other/volume:ro']
 
         threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
             instance = createBinds(binds)
@@ -233,10 +233,13 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         noExceptionThrown()
         instance
         instance.length == binds.size()
-        instance[0].path == '/my/path'
-        instance[0].volume.path == 'my/volume'
-        instance[1].path == '/other/path'
-        instance[1].volume.path == '/other/volume'
+        instance[0].path == '/this/path'
+        instance[0].volume.path == 'this/volume'
+        instance[1].path == '/that/path'
+        instance[1].volume.path == '/that/volume'
+        instance[2].path == '/other/path'
+        instance[2].volume.path == '/other/volume'
+        instance[2].accessMode.toString() == 'ro'
     }
 
     def "Can create class of type LogConfig"() {
@@ -330,7 +333,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         instance.pathOnHost == source
         instance.pathInContainer == destination
         instance.cGroupPermissions == permissions
-        
+
         where:
         deviceString            | permissions | source     | destination
         '/dev/sda:/dev/xvda:rw' | 'rw'        | '/dev/sda' | '/dev/xvda'
@@ -350,7 +353,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         where:
         deviceString << ['', '/dev/sda:/dev/xvda:a']
     }
-    
+
     def "Can create class of type WaitContainerResultCallback"() {
         when:
         def instance = null
