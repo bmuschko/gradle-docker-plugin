@@ -223,7 +223,7 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         when:
         def instance = null
 
-        def binds = ['/this/path': 'this/volume', '/that/path': '/that/volume', '/other/path': '/other/volume:ro']
+        def binds = ['/this/path': 'this/volume', '/that/path': '/that/volume:ro', '/other/path': '/other/volume:ro,Z']
 
         threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, dockerClientConfiguration) {
             instance = createBinds(binds)
@@ -237,9 +237,11 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         instance[0].volume.path == 'this/volume'
         instance[1].path == '/that/path'
         instance[1].volume.path == '/that/volume'
+        instance[1].accessMode.toString() == 'ro'
         instance[2].path == '/other/path'
         instance[2].volume.path == '/other/volume'
         instance[2].accessMode.toString() == 'ro'
+        instance[2].secMode.toString() == 'Z'
     }
 
     def "Can create class of type LogConfig"() {
