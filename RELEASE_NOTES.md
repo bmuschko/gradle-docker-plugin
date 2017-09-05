@@ -1,4 +1,7 @@
-### Version 3.1.0 (Auguest 21, 2017)
+### Version 3.1.1 (TBA)
+* Update `createBind` to use docker-java `parse` method - [Pull request 452](https://github.com/bmuschko/gradle-docker-plugin/pull/452)
+
+### Version 3.1.0 (August 21, 2017)
 * `DockerListImages` gained better support for filters - [Pull request 414](https://github.com/bmuschko/gradle-docker-plugin/pull/414)
 * Use `alpine:3.4` image in functional tests - [Pull request 416](https://github.com/bmuschko/gradle-docker-plugin/pull/416)
 * `DockerBuildImage` and `DockerCreateContainer` gained optional argument `shmSize` - [Pull request 413](https://github.com/bmuschko/gradle-docker-plugin/pull/413)
