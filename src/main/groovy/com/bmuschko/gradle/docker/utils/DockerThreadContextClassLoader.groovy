@@ -319,13 +319,9 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createBind(String path, String volume) {
-        Class volumeClass = loadClass("${MODEL_PACKAGE}.Volume")
-        Constructor volumeConstructor = volumeClass.getConstructor(String)
-        def volumeInstance = volumeConstructor.newInstance(volume)
-
-        Class bindClass = loadBindClass()
-        Constructor bindConstructor = bindClass.getConstructor(String, volumeClass)
-        bindConstructor.newInstance(path, volumeInstance)
+      Class bindClass = loadBindClass()
+      Method bindParseMethod = bindClass.getMethod('parse', String.class)
+      bindParseMethod.invoke(null, String.join(':', path, volume))
     }
 
     /**
