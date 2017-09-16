@@ -1,5 +1,6 @@
 ### Version 3.1.1 (TBA)
 * Update `createBind` to use docker-java `parse` method - [Pull request 452](https://github.com/bmuschko/gradle-docker-plugin/pull/452)
+* Allow Docker to cache app libraries dir when `DockerJavaApplication` plugin is used - [Pull request 459](https://github.com/bmuschko/gradle-docker-plugin/pull/459)
 
 ### Version 3.1.0 (August 21, 2017)
 * `DockerListImages` gained better support for filters - [Pull request 414](https://github.com/bmuschko/gradle-docker-plugin/pull/414)
