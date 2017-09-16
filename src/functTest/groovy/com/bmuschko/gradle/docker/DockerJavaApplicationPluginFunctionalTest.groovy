@@ -21,8 +21,9 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
         dockerfile.text ==
 """FROM java
 MAINTAINER ${System.getProperty('user.name')}
-ADD ${projectName}-1.0.tar /
-ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
+ADD ${projectName} /${projectName}
+ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
+ENTRYPOINT ["/${projectName}/bin/${projectName}"]
 EXPOSE 8080
 """
         result.output.contains('Author           : ')
@@ -54,8 +55,9 @@ EXPOSE 8080
         dockerfile.text ==
 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD ${projectName}-1.0.tar /
-ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
+ADD ${projectName} /${projectName}
+ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
+ENTRYPOINT ["/${projectName}/bin/${projectName}"]
 EXPOSE 9090
 """
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
@@ -87,8 +89,9 @@ EXPOSE 9090
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD ${projectName}-1.0.tar /
-ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
+ADD ${projectName} /${projectName}
+ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
+ENTRYPOINT ["/${projectName}/bin/${projectName}"]
 EXPOSE 9090 8080
 """
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
@@ -124,7 +127,8 @@ EXPOSE 9090 8080
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD ${projectName}-1.0.tar /
+ADD ${projectName} /${projectName}
+ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 CMD ["arg1"]
 ENTRYPOINT ["bin/run.sh"]
 EXPOSE 9090
@@ -158,7 +162,8 @@ EXPOSE 9090
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD ${projectName}-1.0.tar /
+ADD ${projectName} /${projectName}
+ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 
 EXPOSE 9090
 """
@@ -206,8 +211,9 @@ EXPOSE 9090
         dockerfile.text ==
 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD ${projectName}-1.0.tar /
-ENTRYPOINT ["/${projectName}-1.0/bin/${projectName}"]
+ADD ${projectName} /${projectName}
+ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
+ENTRYPOINT ["/${projectName}/bin/${projectName}"]
 EXPOSE 9090
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
@@ -219,6 +225,7 @@ ADD file2.txt /other/dir/file2.txt
 
     @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
     def "Can create image for Java application and push to DockerHub"() {
+        String projectName = temporaryFolder.root.name
         createJettyMainClass()
         writeBasicSetupToBuildFile()
         Properties gradleProperties = TestPrecondition.readDockerHubCredentials()
@@ -253,13 +260,15 @@ ADD file2.txt /other/dir/file2.txt
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER ${System.getProperty('user.name')}
-ADD javaapp-1.0.tar /
-ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
+ADD javaapp /javaapp
+ADD app-lib/${projectName}-1.0.jar /javaapp/lib/$projectName-1.0.jar
+ENTRYPOINT ["/javaapp/bin/javaapp"]
 EXPOSE 8080
 """
     }
 
     def "Can create image for Java application and push to private registry"() {
+        String projectName = temporaryFolder.root.name
         createJettyMainClass()
         writeBasicSetupToBuildFile()
         buildFile << """
@@ -282,8 +291,9 @@ EXPOSE 8080
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
 MAINTAINER ${System.getProperty('user.name')}
-ADD javaapp-1.0.tar /
-ENTRYPOINT ["/javaapp-1.0/bin/javaapp"]
+ADD javaapp /javaapp
+ADD app-lib/${projectName}-1.0.jar /javaapp/lib/$projectName-1.0.jar
+ENTRYPOINT ["/javaapp/bin/javaapp"]
 EXPOSE 8080
 """
         noExceptionThrown()
