@@ -546,6 +546,7 @@ You can add additional instructions to the dockerfile using `dockerDistTar` and 
 ----
 dockerDistTar {
     instruction {'RUN ls -la'}
+    environmentVariable('JAVA_OPTS', '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap')
 }
 
 docker {
