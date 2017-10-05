@@ -269,7 +269,7 @@ task createDockerfile(type: Dockerfile) {
 task buildImage(type: DockerBuildImage) {
     dependsOn createDockerfile
     inputDir = createDockerfile.destFile.parentFile
-    tag = 'bmuschko/myimage'
+    tag = 'bmuschko/myimage:latest'
 }
 ----
 
@@ -360,7 +360,7 @@ import com.bmuschko.gradle.docker.tasks.image.*
 
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('docker/myapp')
-    tag = 'test/myapp'
+    tag = 'test/myapp:latest'
 }
 
 task createMyAppContainer(type: DockerCreateContainer) {
