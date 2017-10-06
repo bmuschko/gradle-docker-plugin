@@ -1,5 +1,6 @@
 ### Version 3.2.1 (TBD)
 * Bump gradle to `4.2` - [Pull request 471](https://github.com/bmuschko/gradle-docker-plugin/pull/471)
+* Fix setting `shmSize` when creating container - [Pull request 480](https://github.com/bmuschko/gradle-docker-plugin/pull/480)
 
 ### Version 3.2.0 (September 29, 2017)
 * Update `createBind` to use docker-java `parse` method - [Pull request 452](https://github.com/bmuschko/gradle-docker-plugin/pull/452)
