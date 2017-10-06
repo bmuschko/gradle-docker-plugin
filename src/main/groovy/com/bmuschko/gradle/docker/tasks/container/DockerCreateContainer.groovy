@@ -345,8 +345,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getShmSize() != null) { // 0 is valid input
-            def hostConfig = threadContextClassLoader.createHostConfig([shmSize: getShmSize()])
-            containerCommand.withHostConfig(hostConfig)
+            containerCommand.hostConfig.withShmSize(getShmSize())
         }
     }
 
