@@ -97,6 +97,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String[] entrypoint
+
+    @Input
+    @Optional
     String[] dns
 
     @Input
@@ -263,6 +267,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getCmd()) {
             containerCommand.withCmd(getCmd())
+        }
+
+        if(getEntrypoint()) {
+            containerCommand.withEntrypoint(getEntrypoint())
         }
 
         if(getDns()) {
