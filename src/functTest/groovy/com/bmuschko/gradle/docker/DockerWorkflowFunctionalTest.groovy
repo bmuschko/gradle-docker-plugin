@@ -514,6 +514,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn buildImage
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}"
+                portBindings = ['8080:8080']
                 shmSize = 128000
                 cmd = ['/bin/sh']
             }
@@ -524,6 +525,9 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 onNext { c ->
                     if(c.hostConfig.shmSize != 128000) {
                         throw new GradleException("Invalid ShmSize value!")
+                    }
+                    if(!c.hostConfig.portBindings) {
+                        throw new GradleException("Invalid port bindings!")
                     }
                 }
             }
