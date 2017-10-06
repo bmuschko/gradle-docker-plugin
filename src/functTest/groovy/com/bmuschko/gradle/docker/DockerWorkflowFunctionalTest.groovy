@@ -595,6 +595,51 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.output.contains('[some-alias]')
     }
 
+    def "Can build an image, create a container and assign an entrypoint"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                entrypoint = ['env']
+                cmd = ['/bin/sh']
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                onNext { container ->
+                    println container.config.entrypoint
+                    assert container.config.entrypoint == ['env']
+                }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains('[env]')
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """
