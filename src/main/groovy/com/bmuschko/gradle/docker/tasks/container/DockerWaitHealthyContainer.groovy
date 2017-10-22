@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -23,4 +24,14 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
     @Input
     @Optional
     Integer timeout
+
+    private boolean check(dockerClient) {
+        def command = dockerClient.inspectContainerCmd(getContainerId())
+        def response = command.exec()
+        def state = response.state
+        if (!state.running) {
+            throw new GradleException("Container with ID '${getContainerId()}' is not running")
+        }
+        return state.health.status == "healthy"
+    }
 }
