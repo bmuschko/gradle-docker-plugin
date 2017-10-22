@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container.extras
 
+import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
