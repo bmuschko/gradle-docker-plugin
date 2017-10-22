@@ -15,6 +15,8 @@
  */
 package com.bmuschko.gradle.docker
 
+import org.gradle.testkit.runner.BuildResult
+
 class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
 
     def "Wait for a container to be healthy"() {
@@ -53,5 +55,44 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         build('waitContainer')
+    }
+
+    def "Timeout when a container takes to long to be healthy"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.*
+            import com.bmuschko.gradle.docker.tasks.container.*
+            import com.bmuschko.gradle.docker.tasks.container.extras.*
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                defaultCommand '/bin/sh', '-c', 'sleep 10; touch /tmp/HEALTHY; sleep 60'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task waitContainer(type: DockerWaitHealthyContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                timeout 5
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('waitContainer')
+        result.output.contains("Health check timeout expired")
     }
 }
