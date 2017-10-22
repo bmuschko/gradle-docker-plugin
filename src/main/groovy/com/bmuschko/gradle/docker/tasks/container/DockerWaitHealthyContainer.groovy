@@ -15,6 +15,12 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+
 class DockerWaitHealthyContainer extends DockerExistingContainer {
 
+    @Input
+    @Optional
+    Integer timeout
 }
