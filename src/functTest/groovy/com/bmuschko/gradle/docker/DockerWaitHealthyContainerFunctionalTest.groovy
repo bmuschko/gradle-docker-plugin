@@ -46,10 +46,22 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { createContainer.getContainerId() }
             }
 
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                force = true
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn removeContainer
+                targetImageId { buildImage.getImageId() }
+                force = true
+            }
+
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
                 targetContainerId { startContainer.getContainerId() }
                 timeout 10
+                finalizedBy removeImage
             }
         """
 
@@ -84,10 +96,22 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { createContainer.getContainerId() }
             }
 
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                force = true
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn removeContainer
+                targetImageId { buildImage.getImageId() }
+                force = true
+            }
+
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
                 targetContainerId { startContainer.getContainerId() }
                 timeout 5
+                finalizedBy removeImage
             }
         """
 
@@ -123,10 +147,22 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { createContainer.getContainerId() }
             }
 
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                force = true
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn removeContainer
+                targetImageId { buildImage.getImageId() }
+                force = true
+            }
+
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
                 targetContainerId { startContainer.getContainerId() }
                 timeout 10
+                finalizedBy removeImage
             }
         """
 
@@ -157,10 +193,22 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { buildImage.getImageId() }
             }
 
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId { createContainer.getContainerId() }
+                force = true
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn removeContainer
+                targetImageId { buildImage.getImageId() }
+                force = true
+            }
+
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 timeout 10
+                finalizedBy removeImage
             }
         """
 
