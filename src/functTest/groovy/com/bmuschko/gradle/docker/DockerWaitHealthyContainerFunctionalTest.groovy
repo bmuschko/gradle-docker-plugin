@@ -134,4 +134,38 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = buildAndFail('waitContainer')
         result.output ==~ /(?s).*Container with ID '.*' is not running.*/
     }
+
+    def "Fail if waiting for a non-running container"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.*
+            import com.bmuschko.gradle.docker.tasks.container.*
+            import com.bmuschko.gradle.docker.tasks.container.extras.*
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                defaultCommand '/bin/sh', '-c', 'sleep 10'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+            }
+
+            task waitContainer(type: DockerWaitHealthyContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                timeout 10
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('waitContainer')
+        result.output ==~ /(?s).*Container with ID '.*' is not running.*/
+    }
 }
