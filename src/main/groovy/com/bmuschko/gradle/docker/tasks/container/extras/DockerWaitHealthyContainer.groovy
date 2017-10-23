@@ -42,15 +42,18 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
 
         def command = dockerClient.inspectContainerCmd(getContainerId())
         Long deadline = timeout ? System.currentTimeMillis() + timeout * 1000 : null
-        def timeout = { deadline ? System.currentTimeMillis() > deadline : false }
         long sleepInterval = checkInterval ?: 500
-        while(!timeout()) {
-            if (check(command)) return
+
+        while(!check(deadline, command)) {
             sleep(sleepInterval)
         }
     }
 
-    private boolean check(command) {
+    private boolean check(Long deadline, def command) {
+        if (deadline && System.currentTimeMillis() > deadline) {
+            throw new GradleException("Health check timeout expired")
+        }
+
         def response = command.exec()
         def state = response.state
         if (!state.running) {
