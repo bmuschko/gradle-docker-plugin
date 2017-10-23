@@ -22,10 +22,16 @@ import org.gradle.api.tasks.Optional
 
 class DockerWaitHealthyContainer extends DockerExistingContainer {
 
+    /**
+     * Wait timeout in seconds.
+     */
     @Input
     @Optional
     Integer timeout
 
+    /**
+     * Interval between each check in milliseconds.
+     */
     @Input
     @Optional
     Integer checkInterval
@@ -42,7 +48,6 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
             if (check(command)) return
             sleep(sleepInterval)
         }
-        if (!check(command)) throw new GradleException("Health check timeout expired")
     }
 
     private boolean check(command) {
