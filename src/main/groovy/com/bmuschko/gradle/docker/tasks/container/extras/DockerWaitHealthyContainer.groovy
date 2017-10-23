@@ -22,30 +22,47 @@ import org.gradle.api.tasks.Optional
 
 class DockerWaitHealthyContainer extends DockerExistingContainer {
 
+    /**
+     * Wait timeout in seconds.
+     */
     @Input
     @Optional
     Integer timeout
+
+    /**
+     * Interval between each check in milliseconds.
+     */
+    @Input
+    @Optional
+    Integer checkInterval
 
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Waiting for container with ID '${getContainerId()}' to be healthy."
 
+        def command = dockerClient.inspectContainerCmd(getContainerId())
         Long deadline = timeout ? System.currentTimeMillis() + timeout * 1000 : null
-        def timeout = { deadline ? System.currentTimeMillis() > deadline : false }
-        while(!timeout()) {
-            if (check(dockerClient)) return
-            sleep(100)
+        long sleepInterval = checkInterval ?: 500
+
+        while(!check(deadline, command)) {
+            sleep(sleepInterval)
         }
-        if (!check(dockerClient)) throw new GradleException("Health check timeout expired")
     }
 
-    private boolean check(dockerClient) {
-        def command = dockerClient.inspectContainerCmd(getContainerId())
+    private boolean check(Long deadline, def command) {
+        if (deadline && System.currentTimeMillis() > deadline) {
+            throw new GradleException("Health check timeout expired")
+        }
+
         def response = command.exec()
         def state = response.state
         if (!state.running) {
             throw new GradleException("Container with ID '${getContainerId()}' is not running")
         }
-        return state.health.status == "healthy"
+        String healthStatus = state.health.status
+        if (onNext) {
+            onNext(healthStatus)
+        }
+        return healthStatus == "healthy"
     }
 }
