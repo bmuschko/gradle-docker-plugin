@@ -26,15 +26,20 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
     @Optional
     Integer timeout
 
+    @Input
+    @Optional
+    Integer checkInterval
+
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Waiting for container with ID '${getContainerId()}' to be healthy."
 
         Long deadline = timeout ? System.currentTimeMillis() + timeout * 1000 : null
         def timeout = { deadline ? System.currentTimeMillis() > deadline : false }
+        long sleepInterval = checkInterval ?: 500
         while(!timeout()) {
             if (check(dockerClient)) return
-            sleep(100)
+            sleep(sleepInterval)
         }
         if (!check(dockerClient)) throw new GradleException("Health check timeout expired")
     }
