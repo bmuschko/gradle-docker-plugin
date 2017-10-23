@@ -69,6 +69,115 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
         build('waitContainer')
     }
 
+    def "Invoke onNext periodically passing the health status"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.*
+            import com.bmuschko.gradle.docker.tasks.container.*
+            import com.bmuschko.gradle.docker.tasks.container.extras.*
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                force = true
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn removeContainer
+                targetImageId { buildImage.getImageId() }
+                force = true
+            }
+
+            ext.testOutput = 0
+            
+            task waitContainer(type: DockerWaitHealthyContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                checkInterval 1000
+                onNext { project.testOutput++ }
+                onComplete { println "Test output: \${project.testOutput}" }
+                finalizedBy removeImage
+            }
+        """
+
+        expect:
+        BuildResult result = build('waitContainer')
+        result.output ==~ /(?s).*Test output: [5-7].*/
+    }
+
+    def "Last onNext execution passes 'healthy' string on success"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.*
+            import com.bmuschko.gradle.docker.tasks.container.*
+            import com.bmuschko.gradle.docker.tasks.container.extras.*
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                force = true
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn removeContainer
+                targetImageId { buildImage.getImageId() }
+                force = true
+            }
+
+            ext.latestOnNext = "unhealthy"
+            
+            task waitContainer(type: DockerWaitHealthyContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                onNext { project.latestOnNext = it }
+                onComplete { println "Test output: \${project.latestOnNext}" }
+                finalizedBy removeImage
+            }
+        """
+
+        expect:
+        BuildResult result = build('waitContainer')
+        result.output ==~ /(?s).*Test output: healthy.*/
+    }
+
     def "Timeout when a container takes to long to be healthy"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.*
