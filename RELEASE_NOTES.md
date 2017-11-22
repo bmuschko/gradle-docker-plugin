@@ -1,3 +1,5 @@
+### Version 3.2.2 (TBA)
+
 ### Version 3.2.1 (November 22, 2017)
 * Bump gradle to `4.2` - [Pull request 471](https://github.com/bmuschko/gradle-docker-plugin/pull/471)
 * Fix setting `shmSize` when creating container - [Pull request 480](https://github.com/bmuschko/gradle-docker-plugin/pull/480)
