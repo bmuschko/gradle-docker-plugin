@@ -321,7 +321,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     def createBind(String path, String volume) {
       Class bindClass = loadBindClass()
       Method bindParseMethod = bindClass.getMethod('parse', String.class)
-      bindParseMethod.invoke(null, String.join(':', path, volume))
+      bindParseMethod.invoke(null, [path, volume].join(':'))
     }
 
     /**
