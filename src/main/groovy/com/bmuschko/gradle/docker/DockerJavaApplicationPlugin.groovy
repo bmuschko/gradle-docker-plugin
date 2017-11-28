@@ -44,8 +44,8 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         DockerJavaApplication dockerJavaApplication = configureExtension(dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
-            Sync installTask = project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME)
-            Jar jarTask = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
+            Sync installTask = project.tasks.getByName(dockerJavaApplication.installTaskName)
+            Jar jarTask = project.tasks.getByName(dockerJavaApplication.jarTaskName)
             dockerJavaApplication.exec {
                 entryPoint { determineEntryPoint(project, installTask) }
             }
