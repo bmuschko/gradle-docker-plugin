@@ -25,21 +25,18 @@ abstract class AbstractReactiveStreamsTask extends DefaultTask {
     /**
      * Closure to handle the possibly throw exception
      */
-    @Input
     @Optional
     Closure onError
 
     /**
      * Closure to handle results
      */
-    @Input
     @Optional
     Closure onNext
 
     /**
      * Closure to handle task completion
      */
-    @Input
     @Optional
     Closure onComplete
 
