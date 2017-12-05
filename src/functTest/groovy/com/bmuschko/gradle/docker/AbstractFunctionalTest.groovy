@@ -70,7 +70,7 @@ abstract class AbstractFunctionalTest extends Specification {
         """
     }
 
-    private void setupDockerServerUrl() {
+    protected void setupDockerServerUrl() {
         dockerServerUrl = TestConfiguration.dockerHost
 
         if (dockerServerUrl) {
@@ -80,7 +80,7 @@ abstract class AbstractFunctionalTest extends Specification {
         }
     }
 
-    private void setupDockerCertPath() {
+    protected void setupDockerCertPath() {
         File dockerCertPath = TestConfiguration.dockerCertPath
 
         if (dockerCertPath) {
@@ -90,7 +90,7 @@ abstract class AbstractFunctionalTest extends Specification {
         }
     }
 
-    private void setupDockerPrivateRegistryUrl() {
+    protected void setupDockerPrivateRegistryUrl() {
         String dockerPrivateRegistryUrl = TestConfiguration.dockerPrivateRegistryUrl
 
         if (dockerPrivateRegistryUrl) {
