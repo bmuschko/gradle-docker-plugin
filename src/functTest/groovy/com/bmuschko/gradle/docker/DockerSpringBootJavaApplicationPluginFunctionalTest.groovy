@@ -5,12 +5,11 @@ import org.gradle.testkit.runner.BuildResult
 class DockerSpringBootJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
     public static final CUSTOM_BASE_IMAGE = 'yaronr/openjdk-7-jre'
 
-    protected void setupBuildfile() {
+    def setup() {
         if (buildFile) {
             buildFile.delete()
         }
         buildFile = temporaryFolder.newFile('build.gradle')
-
 
         buildFile << """
             plugins {
@@ -26,11 +25,6 @@ class DockerSpringBootJavaApplicationPluginFunctionalTest extends AbstractFuncti
         setupDockerServerUrl()
         setupDockerCertPath()
         setupDockerPrivateRegistryUrl()
-
-        buildFile << """
-            task dockerVersion(type: com.bmuschko.gradle.docker.tasks.DockerVersion)
-        """
-
     }
 
     def "Can create image for Spring Boot application with custom install and tar tasks"() {
@@ -53,24 +47,11 @@ class DockerSpringBootJavaApplicationPluginFunctionalTest extends AbstractFuncti
         """
 
         when:
-        BuildResult result = build('startContainer')
+        BuildResult result = build('waitContainer')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text ==
-            """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
-ENTRYPOINT ["/${projectName}/bin/${projectName}"]
-EXPOSE 9090
-"""
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
-        result.output.contains(':bootJar')
+        result.output.contains('Hello world from Spring Boot!')
     }
-
-
 
     private void createSpringMainClass() {
         File packageDir = temporaryFolder.newFolder('src', 'main', 'java', 'com', 'example', 'demo')
@@ -80,14 +61,20 @@ EXPOSE 9090
 package com.example.demo;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoApplication {
+public class DemoApplication implements CommandLineRunner {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+    
+    @Override
+    public void run(String... args) {
+        System.out.println("Hello world from Spring Boot!");
+    }
 }
 
 """
@@ -117,16 +104,14 @@ public class DemoApplication {
             
             dependencies {
                 compile('org.springframework.boot:spring-boot-starter')
-                testCompile('org.springframework.boot:spring-boot-starter-test')
             }
         """
     }
 
     private void writeCustomTasksToBuildFile() {
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.image.*
+            import com.bmuschko.gradle.docker.tasks.container.*
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn dockerBuildImage
@@ -141,6 +126,30 @@ public class DemoApplication {
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
+            }
+            
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { createContainer.getContainerId() }
+                follow = true
+                tailAll = true
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId { createContainer.getContainerId() }
+            }
+            
+            task waitContainer(type: DockerWaitContainer) {
+                dependsOn logContainer
+                finalizedBy removeContainer
+                targetContainerId { createContainer.getContainerId() }
+                doLast{
+                    if(getExitCode()) {
+                        throw new GradleException("Spring Boot container failed!")
+                    }
+                }
             }
         """
     }
