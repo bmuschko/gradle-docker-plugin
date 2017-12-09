@@ -122,21 +122,6 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         task.tag == testTagName
     }
 
-    def "Can configure the jar and install tasks"() {
-        given:
-        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
-        when:
-        project.docker.javaApplication {
-            jarTaskName = 'bootJar'
-            installTaskName = 'installBootDist'
-        }
-        then:
-        project.tasks.findByName(DockerJavaApplicationPlugin.DOCKERFILE_TASK_NAME)
-        project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        project.tasks.findByName(DockerJavaApplicationPlugin.PUSH_IMAGE_TASK_NAME)
-    }
-
-
     private void applyDockerJavaApplicationPluginWithoutApplicationPlugin(Project project) {
         project.apply(plugin: DockerJavaApplicationPlugin)
     }

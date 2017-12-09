@@ -12,9 +12,22 @@ class DockerSpringBootJavaApplicationPluginFunctionalTest extends AbstractFuncti
         buildFile = temporaryFolder.newFile('build.gradle')
 
         buildFile << """
+            buildscript {
+                ext {
+                    springBootVersion = '2.0.0.M7'
+                }
+                repositories {
+                    mavenCentral()
+                    maven { url "https://repo.spring.io/snapshot" }
+                    maven { url "https://repo.spring.io/milestone" }
+                }
+                dependencies {
+                    classpath("org.springframework.boot:spring-boot-gradle-plugin:\${springBootVersion}")
+                }
+            }
+            
             plugins {
                 id 'com.bmuschko.docker-remote-api'
-                id "org.springframework.boot" version "1.5.9.RELEASE"
             }
 
             repositories {
@@ -50,7 +63,7 @@ class DockerSpringBootJavaApplicationPluginFunctionalTest extends AbstractFuncti
         BuildResult result = build('waitContainer')
 
         then:
-        result.output.contains('Hello world from Spring Boot!')
+        result.output.contains(':bootJar')
     }
 
     private void createSpringMainClass() {
@@ -86,13 +99,10 @@ public class DemoApplication implements CommandLineRunner {
             apply plugin: 'application'
             apply plugin: com.bmuschko.gradle.docker.DockerJavaApplicationPlugin
             apply plugin: 'org.springframework.boot'
+            apply plugin: 'io.spring.dependency-management'
 
             version = '1.0'
             sourceCompatibility = 1.7
-
-            repositories {
-                mavenCentral()
-            }
 
             mainClassName = 'com.example.demo.DemoApplication'
             
@@ -100,6 +110,8 @@ public class DemoApplication implements CommandLineRunner {
             
             repositories {
                 mavenCentral()
+                maven { url "https://repo.spring.io/snapshot" }
+                maven { url "https://repo.spring.io/milestone" }
             }
             
             dependencies {
