@@ -14,7 +14,7 @@ class DockerSpringBootJavaApplicationPluginFunctionalTest extends AbstractFuncti
         buildFile << """
             buildscript {
                 ext {
-                    springBootVersion = '2.0.0.M7'
+                    springBootVersion = '2.0.0.M3'
                 }
                 repositories {
                     mavenCentral()
