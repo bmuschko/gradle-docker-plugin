@@ -16,17 +16,8 @@
 package com.bmuschko.gradle.docker.tasks
 
 import org.gradle.api.tasks.*
-import groovy.json.JsonBuilder
 
 class DockerInfo extends AbstractDockerRemoteApiTask {
-
-    /**
-     *  If a dump of the JSON docker info structure is desired, set this to
-     *  the file to which the dump should be written.
-     */
-    @Optional
-    @OutputFile
-    def dockerInfoFile = null
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -51,11 +42,8 @@ class DockerInfo extends AbstractDockerRemoteApiTask {
         logger.quiet "Swap Limit           : $info.swapLimit"
         logger.quiet "Execution Driver     : $info.executionDriver"
 
-        if (dockerInfoFile) {
-            logger.quiet "Writing results to ${dockerInfoFile.path}"
-            dockerInfoFile.write(new JsonBuilder(info).toPrettyString())
-        } else {
-            logger.debug "No write file specified for DockerInfo"
+        if (onNext) {
+            onNext.call(info)
         }
     }
 }
