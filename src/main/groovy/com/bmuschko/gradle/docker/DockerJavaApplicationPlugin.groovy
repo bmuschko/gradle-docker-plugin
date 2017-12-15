@@ -77,7 +77,11 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             addFile({ installTask.destinationDir.name }, { "/${installTask.destinationDir.name}" })
             addFile({ "app-lib/${jarTask.archiveName}" }, { "/${installTask.destinationDir.name}/lib/${jarTask.archiveName}" })
             instructions << dockerJavaApplication.exec
-            exposePort { dockerJavaApplication.getPorts() }
+            doFirst {
+                if (dockerJavaApplication.getPorts().length > 0) {
+                    exposePort { dockerJavaApplication.getPorts() }
+                }
+            }
         } as Dockerfile
     }
 

@@ -24,11 +24,11 @@ class DockerJavaApplication {
     String maintainer = System.getProperty('user.name')
     @Deprecated
     Integer port = 8080
-    Set<Integer> ports = []
+    Set<Integer> ports
     String tag
 
     Integer[] getPorts() {
-        return ports.size() > 0 ? ports : [port]
+        return ports != null ? ports : [port]
     }
 
     CompositeExecInstruction exec(@DelegatesTo(CompositeExecInstruction) Closure<Void> closure) {

@@ -97,6 +97,39 @@ EXPOSE 9090 8080
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
+    def "Can create image for Java application with user-driven configuration without exposed ports"() {
+        String projectName = temporaryFolder.root.name
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+
+        buildFile << """
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    ports = []
+                    tag = 'jettyapp:1.115'
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('startContainer', '-s')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+            """FROM $CUSTOM_BASE_IMAGE
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+ADD ${projectName} /${projectName}
+ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
+ENTRYPOINT ["/${projectName}/bin/${projectName}"]
+"""
+        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+    }
+
     def "Can create image for Java application with user-driven configuration with custom cmd/entrypoint"() {
         String projectName = temporaryFolder.root.name
         createJettyMainClass()
@@ -214,9 +247,9 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
-EXPOSE 9090
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
+EXPOSE 9090
 """
         new File(projectDir, 'build/docker/file1.txt').exists()
         new File(projectDir, 'build/docker/file2.txt').exists()
