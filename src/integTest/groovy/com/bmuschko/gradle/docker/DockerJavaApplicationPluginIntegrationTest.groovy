@@ -42,7 +42,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        task.tag == "${project.applicationName}:latest"
+        task.tags == ["${project.applicationName}:latest"] as Set
     }
 
     def "Configures image task without project group and but with version"() {
@@ -55,7 +55,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        task.tag == "${project.applicationName}:${projectVersion}"
+        task.tags == ["${project.applicationName}:${projectVersion}"] as Set
     }
 
     def "Configures image task with project group and version"() {
@@ -70,7 +70,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        task.tag == "${projectGroup}/${project.applicationName}:${projectVersion}"
+        task.tags == ["${projectGroup}/${project.applicationName}:${projectVersion}"] as Set
     }
 
     def "Can access the dockerJava.javaApplication extension dynamically"() {
@@ -106,7 +106,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         DockerBuildImage task = project
             .tasks
             .findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME) as DockerBuildImage
-        task.getTag() == testTagName
+        task.getTags() == [testTagName] as Set
     }
 
     def "Can configure the dockerJava.javaApplication extension dynamically"() {
@@ -119,7 +119,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         }
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        task.tag == testTagName
+        task.tags == [testTagName] as Set
     }
 
     private void applyDockerJavaApplicationPluginWithoutApplicationPlugin(Project project) {

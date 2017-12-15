@@ -299,6 +299,60 @@ EXPOSE 8080
         noExceptionThrown()
     }
 
+    def "Cannot create image for Java application with multiple tags without specifying single push tag"() {
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+
+        buildFile << """
+            dockerBuildImage {
+                tags = ['jettyapp:1.115', 'jettyapp:latest']
+            }
+
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                }
+            }
+        """
+
+        when:
+        build('dockerPushImage')
+
+        then:
+        Exception ex = thrown()
+        ex.message.contains('Pushing multiple tags is not supported, please override dockerPushImage.imageName property to specify which tag to push. Expected: exactly 1 tag. Actual: 2 tags (jettyapp:1.115, jettyapp:latest)')
+    }
+
+    def "Can create image for Java application with multiple tags"() {
+        createJettyMainClass()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+
+        buildFile << """
+            dockerBuildImage {
+                tags = ['jettyapp:1.115', 'jettyapp:latest']
+            }
+            dockerPushImage {
+                imageName = 'jettyapp:1.115'
+            }
+
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('dockerBuildImage')
+
+        then:
+        result.output.contains("Using tags 'jettyapp:1.115', 'jettyapp:latest' for image.")
+    }
+
     private void createJettyMainClass() {
         File packageDir = temporaryFolder.newFolder('src', 'main', 'java', 'com', 'bmuschko', 'gradle', 'docker', 'application')
         File jettyMainClass = new File(packageDir, 'JettyMain.java')

@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
@@ -104,7 +105,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             description = 'Builds the Docker image for the Java application.'
             dependsOn createDockerfileTask
             conventionMapping.inputDir = { createDockerfileTask.destFile.parentFile }
-            conventionMapping.tag = { determineImageTag(project, dockerJavaApplication) }
+            conventionMapping.tags = { [determineImageTag(project, dockerJavaApplication)] as Set }
         } as DockerBuildImage
     }
 
@@ -122,7 +123,15 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         project.task(PUSH_IMAGE_TASK_NAME, type: DockerPushImage) {
             description = 'Pushes created Docker image to the repository.'
             dependsOn dockerBuildImageTask
-            conventionMapping.imageName = { dockerBuildImageTask.getTag() }
+            conventionMapping.imageName = {
+                if (dockerBuildImageTask.getTags().size() > 1) {
+                    throw new GradleException(String.format("Pushing multiple tags is not supported, " +
+                        "please override dockerPushImage.imageName property to specify which tag to push. " +
+                        "Expected: exactly 1 tag. Actual: %s tags (%s)",
+                        dockerBuildImageTask.getTags().size(), dockerBuildImageTask.getTags().join(', ')));
+                }
+                dockerBuildImageTask.getTags()[0]
+            }
         }
     }
 }
