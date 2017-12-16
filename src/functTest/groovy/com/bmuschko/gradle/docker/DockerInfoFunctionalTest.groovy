@@ -18,25 +18,7 @@ class DockerInfoFunctionalTest extends AbstractFunctionalTest {
         result.output.contains('Retrieving Docker info.')
     }
 
-    def "Calls onNext when provided"() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.DockerInfo
-
-            task dockerInfo(type: DockerInfo) {
-                onNext { logger.quiet "In onNext as expected" }
-            }
-        """
-
-        when:
-        BuildResult result = build('dockerInfo')
-
-        then:
-        (result.output.contains('Retrieving Docker info.')
-        && result.output.contains('In onNext as expected')
-        && !result.output.contains('Containers'))
-    }
-
-    def "Passes dockerinfo to onNext"() {
+    def "Passes dockerinfo to onNext if provided, w/o logger output"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.DockerInfo
 
@@ -54,7 +36,8 @@ class DockerInfoFunctionalTest extends AbstractFunctionalTest {
 
         then:
         (result.output.contains('Retrieving Docker info.')
-        && result.output.contains('Architecture found'))
+        && result.output.contains('Architecture found')
+        && !result.output.contains('Containers'))
     }
 
 }
