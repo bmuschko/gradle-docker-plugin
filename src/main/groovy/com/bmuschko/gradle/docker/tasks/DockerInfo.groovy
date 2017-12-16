@@ -22,26 +22,26 @@ class DockerInfo extends AbstractDockerRemoteApiTask {
         logger.quiet "Retrieving Docker info."
         def info = dockerClient.infoCmd().exec()
 
-        logger.quiet "Debug                : $info.debug"
-        logger.quiet "Containers           : $info.containers"
-        logger.quiet "Driver               : $info.driver"
-        logger.quiet "Driver Statuses      : $info.driverStatuses"
-        logger.quiet "Images               : $info.images"
-        logger.quiet "IPv4 Forwarding      : $info.ipv4Forwarding"
-        logger.quiet "Index Server Address : $info.indexServerAddress"
-        logger.quiet "Init Path            : $info.initPath"
-        logger.quiet "Init SHA1            : $info.initSha1"
-        logger.quiet "Kernel Version       : $info.kernelVersion"
-        logger.quiet "Sockets              : $info.sockets"
-        logger.quiet "Memory Limit         : $info.memoryLimit"
-        logger.quiet "nEvent Listener      : $info.nEventsListener"
-        logger.quiet "NFd                  : $info.nfd"
-        logger.quiet "NGoroutines          : $info.nGoroutines"
-        logger.quiet "Swap Limit           : $info.swapLimit"
-        logger.quiet "Execution Driver     : $info.executionDriver"
-
         if (onNext) {
             onNext.call(info)
+        } else {
+            logger.quiet "Debug                : $info.debug"
+            logger.quiet "Containers           : $info.containers"
+            logger.quiet "Driver               : $info.driver"
+            logger.quiet "Driver Statuses      : $info.driverStatuses"
+            logger.quiet "Images               : $info.images"
+            logger.quiet "IPv4 Forwarding      : $info.ipv4Forwarding"
+            logger.quiet "Index Server Address : $info.indexServerAddress"
+            logger.quiet "Init Path            : $info.initPath"
+            logger.quiet "Init SHA1            : $info.initSha1"
+            logger.quiet "Kernel Version       : $info.kernelVersion"
+            logger.quiet "Sockets              : $info.sockets"
+            logger.quiet "Memory Limit         : $info.memoryLimit"
+            logger.quiet "nEvent Listener      : $info.nEventsListener"
+            logger.quiet "NFd                  : $info.nfd"
+            logger.quiet "NGoroutines          : $info.nGoroutines"
+            logger.quiet "Swap Limit           : $info.swapLimit"
+            logger.quiet "Execution Driver     : $info.executionDriver"
         }
     }
 }
