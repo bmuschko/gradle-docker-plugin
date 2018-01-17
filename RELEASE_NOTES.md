@@ -1,3 +1,5 @@
+### Version 3.2.3 (TBA)
+
 ### Version 3.2.2 (January 17, 2018)
 * Bump gradle to `4.3.1` - [Pull request 500](https://github.com/bmuschko/gradle-docker-plugin/pull/500)
 * Bug fix for [ISSUE-490](https://github.com/bmuschko/gradle-docker-plugin/issues/490) wherein `on*` reactive-stream closures are evaluated with null exception when using gradle-4.3 - [Commit 93b80f](https://github.com/bmuschko/gradle-docker-plugin/commit/93b80f2bd18c4f04d0f58443b45c59cb58a54e77)
