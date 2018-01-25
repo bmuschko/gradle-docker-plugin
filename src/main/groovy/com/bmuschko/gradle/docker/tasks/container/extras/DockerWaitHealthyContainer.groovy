@@ -59,7 +59,19 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
         if (!state.running) {
             throw new GradleException("Container with ID '${getContainerId()}' is not running")
         }
-        String healthStatus = state.health.status
+
+        // FIX to address https://github.com/bmuschko/gradle-docker-plugin/issues/518
+        String healthStatus
+        try {
+            healthStatus = state.health.status
+        } catch (NullPointerException npe) {
+            if (npe.message.contains('Cannot get property')) {
+                healthStatus = state.status
+            } else {
+                throw npe
+            }
+        }
+
         if (onNext) {
             onNext(healthStatus)
         }
