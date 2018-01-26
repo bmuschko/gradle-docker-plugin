@@ -60,7 +60,14 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
             throw new GradleException("Container with ID '${getContainerId()}' is not running")
         }
 
-        String healthStatus = state.health ? state.health.status : state.status
+        String healthStatus
+        if (state.health) {
+            healthStatus = state.health.status
+        } else {
+            logger.quiet 'HEALTHCHECK instruction was not used to build this image. Falling back to generic Status of container...'
+            healthStatus = state.status
+        }
+
         if (onNext) {
             onNext(healthStatus)
         }
