@@ -1,4 +1,5 @@
-### Version 3.2.3 (TBA)
+### Version 3.2.3 (January 26, 2018)
+* If `DockerWaitHealthyContainer` is run on an image which was not built with `HEALTHCHECK` than fallback to using generic status - [Pull request 520](https://github.com/bmuschko/gradle-docker-plugin/pull/520)
 
 ### Version 3.2.2 (January 17, 2018)
 * Bump gradle to `4.3.1` - [Pull request 500](https://github.com/bmuschko/gradle-docker-plugin/pull/500)
