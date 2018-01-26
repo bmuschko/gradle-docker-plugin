@@ -51,7 +51,7 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
 
     private boolean check(Long deadline, def command) {
         if (deadline && System.currentTimeMillis() > deadline) {
-            throw new GradleException("Health check timeout expired")
+            throw new GradleException('Health check timeout expired')
         }
 
         def response = command.exec()
@@ -60,21 +60,10 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
             throw new GradleException("Container with ID '${getContainerId()}' is not running")
         }
 
-        // FIX to address https://github.com/bmuschko/gradle-docker-plugin/issues/518
-        String healthStatus
-        try {
-            healthStatus = state.health.status
-        } catch (NullPointerException npe) {
-            if (npe.message.contains('Cannot get property')) {
-                healthStatus = state.status
-            } else {
-                throw npe
-            }
-        }
-
+        String healthStatus = state.health ? state.health.status : state.status
         if (onNext) {
             onNext(healthStatus)
         }
-        return healthStatus == "healthy"
+        return healthStatus ==~ /(healthy|running)/
     }
 }
