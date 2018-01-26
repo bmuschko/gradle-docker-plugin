@@ -69,6 +69,45 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
         build('waitContainer')
     }
 
+    def "Wait for a generic container to be healthy"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.*
+            import com.bmuschko.gradle.docker.tasks.container.*
+            import com.bmuschko.gradle.docker.tasks.container.extras.*
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                cmd = ['sleep','60']
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                force = true
+            }
+
+            task waitContainer(type: DockerWaitHealthyContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                timeout 10
+                finalizedBy removeContainer
+            }
+        """
+
+        expect:
+        build('waitContainer')
+    }
+
     def "Invoke onNext periodically passing the health status"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.*

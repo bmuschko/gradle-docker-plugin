@@ -51,7 +51,7 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
 
     private boolean check(Long deadline, def command) {
         if (deadline && System.currentTimeMillis() > deadline) {
-            throw new GradleException("Health check timeout expired")
+            throw new GradleException('Health check timeout expired')
         }
 
         def response = command.exec()
@@ -59,10 +59,18 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
         if (!state.running) {
             throw new GradleException("Container with ID '${getContainerId()}' is not running")
         }
-        String healthStatus = state.health.status
+
+        String healthStatus
+        if (state.health) {
+            healthStatus = state.health.status
+        } else {
+            logger.quiet 'HEALTHCHECK instruction was not used to build this image. Falling back to generic Status of container...'
+            healthStatus = state.status
+        }
+
         if (onNext) {
             onNext(healthStatus)
         }
-        return healthStatus == "healthy"
+        return healthStatus ==~ /(healthy|running)/
     }
 }
