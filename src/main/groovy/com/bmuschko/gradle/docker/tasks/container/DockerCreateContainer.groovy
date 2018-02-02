@@ -167,6 +167,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     Long shmSize
 
+    @Input
+    @Optional
+    Map<String, String> labels = [:]
+
     @Internal
     String containerId
 
@@ -354,6 +358,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getShmSize() != null) { // 0 is valid input
             containerCommand.hostConfig.withShmSize(getShmSize())
+        }
+
+        if(getLabels()) {
+            containerCommand.withLabels(getLabels())
         }
     }
 
