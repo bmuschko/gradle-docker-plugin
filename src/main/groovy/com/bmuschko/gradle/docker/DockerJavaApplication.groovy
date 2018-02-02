@@ -20,7 +20,21 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile.CompositeExecInstructio
 class DockerJavaApplication {
     String baseImage = 'openjdk'
     final CompositeExecInstruction exec = new CompositeExecInstruction()
+
+    /**
+     * Deprecated as per https://docs.docker.com/engine/deprecated/#maintainer-in-dockerfile
+     * Will be removed in 4.x release.
+     */
+    @Deprecated
     String maintainer = System.getProperty('user.name')
+
+    /**
+     * Temporary solution to be able to create image without
+     * <code>MAINTAINER</code> and preserve backward compatibility.
+     * Will be removed in 4.x release.
+     */
+    boolean skipMaintainer
+
     @Deprecated
     Integer port = 8080
     Set<Integer> ports

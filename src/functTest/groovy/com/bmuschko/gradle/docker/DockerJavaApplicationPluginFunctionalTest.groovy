@@ -332,6 +332,34 @@ EXPOSE 8080
         noExceptionThrown()
     }
 
+    def "Can create image without MAINTAINER"() {
+        String projectName = temporaryFolder.root.name
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+
+        buildFile << """
+            docker {
+                javaApplication {
+                    skipMaintainer = true
+                }
+            }
+        """
+
+        when:
+        build('inspectImage', '-s')
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+            """FROM openjdk
+ADD ${projectName} /${projectName}
+ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
+ENTRYPOINT ["/${projectName}/bin/${projectName}"]
+EXPOSE 8080
+"""
+    }
+
     private void createJettyMainClass() {
         File packageDir = temporaryFolder.newFolder('src', 'main', 'java', 'com', 'bmuschko', 'gradle', 'docker', 'application')
         File jettyMainClass = new File(packageDir, 'JettyMain.java')
