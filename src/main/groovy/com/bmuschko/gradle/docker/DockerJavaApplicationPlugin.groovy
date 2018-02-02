@@ -81,6 +81,9 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 if (dockerJavaApplication.getPorts().length > 0) {
                     exposePort { dockerJavaApplication.getPorts() }
                 }
+                if(dockerJavaApplication.skipMaintainer) {
+                    instructions.removeAll { it instanceof Dockerfile.MaintainerInstruction }
+                }
             }
         } as Dockerfile
     }
