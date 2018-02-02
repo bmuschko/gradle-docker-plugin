@@ -15,11 +15,10 @@
  */
 package com.bmuschko.gradle.docker
 
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile.CompositeExecInstruction
 
 class DockerJavaApplication {
-    String baseImage = 'java'
+    String baseImage = 'openjdk'
     final CompositeExecInstruction exec = new CompositeExecInstruction()
     String maintainer = System.getProperty('user.name')
     @Deprecated

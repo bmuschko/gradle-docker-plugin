@@ -461,7 +461,7 @@ The plugin defines the following extension properties in the `javaApplication` c
 [options="header"]
 |=======
 |Property name   |Type      |Default value                                          |Description
-|`baseImage`     |String    |java                                                   |The Docker base image used for Java application.
+|`baseImage`     |String    |openjdk                                                |The Docker base image used for Java application.
 |`exec`          |Closure   |Create ENTRYPOINT using script from Application plugin |The ENTRYPOINT and/or CMD Dockerfile instructions
 |`maintainer`    |String    |Value of `user.home` system property                   |The name and email address of the image maintainer.
 |`port`          |Integer   |8080                                                   |The Docker image entry point port used for the Java application (Deprecated)
