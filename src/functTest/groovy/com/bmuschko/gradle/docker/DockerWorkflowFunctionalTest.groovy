@@ -644,6 +644,48 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.output.contains('[env]')
     }
 
+    def "Can build an image and create a container with labels"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                labels = ["test.label1":"aaa", "test.label2": "bbb"]
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                onNext { c ->
+                    if(c.config.labels.size() != 2) {
+                        throw new GradleException("Invalid labels size!")
+                    }
+                }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+        """
+
+        expect:
+        build('workflow')
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """
