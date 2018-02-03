@@ -686,6 +686,82 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         build('workflow')
     }
 
+    def "Can build an image and save it to file"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+        String imageName = createUniqueImageId()
+        File savedImage = temporaryFolder.newFile()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${imageName}"
+            }
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn buildImage
+                repository = "${imageName}"
+                destFile = new File("${savedImage.absolutePath}")
+            }
+
+            task workflow {
+                dependsOn saveImage
+            }
+        """
+
+        expect:
+        build('workflow')
+        savedImage.exists()
+        savedImage.newInputStream().available()
+    }
+
+    def "Can build an image and save it to file and load"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+        dockerFile << "EXPOSE 8888" // add random instruction to be able to remove image
+        String imageName = createUniqueImageId()
+        File savedImage = temporaryFolder.newFile()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerLoadImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${imageName}"
+            }
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn buildImage
+                repository = "${imageName}"
+                destFile = new File("${savedImage.absolutePath}")
+            }
+            
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn saveImage
+                force = true
+                targetImageId { buildImage.getImageId() }
+            }
+            
+            task loadImage(type: DockerLoadImage) {
+                dependsOn removeImage
+                imageStream = new File("${savedImage.absolutePath}").newInputStream()
+            }
+
+            task workflow {
+                dependsOn loadImage
+            }
+        """
+
+        expect:
+        build('workflow')
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """
