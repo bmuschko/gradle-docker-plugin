@@ -686,51 +686,21 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         build('workflow')
     }
 
-    def "Can build an image and save it to file"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
-        File dockerFile = createDockerfile(imageDir)
-        String imageName = createUniqueImageId()
-        File savedImage = temporaryFolder.newFile()
-
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
-
-            task buildImage(type: DockerBuildImage) {
-                inputDir = file("${dockerFile.parentFile.path}")
-                tag = "${imageName}"
-            }
-
-            task saveImage(type: DockerSaveImage) {
-                dependsOn buildImage
-                repository = "${imageName}"
-                destFile = new File("${savedImage.absolutePath}")
-            }
-
-            task workflow {
-                dependsOn saveImage
-            }
-        """
-
-        expect:
-        build('workflow')
-        savedImage.exists()
-        savedImage.newInputStream().available()
-    }
-
-    def "Can build an image and save it to file and load"() {
+    def "Can build an image and save it to a file and load"() {
         File imageDir = temporaryFolder.newFolder('images', 'minimal')
         File dockerFile = createDockerfile(imageDir)
         dockerFile << "EXPOSE 8888" // add random instruction to be able to remove image
         String imageName = createUniqueImageId()
         File savedImage = temporaryFolder.newFile()
+        String uniqueContainerName = createUniqueContainerName()
 
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
             import com.bmuschko.gradle.docker.tasks.image.DockerLoadImage
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
-
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
                 tag = "${imageName}"
@@ -752,14 +722,21 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn removeImage
                 imageStream = new File("${savedImage.absolutePath}").newInputStream()
             }
+            
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn loadImage
+                targetImageId { "${imageName}" }
+                containerName = "${uniqueContainerName}"
+            }
 
             task workflow {
-                dependsOn loadImage
+                dependsOn createContainer
             }
         """
 
         expect:
         build('workflow')
+        savedImage.newInputStream().available() > 0
     }
 
     private File createDockerfile(File imageDir) {
