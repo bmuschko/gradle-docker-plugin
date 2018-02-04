@@ -124,6 +124,8 @@ The plugin provides the following custom task types for managing images:
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerPushImage.html[DockerPushImage]       |Pushes an image to a registry.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerRemoveImage.html[DockerRemoveImage]   |Removes an image from the filesystem.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerTagImage.html[DockerTagImage]         |Tags an image in registry.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerSaveImage.html[DockerSaveImage]       |Saves an image to file.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerLoadImage.html[DockerLoadImage]       |Loads an image from file.
 |=======
 
 
