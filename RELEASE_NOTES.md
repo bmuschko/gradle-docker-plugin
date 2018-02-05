@@ -2,6 +2,7 @@
 * Use openjdk as a default image in DockerJavaApplicationPlugin - [Pull request 528](https://github.com/bmuschko/gradle-docker-plugin/pull/528)
 * Add `skipMaintainer` to `DockerJavaApplication` - [Pull request 529](https://github.com/bmuschko/gradle-docker-plugin/pull/529)
 * Can now define `labels` in `DockerCreateContainer` task - [Pull request 530](https://github.com/bmuschko/gradle-docker-plugin/pull/530)
+* Added task `DockerRenameContainer` - [Pull request 533](https://github.com/bmuschko/gradle-docker-plugin/pull/533)
 
 ### Version 3.2.3 (January 26, 2018)
 * If `DockerWaitHealthyContainer` is run on an image which was not built with `HEALTHCHECK` than fallback to using generic status - [Pull request 520](https://github.com/bmuschko/gradle-docker-plugin/pull/520)
