@@ -1,4 +1,6 @@
-### Version 3.2.4 (TBA)
+### Version 3.2.5 (TBA)
+
+### Version 3.2.4 (February 5, 2018)
 * Use openjdk as a default image in DockerJavaApplicationPlugin - [Pull request 528](https://github.com/bmuschko/gradle-docker-plugin/pull/528)
 * Add `skipMaintainer` to `DockerJavaApplication` - [Pull request 529](https://github.com/bmuschko/gradle-docker-plugin/pull/529)
 * Can now define `labels` in `DockerCreateContainer` task - [Pull request 530](https://github.com/bmuschko/gradle-docker-plugin/pull/530)
