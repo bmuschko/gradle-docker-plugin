@@ -42,7 +42,7 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
     Closure<File> tarFile
 
     @Override
-    void runRemoteCommand(dockerClient) {    
+    void runRemoteCommand(dockerClient) {
         logger.quiet "Copying file to container with ID '${getContainerId()}' at '${getRemotePath()}'."
         def containerCommand = dockerClient.copyArchiveToContainerCmd(getContainerId())
         setContainerCommandConfig(containerCommand)
@@ -53,11 +53,11 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
         if (getRemotePath()) {
             containerCommand.withRemotePath(getRemotePath())
         }
-                
+
         if (getHostPath() && getTarFile()) {
             throw new GradleException("Can specify either hostPath or tarFile not both")
         }
-                
+
         if (getHostPath()) {
             containerCommand.withHostResource(getHostPath())
         }

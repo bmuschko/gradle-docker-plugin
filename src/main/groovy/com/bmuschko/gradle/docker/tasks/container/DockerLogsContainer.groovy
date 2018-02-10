@@ -59,7 +59,6 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Optional
     boolean stdOut = true
 
-
     /**
      * Include standard err.
      * Default is true.
