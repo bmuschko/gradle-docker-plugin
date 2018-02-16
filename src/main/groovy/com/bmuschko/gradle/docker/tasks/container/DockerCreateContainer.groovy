@@ -174,6 +174,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Internal
     String containerId
 
+    @Input
+    @Optional
+    String macAddress
+
     DockerCreateContainer() {
         ext.getContainerId = { containerId }
     }
@@ -362,6 +366,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getLabels()) {
             containerCommand.withLabels(getLabels())
+        }
+
+        if(getMacAddress()) {
+            containerCommand.withMacAddress(getMacAddress())
         }
     }
 
