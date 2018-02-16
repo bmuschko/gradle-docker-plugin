@@ -1,4 +1,5 @@
 ### Version 3.2.5 (TBA)
+* Added `macAddress` option to task `DockerCreateContainer` - [Pull request 538](https://github.com/bmuschko/gradle-docker-plugin/pull/538)
 
 ### Version 3.2.4 (February 5, 2018)
 * Use openjdk as a default image in DockerJavaApplicationPlugin - [Pull request 528](https://github.com/bmuschko/gradle-docker-plugin/pull/528)
