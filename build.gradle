@@ -20,6 +20,7 @@ apply from: "$rootDir/gradle/additional-artifacts.gradle"
 apply from: "$rootDir/gradle/release.gradle"
 apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/documentation.gradle"
+apply from: "$rootDir/gradle/checkstyle.gradle"
 
 repositories {
     mavenCentral()

@@ -1,0 +1,30 @@
+apply plugin: 'checkstyle'
+
+checkstyle {
+    toolVersion = '8.8'
+    checkstyleTest.enabled = false
+}
+
+checkstyleMain {
+    group = 'verification'
+    ignoreFailures = false
+    showViolations = true
+    source = [
+        "${project.rootDir}/src/main/groovy/com/bmuschko/gradle/docker",
+    ]
+    includes = ['**/*.groovy']
+    config = resources.text.fromFile("${project.rootDir}/config/checkstyle/checkstyle_checks.xml")
+}
+
+checkstyleTest {
+    group = 'verification'
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+        html.destination = "${project.buildDir}/reports/checkstyle/checkstyle_report.html"
+        html.stylesheet = resources.text.fromFile("${project.rootDir}/config/checkstyle/checkstyle-noframes-severity-sorted.xsl")
+    }
+}

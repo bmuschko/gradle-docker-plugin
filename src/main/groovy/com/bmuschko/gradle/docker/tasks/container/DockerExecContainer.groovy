@@ -63,7 +63,7 @@ class DockerExecContainer extends DockerExistingContainer {
             containerCommand.withAttachStdout(getAttachStdout())
         }
     }
-    
+
     def getExecId() {
         execId
     }
