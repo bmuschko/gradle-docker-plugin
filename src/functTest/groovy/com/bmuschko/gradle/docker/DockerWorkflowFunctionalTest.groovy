@@ -691,7 +691,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         File dockerFile = createDockerfile(imageDir)
         dockerFile << "EXPOSE 8888" // add random instruction to be able to remove image
         String imageName = createUniqueImageId()
-        File savedImage = temporaryFolder.newFile()
+        String savedImagePath = "${temporaryFolder.getRoot()}/someFile.tmp"
         String uniqueContainerName = createUniqueContainerName()
 
         buildFile << """
@@ -709,7 +709,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             task saveImage(type: DockerSaveImage) {
                 dependsOn buildImage
                 repository = "${imageName}"
-                destFile = new File("${savedImage.absolutePath}")
+                destFile = new File("${savedImagePath}")
             }
             
             task removeImage(type: DockerRemoveImage) {
@@ -720,7 +720,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             
             task loadImage(type: DockerLoadImage) {
                 dependsOn removeImage
-                imageStream = new File("${savedImage.absolutePath}").newInputStream()
+                imageStream = new File("${savedImagePath}").newInputStream()
             }
             
             task createContainer(type: DockerCreateContainer) {
@@ -736,7 +736,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         build('workflow')
-        savedImage.newInputStream().available() > 0
+        new File(savedImagePath).newInputStream().available() > 0
     }
 
     private File createDockerfile(File imageDir) {
