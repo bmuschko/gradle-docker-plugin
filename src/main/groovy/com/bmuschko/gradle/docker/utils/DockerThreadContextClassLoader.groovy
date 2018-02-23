@@ -19,6 +19,11 @@ import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+
+import org.xeustechnologies.jcl.JarClassLoader
+import org.xeustechnologies.jcl.JclObjectFactory
+
+import groovy.transform.Synchronized
 import org.gradle.api.logging.Logger
 
 import java.lang.reflect.Array
@@ -31,9 +36,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
     private static final TRAILING_WHIESPACE = /\s+$/
 
-    private DockerExtension dockerExtension
+    private final DockerExtension dockerExtension
+    private def dockerClient // lazily created `docker-java-client`
 
-    public DockerThreadContextClassLoader(DockerExtension dockerExtension) {
+    private JarClassLoader dockerClientClassLoader // lazily created ClassLoader
+
+    public DockerThreadContextClassLoader(final DockerExtension dockerExtension) {
         this.dockerExtension = dockerExtension
     }
 
@@ -42,21 +50,85 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     void withClasspath(Set<File> classpath, DockerClientConfiguration dockerClientConfiguration, Closure closure) {
-        ClassLoader originalClassLoader = getClass().classLoader
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = this
+        closure(getDockerClient(dockerClientConfiguration, classpath))
+    }
 
-        try {
+    /**
+     * Creates DockerClient from custom class-loader.
+     *
+     * @param dockerClientConfiguration Docker client configuration
+     * @return DockerClient instance
+     */
+    @Synchronized
+    private getDockerClient(final DockerClientConfiguration dockerClientConfiguration, final Set<File> classpathFiles) {
+
+        if(!dockerClient) {
+
+            // init custom class-loader
+            initializeDockerClassLoader(classpathFiles ?: dockerExtension.classpath?.files)
+
             String dockerUrl = getDockerHostUrl(dockerClientConfiguration)
             File certPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
             String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion
+        
+            // Create configuration
+            Class dockerClientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
+            Class dockerClientConfigClassImpl = loadClass('com.github.dockerjava.core.DefaultDockerClientConfig')
+            Method dockerClientConfigMethod = dockerClientConfigClassImpl.getMethod('createDefaultConfigBuilder')
+            def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
+            dockerClientConfigBuilder.withDockerHost(dockerUrl)
 
-            Thread.currentThread().contextClassLoader = createClassLoader(classpath ?: dockerExtension.classpath?.files)
-            closure.resolveStrategy = Closure.DELEGATE_FIRST
-            closure.delegate = this
-            closure(getDockerClient(dockerUrl, certPath, apiVersion))
+            if (certPath) {
+                dockerClientConfigBuilder.withDockerTlsVerify(true)
+                dockerClientConfigBuilder.withDockerCertPath(certPath.canonicalPath)
+            } else {
+                dockerClientConfigBuilder.withDockerTlsVerify(false)
+            }
+
+            if (apiVersion) {
+                dockerClientConfigBuilder.withApiVersion(apiVersion)
+            }
+
+            def dockerClientConfig = dockerClientConfigBuilder.build()
+
+            // Create client
+            Class dockerClientBuilderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
+            Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
+            def dockerClientBuilder = method.invoke(null, dockerClientConfig)
+            dockerClient = dockerClientBuilder.build()
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    dockerClient.close();
+                }
+            });
         }
-        finally {
-            Thread.currentThread().contextClassLoader = originalClassLoader
+        
+        dockerClient
+    }
+
+    private initializeDockerClassLoader(Set<File> classpathFiles) {
+        if (!dockerClientClassLoader) {
+
+            // 1.) create custom JCL class-loader to store our
+            // `docker-java` classpath.
+            dockerClientClassLoader = new JarClassLoader()
+
+            // 2.) load all requires libraries for `docker-java` into
+            // our custom class-loader for isolated execution.
+            dockerClientClassLoader.addAll(classpathFiles.
+                collect { it.toURI().toURL() } as URL[])
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    Class loadClass(String className) {
+        dockerClientClassLoader.loadClass(className)
     }
 
     /**
@@ -69,69 +141,6 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     private String getDockerHostUrl(DockerClientConfiguration dockerClientConfiguration) {
         String url = (dockerClientConfiguration.url ?: dockerExtension.url).toLowerCase()
         url.startsWith("http") ? "tcp" + url.substring(url.indexOf(":")) : url
-    }
-
-    /**
-     * Creates the classloader with the given classpath files.
-     *
-     * @param classpathFiles Classpath files
-     * @return URL classloader
-     */
-    private URLClassLoader createClassLoader(Set<File> classpathFiles) {
-        new URLClassLoader(toURLArray(classpathFiles), ClassLoader.systemClassLoader.parent)
-    }
-
-    /**
-     * Creates URL array from a set of files.
-     *
-     * @param files Files
-     * @return URL array
-     */
-    private URL[] toURLArray(Set<File> files) {
-        files.collect { file -> file.toURI().toURL() } as URL[]
-    }
-
-    /**
-     * Creates DockerClient from ClassLoader.
-     *
-     * @param dockerClientConfiguration Docker client configuration
-     * @return DockerClient instance
-     */
-    private getDockerClient(String dockerUrl, File dockerCertPath, String apiVersion) {
-
-        // Create configuration
-        Class dockerClientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
-        Class dockerClientConfigClassImpl = loadClass('com.github.dockerjava.core.DefaultDockerClientConfig')
-        Method dockerClientConfigMethod = dockerClientConfigClassImpl.getMethod('createDefaultConfigBuilder')
-        def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
-        dockerClientConfigBuilder.withDockerHost(dockerUrl)
-
-        if (dockerCertPath) {
-            dockerClientConfigBuilder.withDockerTlsVerify(true)
-            dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
-        } else {
-            dockerClientConfigBuilder.withDockerTlsVerify(false)
-        }
-
-        if (apiVersion) {
-            dockerClientConfigBuilder.withApiVersion(apiVersion)
-        }
-
-        def dockerClientConfig = dockerClientConfigBuilder.build()
-
-        // Create client
-        Class dockerClientBuilderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
-        Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
-        def dockerClientBuilder = method.invoke(null, dockerClientConfig)
-        dockerClientBuilder.build()
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    Class loadClass(String className) {
-        Thread.currentThread().contextClassLoader.loadClass(className)
     }
 
     /**

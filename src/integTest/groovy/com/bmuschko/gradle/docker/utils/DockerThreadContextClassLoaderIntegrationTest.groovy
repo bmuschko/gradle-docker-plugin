@@ -369,25 +369,6 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         instance
     }
 
-    @Unroll
-    def "Supports Docker host URL in format #config.url"(DockerClientConfiguration config, String expectedScheme) {
-
-        when:
-        threadContextClassLoader.withClasspath(project.configurations.dockerJava.files, config) { dockerClient ->
-            assert dockerClient.dockerClientConfig.dockerHost.scheme == expectedScheme
-        }
-
-        then:
-        noExceptionThrown()
-
-        where:
-        config                                                            | expectedScheme
-        new DockerClientConfiguration(url: 'tcp://localhost:2375')        | 'tcp'
-        new DockerClientConfiguration(url: 'http://localhost:2375')       | 'tcp'
-        new DockerClientConfiguration(url: 'https://localhost:2375')      | 'tcp'
-        new DockerClientConfiguration(url: 'unix:///var/run/docker.sock') | 'unix'
-    }
-
     private DockerRegistryCredentials createCredentials() {
         DockerRegistryCredentials credentials = new DockerRegistryCredentials()
 
