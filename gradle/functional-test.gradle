@@ -14,9 +14,8 @@ task functionalTest(type: Test) {
     group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
-    mustRunAfter test, integrationTest
+    mustRunAfter test
     maxParallelForks = 1
-    maxHeapSize = "2048m"
 
     reports {
         html.destination = project.file("$html.destination/functional")
