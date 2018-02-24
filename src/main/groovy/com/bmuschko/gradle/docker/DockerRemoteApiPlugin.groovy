@@ -35,10 +35,6 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        project.configurations.create(DOCKER_JAVA_CONFIGURATION_NAME)
-                .setVisible(false)
-                .setTransitive(true)
-                .setDescription('The Docker Java libraries to be used for this project.')
 
         // if no repositories were defined fallback to buildscript
         // repositories to resolve dependencies as a last resort
@@ -48,12 +44,17 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             }
         }
 
-        Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
-        config.defaultDependencies { dependencies ->
-            dependencies.add(project.dependencies.create("com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
-            dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
-            dependencies.add(project.dependencies.create('cglib:cglib:3.2.0'))
-        }
+        final Configuration config = project.configurations.create(DOCKER_JAVA_CONFIGURATION_NAME)
+                .setVisible(false)
+                .setTransitive(true)
+                .setDescription('The Docker Java libraries to be used for this project.')
+                .defaultDependencies { dependencies ->
+                    dependencies.add(project.dependencies.create("com.github.docker-java:docker-java:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
+                    dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
+                    dependencies.add(project.dependencies.create('cglib:cglib:3.2.6'))
+                }
+                .exclude(group: 'org.slf4j')
+                .exclude(group: 'log4j')
 
         DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
         extension.classpath = config

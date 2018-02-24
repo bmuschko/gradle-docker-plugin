@@ -33,7 +33,7 @@ dependencies {
     }
 }
 
-ext.compatibilityVersion = '1.6'
+ext.compatibilityVersion = '1.8'
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
