@@ -9,6 +9,7 @@ out
 # OS generated files #
 ######################
 .DS_Store
+*.hprof
 
 # IDE generated files #
 ######################

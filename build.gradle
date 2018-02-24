@@ -26,13 +26,15 @@ repositories {
 }
 
 dependencies {
+    compile group: 'org.xeustechnologies', name: 'jcl-core', version: '2.8'
+    compile 'net.bytebuddy:byte-buddy:1.7.10'
     compile localGroovy(), gradleApi()
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
     }
 }
 
-ext.compatibilityVersion = '1.6'
+ext.compatibilityVersion = '1.8'
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
