@@ -27,8 +27,11 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
-    public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
-    public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
+    public static final String CORE_PACKAGE = "com.github.dockerjava.core"
+    public static final String MODEL_PACKAGE = "com.github.dockerjava.api.model"
+    public static final String COMMAND_PACKAGE = "com.github.dockerjava.core.command"
+    public static final String ENHANCER_CLASS = "net.sf.cglib.proxy.Enhancer"
+    public static final String INVOCATION_CLASS = "net.sf.cglib.proxy.InvocationHandler"
     private static final TRAILING_WHIESPACE = /\s+$/
 
     private DockerExtension dockerExtension
@@ -100,8 +103,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     private getDockerClient(String dockerUrl, File dockerCertPath, String apiVersion) {
 
         // Create configuration
-        Class dockerClientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
-        Class dockerClientConfigClassImpl = loadClass('com.github.dockerjava.core.DefaultDockerClientConfig')
+        Class dockerClientConfigClass = loadClass("${CORE_PACKAGE}.DockerClientConfig")
+        Class dockerClientConfigClassImpl = loadClass("${CORE_PACKAGE}.DefaultDockerClientConfig")
         Method dockerClientConfigMethod = dockerClientConfigClassImpl.getMethod('createDefaultConfigBuilder')
         def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
         dockerClientConfigBuilder.withDockerHost(dockerUrl)
@@ -120,7 +123,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         def dockerClientConfig = dockerClientConfigBuilder.build()
 
         // Create client
-        Class dockerClientBuilderClass = loadClass('com.github.dockerjava.core.DockerClientBuilder')
+        Class dockerClientBuilderClass = loadClass("${CORE_PACKAGE}.DockerClientBuilder")
         Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
         def dockerClientBuilder = method.invoke(null, dockerClientConfig)
         dockerClientBuilder.build()
@@ -420,7 +423,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class callbackClass = loadClass("${COMMAND_PACKAGE}.LogContainerResultCallback")
         def delegate = callbackClass.getConstructor().newInstance()
 
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(callbackClass)
         enhancer.setCallback([
@@ -445,7 +448,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(INVOCATION_CLASS)))
 
         enhancer.create()
     }
@@ -462,7 +465,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class callbackClass = loadClass("${COMMAND_PACKAGE}.LogContainerResultCallback")
         def delegate = callbackClass.getConstructor().newInstance()
 
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(callbackClass)
         enhancer.setCallback([
@@ -486,7 +489,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(INVOCATION_CLASS)))
 
         enhancer.create()
     }
@@ -496,7 +499,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createExecCallback(OutputStream out, OutputStream err) {
-        Class callbackClass = loadClass('com.github.dockerjava.core.command.ExecStartResultCallback')
+        Class callbackClass = loadClass("${COMMAND_PACKAGE}.ExecStartResultCallback")
         Constructor constructor = callbackClass.getConstructor(OutputStream, OutputStream)
         constructor.newInstance(out, err)
     }
@@ -504,7 +507,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createExecCallback(Closure onNext) {
         def defaultHandler = createExecCallback(null, null)
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(defaultHandler.getClass())
         enhancer.setCallback([
@@ -519,7 +522,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(INVOCATION_CLASS)))
 
         enhancer.create()
     }
@@ -538,7 +541,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private createOnNextProxyCallback(Closure onNext, defaultHandler) {
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(defaultHandler.getClass())
         enhancer.setCallback([
@@ -553,13 +556,13 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(INVOCATION_CLASS)))
 
         enhancer.create()
     }
 
     private createPrintStreamProxyCallback(Logger logger, delegate) {
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(delegate.getClass())
         enhancer.setCallback([
@@ -577,7 +580,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(INVOCATION_CLASS)))
 
         enhancer.create()
     }

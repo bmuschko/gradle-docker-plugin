@@ -30,7 +30,8 @@ class DockerThreadContextClassLoaderIntegrationTest extends AbstractIntegrationT
         project = ProjectBuilder.builder().build()
 
         project.repositories {
-            mavenCentral()
+            mavenLocal()
+            jcenter()
         }
 
         dockerExtension = new DockerExtension(project)

@@ -22,7 +22,8 @@ apply from: "$rootDir/gradle/publishing.gradle"
 apply from: "$rootDir/gradle/documentation.gradle"
 
 repositories {
-    mavenCentral()
+    mavenLocal()
+    jcenter()
 }
 
 dependencies {
