@@ -29,11 +29,20 @@ import java.lang.reflect.Method
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
-    private static final TRAILING_WHIESPACE = /\s+$/
 
-    private DockerExtension dockerExtension
+    private static final String TRAILING_WHIESPACE = /\s+$/
+    private static final String COLON_CHAR = ':'
 
-    public DockerThreadContextClassLoader(DockerExtension dockerExtension) {
+    private static final String PARSE_METHOD_NAME = 'parse'
+    private static final String ON_NEXT_METHOD_NAME = 'onNext'
+
+    private static final String CGLIB_ENHANCER_CLASS_NAME = 'net.sf.cglib.proxy.Enhancer'
+    private static final String CGLIB_INVOKATION_HANDLER_CLASS_NAME =
+        'net.sf.cglib.proxy.InvocationHandler'
+
+    private final DockerExtension dockerExtension
+
+    DockerThreadContextClassLoader(DockerExtension dockerExtension) {
         this.dockerExtension = dockerExtension
     }
 
@@ -68,7 +77,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     private String getDockerHostUrl(DockerClientConfiguration dockerClientConfiguration) {
         String url = (dockerClientConfiguration.url ?: dockerExtension.url).toLowerCase()
-        url.startsWith("http") ? "tcp" + url.substring(url.indexOf(":")) : url
+        url.startsWith('http') ? 'tcp' + url.substring(url.indexOf(COLON_CHAR)) : url
     }
 
     /**
@@ -98,7 +107,6 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @return DockerClient instance
      */
     private getDockerClient(String dockerUrl, File dockerCertPath, String apiVersion) {
-
         // Create configuration
         Class dockerClientConfigClass = loadClass('com.github.dockerjava.core.DockerClientConfig')
         Class dockerClientConfigClassImpl = loadClass('com.github.dockerjava.core.DefaultDockerClientConfig')
@@ -189,7 +197,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createVolumesFrom(String[] volumes) {
         Class volumesClass = loadClass("${MODEL_PACKAGE}.VolumesFrom")
-        Method parseMethod = volumesClass.getMethod('parse', String)
+        Method parseMethod = volumesClass.getMethod(PARSE_METHOD_NAME, String)
         volumes.collect {
             parseMethod.invoke(null, it)
         }.toArray(Array.newInstance(volumesClass, 0))
@@ -201,7 +209,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createLink(String link) {
         Class linkClass = loadClass("${MODEL_PACKAGE}.Link")
-        Method method = linkClass.getMethod("parse", String)
+        Method method = linkClass.getMethod(PARSE_METHOD_NAME, String)
         method.invoke(null, link)
     }
 
@@ -245,7 +253,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createInternetProtocol(String scheme) {
         Class internetProtocolClass = loadInternetProtocolClass()
-        Method method = internetProtocolClass.getMethod('parse', String)
+        Method method = internetProtocolClass.getMethod(PARSE_METHOD_NAME, String)
         method.invoke(null, scheme)
     }
 
@@ -269,10 +277,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         def protocolClass = loadInternetProtocolClass()
         Constructor cExposedPort = exposedPortClass.getConstructor(Integer.TYPE, protocolClass)
 
-        List expPorts = new ArrayList<>();
+        List expPorts = []
         exposedPorts.each { it ->
             it.ports.each { p ->
-                expPorts << cExposedPort.newInstance(p, protocolClass.invokeMethod("parse", it.internetProtocol.toLowerCase()))
+                expPorts << cExposedPort.newInstance(p, protocolClass.invokeMethod(PARSE_METHOD_NAME, it.internetProtocol.toLowerCase()))
             }
         }
 
@@ -291,7 +299,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createPortBinding(String portBinding) {
         Class portBindingClass = loadClass("${MODEL_PACKAGE}.PortBinding")
-        Method method = portBindingClass.getMethod('parse', String)
+        Method method = portBindingClass.getMethod(PARSE_METHOD_NAME, String)
         method.invoke(null, portBinding)
     }
 
@@ -319,9 +327,9 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      */
     @Override
     def createBind(String path, String volume) {
-      Class bindClass = loadBindClass()
-      Method bindParseMethod = bindClass.getMethod('parse', String.class)
-      bindParseMethod.invoke(null, [path, volume].join(':'))
+        Class bindClass = loadBindClass()
+        Method bindParseMethod = bindClass.getMethod(PARSE_METHOD_NAME, String.class)
+        bindParseMethod.invoke(null, [path, volume].join(COLON_CHAR))
     }
 
     /**
@@ -352,7 +360,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createRestartPolicy(String restartPolicy) {
         Class rpClass = loadClass("${MODEL_PACKAGE}.RestartPolicy")
-        Method rpParseMethod = rpClass.getMethod("parse", String.class)
+        Method rpParseMethod = rpClass.getMethod(PARSE_METHOD_NAME, String.class)
         rpParseMethod.invoke(null, restartPolicy)
     }
 
@@ -364,7 +372,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class deviceClass = loadClass("${MODEL_PACKAGE}.Device")
         try {
             // The parse method is  available in newer Docker java library versions.
-            Method method = deviceClass.getMethod("parse", String)
+            Method method = deviceClass.getMethod(PARSE_METHOD_NAME, String)
             method.invoke(null, deviceString)
         } catch (NoSuchMethodException) {
             // For older Docker java library versions we must parse the device string ourselves.
@@ -420,20 +428,20 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class callbackClass = loadClass("${COMMAND_PACKAGE}.LogContainerResultCallback")
         def delegate = callbackClass.getConstructor().newInstance()
 
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(CGLIB_ENHANCER_CLASS_NAME)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(callbackClass)
         enhancer.setCallback([
 
-            invoke: { Object proxy, java.lang.reflect.Method method, Object[] args ->
-                if ("onNext" == method.name && args.length && args[0]) {
+            invoke: { Object proxy, Method method, Object[] args ->
+                if (ON_NEXT_METHOD_NAME == method.name && args.length && args[0]) {
                     def frame = args[0]
                     switch (frame.streamType as String) {
-                        case "STDOUT":
-                        case "RAW":
+                        case 'STDOUT':
+                        case 'RAW':
                             logger.quiet(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
                             break
-                        case "STDERR":
+                        case 'STDERR':
                             logger.error(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
                             break
                     }
@@ -445,7 +453,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(CGLIB_INVOKATION_HANDLER_CLASS_NAME)))
 
         enhancer.create()
     }
@@ -462,18 +470,18 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         Class callbackClass = loadClass("${COMMAND_PACKAGE}.LogContainerResultCallback")
         def delegate = callbackClass.getConstructor().newInstance()
 
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(CGLIB_ENHANCER_CLASS_NAME)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(callbackClass)
         enhancer.setCallback([
 
-            invoke: { Object proxy, java.lang.reflect.Method method, Object[] args ->
-                if ("onNext" == method.name && args.length && args[0]) {
+            invoke: { Object proxy, Method method, Object[] args ->
+                if (ON_NEXT_METHOD_NAME == method.name && args.length && args[0]) {
                     def frame = args[0]
                     switch (frame.streamType as String) {
-                        case "STDOUT":
-                        case "RAW":
-                        case "STDERR":
+                        case 'STDOUT':
+                        case 'RAW':
+                        case 'STDERR':
                             sink.append(new String(frame.payload))
                             sink.flush()
                             break
@@ -486,7 +494,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(CGLIB_INVOKATION_HANDLER_CLASS_NAME)))
 
         enhancer.create()
     }
@@ -504,12 +512,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Override
     def createExecCallback(Closure onNext) {
         def defaultHandler = createExecCallback(null, null)
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(CGLIB_ENHANCER_CLASS_NAME)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(defaultHandler.getClass())
         enhancer.setCallback([
             invoke: { Object proxy, Method method, Object[] args ->
-                if ("onNext" == method.name) {
+                if (ON_NEXT_METHOD_NAME == method.name) {
                     onNext.call(args[0])
                 }
                 try {
@@ -519,7 +527,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(CGLIB_INVOKATION_HANDLER_CLASS_NAME)))
 
         enhancer.create()
     }
@@ -538,12 +546,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private createOnNextProxyCallback(Closure onNext, defaultHandler) {
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(CGLIB_ENHANCER_CLASS_NAME)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(defaultHandler.getClass())
         enhancer.setCallback([
             invoke: { Object proxy, Method method, Object[] args ->
-                if ("onNext" == method.name) {
+                if (ON_NEXT_METHOD_NAME == method.name) {
                     onNext.call(args[0])
                 }
                 try {
@@ -553,22 +561,23 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(CGLIB_INVOKATION_HANDLER_CLASS_NAME)))
 
         enhancer.create()
     }
 
     private createPrintStreamProxyCallback(Logger logger, delegate) {
-        Class enhancerClass = loadClass('net.sf.cglib.proxy.Enhancer')
+        Class enhancerClass = loadClass(CGLIB_ENHANCER_CLASS_NAME)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(delegate.getClass())
         enhancer.setCallback([
 
             invoke: { Object proxy, Method method, Object[] args ->
-                if ("onNext" == method.name) {
+                if (ON_NEXT_METHOD_NAME == method.name) {
                     def possibleStream = args[0].stream
-                    if (possibleStream)
+                    if (possibleStream) {
                         logger.quiet(possibleStream.trim())
+                    }
                 }
                 try {
                     method.invoke(delegate, args)
@@ -577,7 +586,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 }
             }
 
-        ].asType(loadClass('net.sf.cglib.proxy.InvocationHandler')))
+        ].asType(loadClass(CGLIB_INVOKATION_HANDLER_CLASS_NAME)))
 
         enhancer.create()
     }
@@ -597,7 +606,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private def parseDevice(String deviceString) {
-        List<String> tokens = deviceString.tokenize(':')
+        List<String> tokens = deviceString.tokenize(COLON_CHAR)
 
         String permissions = 'rwm'
         String source = ''
@@ -605,10 +614,12 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
         switch (tokens.size()) {
             case 3:
-                if (validDeviceMode(tokens[2])) {
-                    permissions = tokens[2]
+                def permissionsTokenNo = 2
+                if (validDeviceMode(tokens[permissionsTokenNo])) {
+                    permissions = tokens[permissionsTokenNo]
                 } else {
-                    throw new IllegalArgumentException("Invalid device specification: " + deviceString)
+                    throw new IllegalArgumentException(
+                        "Invalid device specification: $deviceString")
                 }
             case 2:
                 if (validDeviceMode(tokens[1])) {
@@ -620,7 +631,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                 source = tokens[0]
                 break
             default:
-                throw new IllegalArgumentException("Invalid device specification: " + deviceString)
+                throw new IllegalArgumentException("Invalid device specification: $deviceString")
         }
 
         if (!destination) {
@@ -638,10 +649,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         }
 
         for (mode in deviceMode) {
-            if (!validModes[mode]) {
-                return false // wrong mode
-            } else {
+            if (validModes[mode]) {
                 validModes[mode] = false
+            } else {
+                return false // wrong mode
             }
         }
 
