@@ -28,7 +28,8 @@ interface ThreadContextClassLoader {
      * @param dockerClientConfiguration Docker client configuration
      * @param closure the given closure
      */
-    void withClasspath(Set<File> classpathFiles, DockerClientConfiguration dockerClientConfiguration, Closure closure)
+    void withClasspath(Set<File> classpathFiles,
+                       DockerClientConfiguration dockerClientConfiguration, Closure closure)
 
     /**
      * Loads class with given name from thread context classloader.

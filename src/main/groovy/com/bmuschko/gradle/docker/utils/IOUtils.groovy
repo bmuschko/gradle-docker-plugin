@@ -4,7 +4,7 @@ final class IOUtils {
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4
 
-    private IOUtils() {}
+    private IOUtils() { }
 
     static void copy(InputStream input, OutputStream output) throws IOException {
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE]
@@ -19,7 +19,7 @@ final class IOUtils {
             if (input != null) {
                 input.close()
             }
-        } catch (IOException ioe) {
+        } catch (IOException ignored) {
             // ignore
         }
     }

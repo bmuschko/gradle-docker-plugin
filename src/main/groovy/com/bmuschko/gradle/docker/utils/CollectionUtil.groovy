@@ -3,11 +3,11 @@ package com.bmuschko.gradle.docker.utils
 import java.lang.reflect.Array
 
 final class CollectionUtil {
-    private CollectionUtil() {}
+    private CollectionUtil() { }
 
     static Object[] toArray(List list) {
-        if(list == null) {
-            return null
+        if (list == null) {
+            return new Object[0]
         }
 
         Class clazz = list[0].getClass()

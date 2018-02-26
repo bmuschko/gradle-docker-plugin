@@ -1,0 +1,33 @@
+apply plugin: 'codenarc'
+
+codenarc {
+    reportFormat = 'console'
+    toolVersion = '1.1'
+    configFile = rootProject.file("$project.rootDir/config/codenarc/rules.groovy")
+}
+
+codenarcMain {
+    group = 'verification'
+    ignoreFailures = false
+    includes = ["**/utils/*.groovy"]
+}
+
+codenarcTest {
+    group = 'verification'
+    enabled = false
+}
+
+codenarcIntegrationTest {
+    group = 'verification'
+    enabled = false
+}
+
+codenarcTestSetup {
+    group = 'verification'
+    enabled = false
+}
+
+codenarcFunctionalTest {
+    group = 'verification'
+    enabled = false
+}
