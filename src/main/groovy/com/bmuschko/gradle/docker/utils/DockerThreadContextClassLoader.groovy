@@ -27,12 +27,11 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
-    public static final String CORE_PACKAGE = "com.github.dockerjava.core"
-    public static final String MODEL_PACKAGE = "com.github.dockerjava.api.model"
-    public static final String COMMAND_PACKAGE = "com.github.dockerjava.core.command"
-    public static final String ENHANCER_CLASS = "net.sf.cglib.proxy.Enhancer"
-    public static final String INVOCATION_CLASS = "net.sf.cglib.proxy.InvocationHandler"
-    private static final TRAILING_WHIESPACE = /\s+$/
+    public static final String CORE_PACKAGE = 'com.github.dockerjava.core'
+    public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
+    public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
+    public static final String ENHANCER_CLASS = 'net.sf.cglib.proxy.Enhancer'
+    public static final String INVOCATION_CLASS = 'net.sf.cglib.proxy.InvocationHandler'
 
     private static final String TRAILING_WHIESPACE = /\s+$/
     private static final String COLON_CHAR = ':'
@@ -544,7 +543,6 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private createOnNextProxyCallback(Closure onNext, defaultHandler) {
-
         Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(defaultHandler.getClass())
@@ -565,7 +563,6 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private createPrintStreamProxyCallback(Logger logger, delegate) {
-
         Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(delegate.getClass())
