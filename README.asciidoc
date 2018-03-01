@@ -1,3 +1,5 @@
+*ATTENTION: as of version `3.2.5` of this plugin we are using the `docker-java-shaded` library in favor or `docker-java`. This means that instead of resolving the multiple, potentially conflicting, dependencies of `docker-java` we will instead resolve 1 shaded/uber/fat jar with all dependencies baked in. The dependencies/classes themselves are now located under the `com.github.dockerjava.shaded` package. Please give things a go and report back any issues found. Thanks!*
+
 image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
 image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/images/download.svg["Download", link="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/_latestVersion"]
 image:https://img.shields.io/badge/stack%20overflow-gradle%20docker%20plugin-blue.svg["Stackoverflow", link="https://stackoverflow.com/questions/tagged/gradle-docker-plugin"]
