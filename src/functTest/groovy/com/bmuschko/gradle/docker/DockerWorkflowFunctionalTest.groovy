@@ -720,7 +720,9 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             
             task loadImage(type: DockerLoadImage) {
                 dependsOn removeImage
-                imageStream = new File("${savedImagePath}").newInputStream()
+                imageStream {
+                    new File("${savedImagePath}").newInputStream()
+                }
             }
             
             task createContainer(type: DockerCreateContainer) {
