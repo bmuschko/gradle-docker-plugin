@@ -57,7 +57,8 @@ abstract class AbstractFunctionalTest extends Specification {
             }
 
             repositories {
-                mavenCentral()
+                mavenLocal()
+                jcenter()
             }
         """
 
