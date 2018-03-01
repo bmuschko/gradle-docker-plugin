@@ -30,9 +30,16 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
 
     @Override
     void runRemoteCommand(Object dockerClient) {
-        if (!destFile || !destFile.isFile()) {
-            throw new GradleException("Invalid destination file: " + destFile)
+        if (!destFile.exists()) {
+            if(!destFile.createNewFile()) {
+                throw new GradleException("Could not create file @ ${destFile.path}")
+            }
         }
+
+        if (destFile.isDirectory()) {
+            throw new GradleException("destFile cannot be a directory")
+        }
+
         def saveImageCmd = dockerClient.saveImageCmd(getRepository())
 
         if (getTag()) {
