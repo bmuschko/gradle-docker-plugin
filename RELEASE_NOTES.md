@@ -1,4 +1,4 @@
-### Version 3.2.5 (TBA)
+### Version 3.2.5 (March 1, 2018)
 * Added `macAddress` option to task `DockerCreateContainer` - [Pull request 538](https://github.com/bmuschko/gradle-docker-plugin/pull/538)
 * Initial work for `codenarc` analysis - [Pull request 537](https://github.com/bmuschko/gradle-docker-plugin/pull/537)
 * Use of `docker-java-shaded` library in favor of `docker-java` proper to get around class-loading/clobbering issues - [Pull request 550](https://github.com/bmuschko/gradle-docker-plugin/pull/550)
