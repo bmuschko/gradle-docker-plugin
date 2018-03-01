@@ -33,6 +33,7 @@ class DockerExtension {
     public DockerExtension(Project project) {
         this.project = project
         this.url = getDefaultDockerUrl()
+        this.certPath = getDefaultDockerCert()
     }
 
     void registryCredentials(Closure closure) {
@@ -64,6 +65,17 @@ class DockerExtension {
         }
         project.logger.info("Default docker.url set to $dockerUrl")
         dockerUrl
+    }
+
+    public File getDefaultDockerCert() {
+        String dockerCertPath = System.getenv("DOCKER_CERT_PATH")
+        if(dockerCertPath) {
+            File certFile = new File(dockerCertPath)
+            if(certFile.exists()) {
+                return certFile
+            }
+        }
+        return null
     }
 
     @CompileStatic
