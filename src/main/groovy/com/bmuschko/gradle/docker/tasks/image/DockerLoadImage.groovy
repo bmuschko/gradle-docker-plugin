@@ -6,10 +6,10 @@ import org.gradle.api.tasks.Input
 class DockerLoadImage extends AbstractDockerRemoteApiTask {
 
     @Input
-    InputStream imageStream
+    Closure<InputStream> imageStream
 
     @Override
     void runRemoteCommand(Object dockerClient) {
-        dockerClient.loadImageCmd(imageStream).exec()
+        dockerClient.loadImageCmd(imageStream()).exec()
     }
 }
