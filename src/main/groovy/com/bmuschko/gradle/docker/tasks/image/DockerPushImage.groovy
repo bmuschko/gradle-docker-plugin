@@ -45,11 +45,13 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Pushing image with name '${getImageName()}'."
         def pushImageCmd = dockerClient.pushImageCmd(getImageName())
 
         if(getTag()) {
             pushImageCmd.withTag(getTag())
+            logger.quiet "Pushing image with name '${getImageName()}:${getTag()}'."
+        } else {
+            logger.quiet "Pushing image with name '${getImageName()}'."
         }
 
         if(getRegistryCredentials()) {
