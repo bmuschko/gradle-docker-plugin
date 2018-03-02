@@ -1,9 +1,10 @@
-### Version 3.2.5 (March 1, 2018)
+### Version 3.2.5 (TBA)
 * Added `macAddress` option to task `DockerCreateContainer` - [Pull request 538](https://github.com/bmuschko/gradle-docker-plugin/pull/538)
 * Initial work for `codenarc` analysis - [Pull request 537](https://github.com/bmuschko/gradle-docker-plugin/pull/537)
 * Use of `docker-java-shaded` library in favor of `docker-java` proper to get around class-loading/clobbering issues - [Pull request 550](https://github.com/bmuschko/gradle-docker-plugin/pull/550)
 * Honor DOCKER_CERT_PATH env var if present - [Pull request 549](https://github.com/bmuschko/gradle-docker-plugin/pull/549)
 * Task `DockerSaveImage` will now create file for you should it not exist - [Pull request 552](https://github.com/bmuschko/gradle-docker-plugin/pull/552)
+* Task `DockerPushImage` will now include tag info in logging if applicable - [Pull request 554](https://github.com/bmuschko/gradle-docker-plugin/pull/554)
 * !!!!! BREAKING: Property `inputStream` of task `DockerLoadImage` has been changed from type `InputStream` to `Closure<InputStream>`. This was done to allow scripts/code/pipelines to delay getting the image and side-step this property getting configured during gradles config-phase. - [Pull request 552](https://github.com/bmuschko/gradle-docker-plugin/pull/552)
 
 ### Version 3.2.4 (February 5, 2018)
