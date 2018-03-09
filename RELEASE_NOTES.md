@@ -1,4 +1,5 @@
 ### Version 3.2.6 (TBA)
+* Cache `docker-java` client - [Pull request 558](https://github.com/bmuschko/gradle-docker-plugin/pull/558)
 
 ### Version 3.2.5 (March 2, 2018)
 * Added `macAddress` option to task `DockerCreateContainer` - [Pull request 538](https://github.com/bmuschko/gradle-docker-plugin/pull/538)
