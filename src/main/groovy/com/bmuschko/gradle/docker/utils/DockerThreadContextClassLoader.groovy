@@ -27,7 +27,7 @@ import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
-@SuppressWarnings(['FieldTypeRequired', 'UnnecessaryDefInFieldDeclaration', 'Indentation'])
+@SuppressWarnings(['FieldTypeRequired', 'UnnecessaryDefInFieldDeclaration'])
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     public static final String CORE_PACKAGE = 'com.github.dockerjava.core'
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
@@ -55,8 +55,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     void withClasspath(final Set<File> classpath, final DockerClientConfiguration dockerClientConfiguration, final Closure closure) {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = this
-        closure(getDockerClient(dockerClientConfiguration,
-                classpath ?: dockerExtension.classpath?.files))
+        closure(getDockerClient(dockerClientConfiguration, classpath))
     }
 
     /**
@@ -69,7 +68,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     @Synchronized
     private def getDockerClient(DockerClientConfiguration dockerClientConfiguration, Set<File> classpathFiles) {
         if (!dockerClient) {
-            loadClasses(classpathFiles, this.class.classLoader)
+            loadClasses(classpathFiles ?: dockerExtension.classpath?.files, this.class.classLoader)
 
             String dockerUrl = getDockerHostUrl(dockerClientConfiguration)
             File dockerCertPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
@@ -123,10 +122,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
     /**
      * Load set of files into an arbitrary ClassLoader.
-     * 
+     *
      * @param classpathFiles set of files to load
      * @param loader ClassLoader to load files into
-     */ 
+     */
     private loadClasses(final Set<File> classpathFiles, final ClassLoader loader) {
         toURLArray(classpathFiles).each { url ->
             loader.addURL(url)
