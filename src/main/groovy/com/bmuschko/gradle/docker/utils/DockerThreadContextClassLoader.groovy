@@ -51,11 +51,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     /**
      * {@inheritDoc}
      */
-    @Override
-    void withClasspath(final Set<File> classpath, final DockerClientConfiguration dockerClientConfiguration, final Closure closure) {
+    void withContext(final DockerClientConfiguration dockerClientConfiguration, final Closure closure) {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = this
-        closure(getDockerClient(dockerClientConfiguration, classpath))
+        closure(getDockerClient(dockerClientConfiguration))
     }
 
     /**
@@ -66,9 +65,9 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @return DockerClient instance
      */
     @Synchronized
-    private def getDockerClient(DockerClientConfiguration dockerClientConfiguration, Set<File> classpathFiles) {
+    private def getDockerClient(DockerClientConfiguration dockerClientConfiguration) {
         if (!dockerClient) {
-            loadClasses(classpathFiles ?: dockerExtension.classpath?.files, this.class.classLoader)
+            loadClasses(dockerExtension.classpath.files, this.class.classLoader)
 
             String dockerUrl = getDockerHostUrl(dockerClientConfiguration)
             File dockerCertPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
