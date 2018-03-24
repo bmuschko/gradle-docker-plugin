@@ -24,7 +24,10 @@ import java.util.concurrent.Callable
 
 abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
     /**
-     * Container ID used to perform operation. The container for the provided ID has to be created first.
+     * Container identifier upon which the operation will be performed.
+     *
+     * The ID or the name of a container are supported as identifiers.
+     * The container for the provided identifier has to be created first.
      */
     @Internal
     String containerId
