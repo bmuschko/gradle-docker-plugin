@@ -1,4 +1,4 @@
-### Version 3.2.6 (TBA)
+### Version 3.2.6 (March 31, 2018)
 * Cache `docker-java` client - [Pull request 558](https://github.com/bmuschko/gradle-docker-plugin/pull/558)
 
 ### Version 3.2.5 (March 2, 2018)
