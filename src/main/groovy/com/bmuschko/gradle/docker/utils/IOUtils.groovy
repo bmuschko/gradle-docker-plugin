@@ -23,4 +23,14 @@ final class IOUtils {
             // ignore
         }
     }
+
+    static void closeQuietly(OutputStream output) {
+        try {
+            if (output != null) {
+                output.close()
+            }
+        } catch (IOException ignored) {
+            // ignore
+        }
+    }
 }

@@ -6,6 +6,9 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
+import org.gradle.internal.impldep.org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
+
+import java.util.zip.GZIPOutputStream
 
 class DockerSaveImage extends AbstractDockerRemoteApiTask {
 
@@ -21,6 +24,10 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     String tag
+
+    @Input
+    @Optional
+    boolean compressImage
 
     /**
      * Where to save image. Can't be null.
@@ -46,13 +53,23 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
             saveImageCmd.withTag(getTag())
         }
         InputStream image = saveImageCmd.exec()
-        FileOutputStream fs = new FileOutputStream(destFile)
+        OutputStream os
         try {
-            IOUtils.copy(image, fs)
-        } catch (IOException e) {
-            throw new GradleException("Can't save image.", e)
-        } finally {
-            IOUtils.closeQuietly(image)
+            FileOutputStream fs = new FileOutputStream(destFile)
+            os = fs;
+            if( compressImage ) {
+                os = new GZIPOutputStream(fs)
+            }
+            try {
+                IOUtils.copy(image, os)
+            } catch (IOException e) {
+                throw new GradleException("Can't save image.", e)
+            } finally {
+                IOUtils.closeQuietly(image)
+            }
+        }
+        finally {
+            IOUtils.closeQuietly(os)
         }
     }
 }
