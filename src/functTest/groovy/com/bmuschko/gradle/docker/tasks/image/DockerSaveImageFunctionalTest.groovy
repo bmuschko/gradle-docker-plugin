@@ -83,7 +83,7 @@ class DockerSaveImageFunctionalTest extends AbstractFunctionalTest {
 
         then:
         noExceptionThrown()
-        assert file(controlSavedImage).size() > file(compressedImageFile).size()
+        file(controlSavedImage).size() > file(compressedImageFile).size()
     }
 
     File file(String relativePath) {
