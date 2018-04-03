@@ -49,4 +49,24 @@ class DockerSaveImageFunctionalTest extends AbstractFunctionalTest {
         then:
         noExceptionThrown()
     }
+
+    def "Can docker image be saved with compression"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn dockerfile
+                useCompression = true
+                tag = "${ImageId}"
+                repository = "${ImageId}"
+                destFile = file("build/docker/${ImageId}-docker-image.tar.gz")
+            }
+        """
+
+        when:
+        build('saveImage')
+
+        then:
+        noExceptionThrown()
+    }
 }

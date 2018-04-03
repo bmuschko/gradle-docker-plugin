@@ -6,7 +6,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
-import org.gradle.internal.impldep.org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 
 import java.util.zip.GZIPOutputStream
 
@@ -27,7 +26,7 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    boolean compressImage
+    boolean useCompression
 
     /**
      * Where to save image. Can't be null.
@@ -57,7 +56,7 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
         try {
             FileOutputStream fs = new FileOutputStream(destFile)
             os = fs;
-            if( compressImage ) {
+            if( useCompression ) {
                 os = new GZIPOutputStream(fs)
             }
             try {
