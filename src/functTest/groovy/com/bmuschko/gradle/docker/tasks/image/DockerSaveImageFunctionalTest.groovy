@@ -1,18 +1,24 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.utils.IOUtils
 import org.gradle.testkit.runner.BuildResult
+import spock.lang.Stepwise
 
+import java.util.zip.GZIPInputStream
+
+@Stepwise
 class DockerSaveImageFunctionalTest extends AbstractFunctionalTest {
 
     final String ImageId = createUniqueImageId()
     final String controlSavedImage = "build/docker/${ImageId}-docker-image-control.tar"
+    final String imageFile = "build/docker/${ImageId}-docker-image.tar"
+    final String compressedImageFile = "build/docker/${ImageId}-compressed-docker-image.tar.gz"
 
     def setup() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
@@ -24,16 +30,10 @@ class DockerSaveImageFunctionalTest extends AbstractFunctionalTest {
                 tag = "${ImageId}"
                 labels = ["setup":"${ImageId}"]
             }
-            task saveImageControl(type: DockerSaveImage) {
-                dependsOn buildImage
-                tag = "${ImageId}"
-                repository = "${ImageId}"
-                destFile = file("${controlSavedImage}")
-            }            
         """
 
         when:
-        BuildResult result = build('saveImageControl')
+        BuildResult result = build('buildImage')
 
         then:
         result.output.contains("Created image with ID")
@@ -47,7 +47,7 @@ class DockerSaveImageFunctionalTest extends AbstractFunctionalTest {
                 dependsOn buildImage
                 tag = "${ImageId}"
                 repository = "${ImageId}"
-                destFile = file("build/docker/${ImageId}-docker-image.tar")
+                destFile = file("${imageFile}")
             }
         """
 
@@ -56,44 +56,39 @@ class DockerSaveImageFunctionalTest extends AbstractFunctionalTest {
 
         then:
         noExceptionThrown()
-        fileSizesMatch(new File(projectDir, "build/docker/${ImageId}-docker-image.tar"), new File(projectDir, controlSavedImage))
+        file(imageFile).size() > 0
     }
 
     def "Can docker image be saved with compression"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
 
-            task saveImage(type: DockerSaveImage) {
+            task saveImageControl(type: DockerSaveImage) {
                 dependsOn buildImage
+                tag = "${ImageId}"
+                repository = "${ImageId}"
+                destFile = file("${controlSavedImage}")
+            }            
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn saveImageControl
                 useCompression = true
                 tag = "${ImageId}"
                 repository = "${ImageId}"
-                destFile = file("build/docker/${ImageId}-docker-image.tar.gz")
+                destFile = file("${compressedImageFile}")
             }
         """
-
         when:
         build('saveImage')
 
         then:
         noExceptionThrown()
-        fileSizeLess(new File(projectDir, "build/docker/${ImageId}-docker-image.tar.gz"), new File(projectDir, controlSavedImage))
+        assert file(controlSavedImage).size() > file(compressedImageFile).size()
     }
 
-    void fileSizesMatch(File file1, File file2) {
-        long size1 = file1.size()
-        long size2 = file2.size()
-        if( size1 < size2 ) {
-            assert (size2 % size1) <= 100
-        }
-        else {
-            assert (size1 % size2) <= 100
-        }
-    }
-
-    void fileSizeLess(File file1, File file2) {
-        long size1 = file1.size()
-        long size2 = file2.size()
-        assert size1 < size2
+    File file(String relativePath) {
+        File retVal = new File(projectDir, relativePath)
+        assert retVal.exists()
+        return retVal
     }
 }
