@@ -1,4 +1,5 @@
 ### Version 3.2.7 (TBA)
+* Task `DockerSaveImage` gained option `useCompression` to optionally gzip the created tar. - [Pull request 565](https://github.com/bmuschko/gradle-docker-plugin/pull/565)
 
 ### Version 3.2.6 (March 31, 2018)
 * Cache `docker-java` client instead of recreating for every request/task invocation. This is a somewhat big internal change but has a lot of consequences and so it was deserving of its own point release. - [Pull request 558](https://github.com/bmuschko/gradle-docker-plugin/pull/558)
