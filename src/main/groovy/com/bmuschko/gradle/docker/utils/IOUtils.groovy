@@ -14,10 +14,10 @@ final class IOUtils {
         }
     }
 
-    static void closeQuietly(InputStream input) {
+    static void closeQuietly(Closeable toClose) {
         try {
-            if (input != null) {
-                input.close()
+            if (toClose != null) {
+                toClose.close()
             }
         } catch (IOException ignored) {
             // ignore
