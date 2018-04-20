@@ -32,6 +32,10 @@ class DockerExecContainer extends DockerExistingContainer {
     @Optional
     Boolean attachStderr = true
 
+    @Input
+    @Optional
+    String user
+
     @Internal
     private String execId
 
@@ -61,6 +65,10 @@ class DockerExecContainer extends DockerExistingContainer {
 
         if (getAttachStdout()) {
             containerCommand.withAttachStdout(getAttachStdout())
+        }
+
+        if (getUser()) {
+            containerCommand.withUser(getUser())
         }
     }
     
