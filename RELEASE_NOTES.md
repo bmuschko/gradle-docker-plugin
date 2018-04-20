@@ -1,4 +1,6 @@
-### Version 3.2.7 (TBA)
+### Version 3.2.8 (TBA)
+
+### Version 3.2.7 (April 19, 2018)
 * Task `DockerSaveImage` gained option `useCompression` to optionally gzip the created tar. - [Pull request 565](https://github.com/bmuschko/gradle-docker-plugin/pull/565)
 * Add `javax.activation` dependency for users who are working with jdk9+. - [Pull request 572](https://github.com/bmuschko/gradle-docker-plugin/pull/572)
 
