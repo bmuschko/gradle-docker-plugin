@@ -110,7 +110,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
             ex.message.contains('is not running')
     }
 
-    def "Execute command as a non-root user running container"() {
+    def "Execute command as a non-root user within a running container"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -139,7 +139,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
                 dependsOn startContainer
                 targetContainerId { startContainer.getContainerId() }
                 cmd = ['sh', '-c', 'id -u && id -g']
-                user = "10000:10001"
+                user = '10000:10001'
             }
 
             task logContainer(type: DockerLogsContainer) {
@@ -163,6 +163,6 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains("10000\n10001")
+        result.output.contains('10000\n10001')
     }
 }
