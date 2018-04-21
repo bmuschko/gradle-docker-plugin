@@ -32,6 +32,16 @@ class DockerExecContainer extends DockerExistingContainer {
     @Optional
     Boolean attachStderr = true
 
+    /**
+     * Username or UID to execute the command as, with optional colon separated group or gid in format:
+     * &lt;name|uid&gt;[:&lt;group|gid&gt;]
+     *
+     * @since 3.2.8
+     */
+    @Input
+    @Optional
+    String user
+
     @Internal
     private String execId
 
@@ -61,6 +71,10 @@ class DockerExecContainer extends DockerExistingContainer {
 
         if (getAttachStdout()) {
             containerCommand.withAttachStdout(getAttachStdout())
+        }
+
+        if (getUser()) {
+            containerCommand.withUser(getUser())
         }
     }
     
