@@ -1,5 +1,6 @@
 ### Version 3.2.8 (TBA)
 * Task `DockerExecContainer` gained option `useCompression` to specify a user/group. - [Pull request 574](https://github.com/bmuschko/gradle-docker-plugin/pull/574)
+* Task `DockerCreateContainer` gained option `ipV4Address` to specify a specific ipv4 address to use. - [Pull request 449](https://github.com/bmuschko/gradle-docker-plugin/pull/449)
 
 ### Version 3.2.7 (April 19, 2018)
 * Task `DockerSaveImage` gained option `useCompression` to optionally gzip the created tar. - [Pull request 565](https://github.com/bmuschko/gradle-docker-plugin/pull/565)
