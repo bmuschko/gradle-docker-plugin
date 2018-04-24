@@ -41,6 +41,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String ipv4Address
+
+    @Input
+    @Optional
     String[] portSpecs
 
     @Input
@@ -227,6 +231,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getHostName()) {
             containerCommand.withHostName(getHostName())
+        }
+
+        if(getIpv4Address()){
+            containerCommand.withIpv4Address(getIpv4Address())
         }
 
         if(getPortSpecs()) {
