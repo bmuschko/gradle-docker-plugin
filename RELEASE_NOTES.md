@@ -1,4 +1,4 @@
-### Version 3.2.8 (TBA)
+### Version 3.2.8 (April 30, 2018)
 * Task `DockerExecContainer` gained option `user` to specify a user/group. - [Pull request 574](https://github.com/bmuschko/gradle-docker-plugin/pull/574)
 * Task `DockerCreateContainer` gained option `ipV4Address` to specify a specific ipv4 address to use. - [Pull request 449](https://github.com/bmuschko/gradle-docker-plugin/pull/449)
 * Bump gradle to `4.7`. - [Pull request 578](https://github.com/bmuschko/gradle-docker-plugin/pull/578)
