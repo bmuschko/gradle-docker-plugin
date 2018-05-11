@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.ajoberstar:gradle-git-publish:0.2.1"
+        classpath "org.ajoberstar:gradle-git-publish:0.3.3"
     }
 }
 
@@ -13,7 +13,7 @@ apply plugin: org.ajoberstar.gradle.git.publish.GitPublishPlugin
 gitPublish {
     repoUri = 'https://github.com/bmuschko/gradle-docker-plugin.git'
     branch = 'gh-pages'
-    
+
     contents {
         from(javadoc.outputs.files) {
             into 'docs/javadoc'
