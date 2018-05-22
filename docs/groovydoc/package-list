@@ -4,6 +4,7 @@ com.bmuschko.gradle.docker.response.container
 com.bmuschko.gradle.docker.response.image
 com.bmuschko.gradle.docker.tasks
 com.bmuschko.gradle.docker.tasks.container
+com.bmuschko.gradle.docker.tasks.container.extras
 com.bmuschko.gradle.docker.tasks.image
 com.bmuschko.gradle.docker.tasks.network
 com.bmuschko.gradle.docker.utils
