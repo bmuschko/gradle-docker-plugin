@@ -36,7 +36,7 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { pullImage.getImageId() }
                 cmd = ['ifconfig']
                 macAddress = '02:03:04:05:06:07'
-                cpuset = '2'
+                cpuset = '1'
             }
 
             task startContainer(type: DockerStartContainer) {
