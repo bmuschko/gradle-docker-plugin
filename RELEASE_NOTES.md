@@ -1,4 +1,5 @@
 ### Version 3.2.9 (TBA)
+* Fixed a bug in task `DockerCreateContainer` where option `cpuset` is now renamed differetnly in `docker-java`. - [Pull request 585](https://github.com/bmuschko/gradle-docker-plugin/pull/585)
 
 ### Version 3.2.8 (April 30, 2018)
 * Task `DockerExecContainer` gained option `user` to specify a user/group. - [Pull request 574](https://github.com/bmuschko/gradle-docker-plugin/pull/574)
