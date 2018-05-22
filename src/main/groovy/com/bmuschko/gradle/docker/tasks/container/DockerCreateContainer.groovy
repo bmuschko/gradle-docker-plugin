@@ -262,7 +262,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getCpuset()) {
-            containerCommand.withCpuset(getCpuset())
+            containerCommand.withCpusetCpus(getCpuset())
         }
 
         if(getAttachStdin()) {
