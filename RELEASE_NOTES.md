@@ -1,3 +1,5 @@
+### Version 3.3.0 (TBA)
+
 ### Version 3.2.9 (May 22, 2018)
 * Fixed a bug in task `DockerCreateContainer` where option `cpuset` is now renamed differetnly in `docker-java`. - [Pull request 585](https://github.com/bmuschko/gradle-docker-plugin/pull/585)
 
