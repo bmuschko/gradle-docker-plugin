@@ -15,7 +15,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
 
             task pullImage(type: DockerPullImage) {
                 repository = 'postgres'
-                tag = 'latest'
+                tag = 'alpine'
             }
 
             task createContainer(type: DockerCreateContainer) {

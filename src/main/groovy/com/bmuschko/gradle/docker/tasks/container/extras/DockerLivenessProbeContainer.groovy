@@ -99,7 +99,8 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
     }
 
     /**
-     * Define the probe options for this liveness check.
+     * Define the probe options for this liveness check. We'll default to
+     * probing for 10 minutes with 30 second intervals between each probe.
      *
      * @param logContains content within container log we will search for
      * @return instance of Probe
