@@ -101,6 +101,16 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
     /**
      * Define the probe options for this liveness check.
      *
+     * @param logContains content within container log we will search for
+     * @return instance of Probe
+     */
+    def probe(final String logContains) {
+        probe(600000, 30000, logContains)
+    }
+
+    /**
+     * Define the probe options for this liveness check.
+     *
      * @param pollTime how long we will poll for
      * @param pollInterval interval between poll requests
      * @param logContains content within container log we will search for
