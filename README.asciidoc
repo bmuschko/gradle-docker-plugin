@@ -105,6 +105,7 @@ The plugin provides the following general-purpose custom task types:
 [options="header"]
 |=======
 |Type                                                                                                                                  |Description
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerClient.html[DockerClient]   |Passes the raw docker-java client to the onNext closure if it's defined.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerInfo.html[DockerInfo]       |Displays system-wide information.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerVersion.html[DockerVersion] |Show the docker version information.
 |=======
@@ -138,7 +139,7 @@ The plugin provides the following custom task types for managing containers:
 [options="header"]
 |=======
 |Type                                                                                                                                                                        |Description
-|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileToContainer.html[DockerCopyFileToContainer] |Copies a path from the host into the container.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileToContainer.html[DockerCopyFileToContainer]     |Copies a path from the host into the container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileFromContainer.html[DockerCopyFileFromContainer] |Copies a path from the container as a tar file on to the host.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCreateContainer.html[DockerCreateContainer]             |Creates a container.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html[DockerInspectContainer]           |Returns low-level information on the container.
