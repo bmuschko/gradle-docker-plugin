@@ -40,9 +40,6 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
         if (!this.getSince()) {
             this.setSince(new Date())
         }
-        if(!this.getShowTimestamps()) {
-            this.setShowTimestamps(true)
-        }
         if(!this.getTailCount()) {
             this.setTailCount(10)
         }
