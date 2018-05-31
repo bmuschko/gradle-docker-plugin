@@ -1,5 +1,6 @@
 ### Version 3.3.0 (TBA)
 * Added task `DockerClient` to pass the raw `docker-java` client to the `onNext` closure if defined. - [Pull request 589](https://github.com/bmuschko/gradle-docker-plugin/pull/589)
+* Task `DockerCreateContainer` will now log the `containerName` if set, which is the standard within this plugin, otherwise fallback to the just created `containerId`.
 
 ### Version 3.2.9 (May 22, 2018)
 * Fixed a bug in task `DockerCreateContainer` where option `cpuset` is now renamed differetnly in `docker-java`. - [Pull request 585](https://github.com/bmuschko/gradle-docker-plugin/pull/585)
