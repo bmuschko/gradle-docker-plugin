@@ -68,7 +68,7 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
             // 3.) execute our "special" version of `runRemoteCommand` to
             //     check if next log line has the message we're interested in
             //     which in turn will have its output written into the sink.
-            specialRunRemoteCommand(dockerClient)
+            _runRemoteCommand(dockerClient)
 
             // 4.) check if log contains expected message otherwise sleep
             String logLine = getSink().toString()
@@ -119,13 +119,5 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
      */
     def probe(final long pollTime, final long pollInterval, final String logContains) {
         this.probe = new Probe(pollTime, pollInterval, logContains)
-    }
-
-    // overridden version of `DockerLogsContainer` method `runRemoteCommand` to get the
-    // same functionality but without the `logger.quiet` call that gets run every time.
-    private specialRunRemoteCommand(dockerClient) {
-        def logCommand = dockerClient.logContainerCmd(getContainerId())
-        super.setContainerCommandConfig(logCommand)
-        logCommand.exec(super.createCallback())?.awaitCompletion()
     }
 }
