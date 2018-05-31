@@ -54,4 +54,50 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
         result.output.contains('Starting liveness probe on container')
         result.output.contains('Container is now live')
     }
+
+    def "Probe will fail if container is not running"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessProbeContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = 'postgres'
+                tag = 'alpine'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+            }
+            
+            task livenessProbe(type: DockerLivenessProbeContainer) {
+                dependsOn 'createContainer'
+                targetContainerId { createContainer.getContainerId() }
+                probe(300000, 30000, 'database system is ready to accept connections')
+                onComplete {
+                    println 'Container is now live...'
+                }
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn livenessProbe
+                finalizedBy removeContainer
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('workflow')
+        result.output.contains('Starting liveness probe on container')
+        result.output.contains("is not running and so can't perform liveness probe")
+    }
 }
