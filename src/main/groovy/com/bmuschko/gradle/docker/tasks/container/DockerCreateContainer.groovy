@@ -191,7 +191,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         def containerCommand = dockerClient.createContainerCmd(getImageId())
         setContainerCommandConfig(containerCommand)
         def container = containerCommand.exec()
-        logger.quiet "Created container with ID '$container.id'."
+        final String localContainerName = getContainerName() ?: container.id
+        logger.quiet "Created container with ID '$localContainerName'."
         containerId = container.id
         if(onNext) {
             onNext.call(container)
