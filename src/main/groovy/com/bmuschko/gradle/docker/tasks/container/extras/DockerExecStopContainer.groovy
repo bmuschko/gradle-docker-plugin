@@ -17,12 +17,8 @@
 package com.bmuschko.gradle.docker.tasks.container.extras
 
 import com.bmuschko.gradle.docker.domain.ExecStopProbe
-import com.bmuschko.gradle.docker.domain.Probe
 import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
-import com.github.dockerjava.api.DockerClient
-import com.github.dockerjava.api.async.ResultCallback
-import com.github.dockerjava.api.model.Frame
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
