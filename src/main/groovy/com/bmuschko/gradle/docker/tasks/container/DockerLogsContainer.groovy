@@ -94,6 +94,13 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Logs for container with ID '${getContainerId()}'."
+        _runRemoteCommand(dockerClient)
+    }
+
+    // method used for sub-classes who wish to invoke this task
+    // multiple times but don't want the logging message to be
+    // printed for every iteration.
+    void _runRemoteCommand(dockerClient) {
         def logCommand = dockerClient.logContainerCmd(getContainerId())
         setContainerCommandConfig(logCommand)
         logCommand.exec(createCallback())?.awaitCompletion()
