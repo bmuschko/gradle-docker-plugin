@@ -1,4 +1,4 @@
-### Version 3.3.0 (TBA)
+### Version 3.3.0 (June 1, 2018)
 * Added task `DockerClient` to pass the raw `docker-java` client to the `onNext` closure if defined. - [Pull request 589](https://github.com/bmuschko/gradle-docker-plugin/pull/589)
 * Task `DockerCreateContainer` will now log the `containerName` if set, which is the standard within this plugin, otherwise fallback to the just created `containerId`.
 * Task `DockerExecContainer` gained option `successOnExitCodes` to allow user to define a list of successful exit codes the exec is allowed to return and will fail if not in list. Default behavior is to do no check. - [Pull request 590](https://github.com/bmuschko/gradle-docker-plugin/pull/590)
