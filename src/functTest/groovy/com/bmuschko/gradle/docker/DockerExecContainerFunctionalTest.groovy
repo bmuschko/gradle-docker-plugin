@@ -165,4 +165,53 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output.contains('10000\n10001')
     }
+
+    def "Fail if exitCode is not within allowed bounds"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectExecContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                cmd = ['sleep','10']
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                cmd = ['test', '-e', '/not_existing_file']
+                successOnExitCodes = [0]
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId { startContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn execContainer
+                finalizedBy removeContainer
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('workflow')
+        result.output.contains('is not a successful exit code.')
+    }
 }
