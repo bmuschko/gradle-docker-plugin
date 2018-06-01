@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -42,6 +43,12 @@ class DockerExecContainer extends DockerExistingContainer {
     @Optional
     String user
 
+    // if set will check exit code of exec to ensure it's
+    // within this list of allowed values otherwise through exception
+    @Input
+    @Optional
+    List<Integer> successOnExitCodes
+
     @Internal
     private String execId
 
@@ -56,8 +63,16 @@ class DockerExecContainer extends DockerExistingContainer {
         def execCmd = dockerClient.execCreateCmd(getContainerId())
         setContainerCommandConfig(execCmd)
         execId = execCmd.exec().getId()
-        logger.quiet "Exec ID '${execId}'."
         dockerClient.execStartCmd(execId).withDetach(false).exec(execCallback).awaitCompletion()
+
+        // if defined we will check the exit code of the process to ensure
+        // it's valid otherwise we fail
+        if (successOnExitCodes) {
+            def execResponse = DockerInspectExecContainer._runRemoteCommand(dockerClient, execId)
+            if (!successOnExitCodes.contains(execResponse.exitCode)) {
+                throw new GradleException("${execResponse.exitCode} is not a successful exit code. Valid values are ${successOnExitCodes}")
+            }
+        }
     }
 
     private void setContainerCommandConfig(containerCommand) {
@@ -77,7 +92,7 @@ class DockerExecContainer extends DockerExistingContainer {
             containerCommand.withUser(getUser())
         }
     }
-    
+
     def getExecId() {
         execId
     }

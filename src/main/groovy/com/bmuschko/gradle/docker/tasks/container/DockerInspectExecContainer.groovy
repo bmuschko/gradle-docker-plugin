@@ -38,4 +38,11 @@ class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
             logger.quiet("Exit code: {}", result.exitCode)
         }
     }
+
+    // overloaded method to get the response of a given "exec"
+    // from potentially outside of this context or in a sub-class
+    // without all the extra baggage the default method brings.
+    static def _runRemoteCommand(dockerClient, String executionId) {
+        dockerClient.inspectExecCmd(executionId).exec()
+    }
 }
