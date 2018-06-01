@@ -176,8 +176,9 @@ The plugin provides the following additional tasks:
 [options="header"]
 |=======
 |Type                                                                                                                                                                             |Description
-|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerWaitHealthyContainer.html[DockerWaitHealthyContainer] |Blocks until the container for a given id becomes link:https://docs.docker.com/engine/reference/builder/#healthcheck[healthy].
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerExecStopContainer.html[DockerExecStopContainer] |Shut down container with cmd and if that does not succeed in time issue stop request.
 |link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerLivenessProbeContainer.html[DockerLivenessProbeContainer] |Polls an arbitrary containers logs for a message indicating liveness.
+|link:http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerWaitHealthyContainer.html[DockerWaitHealthyContainer] |Blocks until the container for a given id becomes link:https://docs.docker.com/engine/reference/builder/#healthcheck[healthy].
 |=======
 
 
