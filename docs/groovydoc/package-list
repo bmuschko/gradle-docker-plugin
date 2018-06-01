@@ -1,4 +1,5 @@
 com.bmuschko.gradle.docker
+com.bmuschko.gradle.docker.domain
 com.bmuschko.gradle.docker.response
 com.bmuschko.gradle.docker.response.container
 com.bmuschko.gradle.docker.response.image
