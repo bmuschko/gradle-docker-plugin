@@ -34,23 +34,22 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { startContainer.getContainerId() }
                 probe(300000, 30000, 'database system is ready to accept connections')
                 onComplete {
-                    println 'Container is now live...'
+                    println 'Container is now live'
                 }
             }
             
             task execStopContainer(type: DockerExecStopContainer) {
                 dependsOn 'livenessProbe'
                 targetContainerId { startContainer.getContainerId() }
-                //cmd = ['su', 'postgres', "-c '/usr/local/bin/pg_ctl stop -m fast'"]
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
-
+                successOnExitCodes = [0, 137]
                 timeout = 60000
                 probe(60000, 10000)
                 onComplete {
-                    println 'Container has been exec/stopped...'
+                    println 'Container has been exec-stopped'
                 }
             }
-            
+
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
@@ -67,7 +66,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output.contains('Starting liveness probe on container')
         result.output.contains('Container is now live')
-        result.output.contains('Monkey')
+        result.output.contains('Container has been exec-stopped')
     }
 
     def "Probe will fail if container is not running"() {
