@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -42,6 +43,10 @@ class DockerExecContainer extends DockerExistingContainer {
     @Optional
     String user
 
+    @Input
+    @Optional
+    List<Integer> successfulExitCodes = [0]
+
     @Internal
     private String execId
 
@@ -52,12 +57,19 @@ class DockerExecContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Executing '${getCmd()}' on container with ID '${getContainerId()}'."
+        _runRemoteCommand(dockerClient)
+    }
+
+    void _runRemoteCommand(dockerClient) {
         def execCallback = onNext ? threadContextClassLoader.createExecCallback(onNext) : threadContextClassLoader.createExecCallback(System.out, System.err)
         def execCmd = dockerClient.execCreateCmd(getContainerId())
         setContainerCommandConfig(execCmd)
         execId = execCmd.exec().getId()
-        logger.quiet "Exec ID '${execId}'."
         dockerClient.execStartCmd(execId).withDetach(false).exec(execCallback).awaitCompletion()
+        Integer exitCode = dockerClient.inspectExecCmd(execId).exec().exitCode
+        if (!successfulExitCodes.contains(exitCode)) {
+            throw new GradleException("${exitCode} was not in list of successful exitCodes ${successfulExitCodes}")
+        }
     }
 
     private void setContainerCommandConfig(containerCommand) {
@@ -77,7 +89,7 @@ class DockerExecContainer extends DockerExistingContainer {
             containerCommand.withUser(getUser())
         }
     }
-    
+
     def getExecId() {
         execId
     }

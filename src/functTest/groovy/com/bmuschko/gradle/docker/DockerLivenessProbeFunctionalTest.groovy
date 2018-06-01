@@ -12,6 +12,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessProbeContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
                 repository = 'postgres'
@@ -37,6 +38,19 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 }
             }
             
+            task execStopContainer(type: DockerExecStopContainer) {
+                dependsOn 'livenessProbe'
+                targetContainerId { startContainer.getContainerId() }
+                //cmd = ['su', 'postgres', "-c '/usr/local/bin/pg_ctl stop -m fast'"]
+                cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
+
+                timeout = 60000
+                probe(60000, 10000)
+                onComplete {
+                    println 'Container has been exec/stopped...'
+                }
+            }
+            
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
@@ -44,7 +58,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
             }
 
             task workflow {
-                dependsOn livenessProbe
+                dependsOn execStopContainer
                 finalizedBy removeContainer
             }
         """
@@ -53,6 +67,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output.contains('Starting liveness probe on container')
         result.output.contains('Container is now live')
+        result.output.contains('Monkey')
     }
 
     def "Probe will fail if container is not running"() {
