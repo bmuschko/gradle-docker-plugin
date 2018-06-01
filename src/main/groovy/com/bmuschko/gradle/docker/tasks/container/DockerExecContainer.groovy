@@ -59,6 +59,10 @@ class DockerExecContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Executing '${getCmd()}' on container with ID '${getContainerId()}'."
+        _runRemoteCommand(dockerClient)
+    }
+
+    void _runRemoteCommand(dockerClient) {
         def execCallback = onNext ? threadContextClassLoader.createExecCallback(onNext) : threadContextClassLoader.createExecCallback(System.out, System.err)
         def execCmd = dockerClient.execCreateCmd(getContainerId())
         setContainerCommandConfig(execCmd)

@@ -18,7 +18,7 @@ package com.bmuschko.gradle.docker.tasks.container.extras
 
 import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
 
-import com.bmuschko.gradle.docker.domain.Probe
+import com.bmuschko.gradle.docker.domain.LivenessProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
 import org.gradle.api.GradleException
@@ -30,7 +30,7 @@ import org.gradle.api.tasks.Input
 class DockerLivenessProbeContainer extends DockerLogsContainer {
 
     @Input
-    Probe probe
+    LivenessProbe probe
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -103,7 +103,7 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
      * probing for 10 minutes with 30 second intervals between each probe.
      *
      * @param logContains content within container log we will search for
-     * @return instance of Probe
+     * @return instance of LivenessProbe
      */
     def probe(final String logContains) {
         probe(600000, 30000, logContains)
@@ -115,9 +115,9 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
      * @param pollTime how long we will poll for
      * @param pollInterval interval between poll requests
      * @param logContains content within container log we will search for
-     * @return instance of Probe
+     * @return instance of LivenessProbe
      */
     def probe(final long pollTime, final long pollInterval, final String logContains) {
-        this.probe = new Probe(pollTime, pollInterval, logContains)
+        this.probe = new LivenessProbe(pollTime, pollInterval, logContains)
     }
 }

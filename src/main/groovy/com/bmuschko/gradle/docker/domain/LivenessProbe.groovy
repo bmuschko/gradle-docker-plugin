@@ -22,7 +22,7 @@ import org.gradle.api.tasks.Input
 /**
  *  Class holding metadata for an arbitrary probe.
  */
-class Probe {
+class LivenessProbe {
 
     @Input
     long pollTime // how long we poll until match is found
@@ -33,7 +33,7 @@ class Probe {
     @Input
     String logContains // halt polling on logs containing this String
 
-    Probe(long pollTime, long pollInterval, String logContains) {
+    LivenessProbe(long pollTime, long pollInterval, String logContains) {
         if (pollInterval > pollTime) {
             throw new GradleException("pollInterval must be greater than pollTime: pollInterval=${pollInterval}, pollTime=${pollTime}")
         }
