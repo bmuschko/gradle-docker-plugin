@@ -28,7 +28,7 @@ class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
     @Override
     void runRemoteCommand(Object dockerClient) {
         logger.quiet "Inspecting exec with ID '${getExecId()}'."
-        def result = dockerClient.inspectExecCmd(getExecId()).exec()
+        def result = _runRemoteCommand(dockerClient, getExecId())
         if (onNext) {
             onNext.call(result)
         } else {
