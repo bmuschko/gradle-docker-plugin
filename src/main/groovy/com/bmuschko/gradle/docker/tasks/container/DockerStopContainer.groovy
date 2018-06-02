@@ -33,6 +33,7 @@ class DockerStopContainer extends DockerExistingContainer {
         _runRemoteCommand(dockerClient, getContainerId(), getTimeout())
     }
 
+    // overloaded method used by sub-classes and ad-hoc processes
     static void _runRemoteCommand(dockerClient, String containerId, Integer optionalTimeout) {
         def stopContainerCmd = dockerClient.stopContainerCmd(containerId)
 

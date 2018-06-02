@@ -22,7 +22,10 @@ import org.gradle.api.tasks.Optional
 
 class DockerExecContainer extends DockerExistingContainer {
 
+    // set as optional for downstream sub-classes who configure
+    // things a bit later.
     @Input
+    @Optional
     String[] cmd
 
     @Input
