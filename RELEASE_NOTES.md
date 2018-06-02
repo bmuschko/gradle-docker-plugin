@@ -1,3 +1,6 @@
+### Version 3.3.1 (June 2, 2018)
+* Various minor refactorings surrounding new task `DockerExecStopContainer`. - [Pull request 592](https://github.com/bmuschko/gradle-docker-plugin/pull/592)
+
 ### Version 3.3.0 (June 1, 2018)
 * Added task `DockerClient` to pass the raw `docker-java` client to the `onNext` closure if defined. - [Pull request 589](https://github.com/bmuschko/gradle-docker-plugin/pull/589)
 * Task `DockerCreateContainer` will now log the `containerName` if set, which is the standard within this plugin, otherwise fallback to the just created `containerId`.
