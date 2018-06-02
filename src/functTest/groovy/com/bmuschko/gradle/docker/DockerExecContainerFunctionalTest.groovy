@@ -74,7 +74,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("Hello World")
     }
 
-    def "Execute command within running container using cmd closure"() {
+    def "Execute command within running container and not specify cmd arg"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -102,7 +102,7 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId { startContainer.getContainerId() }
-                cmd { ['echo', 'Hello World'] }
+                cmd = ['echo', 'Hello World']
             }
             
             task logContainer(type: DockerLogsContainer) {
