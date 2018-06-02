@@ -74,6 +74,61 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("Hello World")
     }
 
+    def "Execute command within running container using cmd closure"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                cmd = ['sleep','10']
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                cmd { ['echo', 'Hello World'] }
+            }
+            
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn execContainer
+                targetContainerId { startContainer.getContainerId() }
+                follow = true
+                tailAll = true
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                dependsOn logContainer
+                removeVolumes = true
+                force = true
+                targetContainerId { startContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn removeContainer
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains("Hello World")
+    }
+
     def "Execute command within stopped container"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage

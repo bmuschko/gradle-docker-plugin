@@ -47,44 +47,51 @@ class DockerExecStopContainer extends DockerExecContainer {
     void runRemoteCommand(dockerClient) {
         logger.quiet "Running exec-stop on container with ID '${getContainerId()}'."
 
-        // 1.) kick the exec command
-        _runRemoteCommand(dockerClient)
+        // 1.) we only need to proceed with an exec IF we have something to execute
+        // otherwise treat this as a normal stop.
+        if (this.getCmd()) {
 
-        // create progressLogger for pretty printing of terminal log progression.
-        final def progressLogger = getProgressLogger(project, DockerExecStopContainer)
-        progressLogger.started()
+            // 2.) kick the exec command
+            _runRemoteCommand(dockerClient)
 
-        // if no probe defined then create a default
-        final ExecStopProbe localProbe = probe ?: new ExecStopProbe(600000, 30000)
+            // create progressLogger for pretty printing of terminal log progression.
+            final def progressLogger = getProgressLogger(project, DockerExecStopContainer)
+            progressLogger.started()
 
-        long localPollTime = localProbe.pollTime
-        int pollTimes = 0
-        boolean isRunning = true
+            // if no probe defined then create a default
+            final ExecStopProbe localProbe = probe ?: new ExecStopProbe(600000, 30000)
 
-        // 2.) poll for some amount of time until container is in a non-running state.
-        while (isRunning && localPollTime > 0) {
-            pollTimes = pollTimes + 1
+            long localPollTime = localProbe.pollTime
+            int pollTimes = 0
+            boolean isRunning = true
 
-            def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
-            isRunning = container.getState().getRunning()
-            if (isRunning) {
-                progressLogger.progress(sprintf('Waiting for %010dms', pollTimes *localProbe.pollInterval))
-                try {
-                    localPollTime = localPollTime - localProbe.pollInterval
-                    sleep(localProbe.pollInterval)
-                } catch (Exception e) {
-                    throw e
+            // 3.) poll for some amount of time until container is in a non-running state.
+            while (isRunning && localPollTime > 0) {
+                pollTimes = pollTimes + 1
+
+                def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
+                isRunning = container.getState().getRunning()
+                if (isRunning) {
+                    progressLogger.progress(sprintf('Waiting for %010dms', pollTimes * localProbe.pollInterval))
+                    try {
+                        localPollTime = localPollTime - localProbe.pollInterval
+                        sleep(localProbe.pollInterval)
+                    } catch (Exception e) {
+                        throw e
+                    }
+                } else {
+                    break
                 }
-            } else {
-                break
             }
-        }
-        progressLogger.completed()
+            progressLogger.completed()
 
-        // 3.) if container is still in a running state attempt to stop it
-        //     the old fashioned way.
-        if (isRunning) {
-            logger.quiet "Container with ID '${getContainerId()}' did not gracefully shutdown: issuing stop."
+            // 4.) if container is still in a running state attempt to stop it
+            //     the old fashioned way.
+            if (isRunning) {
+                logger.quiet "Container with ID '${getContainerId()}' did not gracefully shutdown: issuing stop."
+                DockerStopContainer._runRemoteCommand(dockerClient, getContainerId(), timeout)
+            }
+        } else {
             DockerStopContainer._runRemoteCommand(dockerClient, getContainerId(), timeout)
         }
     }

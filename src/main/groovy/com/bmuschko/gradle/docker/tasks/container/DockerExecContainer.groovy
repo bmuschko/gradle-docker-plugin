@@ -23,6 +23,7 @@ import org.gradle.api.tasks.Optional
 class DockerExecContainer extends DockerExistingContainer {
 
     @Input
+    @Optional
     String[] cmd
 
     @Input
