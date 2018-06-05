@@ -23,78 +23,91 @@ import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 /**
- *  Poll a given running container for an arbitrary log message to confirm liveness.
+ *  Poll a given running container for an arbitrary log message to confirm liveness. If a probe is
+ *  NOT defined then we fallback to check if the container is in a running state.
  */
 class DockerLivenessProbeContainer extends DockerLogsContainer {
 
     @Input
+    @Optional
     LivenessProbe probe
 
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Starting liveness probe on container with ID '${getContainerId()}'."
 
-        // if not already set the following will be defaulted
-        if (!this.getSince()) {
-            this.setSince(new Date())
-        }
-        if(!this.getTailCount()) {
-            this.setTailCount(10)
-        }
+        // if probe was defined proceed as expected otherwise just
+        // check if the container is up and running
+        if (probe) {
 
-        // create progressLogger for pretty printing of terminal log progression
-        final def progressLogger = getProgressLogger(project, DockerLivenessProbeContainer)
-        progressLogger.started()
-
-        boolean matchFound = false
-        long localPollTime = probe.pollTime
-        int pollTimes = 0
-
-        // 1.) Write the content of the logs into a StringWriter which we zero-out
-        //     below after each successive log grab.
-        setSink(new StringWriter())
-
-        while (localPollTime > 0) {
-            pollTimes = pollTimes + 1
-
-            // 2.) check if container is actually running
-            def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
-            if (container.getState().getRunning() == false) {
-                throw new GradleException("Container with ID '${getContainerId()}' is not running and so can't perform liveness probe.");
+            // if not already set the following will be defaulted
+            if (!this.getSince()) {
+                this.setSince(new Date())
+            }
+            if (!this.getTailCount()) {
+                this.setTailCount(10)
             }
 
-            // 3.) execute our "special" version of `runRemoteCommand` to
-            //     check if next log line has the message we're interested in
-            //     which in turn will have its output written into the sink.
-            _runRemoteCommand(dockerClient)
+            // create progressLogger for pretty printing of terminal log progression
+            final def progressLogger = getProgressLogger(project, DockerLivenessProbeContainer)
+            progressLogger.started()
 
-            // 4.) check if log contains expected message otherwise sleep
-            String logLine = getSink().toString()
-            if (logLine && logLine.contains(probe.logContains)) {
-                matchFound = true
-                break
-            } else {
-                progressLogger.progress(sprintf('probing for %010dms', pollTimes *probe.pollInterval ))
-                try {
+            boolean matchFound = false
+            long localPollTime = probe.pollTime
+            int pollTimes = 0
 
-                    // zero'ing out the below so as to save on memory for potentially
-                    // big logs returned from container.
-                    logLine = null
-                    getSink().getBuffer().setLength(0)
+            // 1.) Write the content of the logs into a StringWriter which we zero-out
+            //     below after each successive log grab.
+            setSink(new StringWriter())
 
-                    localPollTime = localPollTime - probe.pollInterval
-                    sleep(probe.pollInterval)
-                } catch (Exception e) {
-                    throw e
+            while (localPollTime > 0) {
+                pollTimes = pollTimes + 1
+
+                // 2.) check if container is actually running
+                def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
+                if (container.getState().getRunning() == false) {
+                    throw new GradleException("Container with ID '${getContainerId()}' is not running and so can't perform liveness probe.");
+                }
+
+                // 3.) execute our "special" version of `runRemoteCommand` to
+                //     check if next log line has the message we're interested in
+                //     which in turn will have its output written into the sink.
+                _runRemoteCommand(dockerClient)
+
+                // 4.) check if log contains expected message otherwise sleep
+                String logLine = getSink().toString()
+                if (logLine && logLine.contains(probe.logContains)) {
+                    matchFound = true
+                    break
+                } else {
+                    progressLogger.progress(sprintf('probing for %010dms', pollTimes * probe.pollInterval))
+                    try {
+
+                        // zero'ing out the below so as to save on memory for potentially
+                        // big logs returned from container.
+                        logLine = null
+                        getSink().getBuffer().setLength(0)
+
+                        localPollTime = localPollTime - probe.pollInterval
+                        sleep(probe.pollInterval)
+                    } catch (Exception e) {
+                        throw e
+                    }
                 }
             }
-        }
-        progressLogger.completed()
+            progressLogger.completed()
 
-        if (!matchFound) {
-            throw new GradleException("Liveness probe failed to find a match: ${probe.toString()}")
+            if (!matchFound) {
+                throw new GradleException("Liveness probe failed to find a match: ${probe.toString()}")
+            }
+        } else {
+            def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
+            if (container.getState().getRunning() == false) {
+                throw new GradleException("Container with ID '${getContainerId()}' is not running.");
+            }
         }
     }
 
