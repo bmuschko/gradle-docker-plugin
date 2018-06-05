@@ -69,6 +69,70 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
         result.output.contains('Container has been exec-stopped')
     }
 
+    def "Can start a container and use probe task but not define a probe"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessProbeContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = 'postgres'
+                tag = 'alpine'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+            
+            task livenessProbe(type: DockerLivenessProbeContainer) {
+                dependsOn 'startContainer'
+                targetContainerId { startContainer.getContainerId() }
+                onComplete {
+                    println 'Container is now in a running state'
+                }
+            }
+            
+            task execStopContainer(type: DockerExecStopContainer) {
+                dependsOn 'livenessProbe'
+                targetContainerId { startContainer.getContainerId() }
+                cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
+                successOnExitCodes = [0, 1, 137]
+                timeout = 60000
+                probe(60000, 10000)
+                onComplete {
+                    println 'Container has been exec-stopped'
+                }
+            }
+
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId { startContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn execStopContainer
+                finalizedBy removeContainer
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains('Starting liveness probe on container')
+        result.output.contains('Container is now in a running state')
+        result.output.contains('Container has been exec-stopped')
+    }
+
     def "Probe will fail if container is not running"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage

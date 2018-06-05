@@ -25,6 +25,7 @@ import org.gradle.api.tasks.Optional
  * to standard out will go to standard out, and standard err to standard err.
  */
 class DockerLogsContainer extends DockerExistingContainer {
+
     /**
      * Set to true to follow the output, which will cause this task to block until the container exists.
      * Default is unspecified (docker defaults to false).
