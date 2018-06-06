@@ -37,6 +37,7 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 cmd = ['ifconfig']
                 macAddress = '02:03:04:05:06:07'
                 cpuset = '1'
+                labels = ["project.name": "\$project.name"]
             }
 
             task startContainer(type: DockerStartContainer) {
