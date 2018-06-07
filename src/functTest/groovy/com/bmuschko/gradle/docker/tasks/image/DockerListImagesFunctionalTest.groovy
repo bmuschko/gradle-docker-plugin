@@ -55,9 +55,11 @@ class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerListImages
 
+            String imageId = "${ImageId}"
+
             task listImages(type: DockerListImages) {
                 showAll = true
-                labels = ["setup":"${ImageId}"]
+                labels = ["setup":"\$imageId"]
 
                 onNext { images ->
                     if(!images.every { image -> image.repoTags.contains("${ImageId}:latest") }) {

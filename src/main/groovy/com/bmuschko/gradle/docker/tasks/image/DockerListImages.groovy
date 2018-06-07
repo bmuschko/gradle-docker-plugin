@@ -53,7 +53,7 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
         }
 
         if (getLabels()) {
-            listImagesCmd.withLabelFilter(getLabels())
+            listImagesCmd.withLabelFilter(getLabels().collectEntries { [it.key, it.value.toString()] })
         }
 
         if (getImageName()) {

@@ -126,7 +126,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
-                buildArgs = ['arg1':'test1', 'arg2':'test2']
+                buildArgs = ['arg1':'test1', 'arg2':'test2', 'arg3': "\$project.name"]
             }
 
             task inspectImage(type: DockerInspectImage) {
@@ -145,11 +145,11 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
             }
-
+            
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
-                labels = ['label1':'test1', 'label2':'test2']
+                labels = ['label1':'test1', 'label2':'test2', 'label3':"\$project.name"]
             }
 
             task inspectImage(type: DockerInspectImage) {
@@ -164,6 +164,8 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
+            project.version = "123"
+
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
             }
@@ -171,7 +173,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             task buildImageWithTags(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
-                tags = ['test/image:123', 'registry.com:5000/test/image:123']
+                tags = ['test/image:123', "registry.com:5000/test/image:\$project.version"]
             }
             
             task buildImageWithTag(type: DockerBuildImage) {

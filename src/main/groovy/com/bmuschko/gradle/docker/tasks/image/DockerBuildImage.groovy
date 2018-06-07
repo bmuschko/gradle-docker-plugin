@@ -119,7 +119,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         } else if (getTags()) {
             def tagListString = getTags().collect {"'${it}'"}.join(", ")
             logger.quiet "Using tags ${tagListString} for image."
-            buildImageCmd.withTags(getTags())
+            buildImageCmd.withTags(getTags().collect { it.toString() }.toSet() )
         }
 
         if (getNoCache()) {
@@ -139,7 +139,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (getLabels()) {
-            buildImageCmd.withLabels(getLabels())
+            buildImageCmd.withLabels(getLabels().collectEntries { [it.key, it.value.toString()] })
         }
 
         if(getShmSize() != null) { // 0 is valid input

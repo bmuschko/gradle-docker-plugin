@@ -374,7 +374,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getLabels()) {
-            containerCommand.withLabels(getLabels())
+            containerCommand.withLabels(getLabels().collectEntries { [it.key, it.value.toString()] })
         }
 
         if(getMacAddress()) {
