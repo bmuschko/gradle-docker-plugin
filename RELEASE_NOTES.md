@@ -1,4 +1,5 @@
 ### Version 3.3.3 (TBA)
+* Explicitly call `toString()` on values in maps passed to Docker API. - [Pull request 595](https://github.com/bmuschko/gradle-docker-plugin/pull/595)
 
 ### Version 3.3.2 (June 5, 2018)
 * Task `DockerLivenessProbeContainer` now has the `probe` option set to optional and if NOT defined will fallback to checking if container is in a running state. - [Pull request 594](https://github.com/bmuschko/gradle-docker-plugin/pull/594)
