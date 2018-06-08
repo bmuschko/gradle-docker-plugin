@@ -1,4 +1,4 @@
-### Version 3.3.3 (TBA)
+### Version 3.3.3 (June 8, 2018)
 * Explicitly call `toString()` on values in maps passed to Docker API. - [Pull request 595](https://github.com/bmuschko/gradle-docker-plugin/pull/595)
 * Task `DockerLivenessProbeContainer` gained method `lastInspection()` which will return the last "docker inspect container" response AFTER execution has completed. - [Pull request 596](https://github.com/bmuschko/gradle-docker-plugin/pull/596)
 
