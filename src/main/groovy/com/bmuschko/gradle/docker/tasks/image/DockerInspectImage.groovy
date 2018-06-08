@@ -15,11 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.response.image.InspectImageResponseHandler
-import com.bmuschko.gradle.docker.response.ResponseHandler
-
 class DockerInspectImage extends DockerExistingImage {
-    private ResponseHandler<Void, Object> responseHandler = new InspectImageResponseHandler()
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -27,17 +23,6 @@ class DockerInspectImage extends DockerExistingImage {
         def image = dockerClient.inspectImageCmd(getImageId()).exec()
         if(onNext) {
             onNext.call(image)
-        } else {
-            responseHandler.handle(image)
         }
-    }
-
-    /**
-     * Deprecated. Use {@link #onNext} instead.
-     * @param responseHandler
-     */
-    @Deprecated
-    void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
-        this.responseHandler = responseHandler
     }
 }

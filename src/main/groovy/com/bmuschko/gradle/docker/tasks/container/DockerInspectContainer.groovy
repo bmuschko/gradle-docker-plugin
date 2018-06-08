@@ -15,11 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.response.ResponseHandler
-import com.bmuschko.gradle.docker.response.container.InspectContainerResponseHandler
-
 class DockerInspectContainer extends DockerExistingContainer {
-    private ResponseHandler<Void, Object> responseHandler = new InspectContainerResponseHandler()
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -28,17 +24,6 @@ class DockerInspectContainer extends DockerExistingContainer {
 
         if (onNext) {
             onNext.call(container)
-        } else if (responseHandler) {
-            responseHandler.handle(container)
         }
-    }
-
-    /**
-     * Deprecated. Use {@link #onNext} instead.
-     * @param responseHandler
-     */
-    @Deprecated
-    void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
-        this.responseHandler = responseHandler
     }
 }

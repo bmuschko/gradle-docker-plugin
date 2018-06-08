@@ -15,14 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.response.ResponseHandler
-import com.bmuschko.gradle.docker.response.image.ListImagesResponseHandler
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerListImages extends AbstractDockerRemoteApiTask {
-    private ResponseHandler<Void, List<Object>> responseHandler = new ListImagesResponseHandler()
 
     @Input
     @Optional
@@ -63,17 +60,6 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
         def images = listImagesCmd.exec()
         if (onNext) {
             onNext.call(images)
-        } else if (responseHandler) {
-            responseHandler.handle(images)
         }
-    }
-
-    /**
-     * Deprecated. Use {@link #onNext} instead.
-     * @param responseHandler
-     */
-    @Deprecated
-    void setResponseHandler(ResponseHandler<Void, List<Object>> responseHandler) {
-        this.responseHandler = responseHandler
     }
 }
