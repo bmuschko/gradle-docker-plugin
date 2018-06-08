@@ -36,6 +36,9 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 onComplete {
                     println 'Container is now live'
                 }
+                doLast {
+                    println 'doLast container state is ' + lastInspection()
+                }
             }
             
             task execStopContainer(type: DockerExecStopContainer) {
@@ -65,6 +68,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
         expect:
         BuildResult result = build('workflow')
         result.output.contains('Starting liveness probe on container')
+        result.output.contains('doLast container state is')
         result.output.contains('Container is now live')
         result.output.contains('Container has been exec-stopped')
     }
@@ -100,6 +104,9 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 onComplete {
                     println 'Container is now in a running state'
                 }
+                doLast {
+                    println 'doLast container state is ' + lastInspection()
+                }
             }
             
             task execStopContainer(type: DockerExecStopContainer) {
@@ -129,6 +136,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
         expect:
         BuildResult result = build('workflow')
         result.output.contains('Starting liveness probe on container')
+        result.output.contains('doLast container state is')
         result.output.contains('Container is now in a running state')
         result.output.contains('Container has been exec-stopped')
     }

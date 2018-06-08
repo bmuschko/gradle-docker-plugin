@@ -16,6 +16,8 @@
 
 package com.bmuschko.gradle.docker.tasks.container.extras
 
+import org.gradle.api.tasks.Internal
+
 import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
 
 import com.bmuschko.gradle.docker.domain.LivenessProbe
@@ -34,6 +36,11 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
     @Input
     @Optional
     LivenessProbe probe
+
+    // last call to inspect container which will only
+    // be non-null once task has completed execution.
+    @Internal
+    private lastInspection
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -67,8 +74,8 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
                 pollTimes = pollTimes + 1
 
                 // 2.) check if container is actually running
-                def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
-                if (container.getState().getRunning() == false) {
+                lastInspection = dockerClient.inspectContainerCmd(getContainerId()).exec()
+                if (lastInspection.getState().getRunning() == false) {
                     throw new GradleException("Container with ID '${getContainerId()}' is not running and so can't perform liveness probe.");
                 }
 
@@ -104,8 +111,8 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
                 throw new GradleException("Liveness probe failed to find a match: ${probe.toString()}")
             }
         } else {
-            def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
-            if (container.getState().getRunning() == false) {
+            lastInspection = dockerClient.inspectContainerCmd(getContainerId()).exec()
+            if (lastInspection.getState().getRunning() == false) {
                 throw new GradleException("Container with ID '${getContainerId()}' is not running.");
             }
         }
@@ -132,5 +139,10 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
      */
     def probe(final long pollTime, final long pollInterval, final String logContains) {
         this.probe = new LivenessProbe(pollTime, pollInterval, logContains)
+    }
+
+    // return the last inspection made during the lifetime of this task.
+    def lastInspection() {
+        lastInspection
     }
 }
