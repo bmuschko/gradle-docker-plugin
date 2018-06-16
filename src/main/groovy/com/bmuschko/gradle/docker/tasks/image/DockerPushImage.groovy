@@ -37,6 +37,13 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     String tag
 
     /**
+     * The image's tag.
+     */
+    @Input
+    @Optional
+    List<String> tags
+
+    /**
      * The target Docker registry credentials for pushing image.
      */
     @Nested
@@ -45,11 +52,30 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand(dockerClient) {
+
+        final List<String> localTags = []
+        if (tag) {
+            localTags.add(tag)
+        }
+        if (tags) {
+            localTags.addAll(tags)
+        }
+
+        if (localTags) {
+            localTags.each { foundTag ->
+                _runRemoteCommand(dockerClient, foundTag)
+            }
+        } else {
+            _runRemoteCommand(dockerClient, null)
+        }
+    }
+
+    void _runRemoteCommand(dockerClient, String possibleTag) {
         def pushImageCmd = dockerClient.pushImageCmd(getImageName())
 
-        if(getTag()) {
-            pushImageCmd.withTag(getTag())
-            logger.quiet "Pushing image with name '${getImageName()}:${getTag()}'."
+        if(possibleTag) {
+            pushImageCmd.withTag(possibleTag)
+            logger.quiet "Pushing image with name '${getImageName()}:${possibleTag}'."
         } else {
             logger.quiet "Pushing image with name '${getImageName()}'."
         }
