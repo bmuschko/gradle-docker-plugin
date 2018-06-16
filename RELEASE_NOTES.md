@@ -1,5 +1,6 @@
-### Version 3.3.4 (TBA)
+### Version 3.3.4 (June 16, 2018)
 * Task `DockerExecContainer` gained ability to specify multiple execution commands to be run. - [Pull request 600](https://github.com/bmuschko/gradle-docker-plugin/pull/600)
+* Various tasks had their progress logger output cleaned up. - [Pull request 601](https://github.com/bmuschko/gradle-docker-plugin/pull/601)
 
 ### Version 3.3.3 (June 8, 2018)
 * Explicitly call `toString()` on values in maps passed to Docker API. - [Pull request 595](https://github.com/bmuschko/gradle-docker-plugin/pull/595)
