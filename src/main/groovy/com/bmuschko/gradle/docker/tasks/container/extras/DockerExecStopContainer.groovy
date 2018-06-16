@@ -22,6 +22,8 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+import java.util.concurrent.TimeUnit
+
 import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
 
 /**
@@ -67,14 +69,18 @@ class DockerExecStopContainer extends DockerExecContainer {
 
             // 3.) poll for some amount of time until container is in a non-running state.
             while (isRunning && localPollTime > 0) {
-                pollTimes = pollTimes + 1
+                pollTimes += 1
 
                 def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
                 isRunning = container.getState().getRunning()
                 if (isRunning) {
-                    progressLogger.progress(sprintf('Waiting for %010dms', pollTimes * localProbe.pollInterval))
+
+                    long totalMillis = pollTimes * localProbe.pollInterval
+                    long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis)
+                    progressLogger.progress("Waiting for ${totalMinutes}m...")
                     try {
-                        localPollTime = localPollTime - localProbe.pollInterval
+                        
+                        localPollTime -= localProbe.pollInterval
                         sleep(localProbe.pollInterval)
                     } catch (Exception e) {
                         throw e
