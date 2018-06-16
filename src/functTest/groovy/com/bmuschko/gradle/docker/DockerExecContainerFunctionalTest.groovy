@@ -333,4 +333,64 @@ class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = buildAndFail('workflow')
         result.output.contains('is not a successful exit code.')
     }
+
+    def "Execute command and define a probe"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                cmd = ['sleep','60']
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                withCommand(['sleep', '10'])
+                successOnExitCodes = [0]
+                execProbe(15000, 1000)
+                onComplete {
+                    logger.quiet 'Finished Probing Exec'
+                }
+            }
+
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn execContainer
+                targetContainerId { startContainer.getContainerId() }
+                follow = true
+                tailAll = true
+            }
+
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId { startContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn logContainer
+                finalizedBy removeContainer
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains('Finished Probing Exec')
+    }
 }
