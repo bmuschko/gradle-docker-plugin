@@ -18,6 +18,8 @@ package com.bmuschko.gradle.docker.tasks.container.extras
 
 import org.gradle.api.tasks.Internal
 
+import java.util.concurrent.TimeUnit
+
 import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
 
 import com.bmuschko.gradle.docker.domain.LivenessProbe
@@ -71,7 +73,7 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
             setSink(new StringWriter())
 
             while (localPollTime > 0) {
-                pollTimes = pollTimes + 1
+                pollTimes += 1
 
                 // 2.) check if container is actually running
                 lastInspection = dockerClient.inspectContainerCmd(getContainerId()).exec()
@@ -90,7 +92,10 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
                     matchFound = true
                     break
                 } else {
-                    progressLogger.progress(sprintf('probing for %010dms', pollTimes * probe.pollInterval))
+
+                    long totalMillis = pollTimes * probe.pollInterval
+                    long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis)
+                    progressLogger.progress("Waiting on lock for ${totalMinutes}m...")
                     try {
 
                         // zero'ing out the below so as to save on memory for potentially
@@ -98,7 +103,7 @@ class DockerLivenessProbeContainer extends DockerLogsContainer {
                         logLine = null
                         getSink().getBuffer().setLength(0)
 
-                        localPollTime = localPollTime - probe.pollInterval
+                        localPollTime -= probe.pollInterval
                         sleep(probe.pollInterval)
                     } catch (Exception e) {
                         throw e
