@@ -26,7 +26,12 @@ class DockerExecContainer extends DockerExistingContainer {
     // things a bit later.
     @Input
     @Optional
+    @Deprecated // use the _commands_ param instead
     String[] cmd
+
+    @Input
+    @Optional
+    final List<String[]> commands = []
 
     @Input
     @Optional
@@ -53,7 +58,11 @@ class DockerExecContainer extends DockerExistingContainer {
     List<Integer> successOnExitCodes
 
     @Internal
+    @Deprecated // use the _execIds_ instead.
     private String execId
+
+    @Internal
+    private List<String> execIds = []
 
     DockerExecContainer() {
         ext.getExecId = { execId }
@@ -61,30 +70,45 @@ class DockerExecContainer extends DockerExistingContainer {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Executing '${getCmd()}' on container with ID '${getContainerId()}'."
+        logger.quiet "Executing on container with ID '${getContainerId()}'."
         _runRemoteCommand(dockerClient)
     }
 
     void _runRemoteCommand(dockerClient) {
         def execCallback = onNext ? threadContextClassLoader.createExecCallback(onNext) : threadContextClassLoader.createExecCallback(System.out, System.err)
-        def execCmd = dockerClient.execCreateCmd(getContainerId())
-        setContainerCommandConfig(execCmd)
-        execId = execCmd.exec().getId()
-        dockerClient.execStartCmd(execId).withDetach(false).exec(execCallback).awaitCompletion()
 
-        // if defined we will check the exit code of the process to ensure
-        // it's valid otherwise we fail
-        if (successOnExitCodes) {
-            def execResponse = DockerInspectExecContainer._runRemoteCommand(dockerClient, execId)
-            if (!successOnExitCodes.contains(execResponse.exitCode)) {
-                throw new GradleException("${execResponse.exitCode} is not a successful exit code. Valid values are ${successOnExitCodes}")
+        List<String[]> localCommands = commands()
+        for (int i = 0; i < localCommands.size(); i++) {
+
+            String [] singleCommand = localCommands.get(i)
+            def execCmd = dockerClient.execCreateCmd(getContainerId())
+            setContainerCommandConfig(execCmd, singleCommand)
+            String localExecId = execCmd.exec().getId()
+            dockerClient.execStartCmd(localExecId).withDetach(false).exec(execCallback).awaitCompletion()
+
+            // if defined we will check the exit code of the process to ensure
+            // it's valid otherwise we fail
+            if (successOnExitCodes) {
+                def execResponse = DockerInspectExecContainer._runRemoteCommand(dockerClient, localExecId)
+                if (!successOnExitCodes.contains(execResponse.exitCode)) {
+                    throw new GradleException("${execResponse.exitCode} is not a successful exit code. Valid values are ${successOnExitCodes}")
+                }
+            } else {
+                execIds << localExecId
             }
         }
     }
 
-    private void setContainerCommandConfig(containerCommand) {
-        if (getCmd()) {
-            containerCommand.withCmd(getCmd())
+    // add multiple commands to be executed
+    void withCommand(def commandToExecute) {
+        if (commandToExecute) {
+            commands << commandToExecute
+        }
+    }
+
+    private void setContainerCommandConfig(containerCommand, String[] commandToExecute) {
+        if (commandToExecute) {
+            containerCommand.withCmd(commandToExecute)
         }
 
         if (getAttachStderr()) {
@@ -100,7 +124,23 @@ class DockerExecContainer extends DockerExistingContainer {
         }
     }
 
+    private List<String[]> commands() {
+        final List<String[]> localCommands = new ArrayList<>(commands)
+        if (cmd) {
+            localCommands.add(cmd)
+        }
+        localCommands
+    }
+
     def getExecId() {
-        execId
+        if (getExecIds()) {
+            getExecIds().first()
+        } else {
+            null
+        }
+    }
+
+    def getExecIds() {
+        execIds
     }
 }
