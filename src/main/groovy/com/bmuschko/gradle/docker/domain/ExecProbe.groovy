@@ -20,9 +20,9 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 
 /**
- *  Class holding metadata for an arbitrary exec/stop probe.
+ *  Class holding metadata for an arbitrary exec probe.
  */
-class ExecStopProbe {
+class ExecProbe {
 
     @Input
     long pollTime // how long we poll until match is found
@@ -30,7 +30,7 @@ class ExecStopProbe {
     @Input
     long pollInterval // how long we wait until next poll
 
-    ExecStopProbe(long pollTime, long pollInterval) {
+    ExecProbe(long pollTime, long pollInterval) {
         if (pollInterval > pollTime) {
             throw new GradleException("pollInterval must be greater than pollTime: pollInterval=${pollInterval}, pollTime=${pollTime}")
         }
