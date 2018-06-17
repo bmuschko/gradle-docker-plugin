@@ -1,4 +1,5 @@
 ### Version 3.3.5 (TBA)
+* Fix bug within `DockerExecContainer` when `exitCode` can be null (default to 0 if so). - [Pull request 602](https://github.com/bmuschko/gradle-docker-plugin/pull/602)
 
 ### Version 3.3.4 (June 16, 2018)
 * Task `DockerExecContainer` gained ability to specify multiple execution commands to be run. - [Pull request 600](https://github.com/bmuschko/gradle-docker-plugin/pull/600)
