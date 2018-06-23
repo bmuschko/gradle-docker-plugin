@@ -25,10 +25,10 @@ import org.gradle.api.tasks.Internal
 class CopyFileToContainer {
 
     @Input
-    def hostPath // the host path of the file
+    def hostPath // can take the form of String, GString, File, or Closure which returns any of the previous.
 
     @Input
-    def remotePath // how remote path of the file
+    def remotePath // can take the form of String, GString, File, or Closure which returns any of the previous.
 
     @Internal
     boolean isTar = false
