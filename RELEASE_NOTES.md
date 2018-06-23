@@ -1,4 +1,5 @@
 ### Version 3.3.6 (TBA)
+* Task `DockerCopyFileToContainer` can now copy **N** number of files via methods `withFile` and `withTarFile`. - [Pull request 605](https://github.com/bmuschko/gradle-docker-plugin/pull/605)
 
 ### Version 3.3.5 (June 17, 2018)
 * Fix bug within `DockerExecContainer` when `exitCode` can be null (default to 0 if so). - [Pull request 602](https://github.com/bmuschko/gradle-docker-plugin/pull/602)
