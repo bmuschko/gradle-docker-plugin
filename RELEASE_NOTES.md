@@ -1,3 +1,5 @@
+### Version 3.3.7 (TBA)
+
 ### Version 3.3.6 (June 23, 2018)
 * Task `DockerCopyFileToContainer` can now copy **N** number of files via methods `withFile` and `withTarFile`. - [Pull request 605](https://github.com/bmuschko/gradle-docker-plugin/pull/605)
 
