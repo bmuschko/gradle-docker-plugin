@@ -387,4 +387,64 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         and:
         buildAndFail('dockerFile2')
     }
+
+    def "supports multi-stage builds"() {
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+    from '$TEST_IMAGE_WITH_TAG', 'builder'
+    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+    copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
+    from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
+    copyFile '/opt/h2.jar', '/opt/h2.jar', 'builder'
+}
+"""
+        when:
+        build(DOCKERFILE_TASK_NAME)
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+            """FROM $TEST_IMAGE_WITH_TAG AS builder
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
+FROM alpine:3.4 AS prod
+COPY --from=builder /opt/h2.jar /opt/h2.jar
+"""
+    }
+
+
+    def "supports multi-stage builds (lazy evaluation)"() {
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+ext.buildStageName = ''
+
+task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+    from({'$TEST_IMAGE_WITH_TAG'}, {buildStageName})
+    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+    copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
+    from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
+    copyFile({'/opt/h2.jar'}, {'/opt/h2.jar'}, {buildStageName})
+    doFirst {
+        buildStageName = 'builder'
+    }
+}
+"""
+        when:
+        build(DOCKERFILE_TASK_NAME)
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+            """FROM $TEST_IMAGE_WITH_TAG AS builder
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
+FROM alpine:3.4 AS prod
+COPY --from=builder /opt/h2.jar /opt/h2.jar
+"""
+    }
 }

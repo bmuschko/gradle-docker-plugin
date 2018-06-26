@@ -43,13 +43,13 @@ class Dockerfile extends DefaultTask {
     }
 
     private void verifyValidInstructions() {
-        if(getInstructions().empty) {
+        if (getInstructions().empty) {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
         def fromPos = getInstructions().findIndexOf { it.keyword == 'FROM' }
         def othersPos = getInstructions().findIndexOf { it.keyword != 'ARG' && it.keyword != 'FROM' }
-        if(fromPos < 0 || (othersPos >= 0 && fromPos > othersPos)) {
+        if (fromPos < 0 || (othersPos >= 0 && fromPos > othersPos)) {
             throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
         }
     }
@@ -112,9 +112,10 @@ class Dockerfile extends DefaultTask {
      * subsequent instructions.
      *
      * @param image Base image name
+     * @param stageName stage name in case of multi-stage builds (default null)
      */
-    void from(String image) {
-        instructions << new FromInstruction(image)
+    void from(String image, String stageName = null) {
+        instructions << new FromInstruction(image, stageName)
     }
 
     /**
@@ -132,9 +133,10 @@ class Dockerfile extends DefaultTask {
      * subsequent instructions.
      *
      * @param image Base image name
+     * @param stageName closure returning stage name in case of multi-stage builds (default null)
      */
-    void from(Closure image) {
-        instructions << new FromInstruction(image)
+    void from(Closure image, Closure stageName = null) {
+        instructions << new FromInstruction(image, stageName)
     }
 
     /**
@@ -276,9 +278,10 @@ class Dockerfile extends DefaultTask {
      *
      * @param src Source file
      * @param dest Destination path
+     * @param stageName stage name in case of multi stage build
      */
-    void copyFile(String src, String dest) {
-        instructions << new CopyFileInstruction(src, dest)
+    void copyFile(String src, String dest, String stageName = null) {
+        instructions << new CopyFileInstruction(src, dest, stageName)
     }
 
     /**
@@ -287,9 +290,10 @@ class Dockerfile extends DefaultTask {
      *
      * @param src Source file
      * @param dest Destination path
+     * @param stageName closure returning stage name in case of multi stage build
      */
-    void copyFile(Closure src, Closure dest) {
-        instructions << new CopyFileInstruction(src, dest)
+    void copyFile(Closure src, Closure dest, Closure stageName) {
+        instructions << new CopyFileInstruction(src, dest, stageName)
     }
 
     /**
@@ -428,10 +432,9 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getKeyword() {
-            if(instruction instanceof String) {
+            if (instruction instanceof String) {
                 parseKeyword(instruction)
-            }
-            else if(instruction instanceof Closure) {
+            } else if (instruction instanceof Closure) {
                 parseKeyword(instruction())
             }
         }
@@ -442,10 +445,9 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(instruction instanceof String) {
-               instruction
-            }
-            else if(instruction instanceof Closure) {
+            if (instruction instanceof String) {
+                instruction
+            } else if (instruction instanceof Closure) {
                 instruction()
             }
         }
@@ -464,10 +466,9 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(command instanceof String) {
+            if (command instanceof String) {
                 "$keyword $command"
-            }
-            else if(command instanceof Closure) {
+            } else if (command instanceof Closure) {
                 "$keyword ${command()}"
             }
         }
@@ -486,16 +487,14 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(command instanceof String[]) {
+            if (command instanceof String[]) {
                 keyword + ' ["' + command.join('", "') + '"]'
-            }
-            else if(command instanceof Closure) {
+            } else if (command instanceof Closure) {
                 def evaluatedCommand = command()
 
-                if(evaluatedCommand instanceof String) {
+                if (evaluatedCommand instanceof String) {
                     keyword + ' ["' + evaluatedCommand + '"]'
-                }
-                else {
+                } else {
                     keyword + ' ["' + command().join('", "') + '"]'
                 }
             }
@@ -510,7 +509,7 @@ class Dockerfile extends DefaultTask {
         @Override
         String join(Map<String, String> map) {
             map.inject([]) { result, entry ->
-                def key   = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key)   ? ItemJoinerUtil.toQuotedString(entry.key)   : entry.key
+                def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
                 def value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.value) ? ItemJoinerUtil.toQuotedString(entry.value) : entry.value
                 value = value.replaceAll("(\r)*\n", "\\\\\n")
                 result << "$key=$value"
@@ -522,7 +521,7 @@ class Dockerfile extends DefaultTask {
         @Override
         String join(Map<String, String> map) {
             map.inject([]) { result, entry ->
-                def key   = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key)   ? ItemJoinerUtil.toQuotedString(entry.key)   : entry.key
+                def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
                 // preserve multiline value in a single item key value instruction but ignore any other whitespaces or quotings
                 def value = entry.value.replaceAll("(\r)*\n", "\\\\\n")
                 result << "$key $value"
@@ -563,15 +562,15 @@ class Dockerfile extends DefaultTask {
         @Override
         String build() {
             Map<String, String> commandToJoin = command
-            if(commandClosure != null) {
+            if (commandClosure != null) {
                 def evaluatedCommand = commandClosure()
 
-                if(!(evaluatedCommand instanceof Map<String, String>)) {
+                if (!(evaluatedCommand instanceof Map<String, String>)) {
                     throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provie a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
                 }
                 commandToJoin = evaluatedCommand as Map<String, String>
             }
-            if(commandToJoin == null) {
+            if (commandToJoin == null) {
                 throw new IllegalArgumentException("instruction has to be set for ${keyword}")
             }
             validateKeysAreNotBlank commandToJoin
@@ -580,7 +579,7 @@ class Dockerfile extends DefaultTask {
 
         private void validateKeysAreNotBlank(Map<String, String> command) throws IllegalArgumentException {
             command.each { entry ->
-                if(entry.key.trim().length() == 0) {
+                if (entry.key.trim().length() == 0) {
                     throw new IllegalArgumentException("blank keys for a key=value pair are not allowed: please check instruction ${keyword} and given pair `${entry}`")
                 }
             }
@@ -590,40 +589,69 @@ class Dockerfile extends DefaultTask {
     static abstract class FileInstruction implements Instruction {
         final Object src
         final Object dest
+        final Object flags
 
-        FileInstruction(String src, String dest) {
+        FileInstruction(String src, String dest, String flags = null) {
             this.src = src
             this.dest = dest
+            this.flags = flags
         }
 
-        FileInstruction(Closure src, Closure dest) {
+        FileInstruction(Closure src, Closure dest, Closure flags = null) {
             this.src = src
             this.dest = dest
+            this.flags = flags
         }
 
         @Override
         String build() {
-            if(src instanceof String && dest instanceof String) {
-                "$keyword $src $dest"
+            String keyword = getKeyword()
+            if (flags) {
+                if (flags instanceof String) {
+                    keyword += " $flags"
+                } else if (flags instanceof Closure) {
+                    keyword += " ${flags()}"
+                }
             }
-            else if(src instanceof Closure && dest instanceof Closure) {
+            if (src instanceof String && dest instanceof String) {
+                "$keyword $src $dest"
+            } else if (src instanceof Closure && dest instanceof Closure) {
                 "$keyword ${src()} ${dest()}"
             }
         }
     }
 
     static class FromInstruction extends StringCommandInstruction {
-        FromInstruction(String image) {
+        final Object stageName
+
+        FromInstruction(String image, String stageName = null) {
             super(image)
+            this.stageName = stageName
         }
 
-        FromInstruction(Closure image) {
+        FromInstruction(Closure image, Closure stageName = null) {
             super(image)
+            this.stageName = stageName
         }
 
         @Override
         String getKeyword() {
             "FROM"
+        }
+
+        @Override
+        String build() {
+            String result = super.build()
+
+            if (stageName) {
+                if (stageName instanceof String) {
+                    result += " AS $stageName"
+                } else if (stageName instanceof Closure) {
+                    result += " AS ${stageName()}"
+                }
+            }
+
+            result
         }
     }
 
@@ -658,7 +686,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static class RunCommandInstruction extends StringCommandInstruction {
-       RunCommandInstruction(String command) {
+        RunCommandInstruction(String command) {
             super(command)
         }
 
@@ -705,16 +733,14 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String build() {
-            if(ports instanceof Integer[]) {
+            if (ports instanceof Integer[]) {
                 "$keyword ${ports.join(' ')}"
-            }
-            else if(ports instanceof Closure) {
+            } else if (ports instanceof Closure) {
                 def evaluatedPorts = ports()
 
-                if(evaluatedPorts instanceof String || evaluatedPorts instanceof Integer) {
+                if (evaluatedPorts instanceof String || evaluatedPorts instanceof Integer) {
                     "$keyword ${evaluatedPorts}"
-                }
-                else {
+                } else {
                     "$keyword ${evaluatedPorts.join(' ')}"
                 }
             }
@@ -756,12 +782,12 @@ class Dockerfile extends DefaultTask {
     }
 
     static class CopyFileInstruction extends FileInstruction {
-        CopyFileInstruction(String src, String dest) {
-            super(src, dest)
+        CopyFileInstruction(String src, String dest, String stageName = null) {
+            super(src, dest, stageName ? "--from=$stageName" : null)
         }
 
-        CopyFileInstruction(Closure src, Closure dest) {
-            super(src, dest)
+        CopyFileInstruction(Closure src, Closure dest, Closure stageName = null) {
+            super(src, dest, stageName ? { "--from=${stageName()}" } : null)
         }
 
         @Override
@@ -887,6 +913,7 @@ class Dockerfile extends DefaultTask {
         void defaultCommand(String... command) {
             instructions << new DefaultCommandInstruction(command)
         }
+
         void defaultCommand(Closure command) {
             instructions << new DefaultCommandInstruction(command)
         }
@@ -894,6 +921,7 @@ class Dockerfile extends DefaultTask {
         void entryPoint(String... entryPoint) {
             instructions << new EntryPointInstruction(entryPoint)
         }
+
         void entryPoint(Closure entryPoint) {
             instructions << new EntryPointInstruction(entryPoint)
         }
