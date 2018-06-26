@@ -70,6 +70,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     @Input
     @Optional
+    String network
+
+    @Input
+    @Optional
     Map<String, String> labels = [:]
 
     @Input
@@ -140,6 +144,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         if (getPull()) {
             buildImageCmd.withPull(getPull())
+        }
+
+        if (getNetwork()) {
+            buildImageCmd.withNetworkMode(getNetwork())
         }
 
         if (getLabels()) {
