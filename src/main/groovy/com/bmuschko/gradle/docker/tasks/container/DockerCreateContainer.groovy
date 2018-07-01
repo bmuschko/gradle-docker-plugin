@@ -91,9 +91,15 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     Boolean attachStderr
 
+    // use `envVars` instead
+    @Deprecated
     @Input
     @Optional
     String[] env
+
+    @Input
+    @Optional
+    final Map<String, String> envVars = [:]
 
     @Input
     @Optional
@@ -225,6 +231,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         restartPolicy = "${name}:${maximumRetryCount}"
     }
 
+    void withEnvVar(String key, String value) {
+        this.envVars.put(key, value);
+    }
+
     private void setContainerCommandConfig(containerCommand) {
         if(getContainerName()) {
             containerCommand.withName(getContainerName())
@@ -278,8 +288,19 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.withAttachStderr(getAttachStderr())
         }
 
-        if(getEnv()) {
-            containerCommand.withEnv(getEnv())
+        // marshall deprecated old list onto new map
+        getEnv()?.each { envVar ->
+            def keyValuePair = envVar.split('=')
+            envVars.put(keyValuePair.first(), keyValuePair.last())
+        }
+
+        // marshall map into list
+        if(getEnvVars()) {
+            List<String> localEnvVars = []
+            getEnvVars().each { key, value ->
+                localEnvVars << "${key}=${value}".toString()
+            }
+            containerCommand.withEnv(localEnvVars)
         }
 
         if(getCmd()) {

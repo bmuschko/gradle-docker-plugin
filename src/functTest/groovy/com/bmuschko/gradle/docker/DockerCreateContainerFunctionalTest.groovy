@@ -68,4 +68,66 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
         result.output.contains("HWaddr 02:03:04:05:06:07")
     }
+
+    def "Set environment variables"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                cmd = ['env']
+                
+                // deprecated, use the below examples
+                env = ['HELLO=WORLD']
+                
+                // add by appending new map to current map
+                envVars << ['one' : 'two', 'three' : 'four']
+                
+                // add by calling helper method N number of times
+                withEnvVar('five', 'six')
+                withEnvVar('seven', 'eight')
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                follow = true
+                tailAll = true
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn logContainer
+                finalizedBy removeContainer
+            }
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains("HELLO=WORLD")
+        result.output.contains("one=two")
+        result.output.contains("three=four")
+        result.output.contains("five=six")
+        result.output.contains("seven=eight")
+    }
 }
