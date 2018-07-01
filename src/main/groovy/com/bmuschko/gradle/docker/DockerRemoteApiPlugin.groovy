@@ -47,9 +47,14 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
                 project.repositories.addAll(project.buildscript.repositories.collect())
             }
 
-            // if still 0 attempt to grab rootProject buildscript if not already there
+            // if still 0 attempt to grab rootProject buildscript repos
             if (project.repositories.size() == 0) {
                 project.repositories.addAll(project.rootProject.buildscript.repositories.collect())
+            }
+
+            // and if still 0 attempt to grab rootProject repos
+            if (project.repositories.size() == 0) {
+                project.repositories.addAll(project.rootProject.repositories.collect())
             }
         }
 
