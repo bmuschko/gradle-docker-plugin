@@ -47,7 +47,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 137]
                 timeout = 60000
-                livenessProbe(60000, 10000)
+                execStopProbe(60000, 10000)
                 onComplete {
                     println 'Container has been exec-stopped'
                 }
@@ -115,7 +115,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 1, 137]
                 timeout = 60000
-                livenessProbe(60000, 10000)
+                execStopProbe(60000, 10000)
                 onComplete {
                     println 'Container has been exec-stopped'
                 }
