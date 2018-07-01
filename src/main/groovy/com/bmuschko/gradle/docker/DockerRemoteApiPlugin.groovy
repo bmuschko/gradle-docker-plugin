@@ -53,7 +53,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             dependencies.add(project.dependencies.create("com.aries:docker-java-shaded:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
             dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
             dependencies.add(project.dependencies.create('javax.activation:activation:1.1.1'))
-            dependencies.add(project.dependencies.create('cglib:cglib:3.2.6'))
+            dependencies.add(project.dependencies.create('cglib:cglib:3.2.0'))
         }
 
         DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)

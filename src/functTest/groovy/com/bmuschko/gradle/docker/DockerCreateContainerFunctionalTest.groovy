@@ -86,9 +86,16 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 dependsOn pullImage
                 targetImageId { pullImage.getImageId() }
                 cmd = ['env']
-                env = ['HELLO=WORLD'] // deprecated
+                
+                // deprecated, use the below examples
+                env = ['HELLO=WORLD']
+                
+                // add by appending new map to current map
                 envVars << ['one' : 'two', 'three' : 'four']
+                
+                // add by calling helper method N number of times
                 withEnvVar('five', 'six')
+                withEnvVar('seven', 'eight')
             }
 
             task startContainer(type: DockerStartContainer) {
@@ -121,5 +128,6 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("one=two")
         result.output.contains("three=four")
         result.output.contains("five=six")
+        result.output.contains("seven=eight")
     }
 }
