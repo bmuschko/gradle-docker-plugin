@@ -10,7 +10,7 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
-            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessProbeContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessContainer
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
@@ -28,10 +28,10 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { createContainer.getContainerId() }
             }
             
-            task livenessProbe(type: DockerLivenessProbeContainer) {
+            task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn 'startContainer'
                 targetContainerId { startContainer.getContainerId() }
-                probe(60000, 5000, 'database system is ready to accept connections')
+                livenessProbe(60000, 5000, 'database system is ready to accept connections')
                 onComplete {
                     println 'Container is now live'
                 }
@@ -43,7 +43,7 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 137]
                 timeout = 60000
-                probe(60000, 5000)
+                livenessProbe(60000, 5000)
                 onComplete {
                     println 'Container has been exec-stopped'
                 }
@@ -63,7 +63,7 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains('Starting liveness probe on container')
+        result.output.contains('Starting liveness livenessProbe on container')
         result.output.contains('Container is now live')
         result.output.contains('Container has been exec-stopped')
     }
@@ -74,7 +74,7 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
-            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessProbeContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessContainer
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
@@ -92,10 +92,10 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { createContainer.getContainerId() }
             }
             
-            task livenessProbe(type: DockerLivenessProbeContainer) {
+            task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn 'startContainer'
                 targetContainerId { startContainer.getContainerId() }
-                probe(60000, 5000, 'database system is ready to accept connections')
+                livenessProbe(60000, 5000, 'database system is ready to accept connections')
                 onComplete {
                     println 'Container is now live'
                 }
@@ -123,7 +123,7 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains('Starting liveness probe on container')
+        result.output.contains('Starting liveness livenessProbe on container')
         result.output.contains('Container is now live')
         result.output.contains('Container has been exec-stopped')
     }

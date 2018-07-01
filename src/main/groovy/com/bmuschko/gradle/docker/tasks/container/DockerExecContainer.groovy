@@ -62,7 +62,7 @@ class DockerExecContainer extends DockerExistingContainer {
     @Optional
     List<Integer> successOnExitCodes
 
-    // if `successOnExitCodes` are defined this probe will poll the "exec response"
+    // if `successOnExitCodes` are defined this livenessProbe will poll the "exec response"
     // until it is in a non-running state.
     @Input
     @Optional
@@ -102,7 +102,7 @@ class DockerExecContainer extends DockerExistingContainer {
             final def progressLogger = getProgressLogger(project, DockerExecContainer)
             progressLogger.started()
 
-            // if no probe defined then create a default
+            // if no livenessProbe defined then create a default
             final ExecProbe localProbe = execProbe ?: new ExecProbe(60000, 5000)
 
             long localPollTime = localProbe.pollTime
@@ -196,7 +196,7 @@ class DockerExecContainer extends DockerExistingContainer {
     }
 
     /**
-     * Define the probe options for this exec.
+     * Define the livenessProbe options for this exec.
      *
      * @param pollTime how long we will poll for
      * @param pollInterval interval between poll requests

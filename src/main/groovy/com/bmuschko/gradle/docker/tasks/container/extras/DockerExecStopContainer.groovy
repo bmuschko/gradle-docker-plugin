@@ -36,7 +36,7 @@ class DockerExecStopContainer extends DockerExecContainer {
 
     @Input
     @Optional
-    ExecProbe probe
+    ExecProbe execStopProbe
 
     /**
      * Stop timeout in seconds.
@@ -60,8 +60,8 @@ class DockerExecStopContainer extends DockerExecContainer {
             final def progressLogger = getProgressLogger(project, DockerExecStopContainer)
             progressLogger.started()
 
-            // if no probe defined then create a default
-            final ExecProbe localProbe = probe ?: new ExecProbe(600000, 30000)
+            // if no livenessProbe defined then create a default
+            final ExecProbe localProbe = execStopProbe ?: new ExecProbe(600000, 30000)
 
             long localPollTime = localProbe.pollTime
             int pollTimes = 0
@@ -103,13 +103,13 @@ class DockerExecStopContainer extends DockerExecContainer {
     }
 
     /**
-     * Define the probe options for this exec/stop.
+     * Define the livenessProbe options for this exec/stop.
      *
      * @param pollTime how long we will poll for
      * @param pollInterval interval between poll requests
      * @return instance of ExecProbe
      */
-    def probe(final long pollTime, final long pollInterval) {
-        this.probe = new ExecProbe(pollTime, pollInterval)
+    def execStopProbe(final long pollTime, final long pollInterval) {
+        this.execStopProbe = new ExecProbe(pollTime, pollInterval)
     }
 }

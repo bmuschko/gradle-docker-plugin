@@ -20,7 +20,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 
 /**
- *  Class holding metadata for an arbitrary probe.
+ *  Class holding metadata for an arbitrary livenessProbe.
  */
 class LivenessProbe {
 
