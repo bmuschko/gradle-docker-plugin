@@ -46,7 +46,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Starting liveness livenessProbe on container with ID '${getContainerId()}'."
+        logger.quiet "Starting liveness probe on container with ID '${getContainerId()}'."
 
         // if livenessProbe was defined proceed as expected otherwise just
         // check if the container is up and running
