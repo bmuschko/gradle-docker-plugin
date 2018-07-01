@@ -46,6 +46,16 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             if (project.repositories.size() == 0) {
                 project.repositories.addAll(project.buildscript.repositories.collect())
             }
+
+            // if still 0 attempt to grab rootProject buildscript repos
+            if (project.repositories.size() == 0) {
+                project.repositories.addAll(project.rootProject.buildscript.repositories.collect())
+            }
+
+            // and if still 0 attempt to grab rootProject repos
+            if (project.repositories.size() == 0) {
+                project.repositories.addAll(project.rootProject.repositories.collect())
+            }
         }
 
         Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
