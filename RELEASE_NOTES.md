@@ -1,5 +1,7 @@
-### Version 3.3.7 (TBA)
+### Version 3.4.0 (TBA)
 * Task `Dockerfile` now supports multi-stage builds - [Pull Request 607](https://github.com/bmuschko/gradle-docker-plugin/pull/607)
+* When plugin is applied to sub-projects we will additionally search rootProject for repos to use - [Pull Request 610](https://github.com/bmuschko/gradle-docker-plugin/pull/610)
+* Task `DockerCreateContainer` has deprecated `env` in favor of `envVars` which can ONLY be added to with a helper method `withEnvVar` that can be called **N** times for setting environment variables. - [Pull Request 609](https://github.com/bmuschko/gradle-docker-plugin/pull/609)
 
 ### Version 3.3.6 (June 23, 2018)
 * Task `DockerCopyFileToContainer` can now copy **N** number of files via methods `withFile` and `withTarFile`. - [Pull request 605](https://github.com/bmuschko/gradle-docker-plugin/pull/605)
