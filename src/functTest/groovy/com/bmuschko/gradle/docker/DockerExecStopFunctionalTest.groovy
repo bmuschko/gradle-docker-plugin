@@ -63,7 +63,7 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains('Starting liveness livenessProbe on container')
+        result.output.contains('Starting liveness')
         result.output.contains('Container is now live')
         result.output.contains('Container has been exec-stopped')
     }
@@ -123,7 +123,7 @@ class DockerExecStopFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains('Starting liveness livenessProbe on container')
+        result.output.contains('Starting liveness')
         result.output.contains('Container is now live')
         result.output.contains('Container has been exec-stopped')
     }

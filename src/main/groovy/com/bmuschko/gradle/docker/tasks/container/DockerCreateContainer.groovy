@@ -290,7 +290,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         // marshall deprecated old list onto new map
         getEnv()?.each { envVar ->
-            def keyValuePair = envVar.split('=')
+            def keyValuePair = envVar.split('=', 2)
             envVars.put(keyValuePair.first(), keyValuePair.last())
         }
 
