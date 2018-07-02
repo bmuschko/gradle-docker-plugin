@@ -1,4 +1,5 @@
 ### Version 3.4.1 (TBA)
+* BUGFIX for task `DockerCreateContainer` where `envs` were not being properly honored. - [Pull Request 614](https://github.com/bmuschko/gradle-docker-plugin/pull/614)
 
 ### Version 3.4.0 (July 1, 2018)
 * Task `Dockerfile` now supports multi-stage builds - [Pull Request 607](https://github.com/bmuschko/gradle-docker-plugin/pull/607)
