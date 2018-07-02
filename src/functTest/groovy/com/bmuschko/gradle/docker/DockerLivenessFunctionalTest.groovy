@@ -2,7 +2,7 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
 
-class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
+class DockerLivenessFunctionalTest extends AbstractFunctionalTest {
 
     def "Can start a container and probe it for liveness"() {
         buildFile << """
@@ -67,7 +67,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains('Starting liveness livenessProbe on container')
+        result.output.contains('Starting liveness')
         result.output.contains('doLast container state is')
         result.output.contains('Container is now live')
         result.output.contains('Container has been exec-stopped')
@@ -135,7 +135,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains('Starting liveness livenessProbe on container')
+        result.output.contains('Starting liveness')
         result.output.contains('doLast container state is')
         result.output.contains('Container is now in a running state')
         result.output.contains('Container has been exec-stopped')
@@ -183,7 +183,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = buildAndFail('workflow')
-        result.output.contains('Starting liveness livenessProbe on container')
+        result.output.contains('Starting liveness')
         result.output.contains("is not running and so can't perform liveness livenessProbe")
     }
 }
