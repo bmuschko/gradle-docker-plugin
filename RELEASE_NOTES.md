@@ -1,4 +1,6 @@
-### Version 3.4.1 (TBA)
+### Version 3.4.2 (TBA)
+
+### Version 3.4.1 (July 3, 2018)
 * BUGFIX for task `DockerCreateContainer` where `envs` were not being properly honored. - [Pull Request 614](https://github.com/bmuschko/gradle-docker-plugin/pull/614)
 
 ### Version 3.4.0 (July 1, 2018)
