@@ -2,6 +2,7 @@
 
 ### Version 3.4.2 (July 7, 2018)
 * Shade cglib and its dependencies. - [Pull Request 616](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Bump `docker-java` to `3.1.0-rc-3`. - [Pull Request 616](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
 
 ### Version 3.4.1 (July 3, 2018)
 * BUGFIX for task `DockerCreateContainer` where `envs` were not being properly honored. - [Pull Request 614](https://github.com/bmuschko/gradle-docker-plugin/pull/614)
