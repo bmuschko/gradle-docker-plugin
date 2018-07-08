@@ -1,4 +1,9 @@
-### Version 3.4.3 (TBA)
+### Version 3.4.4 (TBA)
+
+### Version 3.4.3 (July 8, 2018)
+* Task `DockerCreateContainer` has its method `withEnvVars` changed to accept a `def`, which in turn can be anything (String, Integer, Closure, etc) but will eventually have all its keys/values resolved to java strings. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Task `DockerLivenessContainer` had minor verbiage changes to its output. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Use `-all` wrapper to better integrate with IDE's. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
 
 ### Version 3.4.2 (July 7, 2018)
 * Shade cglib and its dependencies. - [Pull Request 616](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
