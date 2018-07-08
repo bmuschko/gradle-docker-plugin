@@ -99,7 +99,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    final Map<String, String> envVars = [:]
+    final Map<?, ?> envVars = [:]
 
     @Input
     @Optional
@@ -231,7 +231,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         restartPolicy = "${name}:${maximumRetryCount}"
     }
 
-    void withEnvVar(String key, String value) {
+    // key or value can be in the form of a Closure or anything else. In the
+    // end, and whatever it resolves to, will be marshaled into a String.
+    void withEnvVar(def key, def value) {
         this.envVars.put(key, value);
     }
 
@@ -296,9 +298,12 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         // marshall map into list
         if(getEnvVars()) {
-            List<String> localEnvVars = []
+            final List<String> localEnvVars = new ArrayList<>();
             getEnvVars().each { key, value ->
-                localEnvVars << "${key}=${value}".toString()
+                String localKey = (key instanceof Closure ? key.call() : key).toString()
+                String localValue = (value instanceof Closure ? value.call() : value).toString()
+
+                localEnvVars.add("${localKey}=${localValue}".toString())
             }
             containerCommand.withEnv(localEnvVars)
         }
