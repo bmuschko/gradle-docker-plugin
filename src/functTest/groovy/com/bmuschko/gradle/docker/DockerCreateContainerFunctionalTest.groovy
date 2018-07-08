@@ -95,7 +95,8 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 
                 // add by calling helper method N number of times
                 withEnvVar('five', 'six')
-                withEnvVar('seven', 'eight')
+                withEnvVar({'seven'}, 'eight')
+                withEnvVar('nine', {'ten'})
             }
 
             task startContainer(type: DockerStartContainer) {
@@ -129,5 +130,6 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("three=four")
         result.output.contains("five=six")
         result.output.contains("seven=eight")
+        result.output.contains("nine=ten")
     }
 }

@@ -78,7 +78,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
                 // 2.) check if container is actually running
                 lastInspection = dockerClient.inspectContainerCmd(getContainerId()).exec()
                 if (lastInspection.getState().getRunning() == false) {
-                    throw new GradleException("Container with ID '${getContainerId()}' is not running and so can't perform liveness livenessProbe.");
+                    throw new GradleException("Container with ID '${getContainerId()}' is not running and so can't perform liveness probe.");
                 }
 
                 // 3.) execute our "special" version of `runRemoteCommand` to
@@ -95,7 +95,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
 
                     long totalMillis = pollTimes * livenessProbe.pollInterval
                     long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis)
-                    progressLogger.progress("Waiting on lock for ${totalMinutes}m...")
+                    progressLogger.progress("Probing for ${totalMinutes}m...")
                     try {
 
                         // zero'ing out the below so as to save on memory for potentially
@@ -113,7 +113,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
             progressLogger.completed()
 
             if (!matchFound) {
-                throw new GradleException("Liveness livenessProbe failed to find a match: ${livenessProbe.toString()}")
+                throw new GradleException("Liveness probe failed to find a match: ${livenessProbe.toString()}")
             }
         } else {
             lastInspection = dockerClient.inspectContainerCmd(getContainerId()).exec()

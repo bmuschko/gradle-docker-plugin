@@ -184,6 +184,6 @@ class DockerLivenessFunctionalTest extends AbstractFunctionalTest {
         expect:
         BuildResult result = buildAndFail('workflow')
         result.output.contains('Starting liveness')
-        result.output.contains("is not running and so can't perform liveness livenessProbe")
+        result.output.contains("is not running and so can't perform liveness")
     }
 }
