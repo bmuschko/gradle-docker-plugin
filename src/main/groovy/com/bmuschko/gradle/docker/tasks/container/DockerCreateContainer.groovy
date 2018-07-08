@@ -300,8 +300,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if(getEnvVars()) {
             final List<String> localEnvVars = new ArrayList<>();
             getEnvVars().each { key, value ->
-                String localKey = (key instanceof Closure ? key.call() : key).toString()
-                String localValue = (value instanceof Closure ? value.call() : value).toString()
+                def localKey = key instanceof Closure ? key.call() : key
+                def localValue = value instanceof Closure ? value.call() : value
 
                 localEnvVars.add("${localKey}=${localValue}".toString())
             }
