@@ -1,4 +1,7 @@
-### Version 3.4.4 (TBA)
+### Version 3.4.5 (TBA)
+
+### Version 3.4.4 (July 15, 2018)
+* Task `DockerLivenessContainer` had its polling logic reworked to be more failure proof.
 
 ### Version 3.4.3 (July 8, 2018)
 * Task `DockerCreateContainer` has its method `withEnvVars` changed to accept a `def`, which in turn can be anything (String, Integer, Closure, etc) but will eventually have all its keys/values resolved to java strings. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
