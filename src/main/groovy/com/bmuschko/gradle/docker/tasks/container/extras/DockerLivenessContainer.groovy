@@ -52,16 +52,8 @@ class DockerLivenessContainer extends DockerLogsContainer {
         // check if the container is up and running
         if (livenessProbe) {
 
-            // if not already set the following will be defaulted
-            if (!this.getSince()) {
-                this.setSince(new Date())
-            }
-            if (!this.getTailCount()) {
-                this.setTailCount(10)
-            }
-
             // create progressLogger for pretty printing of terminal log progression
-            final def progressLogger = getProgressLogger(project, DockerLivenessContainer)
+            final def progressLogger = getProgressLogger(project, MyDockerLivenessContainer)
             progressLogger.started()
 
             boolean matchFound = false
@@ -71,6 +63,11 @@ class DockerLivenessContainer extends DockerLogsContainer {
             // 1.) Write the content of the logs into a StringWriter which we zero-out
             //     below after each successive log grab.
             setSink(new StringWriter())
+            setTailCount(null)
+            setTailAll(null)
+            setFollow(null)
+
+            Date lastDate = this.getSince()
 
             while (localPollTime > 0) {
                 pollTimes += 1
@@ -81,10 +78,17 @@ class DockerLivenessContainer extends DockerLogsContainer {
                     throw new GradleException("Container with ID '${getContainerId()}' is not running and so can't perform liveness probe.");
                 }
 
+                if (lastDate) {
+                    this.setSince(lastDate)
+                }
+                final Date justBeforeLastExecutionDate = Calendar.getInstance().getTime()
+
                 // 3.) execute our "special" version of `runRemoteCommand` to
                 //     check if next log line has the message we're interested in
                 //     which in turn will have its output written into the sink.
                 _runRemoteCommand(dockerClient)
+
+                lastDate = justBeforeLastExecutionDate
 
                 // 4.) check if log contains expected message otherwise sleep
                 String logLine = getSink().toString()
