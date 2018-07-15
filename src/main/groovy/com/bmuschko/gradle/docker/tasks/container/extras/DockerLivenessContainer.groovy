@@ -53,7 +53,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
         if (livenessProbe) {
 
             // create progressLogger for pretty printing of terminal log progression
-            final def progressLogger = getProgressLogger(project, MyDockerLivenessContainer)
+            final def progressLogger = getProgressLogger(project, DockerLivenessContainer)
             progressLogger.started()
 
             boolean matchFound = false
