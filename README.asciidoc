@@ -608,7 +608,7 @@ apply plugin: 'com.bmuschko.docker-spring-boot-application'
 
 === Extension properties
 
-The plugin defines the following extension properties in the `javaApplication` closure:
+The plugin defines the following extension properties in the `springBootApplication` closure:
 
 [options="header"]
 |=======
