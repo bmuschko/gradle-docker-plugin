@@ -273,6 +273,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         TaskOutcome.SUCCESS == result.tasks.first().outcome
 
         when: // … a upToDate spec returns true …
+        buildFile.delete()
         super.setupBuildfile()
         buildFile << """
                 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -288,6 +289,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
 
         when: // … we change the definition so output changes …
+        buildFile.delete()
         super.setupBuildfile()
         buildFile << """
                 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -310,6 +312,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
 
         when: // … a user spec return false …
+        buildFile.delete()
         super.setupBuildfile()
         buildFile << """
                 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
