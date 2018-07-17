@@ -615,7 +615,7 @@ The plugin defines the following extension properties in the `springBootApplicat
 |Property name   |Type      |Default value                                          |Description
 |`baseImage`     |String    |openjdk                                                |The Docker base image used for the Spring Boot application.
 |`ports`         |Integer[] |[8080]                                                 |The Docker image exposed ports.
-|`tag`           |String    |<project.group>/<applicationName>:<project.version>    |The tag used for the Docker image.
+|`tag`           |String    |<project.group>/<project.name>:<project.version>       |The tag used for the Docker image.
 |=======
 
 
