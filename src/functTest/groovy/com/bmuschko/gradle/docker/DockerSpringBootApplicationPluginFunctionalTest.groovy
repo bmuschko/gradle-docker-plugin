@@ -5,7 +5,7 @@ import spock.lang.Unroll
 
 class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctionalTest {
     private static final String PROJECT_NAME = 'spring-boot'
-    private static final String CUSTOM_BASE_IMAGE = 'openjdk:7-alpine'
+    private static final String CUSTOM_BASE_IMAGE = 'openjdk:8-alpine'
     private static final List<ReactedPlugin> REACTED_PLUGINS = [ReactedPlugin.WAR, ReactedPlugin.JAVA]
 
     def setup() {
