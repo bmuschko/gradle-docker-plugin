@@ -22,7 +22,6 @@ apply from: "$rootDir/gradle/documentation.gradle"
 apply from: "$rootDir/gradle/codenarc.gradle"
 
 repositories {
-    mavenLocal()
     jcenter()
 }
 
