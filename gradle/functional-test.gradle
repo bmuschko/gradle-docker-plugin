@@ -35,7 +35,3 @@ dependencies {
 gradlePlugin {
     testSourceSets sourceSets.functionalTest
 }
-
-if (project.hasProperty('bootstrapDocker') && Boolean.parseBoolean(project.getProperty('bootstrapDocker'))) {
-    apply from: "$rootDir/gradle/vagrant.gradle"
-}
