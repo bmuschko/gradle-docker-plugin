@@ -1,5 +1,7 @@
 ### Version 3.4.5 (TBA)
 
+* Support for dockerizing Spring Boot applications. - [Pull Request 619](https://github.com/bmuschko/gradle-docker-plugin/pull/619)
+
 ### Version 3.4.4 (July 15, 2018)
 * Task `DockerLivenessContainer` had its polling logic reworked to be more failure proof.
 
