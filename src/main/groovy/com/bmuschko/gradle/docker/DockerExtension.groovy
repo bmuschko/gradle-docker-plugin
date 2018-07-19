@@ -23,13 +23,12 @@ import org.gradle.api.plugins.ExtensionContainer
 
 @CompileStatic
 class DockerExtension {
+    private final Project project
     FileCollection classpath
     String url
     File certPath
     String apiVersion
-
     DockerRegistryCredentials registryCredentials
-    private Project project
 
     DockerExtension(Project project) {
         this.project = project
