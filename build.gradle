@@ -11,7 +11,6 @@ buildscript {
 group = 'com.bmuschko'
 
 apply plugin: 'groovy'
-apply plugin: 'idea'
 apply plugin: 'org.ajoberstar.release-opinion'
 apply from: "$rootDir/gradle/test-setup.gradle"
 apply from: "$rootDir/gradle/integration-test.gradle"
@@ -46,22 +45,5 @@ jar {
                    'Built-Date': new Date(),
                    'Built-JDK': System.getProperty('java.version'),
                    'Built-Gradle': gradle.gradleVersion
-    }
-}
-
-idea.project {
-    jdkName = '1.8'
-    languageLevel = compatibilityVersion
-
-    ipr.withXml { provider ->
-        def node = provider.asNode()
-
-        // Use GIT
-        def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
-        vcsConfig.mapping[0].'@vcs' = 'Git'
-
-        // Set Gradle home
-        def gradleSettings = node.appendNode('component', [name: 'GradleSettings'])
-        gradleSettings.appendNode('option', [name: 'SDK_HOME', value: gradle.gradleHomeDir])
     }
 }
