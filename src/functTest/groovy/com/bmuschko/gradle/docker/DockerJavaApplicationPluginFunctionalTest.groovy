@@ -4,7 +4,7 @@ import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
 class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
-    public static final CUSTOM_BASE_IMAGE = 'openjdk:7-alpine'
+    public static final CUSTOM_BASE_IMAGE = 'openjdk:8-alpine'
 
     def "Can create image for Java application with default configuration"() {
         String projectName = temporaryFolder.root.name
