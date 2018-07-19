@@ -84,6 +84,9 @@ class DockerExtension {
             .getByName(DockerJavaApplicationPlugin.JAVA_APPLICATION_EXTENSION_NAME) as DockerJavaApplication
     }
 
+    /**
+     * @since 3.4.5
+     */
     DockerSpringBootApplication getSpringBootApplication() {
         return (getProperty("extensions") as ExtensionContainer)
             .getByName(DockerSpringBootApplicationPlugin.SPRING_BOOT_APPLICATION_EXTENSION_NAME) as DockerSpringBootApplication
@@ -93,6 +96,9 @@ class DockerExtension {
         closure.execute(getJavaApplication())
     }
 
+    /**
+     * @since 3.4.5
+     */
     void springBootApplication(final Action<DockerSpringBootApplication> closure) {
         closure.execute(getSpringBootApplication())
     }

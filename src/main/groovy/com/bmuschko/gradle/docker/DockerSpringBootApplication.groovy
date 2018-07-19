@@ -4,6 +4,9 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile.CompositeExecInstruction
 import groovy.transform.CompileStatic
 
+/**
+ * @since 3.4.5
+ */
 @CompileStatic
 class DockerSpringBootApplication {
     final CompositeExecInstruction exec = new CompositeExecInstruction()

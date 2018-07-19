@@ -16,6 +16,9 @@ import org.gradle.api.tasks.bundling.Jar
 
 import java.util.concurrent.Callable
 
+/**
+ * @since 3.4.5
+ */
 @CompileStatic
 class DockerSpringBootApplicationPlugin implements Plugin<Project> {
     public static final String SPRING_BOOT_APPLICATION_EXTENSION_NAME = 'springBootApplication'
