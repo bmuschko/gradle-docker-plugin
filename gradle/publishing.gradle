@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     }
 }
 
@@ -76,11 +76,11 @@ bintray {
                 passphrase = resolveProperty('GPG_PASSPHRASE', 'gpgPassphrase')
             }
             mavenCentralSync {
-                sync = true 
+                sync = true
                 user = resolveProperty('MAVEN_CENTRAL_USER_TOKEN', 'mavenCentralUserToken')
                 password = resolveProperty('MAVEN_CENTRAL_PASSWORD', 'mavenCentralPassword')
-                close = '1' 
-            } 
+                close = '1'
+            }
         }
     }
 }
