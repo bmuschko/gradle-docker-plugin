@@ -157,6 +157,58 @@ LABEL version=1.0
 """
     }
 
+    def "Can create Dockerfile with entrypoint in shell form"() {
+        given:
+        buildFile << """
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+    from '$TEST_IMAGE_WITH_TAG'
+    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+    runCommand 'echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
+    defaultCommand 'echo', 'some', 'command'
+    exposePort 8080, 14500
+    environmentVariable 'ENV_VAR_KEY', 'envVarVal'
+    environmentVariable ENV_VAR_A: 'val_a'
+    environmentVariable ENV_VAR_B: 'val_b', ENV_VAR_C: 'val_c'
+    environmentVariable JAVA_OPTS: '-Djava.security.egd=file:/dev/./urandom'
+    addFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
+    copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
+    entryPointShellForm 'exec java \$JAVA_OPTS -jar /opt/jenkins.war'
+    volume '/jenkins', '/myApp'
+    user 'root'
+    workingDir '/tmp'
+    onBuild 'RUN echo "Hello World"'
+    label version: '1.0'
+}
+"""
+        when:
+        build(DOCKERFILE_TASK_NAME)
+
+        then:
+        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        dockerfile.exists()
+        dockerfile.text ==
+            """FROM $TEST_IMAGE_WITH_TAG
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
+CMD ["echo", "some", "command"]
+EXPOSE 8080 14500
+ENV ENV_VAR_KEY envVarVal
+ENV ENV_VAR_A=val_a
+ENV ENV_VAR_B=val_b ENV_VAR_C=val_c
+ENV JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom
+ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
+COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
+ENTRYPOINT exec java -jar -Djava.security.egd=file:/dev/./urandom /opt/jenkins.war
+VOLUME ["/jenkins", "/myApp"]
+USER root
+WORKDIR /tmp
+ONBUILD RUN echo "Hello World"
+LABEL version=1.0
+"""
+    }
+
     def "Can create Dockerfile by adding instances of Instruction"() {
         given:
         buildFile << """

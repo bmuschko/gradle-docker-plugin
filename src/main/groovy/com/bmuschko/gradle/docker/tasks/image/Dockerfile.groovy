@@ -19,6 +19,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.impldep.org.apache.commons.collections.Closure
 
 class Dockerfile extends DefaultTask {
     @Internal
@@ -297,7 +298,27 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * An <a href="https://docs.docker.com/reference/builder/#copy">ENTRYPOINT</a> allows you to configure a container
+     * An <a href="https://docs.docker.com/reference/builder/#entrypoint">ENTRYPOINT</a> allows you to configure a container
+     * that will run as an executable.
+     *
+     * @param entryPoint Entry point
+     */
+    void entryPointShellForm(String entryPoint) {
+        instructions << new EntryPointShellFormInstruction(entryPoint)
+    }
+
+    /**
+     * An <a href="https://docs.docker.com/reference/builder/#entrypoint">ENTRYPOINT</a> allows you to configure a container
+     * that will run as an executable.
+     *
+     * @param entryPoint Entry point
+     */
+    void entryPointShellForm(Closure entryPoint) {
+        instructions << new EntryPointShellFormInstruction(entryPoint)
+    }
+
+    /**
+     * An <a href="https://docs.docker.com/reference/builder/#entrypoint">ENTRYPOINT</a> allows you to configure a container
      * that will run as an executable.
      *
      * @param entryPoint Entry point
@@ -796,6 +817,22 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    static class EntryPointShellFormInstruction extends StringCommandInstruction {
+
+        EntryPointShellFormInstruction(String entrypoint) {
+            super(entrypoint)
+        }
+
+        EntryPointShellFormInstruction(Closure entrypoint) {
+            super(entrypoint)
+        }
+
+        @Override
+        String getKeyword() {
+            "ENTRYPOINT"
+        }
+    }
+
     static class EntryPointInstruction extends StringArrayInstruction {
         EntryPointInstruction(String... entryPoint) {
             super(entryPoint)
@@ -900,7 +937,7 @@ class Dockerfile extends DefaultTask {
         @Override
         String build() { instructions*.build().join('\n') }
 
-        CompositeExecInstruction apply(Closure<Void> closure) {
+        CompositeExecInstruction apply(Closure closure) {
             closure?.delegate = this
             closure?.call()
             this

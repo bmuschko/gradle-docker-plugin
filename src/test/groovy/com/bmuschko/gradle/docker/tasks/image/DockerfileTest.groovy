@@ -75,6 +75,8 @@ with linebreaks in between\""
         new AddFileInstruction({ 'config.xml' }, { '/test' })                           | 'ADD'           | 'ADD config.xml /test'
         new CopyFileInstruction('config.xml', '/test')                                  | 'COPY'          | 'COPY config.xml /test'
         new CopyFileInstruction({ 'config.xml' }, { '/test' })                          | 'COPY'          | 'COPY config.xml /test'
+        new EntryPointShellFormInstruction('java -jar /opt/jenkins.war')                   | 'ENTRYPOINT'    | 'ENTRYPOINT java -jar /opt/jenkins.war'
+        new EntryPointShellFormInstruction({ 'java -jar /opt/jenkins.war' })             | 'ENTRYPOINT'    | 'ENTRYPOINT java -jar /opt/jenkins.war'
         new EntryPointInstruction('java', '-jar', '/opt/jenkins.war')                   | 'ENTRYPOINT'    | 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
         new EntryPointInstruction({ ['java', '-jar', '/opt/jenkins.war'] })             | 'ENTRYPOINT'    | 'ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]'
         new VolumeInstruction('/jenkins')                                               | 'VOLUME'        | 'VOLUME ["/jenkins"]'
