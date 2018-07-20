@@ -28,10 +28,6 @@ task functionalTest(type: Test) {
 
 check.dependsOn functionalTest
 
-dependencies {
-    functionalTestCompile 'commons-lang:commons-lang:2.6'
-}
-
 gradlePlugin {
     testSourceSets sourceSets.functionalTest
 }
