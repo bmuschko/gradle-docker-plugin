@@ -20,9 +20,8 @@ import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.distribution.plugins.DistributionPlugin
+import org.gradle.api.Task
 import org.gradle.api.plugins.ApplicationPlugin
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.Sync
 import org.gradle.jvm.tasks.Jar
 
@@ -44,13 +43,11 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         DockerJavaApplication dockerJavaApplication = configureExtension(dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
-            Sync installTask = project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME)
-            Jar jarTask = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
             dockerJavaApplication.exec {
-                entryPoint { determineEntryPoint(project, installTask) }
+                entryPoint { determineEntryPoint(project, dockerJavaApplication) }
             }
-            Dockerfile createDockerfileTask = createDockerfileTask(project, installTask, jarTask, dockerJavaApplication)
-            Sync copyTarTask = createDistCopyResourcesTask(project, installTask, jarTask, createDockerfileTask)
+            Dockerfile createDockerfileTask = createDockerfileTask(project, dockerJavaApplication)
+            Sync copyTarTask = createDistCopyResourcesTask(project, dockerJavaApplication, createDockerfileTask)
             createDockerfileTask.dependsOn copyTarTask
             DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerJavaApplication)
             createPushImageTask(project, dockerBuildImageTask)
@@ -68,7 +65,10 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         return dockerExtension.javaApplication
     }
 
-    private Dockerfile createDockerfileTask(Project project, Sync installTask, Jar jarTask, DockerJavaApplication dockerJavaApplication) {
+    private Dockerfile createDockerfileTask(Project project, DockerJavaApplication dockerJavaApplication) {
+        Task installTask = determineInstallTask(project, dockerJavaApplication)
+        Task jarTask = determineJarTask(project, dockerJavaApplication)
+
         project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
             description = 'Creates the Docker image for the Java application.'
             dependsOn jarTask
@@ -88,7 +88,10 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         } as Dockerfile
     }
 
-    private Sync createDistCopyResourcesTask(Project project, Sync installTask, Jar jarTask, Dockerfile createDockerfileTask) {
+    private Sync createDistCopyResourcesTask(Project project, DockerJavaApplication dockerJavaApplication, Dockerfile createDockerfileTask) {
+        Task installTask = determineInstallTask(project, dockerJavaApplication)
+        Task jarTask = determineJarTask(project, dockerJavaApplication)
+
         project.task(COPY_DIST_RESOURCES_TASK_NAME, type: Sync) {
             group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
             description = "Copies the distribution resources to a temporary directory for image creation."
@@ -102,7 +105,8 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         } as Sync
     }
 
-    private String determineEntryPoint(Project project, Sync installTask) {
+    private String determineEntryPoint(Project project, DockerJavaApplication dockerJavaApplication) {
+        Task installTask = determineInstallTask(project, dockerJavaApplication)
         "/${installTask.destinationDir.name}/bin/${project.applicationName}".toString()
     }
 
@@ -113,6 +117,15 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             conventionMapping.inputDir = { createDockerfileTask.destFile.parentFile }
             conventionMapping.tag = { determineImageTag(project, dockerJavaApplication) }
         } as DockerBuildImage
+    }
+
+
+    private Task determineJarTask(Project project, DockerJavaApplication dockerJavaApplication) {
+        return project.tasks.getByName(dockerJavaApplication.jarTaskName)
+    }
+
+    private Task determineInstallTask(Project project, DockerJavaApplication dockerJavaApplication) {
+        return project.tasks.getByName(dockerJavaApplication.installTaskName)
     }
 
     private String determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {

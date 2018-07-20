@@ -16,6 +16,8 @@
 package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile.CompositeExecInstruction
+import org.gradle.api.distribution.plugins.DistributionPlugin
+import org.gradle.api.plugins.JavaPlugin
 
 class DockerJavaApplication {
     String baseImage = 'openjdk'
@@ -39,6 +41,8 @@ class DockerJavaApplication {
     Integer port = 8080
     Set<Integer> ports
     String tag
+    String jarTaskName = JavaPlugin.JAR_TASK_NAME
+    String installTaskName = DistributionPlugin.TASK_INSTALL_NAME
 
     Integer[] getPorts() {
         return ports != null ? ports : [port]
