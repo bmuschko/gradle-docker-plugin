@@ -37,6 +37,10 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
     @Optional
     String imageName
 
+    DockerListImages() {
+        defaultResponseHandling()
+    }
+
     @Override
     void runRemoteCommand(dockerClient) {
         def listImagesCmd = dockerClient.listImagesCmd()
@@ -58,8 +62,23 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
         }
 
         def images = listImagesCmd.exec()
+
         if (onNext) {
             onNext.call(images)
         }
+    }
+
+    private void defaultResponseHandling() {
+        Closure<List> c = { images ->
+            for(image in images) {
+                logger.quiet "Repository Tags : ${image.repoTags?.join(', ')}"
+                logger.quiet "Image ID        : $image.id"
+                logger.quiet "Created         : ${new Date(image.created * 1000)}"
+                logger.quiet "Virtual Size    : $image.virtualSize"
+                logger.quiet "-----------------------------------------------"
+            }
+        }
+
+        onNext = c
     }
 }
