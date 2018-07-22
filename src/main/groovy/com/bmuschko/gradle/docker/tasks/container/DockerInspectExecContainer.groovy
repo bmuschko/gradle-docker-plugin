@@ -20,11 +20,6 @@ class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
         conventionMapping.execId = execId
     }
 
-    @Input
-    String getExecId() {
-        execId
-    }
-
     @Override
     void runRemoteCommand(Object dockerClient) {
         logger.quiet "Inspecting exec with ID '${getExecId()}'."
