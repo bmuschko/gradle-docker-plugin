@@ -2,7 +2,7 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
 
-class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
+class DockerLivenessFunctionalTest extends AbstractFunctionalTest {
 
     def "Can start a container and probe it for liveness"() {
         buildFile << """
@@ -11,7 +11,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
-            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessProbeContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessContainer
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
@@ -29,12 +29,15 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { createContainer.getContainerId() }
             }
             
-            task livenessProbe(type: DockerLivenessProbeContainer) {
+            task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn 'startContainer'
                 targetContainerId { startContainer.getContainerId() }
-                probe(300000, 30000, 'database system is ready to accept connections')
+                livenessProbe(300000, 30000, 'database system is ready to accept connections')
                 onComplete {
                     println 'Container is now live'
+                }
+                doLast {
+                    println 'doLast container state is ' + lastInspection()
                 }
             }
             
@@ -44,7 +47,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 137]
                 timeout = 60000
-                probe(60000, 10000)
+                execStopProbe(60000, 10000)
                 onComplete {
                     println 'Container has been exec-stopped'
                 }
@@ -64,7 +67,8 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains('Starting liveness probe on container')
+        result.output.contains('Starting liveness')
+        result.output.contains('doLast container state is')
         result.output.contains('Container is now live')
         result.output.contains('Container has been exec-stopped')
     }
@@ -76,7 +80,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
-            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessProbeContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessContainer
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
@@ -94,11 +98,14 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { createContainer.getContainerId() }
             }
             
-            task livenessProbe(type: DockerLivenessProbeContainer) {
+            task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn 'startContainer'
                 targetContainerId { startContainer.getContainerId() }
                 onComplete {
                     println 'Container is now in a running state'
+                }
+                doLast {
+                    println 'doLast container state is ' + lastInspection()
                 }
             }
             
@@ -108,7 +115,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 1, 137]
                 timeout = 60000
-                probe(60000, 10000)
+                execStopProbe(60000, 10000)
                 onComplete {
                     println 'Container has been exec-stopped'
                 }
@@ -128,7 +135,8 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = build('workflow')
-        result.output.contains('Starting liveness probe on container')
+        result.output.contains('Starting liveness')
+        result.output.contains('doLast container state is')
         result.output.contains('Container is now in a running state')
         result.output.contains('Container has been exec-stopped')
     }
@@ -140,7 +148,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
-            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessProbeContainer
+            import com.bmuschko.gradle.docker.tasks.container.extras.DockerLivenessContainer
 
             task pullImage(type: DockerPullImage) {
                 repository = 'postgres'
@@ -152,10 +160,10 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
                 targetImageId { pullImage.getImageId() }
             }
             
-            task livenessProbe(type: DockerLivenessProbeContainer) {
+            task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn 'createContainer'
                 targetContainerId { createContainer.getContainerId() }
-                probe(300000, 30000, 'database system is ready to accept connections')
+                livenessProbe(300000, 30000, 'database system is ready to accept connections')
                 onComplete {
                     println 'Container is now live...'
                 }
@@ -175,7 +183,7 @@ class DockerLivenessProbeFunctionalTest extends AbstractFunctionalTest {
 
         expect:
         BuildResult result = buildAndFail('workflow')
-        result.output.contains('Starting liveness probe on container')
-        result.output.contains("is not running and so can't perform liveness probe")
+        result.output.contains('Starting liveness')
+        result.output.contains("is not running and so can't perform liveness")
     }
 }

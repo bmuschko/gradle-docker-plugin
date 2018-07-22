@@ -28,23 +28,6 @@ task functionalTest(type: Test) {
 
 check.dependsOn functionalTest
 
-dependencies {
-    functionalTestCompile 'commons-lang:commons-lang:2.6'
-}
-
 gradlePlugin {
     testSourceSets sourceSets.functionalTest
-}
-
-idea.module {
-    sourceSets.functionalTest.allSource.srcDirs.each {
-        testSourceDirs += it
-    }
-
-    scopes.TEST.plus += [configurations.functionalTestCompile]
-    scopes.TEST.plus += [configurations.functionalTestRuntime]
-}
-
-if (project.hasProperty('bootstrapDocker') && Boolean.parseBoolean(project.getProperty('bootstrapDocker'))) {
-    apply from: "$rootDir/gradle/vagrant.gradle"
 }

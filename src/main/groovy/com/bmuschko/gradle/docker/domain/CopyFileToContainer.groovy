@@ -16,31 +16,20 @@
 
 package com.bmuschko.gradle.docker.domain
 
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 
 /**
- *  Class holding metadata for an arbitrary exec/stop probe.
+ *  Class holding metadata for an arbitrary copy-file-to-container invocation
  */
-class ExecStopProbe {
+class CopyFileToContainer {
 
     @Input
-    long pollTime // how long we poll until match is found
+    def hostPath // can take the form of String, GString, File, or Closure which returns any of the previous.
 
     @Input
-    long pollInterval // how long we wait until next poll
+    def remotePath // can take the form of String, GString, File, or Closure which returns any of the previous.
 
-    ExecStopProbe(long pollTime, long pollInterval) {
-        if (pollInterval > pollTime) {
-            throw new GradleException("pollInterval must be greater than pollTime: pollInterval=${pollInterval}, pollTime=${pollTime}")
-        }
-
-        this.pollTime = pollTime
-        this.pollInterval = pollInterval
-    }
-
-    @Override
-    String toString() {
-        "pollTime=${pollTime}, pollInterval=${pollInterval}"
-    }
+    @Internal
+    boolean isTar = false
 }

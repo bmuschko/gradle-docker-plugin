@@ -65,6 +65,55 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
         build('workflow')
     }
 
+    def "Multi Copy file into container"() {
+
+        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
+            it.write('Hello, World!')
+        }
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileToContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                cmd = ['echo', 'Hello World']
+            }
+
+            task copyFileIntoContainer(type: DockerCopyFileToContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                withFile("$projectDir/HelloWorld.txt", '/root')
+                withFile("$projectDir/HelloWorld.txt", '/tmp')
+                withFile({ "$projectDir/HelloWorld.txt" }, { '/' })
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                dependsOn copyFileIntoContainer
+                removeVolumes = true
+                force = true
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn removeContainer
+            }
+        """
+
+        expect:
+        build('workflow')
+    }
+
     def "Copy tarfile into container"() {
 
         new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
@@ -104,6 +153,63 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
                 targetContainerId { createContainer.getContainerId() }
                 tarFile { new File("$projectDir/HelloWorld.tgz") }
                 remotePath = "/root"
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                dependsOn copyFileIntoContainer
+                removeVolumes = true
+                force = true
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task workflow {
+                dependsOn removeContainer
+            }
+        """
+
+        expect:
+        build('workflow')
+    }
+
+    def "Multi copy tarfile into container"() {
+
+        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
+            it.write('Hello, World!')
+        }
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileToContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task createTarFile(type: Tar) {
+                from "$projectDir/HelloWorld.txt"
+                baseName = 'HelloWorld'
+                destinationDir = projectDir
+                extension = 'tgz'
+                compression = Compression.GZIP
+            }
+			
+            task pullImage(type: DockerPullImage) {
+                dependsOn createTarFile
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                cmd = ['echo', 'Hello World']
+            }
+
+            task copyFileIntoContainer(type: DockerCopyFileToContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                withTarFile({ new File("$projectDir/HelloWorld.tgz") }, '/root')
+                withTarFile({ new File("$projectDir/HelloWorld.tgz") }, {'/'} )
             }
             
             task removeContainer(type: DockerRemoveContainer) {

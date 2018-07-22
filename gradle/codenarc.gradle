@@ -12,22 +12,7 @@ codenarcMain {
     includes = ["**/utils/*.groovy"]
 }
 
-codenarcTest {
-    group = 'verification'
-    enabled = false
-}
-
-codenarcIntegrationTest {
-    group = 'verification'
-    enabled = false
-}
-
-codenarcTestSetup {
-    group = 'verification'
-    enabled = false
-}
-
-codenarcFunctionalTest {
+[codenarcTestSetup, codenarcTest, codenarcIntegrationTest, codenarcFunctionalTest]*.configure {
     group = 'verification'
     enabled = false
 }

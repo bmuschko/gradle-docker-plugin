@@ -17,20 +17,20 @@ package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
-import org.gradle.api.file.FileCollection
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionContainer
 
+@CompileStatic
 class DockerExtension {
+    private final Project project
     FileCollection classpath
     String url
     File certPath
     String apiVersion
-
     DockerRegistryCredentials registryCredentials
-    private Project project
 
-    public DockerExtension(Project project) {
+    DockerExtension(Project project) {
         this.project = project
         this.url = getDefaultDockerUrl()
         this.certPath = getDefaultDockerCert()
@@ -43,7 +43,7 @@ class DockerExtension {
         closure()
     }
 
-    public String getDefaultDockerUrl() {
+    String getDefaultDockerUrl() {
         String dockerUrl = System.getenv("DOCKER_HOST")
         if (!dockerUrl) {
             boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win")
@@ -67,7 +67,7 @@ class DockerExtension {
         dockerUrl
     }
 
-    public File getDefaultDockerCert() {
+    File getDefaultDockerCert() {
         String dockerCertPath = System.getenv("DOCKER_CERT_PATH")
         if(dockerCertPath) {
             File certFile = new File(dockerCertPath)
@@ -78,14 +78,27 @@ class DockerExtension {
         return null
     }
 
-    @CompileStatic
-    public DockerJavaApplication getJavaApplication() {
+    DockerJavaApplication getJavaApplication() {
         return (getProperty("extensions") as ExtensionContainer)
             .getByName(DockerJavaApplicationPlugin.JAVA_APPLICATION_EXTENSION_NAME) as DockerJavaApplication
     }
 
-    @CompileStatic
-    public void javaApplication(final Action<DockerJavaApplication> closure) {
+    /**
+     * @since 3.4.5
+     */
+    DockerSpringBootApplication getSpringBootApplication() {
+        return (getProperty("extensions") as ExtensionContainer)
+            .getByName(DockerSpringBootApplicationPlugin.SPRING_BOOT_APPLICATION_EXTENSION_NAME) as DockerSpringBootApplication
+    }
+
+    void javaApplication(final Action<DockerJavaApplication> closure) {
         closure.execute(getJavaApplication())
+    }
+
+    /**
+     * @since 3.4.5
+     */
+    void springBootApplication(final Action<DockerSpringBootApplication> closure) {
+        closure.execute(getSpringBootApplication())
     }
 }

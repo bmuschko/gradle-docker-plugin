@@ -24,7 +24,6 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
                     assert dockerClient
                     assert dockerClient.dockerClientConfig.dockerHost.host == new URI('$TestConfiguration.dockerHost').host
                     assert dockerClient.dockerClientConfig.dockerHost.port == new URI('$TestConfiguration.dockerHost').port
-                    assert dockerClient.dockerClientConfig.dockerConfig == "${System.properties['user.home']}/.docker"
                     assert dockerClient.dockerClientConfig.registryUrl == 'https://index.docker.io/v1/'
                     assert dockerClient.dockerClientConfig.registryUsername == '${username}'
                     assert !dockerClient.dockerClientConfig.registryPassword
@@ -64,7 +63,6 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
                 void runRemoteCommand(dockerClient) {
                     assert dockerClient
                     assert dockerClient.dockerClientConfig.dockerHost == new URI('tcp://remote.docker.com:2375')
-                    assert dockerClient.dockerClientConfig.dockerConfig == "${System.properties['user.home']}/.docker"
                     assert dockerClient.dockerClientConfig.registryUrl == 'https://index.docker.io/v1/'
                     assert dockerClient.dockerClientConfig.registryUsername == '${username}'
                     assert !dockerClient.dockerClientConfig.registryPassword

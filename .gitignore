@@ -4,7 +4,6 @@ build
 bin
 out 
 .gradle
-.vagrant
 
 # OS generated files #
 ######################

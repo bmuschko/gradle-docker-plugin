@@ -1,5 +1,42 @@
-### Version 3.3.3 (TBA)
+### Version 3.4.5 (TBA)
+
+* Support for dockerizing Spring Boot applications. - [Pull Request 619](https://github.com/bmuschko/gradle-docker-plugin/pull/619)
+* Upgrade to Gradle Wrapper 4.9
+
+### Version 3.4.4 (July 15, 2018)
+* Task `DockerLivenessContainer` had its polling logic reworked to be more failure proof.
+
+### Version 3.4.3 (July 8, 2018)
+* Task `DockerCreateContainer` has its method `withEnvVars` changed to accept a `def`, which in turn can be anything (String, Integer, Closure, etc) but will eventually have all its keys/values resolved to java strings. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Task `DockerLivenessContainer` had minor verbiage changes to its output. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Use `-all` wrapper to better integrate with IDE's. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+
+### Version 3.4.2 (July 7, 2018)
+* Shade cglib and its dependencies. - [Pull Request 616](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Bump `docker-java` to `3.1.0-rc-3`. - [Pull Request 616](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+
+### Version 3.4.1 (July 3, 2018)
+* BUGFIX for task `DockerCreateContainer` where `envs` were not being properly honored. - [Pull Request 614](https://github.com/bmuschko/gradle-docker-plugin/pull/614)
+
+### Version 3.4.0 (July 1, 2018)
+* Task `Dockerfile` now supports multi-stage builds - [Pull Request 607](https://github.com/bmuschko/gradle-docker-plugin/pull/607)
+* When plugin is applied to sub-projects we will additionally search rootProject for repos to use - [Pull Request 610](https://github.com/bmuschko/gradle-docker-plugin/pull/610)
+* Task `DockerCreateContainer` has deprecated `env` in favor of `envVars` which can ONLY be added to with a helper method `withEnvVar` that can be called **N** times for setting environment variables. - [Pull Request 609](https://github.com/bmuschko/gradle-docker-plugin/pull/609)
+* Task `DockerLivenessProbeContainer` has been renamed to `DockerLivenessContainer`. It's `probe` method has been renamed to `livnessProbe`. Task `DockerExecStopContainer` had its `probe` method renamed to `execStopProbe`. - [Pull Request 611](https://github.com/bmuschko/gradle-docker-plugin/pull/611)
+
+### Version 3.3.6 (June 23, 2018)
+* Task `DockerCopyFileToContainer` can now copy **N** number of files via methods `withFile` and `withTarFile`. - [Pull request 605](https://github.com/bmuschko/gradle-docker-plugin/pull/605)
+
+### Version 3.3.5 (June 17, 2018)
+* Fix bug within `DockerExecContainer` when `exitCode` can be null (default to 0 if so). - [Pull request 602](https://github.com/bmuschko/gradle-docker-plugin/pull/602)
+
+### Version 3.3.4 (June 16, 2018)
+* Task `DockerExecContainer` gained ability to specify multiple execution commands to be run. - [Pull request 600](https://github.com/bmuschko/gradle-docker-plugin/pull/600)
+* Various tasks had their progress logger output cleaned up. - [Pull request 601](https://github.com/bmuschko/gradle-docker-plugin/pull/601)
+
+### Version 3.3.3 (June 8, 2018)
 * Explicitly call `toString()` on values in maps passed to Docker API. - [Pull request 595](https://github.com/bmuschko/gradle-docker-plugin/pull/595)
+* Task `DockerLivenessProbeContainer` gained method `lastInspection()` which will return the last "docker inspect container" response AFTER execution has completed. - [Pull request 596](https://github.com/bmuschko/gradle-docker-plugin/pull/596)
 
 ### Version 3.3.2 (June 5, 2018)
 * Task `DockerLivenessProbeContainer` now has the `probe` option set to optional and if NOT defined will fallback to checking if container is in a running state. - [Pull request 594](https://github.com/bmuschko/gradle-docker-plugin/pull/594)

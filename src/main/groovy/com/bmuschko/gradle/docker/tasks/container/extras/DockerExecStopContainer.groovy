@@ -16,11 +16,13 @@
 
 package com.bmuschko.gradle.docker.tasks.container.extras
 
-import com.bmuschko.gradle.docker.domain.ExecStopProbe
+import com.bmuschko.gradle.docker.domain.ExecProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+
+import java.util.concurrent.TimeUnit
 
 import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
 
@@ -34,7 +36,7 @@ class DockerExecStopContainer extends DockerExecContainer {
 
     @Input
     @Optional
-    ExecStopProbe probe
+    ExecProbe execStopProbe
 
     /**
      * Stop timeout in seconds.
@@ -49,7 +51,7 @@ class DockerExecStopContainer extends DockerExecContainer {
 
         // 1.) we only need to proceed with an exec IF we have something to execute
         // otherwise treat this as a normal stop.
-        if (this.getCmd()) {
+        if (this.commands()) {
 
             // 2.) kick the exec command
             _runRemoteCommand(dockerClient)
@@ -58,8 +60,8 @@ class DockerExecStopContainer extends DockerExecContainer {
             final def progressLogger = getProgressLogger(project, DockerExecStopContainer)
             progressLogger.started()
 
-            // if no probe defined then create a default
-            final ExecStopProbe localProbe = probe ?: new ExecStopProbe(600000, 30000)
+            // if no livenessProbe defined then create a default
+            final ExecProbe localProbe = execStopProbe ?: new ExecProbe(600000, 30000)
 
             long localPollTime = localProbe.pollTime
             int pollTimes = 0
@@ -67,14 +69,18 @@ class DockerExecStopContainer extends DockerExecContainer {
 
             // 3.) poll for some amount of time until container is in a non-running state.
             while (isRunning && localPollTime > 0) {
-                pollTimes = pollTimes + 1
+                pollTimes += 1
 
                 def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
                 isRunning = container.getState().getRunning()
                 if (isRunning) {
-                    progressLogger.progress(sprintf('Waiting for %010dms', pollTimes * localProbe.pollInterval))
+
+                    long totalMillis = pollTimes * localProbe.pollInterval
+                    long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis)
+                    progressLogger.progress("Waiting for ${totalMinutes}m...")
                     try {
-                        localPollTime = localPollTime - localProbe.pollInterval
+
+                        localPollTime -= localProbe.pollInterval
                         sleep(localProbe.pollInterval)
                     } catch (Exception e) {
                         throw e
@@ -97,13 +103,13 @@ class DockerExecStopContainer extends DockerExecContainer {
     }
 
     /**
-     * Define the probe options for this exec/stop.
+     * Define the livenessProbe options for this exec/stop.
      *
      * @param pollTime how long we will poll for
      * @param pollInterval interval between poll requests
-     * @return instance of ExecStopProbe
+     * @return instance of ExecProbe
      */
-    def probe(final long pollTime, final long pollInterval) {
-        this.probe = new ExecStopProbe(pollTime, pollInterval)
+    def execStopProbe(final long pollTime, final long pollInterval) {
+        this.execStopProbe = new ExecProbe(pollTime, pollInterval)
     }
 }

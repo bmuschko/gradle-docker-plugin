@@ -91,9 +91,15 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     Boolean attachStderr
 
+    // use `envVars` instead
+    @Deprecated
     @Input
     @Optional
     String[] env
+
+    @Input
+    @Optional
+    final Map<?, ?> envVars = [:]
 
     @Input
     @Optional
@@ -225,6 +231,12 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         restartPolicy = "${name}:${maximumRetryCount}"
     }
 
+    // key or value can be in the form of a Closure or anything else. In the
+    // end, and whatever it resolves to, will be marshaled into a String.
+    void withEnvVar(def key, def value) {
+        this.envVars.put(key, value);
+    }
+
     private void setContainerCommandConfig(containerCommand) {
         if(getContainerName()) {
             containerCommand.withName(getContainerName())
@@ -278,8 +290,22 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.withAttachStderr(getAttachStderr())
         }
 
-        if(getEnv()) {
-            containerCommand.withEnv(getEnv())
+        // marshall deprecated old list onto new map
+        getEnv()?.each { envVar ->
+            def keyValuePair = envVar.split('=', 2)
+            envVars.put(keyValuePair.first(), keyValuePair.last())
+        }
+
+        // marshall map into list
+        if(getEnvVars()) {
+            final List<String> localEnvVars = new ArrayList<>();
+            getEnvVars().each { key, value ->
+                def localKey = key instanceof Closure ? key.call() : key
+                def localValue = value instanceof Closure ? value.call() : value
+
+                localEnvVars.add("${localKey}=${localValue}".toString())
+            }
+            containerCommand.withEnv(localEnvVars)
         }
 
         if(getCmd()) {

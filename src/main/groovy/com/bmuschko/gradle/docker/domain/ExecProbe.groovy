@@ -20,9 +20,9 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 
 /**
- *  Class holding metadata for an arbitrary livenessProbe.
+ *  Class holding metadata for an arbitrary exec livenessProbe.
  */
-class LivenessProbe {
+class ExecProbe {
 
     @Input
     long pollTime // how long we poll until match is found
@@ -30,26 +30,17 @@ class LivenessProbe {
     @Input
     long pollInterval // how long we wait until next poll
 
-    @Input
-    String logContains // halt polling on logs containing this String
-
-    LivenessProbe(long pollTime, long pollInterval, String logContains) {
+    ExecProbe(long pollTime, long pollInterval) {
         if (pollInterval > pollTime) {
             throw new GradleException("pollInterval must be greater than pollTime: pollInterval=${pollInterval}, pollTime=${pollTime}")
         }
 
-        String localLogContains = Objects.requireNonNull(logContains).trim()
-        if (localLogContains) {
-            this.pollTime = pollTime
-            this.pollInterval = pollInterval
-            this.logContains = localLogContains
-        } else {
-            throw new GradleException("logContains must be a valid non-empty String")
-        }
+        this.pollTime = pollTime
+        this.pollInterval = pollInterval
     }
 
     @Override
     String toString() {
-        "pollTime=${pollTime}, pollInterval=${pollInterval}, logContains='${logContains}'"
+        "pollTime=${pollTime}, pollInterval=${pollInterval}"
     }
 }

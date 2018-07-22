@@ -29,7 +29,7 @@ import org.gradle.api.file.FileCollection
  */
 class DockerRemoteApiPlugin implements Plugin<Project> {
     public static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    public static final String DOCKER_JAVA_DEFAULT_VERSION = '3.0.14'
+    public static final String DOCKER_JAVA_DEFAULT_VERSION = '3.1.0-rc-3'
     public static final String EXTENSION_NAME = 'docker'
     public static final String DEFAULT_TASK_GROUP = 'Docker'
 
@@ -46,14 +46,25 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
             if (project.repositories.size() == 0) {
                 project.repositories.addAll(project.buildscript.repositories.collect())
             }
+
+            // if still 0 attempt to grab rootProject buildscript repos
+            if (project.repositories.size() == 0) {
+                project.repositories.addAll(project.rootProject.buildscript.repositories.collect())
+            }
+
+            // and if still 0 attempt to grab rootProject repos
+            if (project.repositories.size() == 0) {
+                project.repositories.addAll(project.rootProject.repositories.collect())
+            }
         }
 
         Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
         config.defaultDependencies { dependencies ->
-            dependencies.add(project.dependencies.create("com.aries:docker-java-shaded:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION"))
+            dependencies.add(project.dependencies.create("com.aries:docker-java-shaded:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION:cglib@jar") {
+                transitive = false
+            })
             dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
             dependencies.add(project.dependencies.create('javax.activation:activation:1.1.1'))
-            dependencies.add(project.dependencies.create('cglib:cglib:3.2.0'))
         }
 
         DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
