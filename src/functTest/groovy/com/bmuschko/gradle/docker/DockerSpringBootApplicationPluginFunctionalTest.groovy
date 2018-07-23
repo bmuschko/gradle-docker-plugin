@@ -127,6 +127,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
         plugin << REACTED_PLUGINS
     }
 
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     @Unroll
     def "Can create image for a Spring Boot application and push it to private registry [#plugin.identifier plugin]"() {
         setupSpringBootBuild(plugin.identifier)
