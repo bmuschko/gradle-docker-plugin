@@ -15,11 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.response.ResponseHandler
-import com.bmuschko.gradle.docker.response.container.InspectContainerResponseHandler
-
 class DockerInspectContainer extends DockerExistingContainer {
-    private ResponseHandler<Void, Object> responseHandler = new InspectContainerResponseHandler()
+
+    DockerInspectContainer() {
+        defaultResponseHandling()
+    }
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -28,17 +28,29 @@ class DockerInspectContainer extends DockerExistingContainer {
 
         if (onNext) {
             onNext.call(container)
-        } else if (responseHandler) {
-            responseHandler.handle(container)
         }
     }
 
-    /**
-     * Deprecated. Use {@link #onNext} instead.
-     * @param responseHandler
-     */
-    @Deprecated
-    void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
-        this.responseHandler = responseHandler
+    private void defaultResponseHandling() {
+        Closure c = { container ->
+            logger.quiet "Image ID    : $container.imageId"
+            logger.quiet "Name        : $container.name"
+            logger.quiet "Links       : $container.hostConfig.links"
+            def volumes = container.@volumes ? container.volumes : '[]'
+            logger.quiet "Volumes     : $volumes"
+            def volumesFrom = container.hostConfig.@volumesFrom ? container.hostConfig.volumesFrom : '[]'
+            logger.quiet "VolumesFrom : $volumesFrom"
+            String exposedPorts = container.config.exposedPorts ? container.config.exposedPorts.toString() : '[]'
+            logger.quiet "ExposedPorts : $exposedPorts"
+            logger.quiet "LogConfig : $container.hostConfig.logConfig.type.type"
+            logger.quiet "RestartPolicy : $container.hostConfig.restartPolicy"
+            def devices = container.hostConfig.@devices ?
+                container.hostConfig.devices.collect {
+                    "${it.pathOnHost}:${it.pathInContainer}:${it.cGroupPermissions}"
+                } : '[]'
+            logger.quiet "Devices : $devices"
+        }
+
+        onNext = c
     }
 }

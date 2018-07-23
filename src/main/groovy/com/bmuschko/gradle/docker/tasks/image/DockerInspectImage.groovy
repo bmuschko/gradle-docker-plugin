@@ -15,29 +15,36 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.response.image.InspectImageResponseHandler
-import com.bmuschko.gradle.docker.response.ResponseHandler
-
 class DockerInspectImage extends DockerExistingImage {
-    private ResponseHandler<Void, Object> responseHandler = new InspectImageResponseHandler()
+
+    DockerInspectImage() {
+        defaultResponseHandling()
+    }
 
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Inspecting image for with ID '${getImageId()}'."
         def image = dockerClient.inspectImageCmd(getImageId()).exec()
-        if(onNext) {
+
+        if (onNext) {
             onNext.call(image)
-        } else {
-            responseHandler.handle(image)
         }
     }
 
-    /**
-     * Deprecated. Use {@link #onNext} instead.
-     * @param responseHandler
-     */
-    @Deprecated
-    void setResponseHandler(ResponseHandler<Void, Object> responseHandler) {
-        this.responseHandler = responseHandler
+    private void defaultResponseHandling() {
+        Closure c = { image ->
+            logger.quiet "ID               : $image.id"
+            logger.quiet "Author           : $image.author"
+            logger.quiet "Created          : $image.created"
+            logger.quiet "Comment          : $image.comment"
+            logger.quiet "Architecture     : $image.arch"
+            logger.quiet "Operating System : $image.os"
+            logger.quiet "Parent           : $image.parent"
+            logger.quiet "Size             : $image.size"
+            logger.quiet "Docker Version   : $image.dockerVersion"
+            logger.quiet "Labels           : $image.config.labels"
+        }
+
+        onNext = c
     }
 }
