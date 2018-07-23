@@ -69,7 +69,8 @@ bintray {
             released  = new Date()
             vcsTag = "v$project.version"
             attributes = ['gradle-plugin': ["com.bmuschko.docker-remote-api:${project.group}:${project.name}",
-                                            "com.bmuschko.docker-java-application:${project.group}:${project.name}"]]
+                                            "com.bmuschko.docker-java-application:${project.group}:${project.name}",
+                                            "com.bmuschko.docker-spring-boot-application:${project.group}:${project.name}"]]
 
             gpg {
                 sign = true
