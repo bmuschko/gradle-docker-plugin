@@ -1,6 +1,7 @@
 ### Version 3.4.5 (TBA)
 
 * Support for dockerizing Spring Boot applications. - [Pull Request 619](https://github.com/bmuschko/gradle-docker-plugin/pull/619)
+* Removed deprecated `ResponseHandler` - [Pull Request 624](https://github.com/bmuschko/gradle-docker-plugin/pull/624)
 * Upgrade to Gradle Wrapper 4.9
 
 ### Version 3.4.4 (July 15, 2018)
