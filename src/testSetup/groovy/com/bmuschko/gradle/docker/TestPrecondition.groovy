@@ -8,7 +8,7 @@ final class TestPrecondition {
     private TestPrecondition() {}
 
     private static boolean isPrivateDockerRegistryReachable() {
-        isUriReachable(new URI("${TestConfiguration.dockerPrivateRegistryUrl}".replaceFirst('tcp', 'http')), null)
+        isUriReachable(new URI("${TestConfiguration.dockerPrivateRegistryUrl}".replaceFirst('tcp', 'http')), 'v2')
     }
 
     private static boolean isUriReachable(URI dockerUri, String extraPath) {
@@ -26,8 +26,8 @@ final class TestPrecondition {
                 return false
             }
         } else {
-            
-            // TODO: should really use something like kohlschutter unix domain socket library 
+
+            // TODO: should really use something like kohlschutter unix domain socket library
             // or netty to test if the socket is live and can be pinged.
             return new File(dockerUri.path).exists()
         }
