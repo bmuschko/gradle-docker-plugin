@@ -10,6 +10,22 @@ buildscript {
 
 apply plugin: org.ajoberstar.gradle.git.publish.GitPublishPlugin
 
+ext {
+    javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
+    groovyApiUrl = 'http://docs.groovy-lang.org/2.4.12/html/gapi/'
+    gradleApiUrl = 'https://docs.gradle.org/4.9/javadoc/'
+}
+
+tasks.withType(Javadoc) {
+    options.links(javaApiUrl, groovyApiUrl, gradleApiUrl)
+}
+
+tasks.withType(Groovydoc) {
+    link javaApiUrl, 'java', 'org.xml', 'javax', 'org.xml'
+    link groovyApiUrl, 'groovy', 'org.codehaus.groovy'
+    link gradleApiUrl, 'org.gradle'
+}
+
 gitPublish {
     repoUri = 'https://github.com/bmuschko/gradle-docker-plugin.git'
     branch = 'gh-pages'
