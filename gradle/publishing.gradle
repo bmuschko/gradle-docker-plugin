@@ -19,28 +19,43 @@ publishing {
             artifact groovydocJar
             artifact javadocJar
 
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('name', 'Gradle Docker plugin')
-                root.appendNode('description', 'Gradle plugin for managing Docker images and containers.')
-                root.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
-                root.appendNode('inceptionYear', '2014')
+            pom {
+                name = 'Gradle Docker plugin'
+                description = 'Gradle plugin for managing Docker images and containers.'
+                url = 'https://github.com/bmuschko/gradle-docker-plugin'
+                inceptionYear = '2014'
 
-                def scm = root.appendNode('scm')
-                scm.appendNode('url', 'https://github.com/bmuschko/gradle-docker-plugin')
-                scm.appendNode('connection', 'scm:https://bmuschko@github.com/bmuschko/gradle-docker-plugin.git')
-                scm.appendNode('developerConnection', 'scm:git://github.com/bmuschko/gradle-docker-plugin.git')
+                scm {
+                    url = 'https://github.com/bmuschko/gradle-docker-plugin'
+                    connection = 'scm:https://bmuschko@github.com/bmuschko/gradle-docker-plugin.git'
+                    developerConnection = 'scm:git://github.com/bmuschko/gradle-docker-plugin.git'
+                }
 
-                def license = root.appendNode('licenses').appendNode('license')
-                license.appendNode('name', 'The Apache Software License, Version 2.0')
-                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
-                license.appendNode('distribution', 'repo')
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
 
-                def developers = root.appendNode('developers')
-                def bmuschko = developers.appendNode('developer')
-                bmuschko.appendNode('id', 'bmuschko')
-                bmuschko.appendNode('name', 'Benjamin Muschko')
-                bmuschko.appendNode('email', 'benjamin.muschko@gmail.com')
+                developers {
+                    developer {
+                        id = 'bmuschko'
+                        name = 'Benjamin Muschko'
+                        url = 'https://github.com/bmuschko'
+                    }
+                    developer {
+                        id = 'cdancy'
+                        name = 'Christopher Dancy'
+                        url = 'https://github.com/cdancy'
+                    }
+                    developer {
+                        id = 'orzeh'
+                        name = 'Łukasz Warchał'
+                        url = 'https://github.com/orzeh'
+                    }
+                }
             }
         }
     }
