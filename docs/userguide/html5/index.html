@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.6.1">
+<title>Gradle Docker Plugin User Guide &amp; Examples</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Remove comment around @import statement below when using as a custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
+audio,canvas,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+[hidden],template{display:none}
+script{display:none!important}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:transparent}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+input[type="search"]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}
+input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*:before,*:after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.spread{width:100%}
+p.lead,.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{font-size:1.21875em;line-height:1.6}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:none}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #ddddd8;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite:before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media only screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7;font-weight:bold}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix:before,.clearfix:after,.float-group:before,.float-group:after{content:" ";display:table}
+.clearfix:after,.float-group:after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+*:not(pre)>code.nobreak{word-wrap:normal}
+*:not(pre)>code.nowrap{white-space:nowrap}
+pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button:before,b.button:after{position:relative;top:-1px;font-weight:400}
+b.button:before{content:"[";padding:0 3px 0 2px}
+b.button:after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header:before,#header:after,#content:before,#content:after,#footnotes:before,#footnotes:after,#footer:before,#footer:after{content:" ";display:table}
+#header:after,#content:after,#footnotes:after,#footer:after{clear:both}
+#content{margin-top:1.25em}
+#content:before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #ddddd8}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #ddddd8;padding-bottom:8px}
+#header .details{border-bottom:1px solid #ddddd8;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span:before{content:"\00a0\2013\00a0"}
+#header .details br+span.author:before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark:before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber:after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #ddddd8;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #efefed;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media only screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #efefed;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #efefed;left:auto;right:0}}
+@media only screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+.sect1{padding-bottom:.625em}
+@media only screen and (min-width:768px){.sect1{padding-bottom:1.25em}}
+.sect1+.sect1{border-top:1px solid #efefed}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor:before,h2>a.anchor:before,h3>a.anchor:before,#toctitle>a.anchor:before,.sidebarblock>.content>.title>a.anchor:before,h4>a.anchor:before,h5>a.anchor:before,h6>a.anchor:before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock>caption.title{white-space:nowrap;overflow:visible;max-width:0}
+.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>.paragraph:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:initial}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #ddddd8;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
+.sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;padding:1em;font-size:.8125em}
+.literalblock pre.nowrap,.literalblock pre[class].nowrap,.listingblock pre.nowrap,.listingblock pre[class].nowrap{overflow-x:auto;white-space:pre;word-wrap:normal}
+@media only screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}
+@media only screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}
+.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]:before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]:before{display:block}
+.listingblock.terminal pre .command:before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt]):before{content:"$"}
+table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0;line-height:1.45}
+table.pyhltable td.code{padding-left:.75em;padding-right:0}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #ddddd8}
+pre.pygments .lineno{display:inline-block;margin-right:.25em}
+table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock blockquote p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote:before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.5em;margin-right:.5ex;text-align:right}
+.quoteblock .quoteblock{margin-left:0;margin-right:0;padding:.5em 0;border-left:3px solid rgba(0,0,0,.6)}
+.quoteblock .quoteblock blockquote{padding:0 0 0 .75em}
+.quoteblock .quoteblock blockquote:before{display:none}
+.verseblock{margin:0 1em 1.25em 1em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract{margin:0 0 1.25em 0;display:block}
+.quoteblock.abstract blockquote,.quoteblock.abstract blockquote p{text-align:left;word-spacing:0}
+.quoteblock.abstract blockquote:before,.quoteblock.abstract blockquote p:first-of-type:before{display:none}
+table.tableblock{max-width:100%;border-collapse:separate}
+table.tableblock td>.paragraph:last-child p>p:last-child,table.tableblock th>p:last-child,table.tableblock td>p:last-child{margin-bottom:0}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px 0}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot{border-width:1px 0}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+td>div.verse{white-space:pre}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{margin:0 auto .625em auto;margin-left:-1.375em;margin-right:0;padding:0;list-style:none;overflow:hidden}
+ul.inline>li{list-style:none;float:left;margin-left:1.375em;display:block}
+ul.inline>li>*{display:block}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist>table tr>td:first-of-type{padding:.4em .75em 0 .75em;line-height:1;vertical-align:top}
+.colist>table tr>td:first-of-type img{max-width:initial}
+.colist>table tr>td:last-of-type{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left,.imageblock[style*="float: left"]{margin:.25em .625em 1.25em 0}
+.imageblock.right,.imageblock[style*="float: right"]{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em 0;border-width:1px 0 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;text-indent:-1.05em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background-color:#00fafa}
+.black{color:#000}
+.black-background{background-color:#000}
+.blue{color:#0000bf}
+.blue-background{background-color:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background-color:#fa00fa}
+.gray{color:#606060}
+.gray-background{background-color:#7d7d7d}
+.green{color:#006000}
+.green-background{background-color:#007d00}
+.lime{color:#00bf00}
+.lime-background{background-color:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background-color:#7d0000}
+.navy{color:#000060}
+.navy-background{background-color:#00007d}
+.olive{color:#606000}
+.olive-background{background-color:#7d7d00}
+.purple{color:#600060}
+.purple-background{background-color:#7d007d}
+.red{color:#bf0000}
+.red-background{background-color:#fa0000}
+.silver{color:#909090}
+.silver-background{background-color:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background-color:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background-color:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background-color:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]:after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@media print{@page{margin:1.25cm .75cm}
+*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare):after,a[href^="https:"]:not(.bare):after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]:after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #ddddd8!important;padding-bottom:0!important}
+.sect1{padding-bottom:0!important}
+.sect1+.sect1{border:0!important}
+#header>h1:first-child{margin-top:1.25rem}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em 0}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span:before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]:before{display:block}
+#footer{background:none!important;padding:0 .9375em}
+#footer-text{color:rgba(0,0,0,.6)!important;font-size:.9em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<style>
+/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
+/*pre.CodeRay {background-color:#f7f7f8;}*/
+.CodeRay .line-numbers{border-right:1px solid #d8d8d8;padding:0 0.5em 0 .25em}
+.CodeRay span.line-numbers{display:inline-block;margin-right:.5em;color:rgba(0,0,0,.3)}
+.CodeRay .line-numbers strong{color:rgba(0,0,0,.4)}
+table.CodeRay{border-collapse:separate;border-spacing:0;margin-bottom:0;border:0;background:none}
+table.CodeRay td{vertical-align: top;line-height:1.45}
+table.CodeRay td.line-numbers{text-align:right}
+table.CodeRay td.line-numbers>pre{padding:0;color:rgba(0,0,0,.3)}
+table.CodeRay td.code{padding:0 0 0 .5em}
+table.CodeRay td.code>pre{padding:0}
+.CodeRay .debug{color:#fff !important;background:#000080 !important}
+.CodeRay .annotation{color:#007}
+.CodeRay .attribute-name{color:#000080}
+.CodeRay .attribute-value{color:#700}
+.CodeRay .binary{color:#509}
+.CodeRay .comment{color:#998;font-style:italic}
+.CodeRay .char{color:#04d}
+.CodeRay .char .content{color:#04d}
+.CodeRay .char .delimiter{color:#039}
+.CodeRay .class{color:#458;font-weight:bold}
+.CodeRay .complex{color:#a08}
+.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
+.CodeRay .color{color:#099}
+.CodeRay .class-variable{color:#369}
+.CodeRay .decorator{color:#b0b}
+.CodeRay .definition{color:#099}
+.CodeRay .delimiter{color:#000}
+.CodeRay .doc{color:#970}
+.CodeRay .doctype{color:#34b}
+.CodeRay .doc-string{color:#d42}
+.CodeRay .escape{color:#666}
+.CodeRay .entity{color:#800}
+.CodeRay .error{color:#808}
+.CodeRay .exception{color:inherit}
+.CodeRay .filename{color:#099}
+.CodeRay .function{color:#900;font-weight:bold}
+.CodeRay .global-variable{color:#008080}
+.CodeRay .hex{color:#058}
+.CodeRay .integer,.CodeRay .float{color:#099}
+.CodeRay .include{color:#555}
+.CodeRay .inline{color:#000}
+.CodeRay .inline .inline{background:#ccc}
+.CodeRay .inline .inline .inline{background:#bbb}
+.CodeRay .inline .inline-delimiter{color:#d14}
+.CodeRay .inline-delimiter{color:#d14}
+.CodeRay .important{color:#555;font-weight:bold}
+.CodeRay .interpreted{color:#b2b}
+.CodeRay .instance-variable{color:#008080}
+.CodeRay .label{color:#970}
+.CodeRay .local-variable{color:#963}
+.CodeRay .octal{color:#40e}
+.CodeRay .predefined{color:#369}
+.CodeRay .preprocessor{color:#579}
+.CodeRay .pseudo-class{color:#555}
+.CodeRay .directive{font-weight:bold}
+.CodeRay .type{font-weight:bold}
+.CodeRay .predefined-type{color:inherit}
+.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
+.CodeRay .key{color:#808}
+.CodeRay .key .delimiter{color:#606}
+.CodeRay .key .char{color:#80f}
+.CodeRay .value{color:#088}
+.CodeRay .regexp .delimiter{color:#808}
+.CodeRay .regexp .content{color:#808}
+.CodeRay .regexp .modifier{color:#808}
+.CodeRay .regexp .char{color:#d14}
+.CodeRay .regexp .function{color:#404;font-weight:bold}
+.CodeRay .string{color:#d20}
+.CodeRay .string .string .string{background:#ffd0d0}
+.CodeRay .string .content{color:#d14}
+.CodeRay .string .char{color:#d14}
+.CodeRay .string .delimiter{color:#d14}
+.CodeRay .shell{color:#d14}
+.CodeRay .shell .delimiter{color:#d14}
+.CodeRay .symbol{color:#990073}
+.CodeRay .symbol .content{color:#a60}
+.CodeRay .symbol .delimiter{color:#630}
+.CodeRay .tag{color:#008080}
+.CodeRay .tag-special{color:#d70}
+.CodeRay .variable{color:#036}
+.CodeRay .insert{background:#afa}
+.CodeRay .delete{background:#faa}
+.CodeRay .change{color:#aaf;background:#007}
+.CodeRay .head{color:#f8f;background:#505}
+.CodeRay .insert .insert{color:#080}
+.CodeRay .delete .delete{color:#800}
+.CodeRay .change .change{color:#66f}
+.CodeRay .head .head{color:#f4f}
+</style>
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Gradle Docker Plugin User Guide &amp; Examples</h1>
+<div class="details">
+<span id="revnumber">version 3.5.0</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#introduction">1. Introduction</a>
+<ul class="sectlevel2">
+<li><a href="#benefits">1.1. Benefits</a></li>
+<li><a href="#further_readings">1.2. Further Readings</a></li>
+<li><a href="#provided_plugins">1.3. Provided Plugins</a></li>
+<li><a href="#getting_started">1.4. Getting Started</a></li>
+</ul>
+</li>
+<li><a href="#remote_api_plugin">2. Remote API Plugin</a>
+<ul class="sectlevel2">
+<li><a href="#usage">2.1. Usage</a></li>
+<li><a href="#extension">2.2. Extension</a></li>
+<li><a href="#custom_task_types">2.3. Custom task types</a></li>
+<li><a href="#reactive_streams">2.4. Reactive Streams</a></li>
+<li><a href="#examples">2.5. Examples</a></li>
+</ul>
+</li>
+<li><a href="#java_application_plugin">3. Java Application Plugin</a>
+<ul class="sectlevel2">
+<li><a href="#usage_2">3.1. Usage</a></li>
+<li><a href="#extension_2">3.2. Extension</a></li>
+<li><a href="#tasks">3.3. Tasks</a></li>
+<li><a href="#examples_2">3.4. Examples</a></li>
+</ul>
+</li>
+<li><a href="#spring_boot_application_plugin">4. Spring Boot Application Plugin</a>
+<ul class="sectlevel2">
+<li><a href="#usage_3">4.1. Usage</a></li>
+<li><a href="#extension_3">4.2. Extension</a></li>
+<li><a href="#tasks_2">4.3. Tasks</a></li>
+<li><a href="#examples_3">4.4. Examples</a></li>
+</ul>
+</li>
+<li><a href="#about_this_project">5. About This Project</a>
+<ul class="sectlevel2">
+<li><a href="#maintainers">5.1. Maintainers</a></li>
+<li><a href="#contributing">5.2. Contributing</a></li>
+<li><a href="#development">5.3. Development</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="introduction">1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Gradle plugin for managing <a href="https://www.docker.io/">Docker</a> images and containers using via its
+<a href="http://docs.docker.io/reference/api/docker_remote_api/">remote API</a>.
+The heavy lifting of communicating with the
+Docker remote API is handled by the <a href="https://github.com/docker-java/docker-java">Docker Java library</a>.
+Please refer to the library&#8217;s documentation for more information on the supported Docker&#8217;s client API and Docker server version.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This plugin requires Gradle &gt;= 2.5 to work properly.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="benefits">1.1. Benefits</h3>
+<div class="paragraph">
+<p>There are various benefits for using this plugin:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Seamless integration with the build tool Gradle and its DSL</p>
+</li>
+<li>
+<p>Handles complicated communication logic between Docker client and daemon under the covers</p>
+</li>
+<li>
+<p>Simplifies the definition of complex workflows</p>
+</li>
+<li>
+<p>Minimizes build script setup logic by providing sensible conventions for different use cases</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="further_readings">1.2. Further Readings</h3>
+<div class="paragraph">
+<p>Want to learn more about using this plugin in different contexts? The following blog posts should get you started.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://bmuschko.com/blog/dockerized-spring-boot-app/">Docker with Gradle: Dockerizing a Spring Boot application</a></p>
+</li>
+<li>
+<p><a href="https://bmuschko.com/blog/docker-integration-testing/">Docker with Gradle: Integration testing using containers</a></p>
+</li>
+<li>
+<p><a href="https://bmuschko.com/blog/gradle-docker-convention-plugin/">Docker with Gradle: Writing a Node.js convention plugin</a></p>
+</li>
+<li>
+<p><a href="https://bmuschko.com/blog/gradle-docker-compose/">Docker with Gradle: Getting started with Docker Compose</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="provided_plugins">1.3. Provided Plugins</h3>
+<div class="paragraph">
+<p>The binary distribution is available on the <a href="https://plugins.gradle.org/search?term=com.bmuschko.docker">Gradle plugin portal</a>, <a href="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin">Bintray&#8217;s JCenter</a> and <a href="https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.bmuschko%22%20AND%20a%3A%22gradle-docker-plugin%22">Maven Central</a>.
+It contains the following plugins:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Plugin Id</th>
+<th class="tableblock halign-left valign-top">Automatically applies</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>com.bmuschko.docker-remote-api</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerRemoteApiPlugin.html">DockerRemoteApiPlugin</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provides custom tasks for interacting with Docker via its remote API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>com.bmuschko.docker-java-application</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>com.bmuschko.docker-remote-api</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerJavaApplicationPlugin.html">DockerJavaApplicationPlugin</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates and pushes a Docker image for a Java application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>com.bmuschko.docker-spring-boot-application</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>com.bmuschko.docker-remote-api</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerSpringBootApplicationPlugin.html">DockerSpringBootApplicationPlugin</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates and pushes a Docker image for a Spring Boot application.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Which plugin you chose in your project entirely depends on the use case you want to fulfill. Refer to the relevant portions of the user guide that describe the purpose and usage of each plugin in more detail.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="getting_started">1.4. Getting Started</h3>
+<div class="paragraph">
+<p>The plugin can be applied with the <code>buildscript</code> syntax or the plugin DSL.
+Let&#8217;s say you&#8217;d want to go with the plugin that provides the plain Docker operations for managing Docker images and containers.
+See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle user guide</a> for more information on applying plugins.</p>
+</div>
+<div class="sect3">
+<h4 id="aplying_the_plugin_using_the_buildscript_syntax">1.4.1. Aplying the Plugin Using the buildscript Syntax</h4>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">buildscript {
+    repositories {
+        maven {
+            url <span class="string"><span class="delimiter">'</span><span class="content">https://plugins.gradle.org/m2/</span><span class="delimiter">'</span></span>
+        }
+    }
+    dependencies {
+        classpath <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko:gradle-docker-plugin:3.5.0</span><span class="delimiter">'</span></span>
+    }
+}
+
+apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="applying_the_plugin_using_the_plugin_dsl">1.4.2. Applying the Plugin using the Plugin DSL</h4>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">plugins {
+    id <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span> version <span class="string"><span class="delimiter">'</span><span class="content">3.5.0</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="applying_the_plugin_from_a_script_plugin">1.4.3. Applying the Plugin From a Script Plugin</h4>
+<div class="paragraph">
+<p>Applying the plugin from a script plugin requires the use of the fully-qualified class name due to a <a href="https://github.com/gradle/gradle/issues/1262">bug in Gradle core</a>. Be aware that the plugin DSL cannot be used to apply a binary plugin from a script plugin.</p>
+</div>
+<div class="listingblock">
+<div class="title">gradle/docker.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">buildscript {
+    repositories {
+        maven {
+            url <span class="string"><span class="delimiter">'</span><span class="content">https://plugins.gradle.org/m2/</span><span class="delimiter">'</span></span>
+        }
+    }
+    dependencies {
+        classpath <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko:gradle-docker-plugin:3.5.0</span><span class="delimiter">'</span></span>
+    }
+}
+
+apply <span class="key">plugin</span>: com.bmuschko.gradle.docker.DockerRemoteApiPlugin</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">apply <span class="key">from</span>: <span class="string"><span class="delimiter">'</span><span class="content">gradle/docker.gradle</span><span class="delimiter">'</span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="remote_api_plugin">2. Remote API Plugin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The plugin <code>com.bmuschko.docker-remote-api</code> allows for interacting with Docker via its remote API.
+You can model any workflow imaginable by creating enhanced task of the custom task provided by the plugin.</p>
+</div>
+<div class="sect2">
+<h3 id="usage">2.1. Usage</h3>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">buildscript {
+    repositories {
+        maven {
+            url <span class="string"><span class="delimiter">'</span><span class="content">https://plugins.gradle.org/m2/</span><span class="delimiter">'</span></span>
+        }
+    }
+    dependencies {
+        classpath com.bmuschko:gradle-docker-<span class="key">plugin</span>:3.5.0<span class="string"><span class="delimiter">'</span></span><span class="error">
+</span>    }
+}
+
+apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span>
+
+<span class="comment">// Import task types</span>
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.image.*</span>
+
+<span class="comment">// Use task types</span>
+task buildMyAppImage(<span class="key">type</span>: DockerBuildImage) {
+    inputDir = file(<span class="string"><span class="delimiter">'</span><span class="content">docker/myapp</span><span class="delimiter">'</span></span>)
+    tag = <span class="string"><span class="delimiter">'</span><span class="content">test/myapp:latest</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The plugin automatically resolves the Docker Java library with the pre-configured version under the covers.
+The only configuration you will have to provide in your build script is the repository hosting the library and its transitive dependencies.
+One repository that hosts them all is Maven Central.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">repositories {
+    mavenCentral()
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="extension">2.2. Extension</h3>
+<div class="paragraph">
+<p>The plugin defines an extension with the namespace <code>docker</code>.
+The following properties can be configured:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>url</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">see below</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The server URL to connect to via Docker&#8217;s remote API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>certPath</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>File</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The path to certificates for communicating with <a href="https://docs.docker.com/articles/https/">Docker over SSL</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>apiVersion</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The remote API version. For most cases this can be left null.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The default value is now generated based on a best guess attempt given the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42">operating system and environment</a>:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Operating system</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unix-based machine</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unix:///var/run/docker.sock</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Windows-based machine (and everything else)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tcp://127.0.0.1:2375</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.
+You can provide those credentials in the <code>registryCredentials</code> closure:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>url</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="https://index.docker.io/v1/" class="bare">https://index.docker.io/v1/</a></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The registry URL.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The registry username.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The registry password.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The registry email address.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect3">
+<h4 id="working_with_a_tls_enabled_docker_instance">2.2.1. Working With a TLS-enabled Docker Instance</h4>
+<div class="paragraph">
+<p>Starting with Docker version 1.3, TLS is enabled by default.
+Please consult the Docker documentation <a href="https://docs.docker.com/articles/https/">"Running Docker
+with https"</a> to set up your certificate. The following example demonstrates how to configure the plugin to use those certificates.
+Additionally, this code snippet shows how to set the user credentials.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">docker {
+    url = <span class="string"><span class="delimiter">'</span><span class="content">https://192.168.59.103:2376</span><span class="delimiter">'</span></span>
+    certPath = <span class="keyword">new</span> <span class="predefined-type">File</span>(<span class="predefined-type">System</span>.properties[<span class="string"><span class="delimiter">'</span><span class="content">user.home</span><span class="delimiter">'</span></span>], <span class="string"><span class="delimiter">'</span><span class="content">.boot2docker/certs/boot2docker-vm</span><span class="delimiter">'</span></span>)
+
+    registryCredentials {
+        url = <span class="string"><span class="delimiter">'</span><span class="content">https://index.docker.io/v1/</span><span class="delimiter">'</span></span>
+        username = <span class="string"><span class="delimiter">'</span><span class="content">bmuschko</span><span class="delimiter">'</span></span>
+        password = <span class="string"><span class="delimiter">'</span><span class="content">pwd</span><span class="delimiter">'</span></span>
+        email = <span class="string"><span class="delimiter">'</span><span class="content">benjamin.muschko@gmail.com</span><span class="delimiter">'</span></span>
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="working_with_google_cloud_and_using_a_key_file">2.2.2. Working With Google Cloud And Using a Key File</h4>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">docker {
+    registryCredentials {
+        url = <span class="string"><span class="delimiter">'</span><span class="content">https://gcr.io</span><span class="delimiter">'</span></span>
+        username = <span class="string"><span class="delimiter">'</span><span class="content">_json_key</span><span class="delimiter">'</span></span>
+        password = file(<span class="string"><span class="delimiter">'</span><span class="content">keyfile.json&quot;).text</span></span><span class="error">
+</span>    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="working_with_a_docker_instance_without_tls">2.2.3. Working With a Docker Instance Without TLS</h4>
+<div class="paragraph">
+<p>The following example assumes that you disabled TLS on your Docker instance.
+You can do so by setting <code>DOCKER_TLS=no</code> in the file <code>/var/lib/boot2docker/profile</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">docker {
+    url = <span class="string"><span class="delimiter">'</span><span class="content">tcp://192.168.59.103:2375</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On Unix the Docker daemon listens by default on <code>unix:///var/run/docker.sock</code>.</p>
+</div>
+<div class="paragraph">
+<p>On Windows the Docker daemon listens by default on <code>npipe:////./pipe/docker_engine</code> though this is not currently supported.
+We instead fall back to <code>tcp://127.0.0.1:2375</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="custom_task_types">2.3. Custom task types</h3>
+<div class="sect3">
+<h4 id="misc">2.3.1. Misc</h4>
+<div class="paragraph">
+<p>The plugin provides the following general-purpose custom task types:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerClient.html">DockerClient</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Passes the raw docker-java client to the onNext closure if it&#8217;s defined.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerInfo.html">DockerInfo</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Displays system-wide information.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerVersion.html">DockerVersion</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Show the docker version information.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="images">2.3.2. Images</h4>
+<div class="paragraph">
+<p>The plugin provides the following custom task types for managing images:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html">Dockerfile</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates a Dockerfile based on the provided instructions.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html">DockerBuildImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Builds an image from a Dockerfile.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerCommitImage.html">DockerCommitImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates a new image from a container&#8217;s changes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerInspectImage.html">DockerInspectImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns low-level information on the image.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerListImages.html">DockerListImages</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lists images in registry.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerPullImage.html">DockerPullImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pulls an image from the registry.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerPushImage.html">DockerPushImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pushes an image to a registry.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerRemoveImage.html">DockerRemoveImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removes an image from the filesystem.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerTagImage.html">DockerTagImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tags an image in registry.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerSaveImage.html">DockerSaveImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Saves an image to file.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerLoadImage.html">DockerLoadImage</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Loads an image from file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="containers">2.3.3. Containers</h4>
+<div class="paragraph">
+<p>The plugin provides the following custom task types for managing containers:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileToContainer.html">DockerCopyFileToContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Copies a path from the host into the container.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileFromContainer.html">DockerCopyFileFromContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Copies a path from the container as a tar file on to the host.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCreateContainer.html">DockerCreateContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates a container.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html">DockerInspectContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns low-level information on the container.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerKillContainer.html">DockerKillContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kills the container for a given id.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRemoveContainer.html">DockerRemoveContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removes the container for a given id from the filesystem.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRenameContainer.html">DockerRenameContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rename a container.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRestartContainer.html">DockerRestartContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Restarts the container for a given id.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStartContainer.html">DockerStartContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Starts the container for a given id.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStopContainer.html">DockerStopContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stops the container for a given id.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html">DockerWaitContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Blocks until container for a given id stops.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerLogsContainer.html">DockerLogsContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Copies the container output to the Gradle process standard out/err.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerExecContainer.html">DockerExecContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Executes a command within a running container.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectExecContainer.html">DockerInspectExecContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inspects task executed inside container with DockerExecContainer command.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="networks">2.3.4. Networks</h4>
+<div class="paragraph">
+<p>The plugin provides the following custom task types for managing networks:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerCreateNetwork.html">DockerCreateNetwork</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates a network.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerInspectNetwork.html">DockerInspectNetwork</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns low-level information on the network.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerRemoveNetwork.html">DockerRemoveNetwork</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removes the network.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="extras">2.3.5. Extras</h4>
+<div class="paragraph">
+<p>The plugin provides the following additional tasks:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerExecStopContainer.html">DockerExecStopContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shut down container with cmd, polling for it to enter a non-running state, and if that does not succeed in time issue stop request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerLivenessContainer.html">DockerLivenessContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Polls an arbitrary containers logs for a message indicating liveness.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerWaitHealthyContainer.html">DockerWaitHealthyContainer</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Blocks until the container for a given id becomes <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">healthy</a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="reactive_streams">2.4. Reactive Streams</h3>
+<div class="paragraph">
+<p>As needed, we will implement reactive methods as described in <a href="https://github.com/reactive-streams/reactive-streams-jvm">reactive-streams</a>.
+We implement these here as optional closures for all tasks.
+Currently the only supported methods are <code>onError</code>, <code>onNext</code>, <code>onComplete</code>.
+Various examples on how to use these can be found in our <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy">reactive tests</a></p>
+</div>
+<div class="sect3">
+<h4 id="reacting_to_an_error">2.4.1. Reacting to an Error</h4>
+<div class="paragraph">
+<p>The <code>onError</code> closure is passed the exception that is thrown for <em>you</em> to handle.
+If you silently ignore we will not throw the exception behind the scenes.
+The below example is a common use-case that arises when someone wants to remove a container whether it exists or not but does not want to fail hard.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span>
+
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.container.*</span>
+
+task removeContainer(<span class="key">type</span>: DockerRemoveContainer) {
+    targetContainerId { <span class="string"><span class="delimiter">'</span><span class="content">container-that-does-not-exist</span><span class="delimiter">'</span></span> }
+    onError { exception -&gt;
+        <span class="comment">// Ignore exception if container does not exist otherwise throw it</span>
+        <span class="keyword">if</span> (!exception.message.contains(<span class="string"><span class="delimiter">'</span><span class="content">No such container</span><span class="delimiter">'</span></span>))
+            <span class="keyword">throw</span> exception
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="reacting_to_data_returned_by_an_operation">2.4.2. Reacting to Data Returned by an Operation</h4>
+<div class="paragraph">
+<p>The <code>onNext</code> closure is passed the next iterative response upon execution.
+For all other tasks we simply hand you back the object that is given to us by <code>docker-java</code> which is a pojo representation of the json handed back by <code>docker</code>.
+Thus, and much like the <code>onError</code> closure, all delegation is now in your control.
+Any properties/values expected to be set will not be done unless <em>you</em> do them.</p>
+</div>
+<div class="paragraph">
+<p>Iterative tasks are things like <code>DockerBuildImage</code>, <code>DockerLogsContainer</code>, <code>DockerListImages</code>.
+These tasks have output which can be iterated over.
+The example below demonstrates how we iterate over each log message passing that to the closure for the user to work on.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span>
+
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.container.*</span>
+
+task logContainer(<span class="key">type</span>: DockerLogsContainer) {
+    targetContainerId { <span class="string"><span class="delimiter">'</span><span class="content">container-that-does-exist</span><span class="delimiter">'</span></span> }
+    follow = <span class="predefined-constant">true</span>
+    tailAll = <span class="predefined-constant">true</span>
+    onNext { message -&gt;
+        <span class="comment">// Each log message from the container will be passed as it's made available</span>
+        logger.quiet message.toString()
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="reacting_to_the_completion_of_an_operation">2.4.3. Reacting to the Completion of an Operation</h4>
+<div class="paragraph">
+<p>The <code>onComplete</code> closure is not passed anything upon execution.
+It works in the same fashion that <code>doLast</code> does but is instead part of this task and thus executes before <code>doLast</code> does.
+This closure executes <em>only</em> upon success.
+The below example demonstrates how this works.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span>
+
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.container.*</span>
+
+task removeContainer(<span class="key">type</span>: DockerRemoveContainer) {
+    targetContainerId { <span class="string"><span class="delimiter">'</span><span class="content">container-that-does-exist</span><span class="delimiter">'</span></span> }
+    onComplete {
+        println <span class="string"><span class="delimiter">'</span><span class="content">Executes first</span><span class="delimiter">'</span></span>
+    }
+    doLast {
+        println <span class="string"><span class="delimiter">'</span><span class="content">Executes second</span><span class="delimiter">'</span></span>
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="examples">2.5. Examples</h3>
+<div class="paragraph">
+<p>The following usage examples demonstrate code for common use cases.
+More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy">functional tests</a>.</p>
+</div>
+<div class="sect3">
+<h4 id="creating_a_dockerfile_and_building_an_image">2.5.1. Creating a Dockerfile And Building an Image</h4>
+<div class="paragraph">
+<p>A Dockerfile can be created by the <code>Dockerfile</code> custom tasks.
+The Dockerfile instructions need to be declare in the correct
+order.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span>
+
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.image.Dockerfile</span>
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.image.DockerBuildImage</span>
+
+task createDockerfile(<span class="key">type</span>: Dockerfile) {
+    destFile = project.file(<span class="string"><span class="delimiter">'</span><span class="content">build/mydockerfile/Dockerfile</span><span class="delimiter">'</span></span>)
+    from <span class="string"><span class="delimiter">'</span><span class="content">ubuntu:12.04</span><span class="delimiter">'</span></span>
+    maintainer <span class="string"><span class="delimiter">'</span><span class="content">Benjamin Muschko &quot;benjamin.muschko@gmail.com&quot;</span><span class="delimiter">'</span></span>
+}
+
+task buildImage(<span class="key">type</span>: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = <span class="string"><span class="delimiter">'</span><span class="content">bmuschko/myimage:latest</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="executing_functional_tests_against_a_running_container">2.5.2. Executing Functional Tests Against a Running Container</h4>
+<div class="paragraph">
+<p>The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this image and exercises functional tests against the running container.
+At the end of this operation, the container is stopped.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span>
+
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.container.*</span>
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.image.*</span>
+
+task buildMyAppImage(<span class="key">type</span>: DockerBuildImage) {
+    inputDir = file(<span class="string"><span class="delimiter">'</span><span class="content">docker/myapp</span><span class="delimiter">'</span></span>)
+    tag = <span class="string"><span class="delimiter">'</span><span class="content">test/myapp:latest</span><span class="delimiter">'</span></span>
+}
+
+task createMyAppContainer(<span class="key">type</span>: DockerCreateContainer) {
+    dependsOn buildMyAppImage
+    targetImageId { buildMyAppImage.getImageId() }
+    portBindings = [<span class="string"><span class="delimiter">'</span><span class="content">8080:8080</span><span class="delimiter">'</span></span>]
+}
+
+task startMyAppContainer(<span class="key">type</span>: DockerStartContainer) {
+    dependsOn createMyAppContainer
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task stopMyAppContainer(<span class="key">type</span>: DockerStopContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task functionalTestMyApp(<span class="key">type</span>: Test) {
+    dependsOn startMyAppContainer
+    finalizedBy stopMyAppContainer
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="linking_with_other_containers">2.5.3. Linking With Other Containers</h4>
+<div class="paragraph">
+<p>In many situations your container does not start without dependencies like database.
+In that case you may wish using traditional linking:</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span>
+
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.container.*</span>
+<span class="keyword">import</span> <span class="include">com.bmuschko.gradle.docker.tasks.image.*</span>
+
+task buildMyAppImage(<span class="key">type</span>: DockerBuildImage) {
+    inputDir = file(<span class="string"><span class="delimiter">'</span><span class="content">docker/myapp</span><span class="delimiter">'</span></span>)
+    tag = <span class="string"><span class="delimiter">'</span><span class="content">test/myapp</span><span class="delimiter">'</span></span>
+}
+
+task createDBContainer(<span class="key">type</span>: DockerCreateContainer) {
+    targetImageId { <span class="string"><span class="delimiter">'</span><span class="content">postgres:latest</span><span class="delimiter">'</span></span> }
+    containerName <span class="string"><span class="delimiter">&quot;</span><span class="content">docker_auto_</span><span class="inline"><span class="inline-delimiter">${</span>buildMyAppImage.buildTagName<span class="inline-delimiter">}</span></span><span class="delimiter">&quot;</span></span>
+}
+
+task createMyAppContainer(<span class="key">type</span>: DockerCreateContainer, <span class="key">dependsOn</span>: [buildMyAppImage, createDBContainer]) {
+    targetImageId { buildMyAppImage.getImageId() }
+    portBindings = [<span class="string"><span class="delimiter">'</span><span class="content">8080:8080</span><span class="delimiter">'</span></span>]
+
+    <span class="comment">// doFirst required! #319</span>
+    doFirst{
+        <span class="comment">// `database` there will be host used by application to DB connect</span>
+        links = [ <span class="string"><span class="delimiter">&quot;</span><span class="inline"><span class="inline-delimiter">${</span>createDBContainer.getContainerId()<span class="inline-delimiter">}</span></span><span class="content">:database</span><span class="delimiter">&quot;</span></span> ]
+    }
+
+    <span class="comment">// If you use Systemd in containers you should also add lines. #320</span>
+    binds = [ <span class="string"><span class="delimiter">'</span><span class="content">/sys/fs/cgroup</span><span class="delimiter">'</span></span>: <span class="string"><span class="delimiter">'</span><span class="content">/sys/fs/cgroup</span><span class="delimiter">'</span></span> ]
+    tty = <span class="predefined-constant">true</span>
+}
+
+task startMyAppContainer(<span class="key">type</span>: DockerStartContainer, <span class="key">dependsOn</span>: createMyAppContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task stopMyAppContainer(<span class="key">type</span>: DockerStopContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task functionalTestMyApp(<span class="key">type</span>: Test, <span class="key">dependsOn</span>: startMyAppContainer) {
+    finalizedBy stopMyAppContainer
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="java_application_plugin">3. Java Application Plugin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The plugin <code>com.bmuschko.docker-java-application</code> is a highly opinionated plugin for projects applying the <a href="http://www.gradle.org/docs/current/userguide/application_plugin.html">application plugin</a>.
+Under the covers the plugin preconfigures tasks for creating and pushing Docker images for your Java application.
+The default configuration is tweakable via an exposed extension.</p>
+</div>
+<div class="sect2">
+<h3 id="usage_2">3.1. Usage</h3>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">buildscript {
+    repositories {
+        maven {
+            url <span class="string"><span class="delimiter">'</span><span class="content">https://plugins.gradle.org/m2/</span><span class="delimiter">'</span></span>
+        }
+    }
+    dependencies {
+        classpath com.bmuschko:gradle-docker-<span class="key">plugin</span>:3.5.0<span class="string"><span class="delimiter">'</span></span><span class="error">
+</span>    }
+}
+
+apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-java-application</span><span class="delimiter">'</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="extension_2">3.2. Extension</h3>
+<div class="paragraph">
+<p>The plugin defines an extension with the namespace <code>javaApplication</code> as a child of the <code>docker</code> namespace. The following properties can be configured:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>baseImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>openjdk</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Docker base image used for Java application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>exec</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Closure</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Create ENTRYPOINT using script from Application plugin</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The ENTRYPOINT and/or CMD Dockerfile instructions</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maintainer</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Value of <code>user.home</code> system property</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name and email address of the image maintainer (Deprecated).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>port</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Integer</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>8080</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Docker image entry point port used for the Java application (Deprecated)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ports</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Integer[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Docker image exposed ports (if provided, this values will override <code>port</code> configuration property)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tag</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;project.group&gt;/&lt;applicationName&gt;:&lt;project.version&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The tag used for the Docker image.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">docker {
+    javaApplication {
+        baseImage = <span class="string"><span class="delimiter">'</span><span class="content">dockerfile/java:openjdk-7-jre</span><span class="delimiter">'</span></span>
+        maintainer = <span class="string"><span class="delimiter">'</span><span class="content">Benjamin Muschko &quot;benjamin.muschko@gmail.com&quot;</span><span class="delimiter">'</span></span>
+        ports = [<span class="integer">9090</span>, <span class="integer">5701</span>]
+        tag = <span class="string"><span class="delimiter">'</span><span class="content">jettyapp:1.115</span><span class="delimiter">'</span></span>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="adding_custom_instructions_to_dockerfile">3.2.1. Adding custom instructions to Dockerfile</h4>
+<div class="paragraph">
+<p>The <code>exec</code> extension property accepts a Closure which delegates to the <a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.CompositeExecInstruction.html">Dockerfile.CompositeExecInstruction</a> subset of the <a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html">Dockerfile task</a>.
+It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate location in the Dockerfile.</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">docker {
+    javaApplication {
+        baseImage = <span class="string"><span class="delimiter">'</span><span class="content">dockerfile/java:openjdk-7-jre</span><span class="delimiter">'</span></span>
+        maintainer = <span class="string"><span class="delimiter">'</span><span class="content">Benjamin Muschko &quot;benjamin.muschko@gmail.com&quot;</span><span class="delimiter">'</span></span>
+        ports = [<span class="integer">9090</span>, <span class="integer">5701</span>]
+        tag = <span class="string"><span class="delimiter">'</span><span class="content">jettyapp:1.115</span><span class="delimiter">'</span></span>
+        exec {
+            defaultCommand <span class="string"><span class="delimiter">'</span><span class="content">server</span><span class="delimiter">'</span></span>
+            entryPoint <span class="string"><span class="delimiter">'</span><span class="content">myApp/bin/containerLaunch.sh</span><span class="delimiter">'</span></span>
+        }
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="tasks">3.3. Tasks</h3>
+<div class="paragraph">
+<p>The plugin provides a set of tasks for your project and preconfigures them with sensible defaults.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Task name</th>
+<th class="tableblock halign-left valign-top">Depends On</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCopyDistResources</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>distTar</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://www.gradle.org/docs/current/javadoc/org/gradle/api/tasks/Sync.html">Sync</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Copies the resource files (like the Java application&#8217;s TAR file) to a temporary directory for image creation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerDistTar</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCopyDistResources</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dockerfile</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates the Docker image for the Java application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerBuildImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerDistTar</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DockerBuildImage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Builds the Docker image for the Java application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerPushImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerBuildImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DockerPushImage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pushes created Docker image to the repository.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="examples_2">3.4. Examples</h3>
+<div class="paragraph">
+<p>The following usage examples demonstrate code for common use cases.
+More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerJavaApplicationPluginFunctionalTest.groovy">functional tests</a>.</p>
+</div>
+<div class="sect3">
+<h4 id="using_the_plugin_for_an_application_run_on_jetty">3.4.1. Using the Plugin for an Application Run on Jetty</h4>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">java</span><span class="delimiter">'</span></span>
+apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">application</span><span class="delimiter">'</span></span>
+apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-java-application</span><span class="delimiter">'</span></span>
+
+version = <span class="string"><span class="delimiter">'</span><span class="content">1.0</span><span class="delimiter">'</span></span>
+sourceCompatibility = <span class="float">1.7</span>
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation <span class="string"><span class="delimiter">'</span><span class="content">org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112</span><span class="delimiter">'</span></span>
+}
+
+mainClassName = <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.gradle.docker.application.JettyMain</span><span class="delimiter">'</span></span>
+
+docker {
+    javaApplication {
+        maintainer = <span class="string"><span class="delimiter">'</span><span class="content">Jon Doe &quot;jon.doe@gmail.com&quot;</span><span class="delimiter">'</span></span>
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="additional_instructions_in_dockerfile">3.4.2. Additional Instructions in Dockerfile</h4>
+<div class="paragraph">
+<p>You can add additional instructions to the dockerfile using <code>dockerDistTar</code> and <a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html">Dockerfile task</a> DSL:</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dockerDistTar {
+    instruction {<span class="string"><span class="delimiter">'</span><span class="content">RUN ls -la</span><span class="delimiter">'</span></span>}
+    environmentVariable(<span class="string"><span class="delimiter">'</span><span class="content">JAVA_OPTS</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap</span><span class="delimiter">'</span></span>)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>will result in</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>FROM java
+MAINTAINER user
+ADD javaapp-1.0.0-SNAPSHOT.tar /
+ENTRYPOINT ["/javaapp-1.0.0-SNAPSHOT/bin/javaapp"]
+EXPOSE 8080
+RUN ls -la</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or you can use form</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">dockerDistTar.instructionsFromTemplate file(<span class="string"><span class="delimiter">'</span><span class="content">Dockerfile.tmpl</span><span class="delimiter">'</span></span>)</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="spring_boot_application_plugin">4. Spring Boot Application Plugin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The plugin <code>com.bmuschko.docker-spring-boot-application</code> is a highly opinionated plugin for projects applying the <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/build-tool-plugins-gradle-plugin.html">Spring Boot plugin</a>.
+Under the covers the plugin preconfigures tasks for creating and pushing Docker images for your Spring Boot application.
+The default configuration is tweakable via an exposed extension. The plugin <a href="https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/#reacting-to-other-plugins">reacts</a> to either the <code>java</code> or <code>war</code> plugin.</p>
+</div>
+<div class="sect2">
+<h3 id="usage_3">4.1. Usage</h3>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">buildscript {
+    repositories {
+        maven {
+            url <span class="string"><span class="delimiter">'</span><span class="content">https://plugins.gradle.org/m2/</span><span class="delimiter">'</span></span>
+        }
+    }
+    dependencies {
+        classpath com.bmuschko:gradle-docker-<span class="key">plugin</span>:3.5.0<span class="string"><span class="delimiter">'</span></span><span class="error">
+</span>    }
+}
+
+apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-spring-boot-application</span><span class="delimiter">'</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="extension_3">4.2. Extension</h3>
+<div class="paragraph">
+<p>The plugin defines an extension with the namespace <code>springBootApplication</code> as a child of the <code>docker</code> namespace.
+The following properties can be configured:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>baseImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>openjdk</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Docker base image used for the Spring Boot application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ports</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Integer[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[8080]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Docker image exposed ports.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tag</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;project.group&gt;/&lt;project.name&gt;:&lt;project.version&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The tag used for the Docker image.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">docker {
+    springBootApplication {
+        baseImage = <span class="string"><span class="delimiter">'</span><span class="content">openjdk:8-alpine</span><span class="delimiter">'</span></span>
+        ports = [<span class="integer">9090</span>, <span class="integer">8080</span>]
+        tag = <span class="string"><span class="delimiter">'</span><span class="content">awesome-spring-boot:1.115</span><span class="delimiter">'</span></span>
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="tasks_2">4.3. Tasks</h3>
+<div class="paragraph">
+<p>The plugin provides a set of tasks for your project and preconfigures them with sensible defaults.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Task name</th>
+<th class="tableblock halign-left valign-top">Depends On</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncArchive</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>assemble</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://www.gradle.org/docs/current/javadoc/org/gradle/api/tasks/Sync.html">Sync</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Copies the Spring Boot archive to a temporary directory for image creation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCreateDockerfile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bootJar</code> or <code>bootWar</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dockerfile</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Creates the Docker image for the Spring Boot application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerBuildImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCreateDockerfile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DockerBuildImage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Builds the Docker image for the Spring Boot application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerPushImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerBuildImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DockerPushImage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pushes created Docker image to the repository.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="examples_3">4.4. Examples</h3>
+<div class="paragraph">
+<p>The following usage examples demonstrate code for common use cases. More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerSpringBootApplicationPluginFunctionalTest.groovy">functional tests</a>.</p>
+</div>
+<div class="sect3">
+<h4 id="using_the_plugin_for_an_application_run_on_tomcat">4.4.1. Using the Plugin For an Application Run on Tomcat</h4>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">plugins {
+    id <span class="string"><span class="delimiter">'</span><span class="content">war</span><span class="delimiter">'</span></span>
+    id <span class="string"><span class="delimiter">'</span><span class="content">org.springframework.boot</span><span class="delimiter">'</span></span> version <span class="string"><span class="delimiter">'</span><span class="content">2.0.3.RELEASE</span><span class="delimiter">'</span></span>
+    id <span class="string"><span class="delimiter">'</span><span class="content">io.spring.dependency-management</span><span class="delimiter">'</span></span> version <span class="string"><span class="delimiter">'</span><span class="content">1.0.5.RELEASE</span><span class="delimiter">'</span></span>
+    id <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-spring-boot-application</span><span class="delimiter">'</span></span>
+}
+
+version = <span class="string"><span class="delimiter">'</span><span class="content">1.0</span><span class="delimiter">'</span></span>
+sourceCompatibility = <span class="integer">8</span>
+targetCompatibility = <span class="integer">8</span>
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation <span class="string"><span class="delimiter">'</span><span class="content">org.springframework.boot:spring-boot-starter-web</span><span class="delimiter">'</span></span>
+    providedRuntime <span class="string"><span class="delimiter">'</span><span class="content">org.springframework.boot:spring-boot-starter-tomcat</span><span class="delimiter">'</span></span>
+    providedRuntime <span class="string"><span class="delimiter">'</span><span class="content">org.apache.tomcat.embed:tomcat-embed-jasper</span><span class="delimiter">'</span></span>
+}
+
+docker {
+    springBootApplication {
+        baseImage = <span class="string"><span class="delimiter">'</span><span class="content">openjdk:8-alpine</span><span class="delimiter">'</span></span>
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="about_this_project">5. About This Project</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="maintainers">5.1. Maintainers</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/cdancy">Christopher Dancy</a></p>
+</li>
+<li>
+<p><a href="https://github.com/orzeh">Łukasz Warchał</a></p>
+</li>
+<li>
+<p><a href="https://github.com/bmuschko">Benjamin Muschko</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="contributing">5.2. Contributing</h3>
+<div class="paragraph">
+<p>Over the years, the plugin has tremendously grown in popularity.
+Contributions from the community are very welcome.
+Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/.github/CONTRIBUTING.md">contribution guidelines</a> to get started.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="development">5.3. Development</h3>
+<div class="sect3">
+<h4 id="executing_the_plugin_s_test_suite_with_custom_configuration">5.3.1. Executing the Plugin&#8217;s Test Suite With Custom Configuration</h4>
+<div class="paragraph">
+<p>It is required to <a href="https://docs.docker.com/install/">install and run Docker Community Edition (CE)</a> on the machine running tests. Please refer to the installation manual for more information. The default setup can be configured with the help of the properties shown in the table below:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">System/Project Property</th>
+<th class="tableblock halign-left valign-top">Environment Variable</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docker server URL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerServerUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DOCKER_HOST</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unix:///var/run/docker.sock</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docker cert path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCertPath</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DOCKER_CERT_PATH</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docker private registry URL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerPrivateRegistryUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DOCKER_REGISTRY_HOST</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="http://localhost:5000" class="bare">http://localhost:5000</a></code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The following usage examples demonstrates running functional tests against the a Docker instance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">$ ./gradlew functionalTest</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>OR</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">$ ./gradlew functionalTest -PdockerServerUrl=unix:///var/run/docker.sock</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>OR</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">$ ./gradlew functionalTest -DdockerServerUrl=unix:///var/run/docker.sock</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>OR</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">$ export DOCKER_HOST=unix:///var/run/docker.sock &amp;&amp; ./gradlew functionalTest</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>OR</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">$ ./gradlew functionalTest -PdockerServerUrl=http://192.168.59.103:2376</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 3.5.0<br>
+Last updated 2018-07-24 14:21:57 UTC
+</div>
+</div>
+</body>
+</html>
