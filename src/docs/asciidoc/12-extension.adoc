@@ -32,9 +32,7 @@ You can provide those credentials in the `registryCredentials` closure:
 |`email`         |`String`    |`null`                        |The registry email address.
 |=======
 
-==== Examples
-
-===== Working With a TLS-enabled Docker Instance
+==== Working With a TLS-enabled Docker Instance
 
 Starting with Docker version 1.3, TLS is enabled by default.
 Please consult the Docker documentation https://docs.docker.com/articles/https/["Running Docker
@@ -57,7 +55,7 @@ docker {
 }
 ----
 
-===== Working With Google Cloud And Using a Key File
+==== Working With Google Cloud And Using a Key File
 
 .build.gradle
 [source,groovy,subs="+attributes"]
@@ -71,7 +69,7 @@ docker {
 }
 ----
 
-===== Working With a Docker Instance Without TLS
+==== Working With a Docker Instance Without TLS
 
 The following example assumes that you disabled TLS on your Docker instance.
 You can do so by setting `DOCKER_TLS=no` in the file `/var/lib/boot2docker/profile`.

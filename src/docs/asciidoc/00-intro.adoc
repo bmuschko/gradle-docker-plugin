@@ -9,6 +9,24 @@ Please refer to the library's documentation for more information on the supporte
 [IMPORTANT]
 This plugin requires Gradle >= 2.5 to work properly.
 
+=== Benefits
+
+There are various benefits for using this plugin:
+
+1. Seamless integration with the build tool Gradle and its DSL
+2. Handles complicated communication logic between Docker client and daemon under the covers
+3. Simplifies the definition of complex workflows
+4. Minimizes build script setup logic by providing sensible conventions for different use cases
+
+=== Further Readings
+
+Want to learn more about using this plugin in different contexts? The following blog posts should get you started.
+
+* https://bmuschko.com/blog/dockerized-spring-boot-app/[Docker with Gradle: Dockerizing a Spring Boot application]
+* https://bmuschko.com/blog/docker-integration-testing/[Docker with Gradle: Integration testing using containers]
+* https://bmuschko.com/blog/gradle-docker-convention-plugin/[Docker with Gradle: Writing a Node.js convention plugin]
+* https://bmuschko.com/blog/gradle-docker-compose/[Docker with Gradle: Getting started with Docker Compose]
+
 include::01-provided-plugins.adoc[]
 
 include::02-getting-started.adoc[]

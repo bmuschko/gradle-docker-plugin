@@ -11,4 +11,4 @@ include::13-custom-task-types.adoc[]
 
 include::14-reactive-streams.adoc[]
 
-include::15-workflow-examples.adoc[]
+include::15-examples.adoc[]

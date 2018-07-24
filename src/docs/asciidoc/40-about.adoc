@@ -1,16 +1,16 @@
 == About This Project
 
-=== Contributing
-
-Over the years, the plugin has tremendously grown in popularity.
-Contributions from the community are very welcome.
-To get started have a look at the https://github.com/bmuschko/gradle-docker-plugin/blob/master/.github/CONTRIBUTING.md[contribution guidelines].
-
 === Maintainers
 
 * https://github.com/cdancy[Christopher Dancy]
 * https://github.com/bmuschko[Benjamin Muschko]
 * https://github.com/orzeh[Orzeh]
+
+=== Contributing
+
+Over the years, the plugin has tremendously grown in popularity.
+Contributions from the community are very welcome.
+Have a look at the https://github.com/bmuschko/gradle-docker-plugin/blob/master/.github/CONTRIBUTING.md[contribution guidelines] to get started.
 
 === Development
 

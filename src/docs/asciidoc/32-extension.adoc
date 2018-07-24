@@ -1,9 +1,6 @@
 === Extension
 
 The plugin defines an extension with the namespace `springBootApplication` as a child of the `docker` namespace.
-
-==== Properties
-
 The following properties can be configured:
 
 [options="header"]
@@ -13,8 +10,6 @@ The following properties can be configured:
 |`ports`         |`Integer[]` |`[8080]`                                                 |The Docker image exposed ports.
 |`tag`           |`String`    |`<project.group>/<project.name>:<project.version>`       |The tag used for the Docker image.
 |=======
-
-==== Example
 
 .build.gradle
 [source,groovy,subs="+attributes"]

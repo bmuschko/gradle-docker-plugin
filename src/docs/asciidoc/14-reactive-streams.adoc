@@ -27,7 +27,7 @@ task removeContainer(type: DockerRemoveContainer) {
 }
 ----
 
-==== Reacting Over Data Returned by an Operation
+==== Reacting to Data Returned by an Operation
 
 The `onNext` closure is passed the next iterative response upon execution.
 For all other tasks we simply hand you back the object that is given to us by `docker-java` which is a pojo representation of the json handed back by `docker`.

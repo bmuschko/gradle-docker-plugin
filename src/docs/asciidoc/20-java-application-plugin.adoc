@@ -9,3 +9,5 @@ include::21-usage.adoc[]
 include::22-extension.adoc[]
 
 include::23-tasks.adoc[]
+
+include::24-examples.adoc[]

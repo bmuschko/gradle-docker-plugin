@@ -1,10 +1,6 @@
 === Extension
 
-The plugin defines an extension with the namespace `javaApplication` as a child of the `docker` namespace.
-
-==== Properties
-
-The following properties can be configured:
+The plugin defines an extension with the namespace `javaApplication` as a child of the `docker` namespace. The following properties can be configured:
 
 [options="header"]
 |=======
@@ -16,8 +12,6 @@ The following properties can be configured:
 |`ports`         |`Integer[]` |`[]`                                                     |The Docker image exposed ports (if provided, this values will override `port` configuration property)
 |`tag`           |`String`    |`<project.group>/<applicationName>:<project.version>`    |The tag used for the Docker image.
 |=======
-
-===== Example
 
 .build.gradle
 [source,groovy,subs="+attributes"]
@@ -32,12 +26,10 @@ docker {
 }
 ----
 
-==== `exec` property
+==== Adding custom instructions to Dockerfile
 
 The `exec` extension property accepts a Closure which delegates to the http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.CompositeExecInstruction.html[Dockerfile.CompositeExecInstruction] subset of the http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
 It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate location in the Dockerfile.
-
-==== Example
 
 .build.gradle
 [source,groovy,subs="+attributes"]
