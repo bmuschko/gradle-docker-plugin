@@ -37,7 +37,7 @@ gitPublish {
         from(groovydoc.outputs.files) {
             into 'docs/groovydoc'
         }
-        from(asciidoctor.outputDir) {
+        from("$asciidoctor.outputDir/html5") {
             into 'docs/userguide'
         }
     }
