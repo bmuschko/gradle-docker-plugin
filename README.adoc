@@ -1,0 +1,18 @@
+image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
+image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/images/download.svg["Download", link="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/_latestVersion"]
+image:https://img.shields.io/badge/stack%20overflow-gradle%20docker%20plugin-blue.svg["Stackoverflow", link="https://stackoverflow.com/questions/tagged/gradle-docker-plugin"]
+image:https://badges.gitter.im/Join%20Chat.svg["Gitter", link="https://gitter.im/gradle-docker-plugin/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge"]
+
+= Gradle Docker plugin
+
+Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using via its
+link:http://docs.docker.io/reference/api/docker_remote_api/[remote API]. The heavy lifting of communicating with the
+Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Please
+refer to the library's documentation for more information on the supported Docker's client API and Docker server version.
+
+[IMPORTANT]
+As of version `3.2.5` of this plugin we are using the link:https://github.com/project-aries/docker-java-shaded[docker-java-shaded] library, in favor of `docker-java`, which itself is hosted on jcenter ONLY. This means that instead of resolving the multiple, potentially conflicting, dependencies of `docker-java` we will instead resolve 1 shaded/uber/fat jar with all dependencies baked in. The dependencies/classes themselves are now located under the `com.github.dockerjava.shaded` package. Please give things a go and report back any issues found. Thanks!
+
+== Documentation
+
+Read the http://bmuschko.github.io/gradle-docker-plugin/docs/userguide[user guide]!

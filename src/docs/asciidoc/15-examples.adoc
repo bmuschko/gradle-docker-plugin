@@ -1,0 +1,121 @@
+=== Examples
+
+The following usage examples demonstrate code for common use cases.
+More scenarios can be found in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy[functional tests].
+
+==== Creating a Dockerfile And Building an Image
+
+A Dockerfile can be created by the `Dockerfile` custom tasks.
+The Dockerfile instructions need to be declare in the correct
+order.
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+task createDockerfile(type: Dockerfile) {
+    destFile = project.file('build/mydockerfile/Dockerfile')
+    from 'ubuntu:12.04'
+    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = 'bmuschko/myimage:latest'
+}
+----
+
+==== Executing Functional Tests Against a Running Container
+
+The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this image and exercises functional tests against the running container.
+At the end of this operation, the container is stopped.
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('docker/myapp')
+    tag = 'test/myapp:latest'
+}
+
+task createMyAppContainer(type: DockerCreateContainer) {
+    dependsOn buildMyAppImage
+    targetImageId { buildMyAppImage.getImageId() }
+    portBindings = ['8080:8080']
+}
+
+task startMyAppContainer(type: DockerStartContainer) {
+    dependsOn createMyAppContainer
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task stopMyAppContainer(type: DockerStopContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task functionalTestMyApp(type: Test) {
+    dependsOn startMyAppContainer
+    finalizedBy stopMyAppContainer
+}
+----
+
+==== Linking With Other Containers
+
+In many situations your container does not start without dependencies like database.
+In that case you may wish using traditional linking:
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('docker/myapp')
+    tag = 'test/myapp'
+}
+
+task createDBContainer(type: DockerCreateContainer) {
+    targetImageId { 'postgres:latest' }
+    containerName "docker_auto_${buildMyAppImage.buildTagName}"
+}
+
+task createMyAppContainer(type: DockerCreateContainer, dependsOn: [buildMyAppImage, createDBContainer]) {
+    targetImageId { buildMyAppImage.getImageId() }
+    portBindings = ['8080:8080']
+
+    // doFirst required! #319
+    doFirst{
+        // `database` there will be host used by application to DB connect
+        links = [ "${createDBContainer.getContainerId()}:database" ]
+    }
+
+    // If you use Systemd in containers you should also add lines. #320
+    binds = [ '/sys/fs/cgroup': '/sys/fs/cgroup' ]
+    tty = true
+}
+
+task startMyAppContainer(type: DockerStartContainer, dependsOn: createMyAppContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task stopMyAppContainer(type: DockerStopContainer) {
+    targetContainerId { createMyAppContainer.getContainerId() }
+}
+
+task functionalTestMyApp(type: Test, dependsOn: startMyAppContainer) {
+    finalizedBy stopMyAppContainer
+}
+----

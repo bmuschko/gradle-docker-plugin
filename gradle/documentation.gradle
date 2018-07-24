@@ -37,7 +37,10 @@ gitPublish {
         from(groovydoc.outputs.files) {
             into 'docs/groovydoc'
         }
+        from(asciidoctor.outputDir) {
+            into 'docs/userguide'
+        }
     }
 }
 
-gitPublishPush.dependsOn javadoc, groovydoc
+gitPublishPush.dependsOn javadoc, groovydoc, asciidoctor
