@@ -1,5 +1,6 @@
-### Version 3.4.5 (TBA)
+### Version 3.5.1 (TBA)
 
+### Version 3.5.0 (July 24, 2018)
 * Support for dockerizing Spring Boot applications. - [Pull Request 619](https://github.com/bmuschko/gradle-docker-plugin/pull/619)
 * Removed deprecated `ResponseHandler` - [Pull Request 624](https://github.com/bmuschko/gradle-docker-plugin/pull/624)
 * Introduce user guide for more readable, maintainable documentation - [Pull Request 630](https://github.com/bmuschko/gradle-docker-plugin/pull/630)
