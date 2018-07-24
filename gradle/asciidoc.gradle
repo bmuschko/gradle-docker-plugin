@@ -16,10 +16,11 @@ asciidoctor {
     sources {
         include 'index.adoc'
     }
-    attributes toc: 'left',
+    attributes 'toc': 'left',
                'source-highlighter': 'coderay',
-               icons: 'font',
-               numbered: '',
-               idprefix: '',
-               docinfo1: 'true'
+               'icons': 'font',
+               'numbered': '',
+               'idprefix': '',
+               'docinfo1': 'true',
+               'sectanchors': 'true'
 }
