@@ -4,7 +4,7 @@
 
 * https://github.com/cdancy[Christopher Dancy]
 * https://github.com/bmuschko[Benjamin Muschko]
-* https://github.com/orzeh[Orzeh]
+* https://github.com/orzeh[Łukasz Warchał]
 
 === Contributing
 
