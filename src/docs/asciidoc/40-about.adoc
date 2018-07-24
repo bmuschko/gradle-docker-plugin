@@ -30,33 +30,33 @@ The following usage examples demonstrates running functional tests against the a
 
 [source,shell]
 ----
-./gradlew functionalTest
+$ ./gradlew functionalTest
 ----
 
 OR
 
 [source,shell]
 ----
-./gradlew functionalTest -PdockerServerUrl=unix:///var/run/docker.sock
+$ ./gradlew functionalTest -PdockerServerUrl=unix:///var/run/docker.sock
 ----
 
 OR
 
 [source,shell]
 ----
-./gradlew functionalTest -DdockerServerUrl=unix:///var/run/docker.sock
+$ ./gradlew functionalTest -DdockerServerUrl=unix:///var/run/docker.sock
 ----
 
 OR
 
 [source,shell]
 ----
-export DOCKER_HOST=unix:///var/run/docker.sock && ./gradlew functionalTest
+$ export DOCKER_HOST=unix:///var/run/docker.sock && ./gradlew functionalTest
 ----
 
 OR
 
 [source,shell]
 ----
-./gradlew functionalTest -PdockerServerUrl=http://192.168.59.103:2376
+$ ./gradlew functionalTest -PdockerServerUrl=http://192.168.59.103:2376
 ----
