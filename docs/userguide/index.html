@@ -571,7 +571,7 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="introduction">1. Introduction</h2>
+<h2 id="introduction"><a class="anchor" href="#introduction"></a>1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Gradle plugin for managing <a href="https://www.docker.io/">Docker</a> images and containers using via its
@@ -593,7 +593,7 @@ This plugin requires Gradle &gt;= 2.5 to work properly.
 </table>
 </div>
 <div class="sect2">
-<h3 id="benefits">1.1. Benefits</h3>
+<h3 id="benefits"><a class="anchor" href="#benefits"></a>1.1. Benefits</h3>
 <div class="paragraph">
 <p>There are various benefits for using this plugin:</p>
 </div>
@@ -615,7 +615,7 @@ This plugin requires Gradle &gt;= 2.5 to work properly.
 </div>
 </div>
 <div class="sect2">
-<h3 id="further_readings">1.2. Further Readings</h3>
+<h3 id="further_readings"><a class="anchor" href="#further_readings"></a>1.2. Further Readings</h3>
 <div class="paragraph">
 <p>Want to learn more about using this plugin in different contexts? The following blog posts should get you started.</p>
 </div>
@@ -637,7 +637,7 @@ This plugin requires Gradle &gt;= 2.5 to work properly.
 </div>
 </div>
 <div class="sect2">
-<h3 id="provided_plugins">1.3. Provided Plugins</h3>
+<h3 id="provided_plugins"><a class="anchor" href="#provided_plugins"></a>1.3. Provided Plugins</h3>
 <div class="paragraph">
 <p>The binary distribution is available on the <a href="https://plugins.gradle.org/search?term=com.bmuschko.docker">Gradle plugin portal</a>, <a href="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin">Bintray&#8217;s JCenter</a> and <a href="https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.bmuschko%22%20AND%20a%3A%22gradle-docker-plugin%22">Maven Central</a>.
 It contains the following plugins:</p>
@@ -683,14 +683,14 @@ It contains the following plugins:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="getting_started">1.4. Getting Started</h3>
+<h3 id="getting_started"><a class="anchor" href="#getting_started"></a>1.4. Getting Started</h3>
 <div class="paragraph">
 <p>The plugin can be applied with the <code>buildscript</code> syntax or the plugin DSL.
 Let&#8217;s say you&#8217;d want to go with the plugin that provides the plain Docker operations for managing Docker images and containers.
 See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle user guide</a> for more information on applying plugins.</p>
 </div>
 <div class="sect3">
-<h4 id="aplying_the_plugin_using_the_buildscript_syntax">1.4.1. Aplying the Plugin Using the buildscript Syntax</h4>
+<h4 id="aplying_the_plugin_using_the_buildscript_syntax"><a class="anchor" href="#aplying_the_plugin_using_the_buildscript_syntax"></a>1.4.1. Aplying the Plugin Using the buildscript Syntax</h4>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -710,7 +710,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="applying_the_plugin_using_the_plugin_dsl">1.4.2. Applying the Plugin using the Plugin DSL</h4>
+<h4 id="applying_the_plugin_using_the_plugin_dsl"><a class="anchor" href="#applying_the_plugin_using_the_plugin_dsl"></a>1.4.2. Applying the Plugin using the Plugin DSL</h4>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -721,7 +721,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="applying_the_plugin_from_a_script_plugin">1.4.3. Applying the Plugin From a Script Plugin</h4>
+<h4 id="applying_the_plugin_from_a_script_plugin"><a class="anchor" href="#applying_the_plugin_from_a_script_plugin"></a>1.4.3. Applying the Plugin From a Script Plugin</h4>
 <div class="paragraph">
 <p>Applying the plugin from a script plugin requires the use of the fully-qualified class name due to a <a href="https://github.com/gradle/gradle/issues/1262">bug in Gradle core</a>. Be aware that the plugin DSL cannot be used to apply a binary plugin from a script plugin.</p>
 </div>
@@ -753,14 +753,14 @@ apply <span class="key">plugin</span>: com.bmuschko.gradle.docker.DockerRemoteAp
 </div>
 </div>
 <div class="sect1">
-<h2 id="remote_api_plugin">2. Remote API Plugin</h2>
+<h2 id="remote_api_plugin"><a class="anchor" href="#remote_api_plugin"></a>2. Remote API Plugin</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The plugin <code>com.bmuschko.docker-remote-api</code> allows for interacting with Docker via its remote API.
 You can model any workflow imaginable by creating enhanced task of the custom task provided by the plugin.</p>
 </div>
 <div class="sect2">
-<h3 id="usage">2.1. Usage</h3>
+<h3 id="usage"><a class="anchor" href="#usage"></a>2.1. Usage</h3>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -802,7 +802,7 @@ One repository that hosts them all is Maven Central.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="extension">2.2. Extension</h3>
+<h3 id="extension"><a class="anchor" href="#extension"></a>2.2. Extension</h3>
 <div class="paragraph">
 <p>The plugin defines an extension with the namespace <code>docker</code>.
 The following properties can be configured:</p>
@@ -915,7 +915,7 @@ You can provide those credentials in the <code>registryCredentials</code> closur
 </tbody>
 </table>
 <div class="sect3">
-<h4 id="working_with_a_tls_enabled_docker_instance">2.2.1. Working With a TLS-enabled Docker Instance</h4>
+<h4 id="working_with_a_tls_enabled_docker_instance"><a class="anchor" href="#working_with_a_tls_enabled_docker_instance"></a>2.2.1. Working With a TLS-enabled Docker Instance</h4>
 <div class="paragraph">
 <p>Starting with Docker version 1.3, TLS is enabled by default.
 Please consult the Docker documentation <a href="https://docs.docker.com/articles/https/">"Running Docker
@@ -940,7 +940,7 @@ Additionally, this code snippet shows how to set the user credentials.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="working_with_google_cloud_and_using_a_key_file">2.2.2. Working With Google Cloud And Using a Key File</h4>
+<h4 id="working_with_google_cloud_and_using_a_key_file"><a class="anchor" href="#working_with_google_cloud_and_using_a_key_file"></a>2.2.2. Working With Google Cloud And Using a Key File</h4>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -955,7 +955,7 @@ Additionally, this code snippet shows how to set the user credentials.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="working_with_a_docker_instance_without_tls">2.2.3. Working With a Docker Instance Without TLS</h4>
+<h4 id="working_with_a_docker_instance_without_tls"><a class="anchor" href="#working_with_a_docker_instance_without_tls"></a>2.2.3. Working With a Docker Instance Without TLS</h4>
 <div class="paragraph">
 <p>The following example assumes that you disabled TLS on your Docker instance.
 You can do so by setting <code>DOCKER_TLS=no</code> in the file <code>/var/lib/boot2docker/profile</code>.</p>
@@ -978,9 +978,9 @@ We instead fall back to <code>tcp://127.0.0.1:2375</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="custom_task_types">2.3. Custom task types</h3>
+<h3 id="custom_task_types"><a class="anchor" href="#custom_task_types"></a>2.3. Custom task types</h3>
 <div class="sect3">
-<h4 id="misc">2.3.1. Misc</h4>
+<h4 id="misc"><a class="anchor" href="#misc"></a>2.3.1. Misc</h4>
 <div class="paragraph">
 <p>The plugin provides the following general-purpose custom task types:</p>
 </div>
@@ -1012,7 +1012,7 @@ We instead fall back to <code>tcp://127.0.0.1:2375</code>.</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="images">2.3.2. Images</h4>
+<h4 id="images"><a class="anchor" href="#images"></a>2.3.2. Images</h4>
 <div class="paragraph">
 <p>The plugin provides the following custom task types for managing images:</p>
 </div>
@@ -1076,7 +1076,7 @@ We instead fall back to <code>tcp://127.0.0.1:2375</code>.</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="containers">2.3.3. Containers</h4>
+<h4 id="containers"><a class="anchor" href="#containers"></a>2.3.3. Containers</h4>
 <div class="paragraph">
 <p>The plugin provides the following custom task types for managing containers:</p>
 </div>
@@ -1152,7 +1152,7 @@ We instead fall back to <code>tcp://127.0.0.1:2375</code>.</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="networks">2.3.4. Networks</h4>
+<h4 id="networks"><a class="anchor" href="#networks"></a>2.3.4. Networks</h4>
 <div class="paragraph">
 <p>The plugin provides the following custom task types for managing networks:</p>
 </div>
@@ -1184,7 +1184,7 @@ We instead fall back to <code>tcp://127.0.0.1:2375</code>.</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="extras">2.3.5. Extras</h4>
+<h4 id="extras"><a class="anchor" href="#extras"></a>2.3.5. Extras</h4>
 <div class="paragraph">
 <p>The plugin provides the following additional tasks:</p>
 </div>
@@ -1217,7 +1217,7 @@ We instead fall back to <code>tcp://127.0.0.1:2375</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="reactive_streams">2.4. Reactive Streams</h3>
+<h3 id="reactive_streams"><a class="anchor" href="#reactive_streams"></a>2.4. Reactive Streams</h3>
 <div class="paragraph">
 <p>As needed, we will implement reactive methods as described in <a href="https://github.com/reactive-streams/reactive-streams-jvm">reactive-streams</a>.
 We implement these here as optional closures for all tasks.
@@ -1225,7 +1225,7 @@ Currently the only supported methods are <code>onError</code>, <code>onNext</cod
 Various examples on how to use these can be found in our <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy">reactive tests</a></p>
 </div>
 <div class="sect3">
-<h4 id="reacting_to_an_error">2.4.1. Reacting to an Error</h4>
+<h4 id="reacting_to_an_error"><a class="anchor" href="#reacting_to_an_error"></a>2.4.1. Reacting to an Error</h4>
 <div class="paragraph">
 <p>The <code>onError</code> closure is passed the exception that is thrown for <em>you</em> to handle.
 If you silently ignore we will not throw the exception behind the scenes.
@@ -1250,7 +1250,7 @@ task removeContainer(<span class="key">type</span>: DockerRemoveContainer) {
 </div>
 </div>
 <div class="sect3">
-<h4 id="reacting_to_data_returned_by_an_operation">2.4.2. Reacting to Data Returned by an Operation</h4>
+<h4 id="reacting_to_data_returned_by_an_operation"><a class="anchor" href="#reacting_to_data_returned_by_an_operation"></a>2.4.2. Reacting to Data Returned by an Operation</h4>
 <div class="paragraph">
 <p>The <code>onNext</code> closure is passed the next iterative response upon execution.
 For all other tasks we simply hand you back the object that is given to us by <code>docker-java</code> which is a pojo representation of the json handed back by <code>docker</code>.
@@ -1282,7 +1282,7 @@ task logContainer(<span class="key">type</span>: DockerLogsContainer) {
 </div>
 </div>
 <div class="sect3">
-<h4 id="reacting_to_the_completion_of_an_operation">2.4.3. Reacting to the Completion of an Operation</h4>
+<h4 id="reacting_to_the_completion_of_an_operation"><a class="anchor" href="#reacting_to_the_completion_of_an_operation"></a>2.4.3. Reacting to the Completion of an Operation</h4>
 <div class="paragraph">
 <p>The <code>onComplete</code> closure is not passed anything upon execution.
 It works in the same fashion that <code>doLast</code> does but is instead part of this task and thus executes before <code>doLast</code> does.
@@ -1310,13 +1310,13 @@ task removeContainer(<span class="key">type</span>: DockerRemoveContainer) {
 </div>
 </div>
 <div class="sect2">
-<h3 id="examples">2.5. Examples</h3>
+<h3 id="examples"><a class="anchor" href="#examples"></a>2.5. Examples</h3>
 <div class="paragraph">
 <p>The following usage examples demonstrate code for common use cases.
 More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy">functional tests</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="creating_a_dockerfile_and_building_an_image">2.5.1. Creating a Dockerfile And Building an Image</h4>
+<h4 id="creating_a_dockerfile_and_building_an_image"><a class="anchor" href="#creating_a_dockerfile_and_building_an_image"></a>2.5.1. Creating a Dockerfile And Building an Image</h4>
 <div class="paragraph">
 <p>A Dockerfile can be created by the <code>Dockerfile</code> custom tasks.
 The Dockerfile instructions need to be declare in the correct
@@ -1345,7 +1345,7 @@ task buildImage(<span class="key">type</span>: DockerBuildImage) {
 </div>
 </div>
 <div class="sect3">
-<h4 id="executing_functional_tests_against_a_running_container">2.5.2. Executing Functional Tests Against a Running Container</h4>
+<h4 id="executing_functional_tests_against_a_running_container"><a class="anchor" href="#executing_functional_tests_against_a_running_container"></a>2.5.2. Executing Functional Tests Against a Running Container</h4>
 <div class="paragraph">
 <p>The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this image and exercises functional tests against the running container.
 At the end of this operation, the container is stopped.</p>
@@ -1386,7 +1386,7 @@ task functionalTestMyApp(<span class="key">type</span>: Test) {
 </div>
 </div>
 <div class="sect3">
-<h4 id="linking_with_other_containers">2.5.3. Linking With Other Containers</h4>
+<h4 id="linking_with_other_containers"><a class="anchor" href="#linking_with_other_containers"></a>2.5.3. Linking With Other Containers</h4>
 <div class="paragraph">
 <p>In many situations your container does not start without dependencies like database.
 In that case you may wish using traditional linking:</p>
@@ -1442,7 +1442,7 @@ task functionalTestMyApp(<span class="key">type</span>: Test, <span class="key">
 </div>
 </div>
 <div class="sect1">
-<h2 id="java_application_plugin">3. Java Application Plugin</h2>
+<h2 id="java_application_plugin"><a class="anchor" href="#java_application_plugin"></a>3. Java Application Plugin</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The plugin <code>com.bmuschko.docker-java-application</code> is a highly opinionated plugin for projects applying the <a href="http://www.gradle.org/docs/current/userguide/application_plugin.html">application plugin</a>.
@@ -1450,7 +1450,7 @@ Under the covers the plugin preconfigures tasks for creating and pushing Docker 
 The default configuration is tweakable via an exposed extension.</p>
 </div>
 <div class="sect2">
-<h3 id="usage_2">3.1. Usage</h3>
+<h3 id="usage_2"><a class="anchor" href="#usage_2"></a>3.1. Usage</h3>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -1470,7 +1470,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect2">
-<h3 id="extension_2">3.2. Extension</h3>
+<h3 id="extension_2"><a class="anchor" href="#extension_2"></a>3.2. Extension</h3>
 <div class="paragraph">
 <p>The plugin defines an extension with the namespace <code>javaApplication</code> as a child of the <code>docker</code> namespace. The following properties can be configured:</p>
 </div>
@@ -1542,7 +1542,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="adding_custom_instructions_to_dockerfile">3.2.1. Adding custom instructions to Dockerfile</h4>
+<h4 id="adding_custom_instructions_to_dockerfile"><a class="anchor" href="#adding_custom_instructions_to_dockerfile"></a>3.2.1. Adding custom instructions to Dockerfile</h4>
 <div class="paragraph">
 <p>The <code>exec</code> extension property accepts a Closure which delegates to the <a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.CompositeExecInstruction.html">Dockerfile.CompositeExecInstruction</a> subset of the <a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html">Dockerfile task</a>.
 It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate location in the Dockerfile.</p>
@@ -1567,7 +1567,7 @@ It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate loc
 </div>
 </div>
 <div class="sect2">
-<h3 id="tasks">3.3. Tasks</h3>
+<h3 id="tasks"><a class="anchor" href="#tasks"></a>3.3. Tasks</h3>
 <div class="paragraph">
 <p>The plugin provides a set of tasks for your project and preconfigures them with sensible defaults.</p>
 </div>
@@ -1615,13 +1615,13 @@ It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate loc
 </table>
 </div>
 <div class="sect2">
-<h3 id="examples_2">3.4. Examples</h3>
+<h3 id="examples_2"><a class="anchor" href="#examples_2"></a>3.4. Examples</h3>
 <div class="paragraph">
 <p>The following usage examples demonstrate code for common use cases.
 More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerJavaApplicationPluginFunctionalTest.groovy">functional tests</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="using_the_plugin_for_an_application_run_on_jetty">3.4.1. Using the Plugin for an Application Run on Jetty</h4>
+<h4 id="using_the_plugin_for_an_application_run_on_jetty"><a class="anchor" href="#using_the_plugin_for_an_application_run_on_jetty"></a>3.4.1. Using the Plugin for an Application Run on Jetty</h4>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -1651,7 +1651,7 @@ docker {
 </div>
 </div>
 <div class="sect3">
-<h4 id="additional_instructions_in_dockerfile">3.4.2. Additional Instructions in Dockerfile</h4>
+<h4 id="additional_instructions_in_dockerfile"><a class="anchor" href="#additional_instructions_in_dockerfile"></a>3.4.2. Additional Instructions in Dockerfile</h4>
 <div class="paragraph">
 <p>You can add additional instructions to the dockerfile using <code>dockerDistTar</code> and <a href="http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html">Dockerfile task</a> DSL:</p>
 </div>
@@ -1691,7 +1691,7 @@ RUN ls -la</pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="spring_boot_application_plugin">4. Spring Boot Application Plugin</h2>
+<h2 id="spring_boot_application_plugin"><a class="anchor" href="#spring_boot_application_plugin"></a>4. Spring Boot Application Plugin</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The plugin <code>com.bmuschko.docker-spring-boot-application</code> is a highly opinionated plugin for projects applying the <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/build-tool-plugins-gradle-plugin.html">Spring Boot plugin</a>.
@@ -1699,7 +1699,7 @@ Under the covers the plugin preconfigures tasks for creating and pushing Docker 
 The default configuration is tweakable via an exposed extension. The plugin <a href="https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/#reacting-to-other-plugins">reacts</a> to either the <code>java</code> or <code>war</code> plugin.</p>
 </div>
 <div class="sect2">
-<h3 id="usage_3">4.1. Usage</h3>
+<h3 id="usage_3"><a class="anchor" href="#usage_3"></a>4.1. Usage</h3>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -1719,7 +1719,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect2">
-<h3 id="extension_3">4.2. Extension</h3>
+<h3 id="extension_3"><a class="anchor" href="#extension_3"></a>4.2. Extension</h3>
 <div class="paragraph">
 <p>The plugin defines an extension with the namespace <code>springBootApplication</code> as a child of the <code>docker</code> namespace.
 The following properties can be configured:</p>
@@ -1774,7 +1774,7 @@ The following properties can be configured:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="tasks_2">4.3. Tasks</h3>
+<h3 id="tasks_2"><a class="anchor" href="#tasks_2"></a>4.3. Tasks</h3>
 <div class="paragraph">
 <p>The plugin provides a set of tasks for your project and preconfigures them with sensible defaults.</p>
 </div>
@@ -1822,12 +1822,12 @@ The following properties can be configured:</p>
 </table>
 </div>
 <div class="sect2">
-<h3 id="examples_3">4.4. Examples</h3>
+<h3 id="examples_3"><a class="anchor" href="#examples_3"></a>4.4. Examples</h3>
 <div class="paragraph">
 <p>The following usage examples demonstrate code for common use cases. More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerSpringBootApplicationPluginFunctionalTest.groovy">functional tests</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="using_the_plugin_for_an_application_run_on_tomcat">4.4.1. Using the Plugin For an Application Run on Tomcat</h4>
+<h4 id="using_the_plugin_for_an_application_run_on_tomcat"><a class="anchor" href="#using_the_plugin_for_an_application_run_on_tomcat"></a>4.4.1. Using the Plugin For an Application Run on Tomcat</h4>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -1864,10 +1864,10 @@ docker {
 </div>
 </div>
 <div class="sect1">
-<h2 id="about_this_project">5. About This Project</h2>
+<h2 id="about_this_project"><a class="anchor" href="#about_this_project"></a>5. About This Project</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="maintainers">5.1. Maintainers</h3>
+<h3 id="maintainers"><a class="anchor" href="#maintainers"></a>5.1. Maintainers</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1883,7 +1883,7 @@ docker {
 </div>
 </div>
 <div class="sect2">
-<h3 id="contributing">5.2. Contributing</h3>
+<h3 id="contributing"><a class="anchor" href="#contributing"></a>5.2. Contributing</h3>
 <div class="paragraph">
 <p>Over the years, the plugin has tremendously grown in popularity.
 Contributions from the community are very welcome.
@@ -1891,9 +1891,9 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 </div>
 </div>
 <div class="sect2">
-<h3 id="development">5.3. Development</h3>
+<h3 id="development"><a class="anchor" href="#development"></a>5.3. Development</h3>
 <div class="sect3">
-<h4 id="executing_the_plugin_s_test_suite_with_custom_configuration">5.3.1. Executing the Plugin&#8217;s Test Suite With Custom Configuration</h4>
+<h4 id="executing_the_plugin_s_test_suite_with_custom_configuration"><a class="anchor" href="#executing_the_plugin_s_test_suite_with_custom_configuration"></a>5.3.1. Executing the Plugin&#8217;s Test Suite With Custom Configuration</h4>
 <div class="paragraph">
 <p>It is required to <a href="https://docs.docker.com/install/">install and run Docker Community Edition (CE)</a> on the machine running tests. Please refer to the installation manual for more information. The default setup can be configured with the help of the properties shown in the table below:</p>
 </div>
