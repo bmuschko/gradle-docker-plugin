@@ -8,10 +8,10 @@ The following properties can be configured:
 
 [options="header"]
 |=======
-|Property name   |Type      |Default value                                          |Description
-|`baseImage`     |String    |openjdk                                                |The Docker base image used for the Spring Boot application.
-|`ports`         |Integer[] |[8080]                                                 |The Docker image exposed ports.
-|`tag`           |String    |<project.group>/<project.name>:<project.version>       |The tag used for the Docker image.
+|Property name   |Type        |Default value                                            |Description
+|`baseImage`     |`String`    |`openjdk`                                                |The Docker base image used for the Spring Boot application.
+|`ports`         |`Integer[]` |`[8080]`                                                 |The Docker image exposed ports.
+|`tag`           |`String`    |`<project.group>/<project.name>:<project.version>`       |The tag used for the Docker image.
 |=======
 
 ==== Example

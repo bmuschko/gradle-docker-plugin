@@ -5,10 +5,10 @@ The following properties can be configured:
 
 [options="header"]
 |=======
-|Property name   |Type      |Default value            |Description
-|`url`           |String    |see below                |The server URL to connect to via Docker's remote API.
-|`certPath`      |File      |null                     |The path to certificates for communicating with https://docs.docker.com/articles/https/[Docker over SSL].
-|`apiVersion`    |String    |null                     |The remote API version. For most cases this can be left null.
+|Property name   |Type        |Default value              |Description
+|`url`           |`String`    |see below                  |The server URL to connect to via Docker's remote API.
+|`certPath`      |`File`      |`null`                     |The path to certificates for communicating with https://docs.docker.com/articles/https/[Docker over SSL].
+|`apiVersion`    |`String`    |`null`                     |The remote API version. For most cases this can be left null.
 |=======
 
 *The default value is now generated based on a best guess attempt given the https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[OperatingSystem and Environment]:*

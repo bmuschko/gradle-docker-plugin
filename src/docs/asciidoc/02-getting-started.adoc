@@ -4,6 +4,8 @@ The plugin can be applied with the `buildscript` syntax or the plugin DSL.
 Let's say you'd want to go with the plugin that provides the plain Docker operations for managing Docker images and containers.
 See the https://docs.gradle.org/current/userguide/plugins.html[Gradle user guide] for more information on applying plugins.
 
+==== Aplying the Plugin Using the buildscript Syntax
+
 .build.gradle
 [source,groovy,subs="+attributes"]
 ----
@@ -21,6 +23,8 @@ buildscript {
 apply plugin: 'com.bmuschko.docker-remote-api'
 ----
 
+==== Applying the Plugin using the Plugin DSL
+
 Alternatively, the Gradle plugin DSL can be used:
 
 .build.gradle
@@ -30,6 +34,8 @@ plugins {
     id 'com.bmuschko.docker-remote-api' version '{project-version}'
 }
 ----
+
+==== Applying the Plugin From a Script Plugin
 
 Applying the plugin from a script plugin requires the use of the fully-qualified class name due to a https://github.com/gradle/gradle/issues/1262[bug in Gradle core].
 

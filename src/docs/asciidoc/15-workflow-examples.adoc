@@ -30,7 +30,7 @@ task buildImage(type: DockerBuildImage) {
 }
 ----
 
-== Executing Functional Tests Against a Running Container
+==== Executing Functional Tests Against a Running Container
 
 The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this image and exercises functional tests against the running container.
 At the end of this operation, the container is stopped.
@@ -69,7 +69,7 @@ task functionalTestMyApp(type: Test) {
 }
 ----
 
-=== Linking With Other Containers
+==== Linking With Other Containers
 
 In many situations your container does not start without dependencies like database.
 In that case you may wish using traditional linking:

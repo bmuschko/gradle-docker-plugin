@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
+    implementation 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
 }
 
 mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
