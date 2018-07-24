@@ -1,0 +1,57 @@
+=== Extension
+
+The plugin defines an extension with the namespace `javaApplication` as a child of the `docker` namespace.
+
+==== Properties
+
+The following properties can be configured:
+
+[options="header"]
+|=======
+|Property name   |Type      |Default value                                          |Description
+|`baseImage`     |String    |openjdk                                                |The Docker base image used for Java application.
+|`exec`          |Closure   |Create ENTRYPOINT using script from Application plugin |The ENTRYPOINT and/or CMD Dockerfile instructions
+|`maintainer`    |String    |Value of `user.home` system property                   |The name and email address of the image maintainer (Deprecated).
+|`port`          |Integer   |8080                                                   |The Docker image entry point port used for the Java application (Deprecated)
+|`ports`         |Integer[] |[]                                                     |The Docker image exposed ports (if provided, this values will override `port` configuration property)
+|`tag`           |String    |<project.group>/<applicationName>:<project.version>    |The tag used for the Docker image.
+|=======
+
+===== Example
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+docker {
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jre'
+        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+        ports = [9090, 5701]
+        tag = 'jettyapp:1.115'
+    }
+}
+----
+
+==== `exec` property
+
+The `exec` extension property accepts a Closure which delegates to the http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.CompositeExecInstruction.html[Dockerfile.CompositeExecInstruction] subset of the http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
+It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate location in the Dockerfile.
+
+==== Example
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+docker {
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jre'
+        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+        ports = [9090, 5701]
+        tag = 'jettyapp:1.115'
+        exec {
+            defaultCommand 'server'
+            entryPoint 'myApp/bin/containerLaunch.sh'
+        }
+    }
+}
+----

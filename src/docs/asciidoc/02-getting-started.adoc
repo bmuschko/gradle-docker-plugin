@@ -1,0 +1,57 @@
+=== Getting Started
+
+The plugin can be applied with the `buildscript` syntax or the plugin DSL.
+Let's say you'd want to go with the plugin that provides the plain Docker operations for managing Docker images and containers.
+See the https://docs.gradle.org/current/userguide/plugins.html[Gradle user guide] for more information on applying plugins.
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:{project-version}'
+    }
+}
+
+apply plugin: 'com.bmuschko.docker-remote-api'
+----
+
+Alternatively, the Gradle plugin DSL can be used:
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '{project-version}'
+}
+----
+
+Applying the plugin from a script plugin requires the use of the fully-qualified class name due to a https://github.com/gradle/gradle/issues/1262[bug in Gradle core].
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+apply from: 'gradle/docker.gradle'
+----
+
+.gradle/docker.gradle
+[source,groovy,subs="+attributes"]
+----
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:{project-version}'
+    }
+}
+
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+----

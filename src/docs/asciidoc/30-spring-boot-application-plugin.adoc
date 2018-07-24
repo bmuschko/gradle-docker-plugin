@@ -1,0 +1,11 @@
+=== Spring Boot Application Plugin
+
+The plugin `com.bmuschko.docker-spring-boot-application` is a highly opinionated plugin for projects applying the https://docs.spring.io/spring-boot/docs/current/reference/html/build-tool-plugins-gradle-plugin.html[Spring Boot plugin].
+Under the covers the plugin preconfigures tasks for creating and pushing Docker images for your Spring Boot application.
+The default configuration is tweakable via an exposed extension. The plugin https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/#reacting-to-other-plugins[reacts] to either the `java` or `war` plugin.
+
+include::31-usage.adoc[]
+
+include::32-extension.adoc[]
+
+include::33-tasks.adoc[]

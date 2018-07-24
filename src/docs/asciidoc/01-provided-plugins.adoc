@@ -1,0 +1,14 @@
+=== Provided Plugins
+
+The binary distribution is available on the https://plugins.gradle.org/search?term=com.bmuschko.docker[Gradle plugin portal], https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin[Bintray's JCenter] and https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.bmuschko%22%20AND%20a%3A%22gradle-docker-plugin%22[Maven Central].
+It contains the following plugins:
+
+[options="header"]
+|=======
+|Plugin Id                            |Automatically applies          |Type                                                                                                                                                        |Description
+|`com.bmuschko.docker-remote-api`       |-                              |http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerRemoteApiPlugin.html[DockerRemoteApiPlugin]             |Provides custom tasks for interacting with Docker via its remote API.
+|`com.bmuschko.docker-java-application` |`com.bmuschko.docker-remote-api` |http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerJavaApplicationPlugin.html[DockerJavaApplicationPlugin] |Creates and pushes a Docker image for a Java application.
+|`com.bmuschko.docker-spring-boot-application` |`com.bmuschko.docker-remote-api` |http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/DockerSpringBootApplicationPlugin.html[DockerSpringBootApplicationPlugin] |Creates and pushes a Docker image for a Spring Boot application.
+|=======
+
+Which plugin you chose in your project entirely depends on the use case you want to fulfill. Refer to the relevant portions of the user guide that describe the purpose and usage of each plugin in more detail.

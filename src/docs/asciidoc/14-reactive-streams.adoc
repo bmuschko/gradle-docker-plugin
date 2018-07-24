@@ -1,0 +1,81 @@
+=== Reactive Streams
+
+As needed, we will implement reactive methods as described in https://github.com/reactive-streams/reactive-streams-jvm[reactive-streams].
+We implement these here as optional closures for all tasks.
+Currently the only supported methods are `onError`, `onNext`, `onComplete`.
+Various examples on how to use these can be found in our https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests]
+
+==== Reacting to an Error
+
+The `onError` closure is passed the exception that is thrown for _you_ to handle.
+If you silently ignore we will not throw the exception behind the scenes.
+The below example is a common use-case that arises when someone wants to remove a container whether it exists or not but does not want to fail hard.
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+
+task removeContainer(type: DockerRemoveContainer) {
+    targetContainerId { 'container-that-does-not-exist' }
+    onError { exception ->
+        if (!exception.message.contains('No such container')) // ignore exception if container does not exist otherwise throw it
+            throw exception
+    }
+}
+----
+
+==== Reacting Over Data Returned by an Operation
+
+The `onNext` closure is passed the next iterative response upon execution.
+For all other tasks we simply hand you back the object that is given to us by `docker-java` which is a pojo representation of the json handed back by `docker`.
+Thus, and much like the `onError` closure, all delegation is now in your control.
+Any properties/values expected to be set will not be done unless _you_ do them.
+
+Iterative tasks are things like `DockerBuildImage`, `DockerLogsContainer`, `DockerListImages`.
+These tasks have output which can be iterated over.
+The example below demonstrates how we iterate over each log message passing that to the closure for the user to work on.
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+
+task logContainer(type: DockerLogsContainer) {
+    targetContainerId { 'container-that-does-exist' }
+    follow = true
+    tailAll = true
+    onNext { message ->
+        logger.quiet message.toString() // Each log message from the container will be passed as it's made available
+    }
+}
+----
+
+==== Reacting to the Completion of an Operation
+
+The `onComplete` closure is not passed anything upon execution.
+It works in the same fashion that `doLast` does but is instead part of this task and thus executes before `doLast` does.
+This closure executes _only_ upon success.
+The below example demonstrates how this works.
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+
+task removeContainer(type: DockerRemoveContainer) {
+    targetContainerId { 'container-that-does-exist' }
+    onComplete {
+        println 'Executes first'
+    }
+    doLast {
+        println 'Executes second'
+    }
+}
+----

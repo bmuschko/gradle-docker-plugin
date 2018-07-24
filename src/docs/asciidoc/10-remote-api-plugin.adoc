@@ -1,0 +1,14 @@
+== Remote API Plugin
+
+The plugin `com.bmuschko.docker-remote-api` allows for interacting with Docker via its remote API.
+You can model any workflow imaginable by creating enhanced task of the custom task provided by the plugin.
+
+include::11-usage.adoc[]
+
+include::12-extension.adoc[]
+
+include::13-custom-task-types.adoc[]
+
+include::14-reactive-streams.adoc[]
+
+include::15-workflow-examples.adoc[]

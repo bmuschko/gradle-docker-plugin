@@ -1,0 +1,12 @@
+= Gradle Docker Plugin User Guide & Examples
+:revnumber: {project-version}
+
+include::00-intro.adoc[]
+
+include::10-remote-api-plugin.adoc[]
+
+include::20-java-application-plugin.adoc[]
+
+include::30-spring-boot-application-plugin.adoc[]
+
+include::40-about.adoc[]
