@@ -96,11 +96,13 @@ task createMyAppContainer(type: DockerCreateContainer, dependsOn: [buildMyAppIma
     targetImageId { buildMyAppImage.getImageId() }
     portBindings = ['8080:8080']
 
-    doFirst{ // doFirst required! #319
-        links = [ "${createDBContainer.getContainerId()}:database" ] // `database` there will be host used by application to DB connect
+    // doFirst required! #319
+    doFirst{
+        // `database` there will be host used by application to DB connect
+        links = [ "${createDBContainer.getContainerId()}:database" ]
     }
 
-    // If you use Systemd in containers you should also add lines: (#320):
+    // If you use Systemd in containers you should also add lines. #320
     binds = [ '/sys/fs/cgroup': '/sys/fs/cgroup' ]
     tty = true
 }

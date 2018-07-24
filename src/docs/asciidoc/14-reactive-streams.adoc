@@ -21,7 +21,8 @@ import com.bmuschko.gradle.docker.tasks.container.*
 task removeContainer(type: DockerRemoveContainer) {
     targetContainerId { 'container-that-does-not-exist' }
     onError { exception ->
-        if (!exception.message.contains('No such container')) // ignore exception if container does not exist otherwise throw it
+        // Ignore exception if container does not exist otherwise throw it
+        if (!exception.message.contains('No such container'))
             throw exception
     }
 }
@@ -50,7 +51,8 @@ task logContainer(type: DockerLogsContainer) {
     follow = true
     tailAll = true
     onNext { message ->
-        logger.quiet message.toString() // Each log message from the container will be passed as it's made available
+        // Each log message from the container will be passed as it's made available
+        logger.quiet message.toString()
     }
 }
 ----
