@@ -35,8 +35,7 @@ You can provide those credentials in the `registryCredentials` closure:
 ==== Working With a TLS-enabled Docker Instance
 
 Starting with Docker version 1.3, TLS is enabled by default.
-Please consult the Docker documentation https://docs.docker.com/articles/https/["Running Docker
-with https"] to set up your certificate. The following example demonstrates how to configure the plugin to use those certificates.
+Please consult the Docker documentation https://docs.docker.com/engine/security/https/["Protect the Docker daemon socket"] to set up your certificate. The following example demonstrates how to configure the plugin to use those certificates.
 Additionally, this code snippet shows how to set the user credentials.
 
 .build.gradle
