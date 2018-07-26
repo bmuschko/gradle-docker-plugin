@@ -15,4 +15,4 @@ As of version `3.2.5` of this plugin we are using the link:https://github.com/pr
 
 == Documentation
 
-Read the http://bmuschko.github.io/gradle-docker-plugin/docs/userguide[user guide]!
+Read the http://bmuschko.github.io/gradle-docker-plugin/[user guide]!
