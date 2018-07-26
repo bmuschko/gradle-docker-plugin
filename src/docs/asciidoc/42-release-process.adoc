@@ -1,0 +1,43 @@
+=== Release Process
+
+This section describes the release process designed and implemented for this project. Its main purpose is to explain to developers and maintainers how to prepare and release a new version of the binaries and the documentation.
+
+==== Tools
+
+The release process uses some external libraries and services described in detail below.
+
+===== gradle-git
+
+The https://github.com/ajoberstar/gradle-git[gradle-git] plugin is used to automatically determine the project version. `org.ajoberstar.release-opinion` is applied in the main https://github.com/bmuschko/gradle-docker-plugin/blob/master/build.gradle#L14[build.gradle] and configured in https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/release.gradle#L15[gradle/release.gradle]. Please refer to the plugin https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins#how-do-i-use-the-opinion-plugin[documentation] for more details.
+
+===== gradle-git-publish
+
+The https://github.com/ajoberstar/gradle-git-publish[gradle-git-publish] Gradle plugin is used to publish the documentation to `gh-pages` branch. It is applied and configured in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/documentation.gradle[gradle/documentation.gradle] file.
+
+===== Travis CI
+
+https://travis-ci.com[Travis CI] service is used as our current https://en.wikipedia.org/wiki/CI/CD[CI/CD] server. Build and deploy jobs are configured in https://github.com/bmuschko/gradle-docker-plugin/blob/master/.travis.yml[.travis.yml] file. Please refer its https://docs.travis-ci.com/[documentation] for more details.
+
+===== Bintray's JCenter
+
+https://bintray.com[Bintray's JCenter] service is used to publish plugin versions. The https://github.com/bintray/gradle-bintray-plugin[Bintray plugin] uploads artifacts to a remote repository. The plugin configuration can be found in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/publishing.gradle[gradle/publishing.gradle] file.
+
+==== Workflow
+
+The release process is automated to some extent. The following steps describe the workflow.
+
+1. Developer updates `RELEASE_NOTES.md` with new planned version.
+2. Developer commits all changes in local working copy.
+3. Developer triggers new version release using the following command: `./gradlew release -Prelease.stage=final -Prelease.scope=[SCOPE]` where `[SCOPE]` can be one of `major`, `minor` or `patch`, and determines which part of the version string `<major>.<minor>.<patch>` will be incremented.
+4. Gradle executes a build on developer's machine which calculates new version string, creates new tag with it and pushes to the `origin`.
+5. When Gradle build is finished, developer's work is done and the rest of the release process is automated.
+6. After push to the `origin`, Travis detects new tag and triggers a build.
+7. Travis https://github.com/bmuschko/gradle-docker-plugin/blob/master/.travis.yml#L23[is instructed] to execute https://docs.travis-ci.com/user/build-stages/[release stage] when on Git tag.
+8. In this stage https://github.com/bmuschko/gradle-docker-plugin/blob/master/.travis.yml#L21[Gradle script] assembles plugin binaries (with new version) and uploads them to Bintray (credentials are stored as https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings[secure variables] in Travis). Furthermore, the API docs and the user guide are published to `gh-pages` branch (the https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/[access token] is stored as secure variable).
+
+==== Useful Links
+
+* https://bmuschko.com/blog/gradle-release-strategy/[Implementing an intuitive versioning and release strategy]
+* http://semver.org/[Semantic Versioning]
+* https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins#version-inference[gradle-git version inference]
+* https://docs.travis-ci.com/user/deployment/script/[Travis script deployment]
