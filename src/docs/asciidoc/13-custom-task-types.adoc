@@ -7,9 +7,9 @@ The plugin provides the following general-purpose custom task types:
 [options="header"]
 |=======
 |Type                                                                                                                             |Description
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerClient.html[DockerClient]   |Passes the raw docker-java client to the onNext closure if it's defined.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerInfo.html[DockerInfo]       |Displays system-wide information.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/DockerVersion.html[DockerVersion] |Show the docker version information.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/DockerClient.html[DockerClient]   |Passes the raw docker-java client to the onNext closure if it's defined.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/DockerInfo.html[DockerInfo]       |Displays system-wide information.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/DockerVersion.html[DockerVersion] |Show the docker version information.
 |=======
 
 ==== Images
@@ -19,17 +19,17 @@ The plugin provides the following custom task types for managing images:
 [options="header"]
 |=======
 |Type                                                                                                                                                  |Description
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile]                 |Creates a Dockerfile based on the provided instructions.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html[DockerBuildImage]     |Builds an image from a Dockerfile.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerCommitImage.html[DockerCommitImage]   |Creates a new image from a container's changes.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerInspectImage.html[DockerInspectImage] |Returns low-level information on the image.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerListImages.html[DockerListImages]     |Lists images in registry.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerPullImage.html[DockerPullImage]       |Pulls an image from the registry.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerPushImage.html[DockerPushImage]       |Pushes an image to a registry.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerRemoveImage.html[DockerRemoveImage]   |Removes an image from the filesystem.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerTagImage.html[DockerTagImage]         |Tags an image in registry.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerSaveImage.html[DockerSaveImage]       |Saves an image to file.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/DockerLoadImage.html[DockerLoadImage]       |Loads an image from file.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile]                 |Creates a Dockerfile based on the provided instructions.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html[DockerBuildImage]     |Builds an image from a Dockerfile.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerCommitImage.html[DockerCommitImage]   |Creates a new image from a container's changes.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerInspectImage.html[DockerInspectImage] |Returns low-level information on the image.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerListImages.html[DockerListImages]     |Lists images in registry.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerPullImage.html[DockerPullImage]       |Pulls an image from the registry.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerPushImage.html[DockerPushImage]       |Pushes an image to a registry.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerRemoveImage.html[DockerRemoveImage]   |Removes an image from the filesystem.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerTagImage.html[DockerTagImage]         |Tags an image in registry.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerSaveImage.html[DockerSaveImage]       |Saves an image to file.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerLoadImage.html[DockerLoadImage]       |Loads an image from file.
 |=======
 
 ==== Containers
@@ -39,20 +39,20 @@ The plugin provides the following custom task types for managing containers:
 [options="header"]
 |=======
 |Type                                                                                                                                                                        |Description
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileToContainer.html[DockerCopyFileToContainer]     |Copies a path from the host into the container.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileFromContainer.html[DockerCopyFileFromContainer] |Copies a path from the container as a tar file on to the host.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerCreateContainer.html[DockerCreateContainer]             |Creates a container.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html[DockerInspectContainer]           |Returns low-level information on the container.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerKillContainer.html[DockerKillContainer]                 |Kills the container for a given id.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRemoveContainer.html[DockerRemoveContainer]             |Removes the container for a given id from the filesystem.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRenameContainer.html[DockerRenameContainer]             |Rename a container.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerRestartContainer.html[DockerRestartContainer]           |Restarts the container for a given id.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStartContainer.html[DockerStartContainer]               |Starts the container for a given id.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerStopContainer.html[DockerStopContainer]                 |Stops the container for a given id.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerLogsContainer.html[DockerLogsContainer]                 |Copies the container output to the Gradle process standard out/err.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerExecContainer.html[DockerExecContainer]                 |Executes a command within a running container.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/DockerInspectExecContainer.html[DockerInspectExecContainer]   |Inspects task executed inside container with DockerExecContainer command.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileToContainer.html[DockerCopyFileToContainer]     |Copies a path from the host into the container.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerCopyFileFromContainer.html[DockerCopyFileFromContainer] |Copies a path from the container as a tar file on to the host.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerCreateContainer.html[DockerCreateContainer]             |Creates a container.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerInspectContainer.html[DockerInspectContainer]           |Returns low-level information on the container.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerKillContainer.html[DockerKillContainer]                 |Kills the container for a given id.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerRemoveContainer.html[DockerRemoveContainer]             |Removes the container for a given id from the filesystem.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerRenameContainer.html[DockerRenameContainer]             |Rename a container.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerRestartContainer.html[DockerRestartContainer]           |Restarts the container for a given id.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerStartContainer.html[DockerStartContainer]               |Starts the container for a given id.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerStopContainer.html[DockerStopContainer]                 |Stops the container for a given id.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerWaitContainer.html[DockerWaitContainer]                 |Blocks until container for a given id stops.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerLogsContainer.html[DockerLogsContainer]                 |Copies the container output to the Gradle process standard out/err.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerExecContainer.html[DockerExecContainer]                 |Executes a command within a running container.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/DockerInspectExecContainer.html[DockerInspectExecContainer]   |Inspects task executed inside container with DockerExecContainer command.
 |=======
 
 ==== Networks
@@ -62,9 +62,9 @@ The plugin provides the following custom task types for managing networks:
 [options="header"]
 |=======
 |Type                                                                                                                                                        |Description
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerCreateNetwork.html[DockerCreateNetwork]   |Creates a network.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerInspectNetwork.html[DockerInspectNetwork] |Returns low-level information on the network.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/network/DockerRemoveNetwork.html[DockerRemoveNetwork]   |Removes the network.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/network/DockerCreateNetwork.html[DockerCreateNetwork]   |Creates a network.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/network/DockerInspectNetwork.html[DockerInspectNetwork] |Returns low-level information on the network.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/network/DockerRemoveNetwork.html[DockerRemoveNetwork]   |Removes the network.
 |=======
 
 ==== Extras
@@ -74,7 +74,7 @@ The plugin provides the following additional tasks:
 [options="header"]
 |=======
 |Type                                                                                                                                                                             |Description
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerExecStopContainer.html[DockerExecStopContainer] |Shut down container with cmd, polling for it to enter a non-running state, and if that does not succeed in time issue stop request.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerLivenessContainer.html[DockerLivenessContainer] |Polls an arbitrary containers logs for a message indicating liveness.
-|http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/container/extras/DockerWaitHealthyContainer.html[DockerWaitHealthyContainer] |Blocks until the container for a given id becomes https://docs.docker.com/engine/reference/builder/#healthcheck[healthy].
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/extras/DockerExecStopContainer.html[DockerExecStopContainer] |Shut down container with cmd, polling for it to enter a non-running state, and if that does not succeed in time issue stop request.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/extras/DockerLivenessContainer.html[DockerLivenessContainer] |Polls an arbitrary containers logs for a message indicating liveness.
+|http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/container/extras/DockerWaitHealthyContainer.html[DockerWaitHealthyContainer] |Blocks until the container for a given id becomes https://docs.docker.com/engine/reference/builder/#healthcheck[healthy].
 |=======

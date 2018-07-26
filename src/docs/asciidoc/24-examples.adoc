@@ -34,7 +34,7 @@ docker {
 
 ==== Additional Instructions in Dockerfile
 
-You can add additional instructions to the dockerfile using `dockerDistTar` and http://bmuschko.github.io/gradle-docker-plugin/docs/groovydoc/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task] DSL:
+You can add additional instructions to the dockerfile using `dockerDistTar` and http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task] DSL:
 
 .build.gradle
 [source,groovy,subs="+attributes"]
