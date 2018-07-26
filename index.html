@@ -565,6 +565,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#maintainers">5.1. Maintainers</a></li>
 <li><a href="#contributing">5.2. Contributing</a></li>
 <li><a href="#development">5.3. Development</a></li>
+<li><a href="#release_process">5.4. Release Process</a></li>
 </ul>
 </li>
 </ul>
@@ -1994,6 +1995,95 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="shell">$ ./gradlew functionalTest -PdockerServerUrl=http://192.168.59.103:2376</code></pre>
 </div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="release_process"><a class="anchor" href="#release_process"></a>5.4. Release Process</h3>
+<div class="paragraph">
+<p>This section describes the release process designed and implemented for this project. Its main purpose is to explain to developers and maintainers how to prepare and release a new version of the binaries and the documentation.</p>
+</div>
+<div class="sect3">
+<h4 id="tools"><a class="anchor" href="#tools"></a>5.4.1. Tools</h4>
+<div class="paragraph">
+<p>The release process uses some external libraries and services described in detail below.</p>
+</div>
+<div class="sect4">
+<h5 id="gradle_git"><a class="anchor" href="#gradle_git"></a>gradle-git</h5>
+<div class="paragraph">
+<p>The <a href="https://github.com/ajoberstar/gradle-git">gradle-git</a> plugin is used to automatically determine the project version. <code>org.ajoberstar.release-opinion</code> is applied in the main <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/build.gradle#L14">build.gradle</a> and configured in <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/release.gradle#L15">gradle/release.gradle</a>. Please refer to the plugin <a href="https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins#how-do-i-use-the-opinion-plugin">documentation</a> for more details.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="gradle_git_publish"><a class="anchor" href="#gradle_git_publish"></a>gradle-git-publish</h5>
+<div class="paragraph">
+<p>The <a href="https://github.com/ajoberstar/gradle-git-publish">gradle-git-publish</a> Gradle plugin is used to publish the documentation to <code>gh-pages</code> branch. It is applied and configured in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/documentation.gradle">gradle/documentation.gradle</a> file.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="travis_ci"><a class="anchor" href="#travis_ci"></a>Travis CI</h5>
+<div class="paragraph">
+<p><a href="https://travis-ci.com">Travis CI</a> service is used as our current <a href="https://en.wikipedia.org/wiki/CI/CD">CI/CD</a> server. Build and deploy jobs are configured in <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/.travis.yml">.travis.yml</a> file. Please refer its <a href="https://docs.travis-ci.com/">documentation</a> for more details.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="bintray_s_jcenter"><a class="anchor" href="#bintray_s_jcenter"></a>Bintray&#8217;s JCenter</h5>
+<div class="paragraph">
+<p><a href="https://bintray.com">Bintray&#8217;s JCenter</a> service is used to publish plugin versions. The <a href="https://github.com/bintray/gradle-bintray-plugin">Bintray plugin</a> uploads artifacts to a remote repository. The plugin configuration can be found in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/publishing.gradle">gradle/publishing.gradle</a> file.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="workflow"><a class="anchor" href="#workflow"></a>5.4.2. Workflow</h4>
+<div class="paragraph">
+<p>The release process is automated to some extent. The following steps describe the workflow.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Developer updates <code>RELEASE_NOTES.md</code> with new planned version.</p>
+</li>
+<li>
+<p>Developer commits all changes in local working copy.</p>
+</li>
+<li>
+<p>Developer triggers new version release using the following command: <code>./gradlew release -Prelease.stage=final -Prelease.scope=[SCOPE]</code> where <code>[SCOPE]</code> can be one of <code>major</code>, <code>minor</code> or <code>patch</code>, and determines which part of the version string <code>&lt;major&gt;.&lt;minor&gt;.&lt;patch&gt;</code> will be incremented.</p>
+</li>
+<li>
+<p>Gradle executes a build on developer&#8217;s machine which calculates new version string, creates new tag with it and pushes to the <code>origin</code>.</p>
+</li>
+<li>
+<p>When Gradle build is finished, developer&#8217;s work is done and the rest of the release process is automated.</p>
+</li>
+<li>
+<p>After push to the <code>origin</code>, Travis detects new tag and triggers a build.</p>
+</li>
+<li>
+<p>Travis <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/.travis.yml#L23">is instructed</a> to execute <a href="https://docs.travis-ci.com/user/build-stages/">release stage</a> when on Git tag.</p>
+</li>
+<li>
+<p>In this stage <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/.travis.yml#L21">Gradle script</a> assembles plugin binaries (with new version) and uploads them to Bintray (credentials are stored as <a href="https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings">secure variables</a> in Travis). Furthermore, the API docs and the user guide are published to <code>gh-pages</code> branch (the <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">access token</a> is stored as secure variable).</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="useful_links"><a class="anchor" href="#useful_links"></a>5.4.3. Useful Links</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://bmuschko.com/blog/gradle-release-strategy/">Implementing an intuitive versioning and release strategy</a></p>
+</li>
+<li>
+<p><a href="http://semver.org/">Semantic Versioning</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins#version-inference">gradle-git version inference</a></p>
+</li>
+<li>
+<p><a href="https://docs.travis-ci.com/user/deployment/script/">Travis script deployment</a></p>
+</li>
+</ul>
 </div>
 </div>
 </div>
