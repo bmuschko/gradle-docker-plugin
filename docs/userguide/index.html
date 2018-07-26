@@ -529,9 +529,10 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#introduction">1. Introduction</a>
 <ul class="sectlevel2">
 <li><a href="#benefits">1.1. Benefits</a></li>
-<li><a href="#further_readings">1.2. Further Readings</a></li>
-<li><a href="#provided_plugins">1.3. Provided Plugins</a></li>
-<li><a href="#getting_started">1.4. Getting Started</a></li>
+<li><a href="#limitations">1.2. Limitations</a></li>
+<li><a href="#further_readings">1.3. Further Readings</a></li>
+<li><a href="#provided_plugins">1.4. Provided Plugins</a></li>
+<li><a href="#getting_started">1.5. Getting Started</a></li>
 </ul>
 </li>
 <li><a href="#remote_api_plugin">2. Remote API Plugin</a>
@@ -600,22 +601,44 @@ This plugin requires Gradle &gt;= 2.5 to work properly.
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Seamless integration with the build tool Gradle and its DSL</p>
+<p>Seamless integration with the build tool Gradle and its DSL.</p>
 </li>
 <li>
-<p>Handles complicated communication logic between Docker client and daemon under the covers</p>
+<p>Handles complicated communication logic between Docker client and daemon under the covers.</p>
 </li>
 <li>
-<p>Simplifies the definition of complex workflows</p>
+<p>Simplifies the definition of complex workflows.</p>
 </li>
 <li>
-<p>Minimizes build script setup logic by providing sensible conventions for different use cases</p>
+<p>Minimizes build script setup logic by providing sensible conventions for different use cases.</p>
 </li>
 </ol>
 </div>
 </div>
 <div class="sect2">
-<h3 id="further_readings"><a class="anchor" href="#further_readings"></a>1.2. Further Readings</h3>
+<h3 id="limitations"><a class="anchor" href="#limitations"></a>1.2. Limitations</h3>
+<div class="paragraph">
+<p>The functionality of the plugin does not cover all possible use cases.
+Be aware of the following limitations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A task type may not provide all possible options for the underlying Docker operation.
+Open an issue if you feel like it should be supported.</p>
+</li>
+<li>
+<p>You cannot build multi-container applications via Docker Compose.
+The <a href="https://github.com/avast/gradle-docker-compose-plugin">Avast Docker Compose plugin</a> has proven to be a capable alternative.</p>
+</li>
+<li>
+<p>Managing a Docker Swarm and/or Stack is not supported.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="further_readings"><a class="anchor" href="#further_readings"></a>1.3. Further Readings</h3>
 <div class="paragraph">
 <p>Want to learn more about using this plugin in different contexts? The following blog posts should get you started.</p>
 </div>
@@ -637,7 +660,7 @@ This plugin requires Gradle &gt;= 2.5 to work properly.
 </div>
 </div>
 <div class="sect2">
-<h3 id="provided_plugins"><a class="anchor" href="#provided_plugins"></a>1.3. Provided Plugins</h3>
+<h3 id="provided_plugins"><a class="anchor" href="#provided_plugins"></a>1.4. Provided Plugins</h3>
 <div class="paragraph">
 <p>The binary distribution is available on the <a href="https://plugins.gradle.org/search?term=com.bmuschko.docker">Gradle plugin portal</a>, <a href="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin">Bintray&#8217;s JCenter</a> and <a href="https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.bmuschko%22%20AND%20a%3A%22gradle-docker-plugin%22">Maven Central</a>.
 It contains the following plugins:</p>
@@ -683,14 +706,14 @@ It contains the following plugins:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="getting_started"><a class="anchor" href="#getting_started"></a>1.4. Getting Started</h3>
+<h3 id="getting_started"><a class="anchor" href="#getting_started"></a>1.5. Getting Started</h3>
 <div class="paragraph">
 <p>The plugin can be applied with the <code>buildscript</code> syntax or the plugin DSL.
 Let&#8217;s say you&#8217;d want to go with the plugin that provides the plain Docker operations for managing Docker images and containers.
 See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle user guide</a> for more information on applying plugins.</p>
 </div>
 <div class="sect3">
-<h4 id="aplying_the_plugin_using_the_buildscript_syntax"><a class="anchor" href="#aplying_the_plugin_using_the_buildscript_syntax"></a>1.4.1. Aplying the Plugin Using the buildscript Syntax</h4>
+<h4 id="aplying_the_plugin_using_the_buildscript_syntax"><a class="anchor" href="#aplying_the_plugin_using_the_buildscript_syntax"></a>1.5.1. Aplying the Plugin Using the buildscript Syntax</h4>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -710,7 +733,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="applying_the_plugin_using_the_plugin_dsl"><a class="anchor" href="#applying_the_plugin_using_the_plugin_dsl"></a>1.4.2. Applying the Plugin using the Plugin DSL</h4>
+<h4 id="applying_the_plugin_using_the_plugin_dsl"><a class="anchor" href="#applying_the_plugin_using_the_plugin_dsl"></a>1.5.2. Applying the Plugin using the Plugin DSL</h4>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
@@ -721,7 +744,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="applying_the_plugin_from_a_script_plugin"><a class="anchor" href="#applying_the_plugin_from_a_script_plugin"></a>1.4.3. Applying the Plugin From a Script Plugin</h4>
+<h4 id="applying_the_plugin_from_a_script_plugin"><a class="anchor" href="#applying_the_plugin_from_a_script_plugin"></a>1.5.3. Applying the Plugin From a Script Plugin</h4>
 <div class="paragraph">
 <p>Applying the plugin from a script plugin requires the use of the fully-qualified class name due to a <a href="https://github.com/gradle/gradle/issues/1262">bug in Gradle core</a>. Be aware that the plugin DSL cannot be used to apply a binary plugin from a script plugin.</p>
 </div>
@@ -918,8 +941,7 @@ You can provide those credentials in the <code>registryCredentials</code> closur
 <h4 id="working_with_a_tls_enabled_docker_instance"><a class="anchor" href="#working_with_a_tls_enabled_docker_instance"></a>2.2.1. Working With a TLS-enabled Docker Instance</h4>
 <div class="paragraph">
 <p>Starting with Docker version 1.3, TLS is enabled by default.
-Please consult the Docker documentation <a href="https://docs.docker.com/articles/https/">"Running Docker
-with https"</a> to set up your certificate. The following example demonstrates how to configure the plugin to use those certificates.
+Please consult the Docker documentation <a href="https://docs.docker.com/engine/security/https/">"Protect the Docker daemon socket"</a> to set up your certificate. The following example demonstrates how to configure the plugin to use those certificates.
 Additionally, this code snippet shows how to set the user credentials.</p>
 </div>
 <div class="listingblock">
@@ -1981,7 +2003,7 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div id="footer">
 <div id="footer-text">
 Version 3.5.1-SNAPSHOT<br>
-Last updated 2018-07-24 08:36:35 MDT
+Last updated 2018-07-25 08:19:49 MDT
 </div>
 </div>
 </body>
