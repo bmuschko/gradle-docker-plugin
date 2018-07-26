@@ -31,16 +31,11 @@ gitPublish {
     branch = 'gh-pages'
 
     contents {
-        from(javadoc.outputs.files) {
-            into 'docs/javadoc'
-        }
         from(groovydoc.outputs.files) {
-            into 'docs/groovydoc'
+            into 'api'
         }
-        from("$asciidoctor.outputDir/html5") {
-            into 'docs/userguide'
-        }
+        from "$asciidoctor.outputDir/html5"
     }
 }
 
-gitPublishPush.dependsOn javadoc, groovydoc, asciidoctor
+gitPublishPush.dependsOn groovydoc, asciidoctor
