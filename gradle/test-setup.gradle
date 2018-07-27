@@ -12,6 +12,14 @@ tasks.withType(Test) { task ->
         events 'skipped'
     }
 
+    if (System.getenv('CI')) {
+        afterTest { descr, result ->
+            if (result.resultType == TestResult.ResultType.SKIPPED) {
+                throw new GradleException("The whole test suite should be executed. The test ${descr.className}.${descr.name} was skipped. Please check the execution condition!")
+            }
+        }
+    }
+
     // TODO: remove `dockerServerUrl` properties with version 3.0.10
     def dockerServerUrl = (project.hasProperty('bootstrapDocker') && Boolean.parseBoolean(project.getProperty('bootstrapDocker'))) ? 'http://localhost:2375' : null
     if (!dockerServerUrl) {
