@@ -1,30 +1,11 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
-import com.bmuschko.gradle.docker.TestConfiguration
-import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-import java.nio.file.Files
-import java.nio.file.Paths
-
 class DockerfileFunctionalTest extends AbstractFunctionalTest {
     static final String DOCKERFILE_TASK_NAME = 'dockerfile'
-
-    private void setupDockerTemplateFile() {
-        File source = new File(TestConfiguration.class.getClassLoader().getResource("Dockerfile.template").toURI())
-        if (source.exists()) {
-            File resourcesDir = new File(projectDir, 'src/main/docker/')
-            if (resourcesDir.mkdirs()) {
-                if (Files.copy(source.toPath(),Paths.get(projectDir.path, 'src/main/docker/Dockerfile.template')).toFile().length() != source.length()) {
-                    throw new GradleException("File could not be successfully copied")
-                }
-            } else {
-                throw new IOException("can not create the directory ${resourcesDir.absolutePath}")
-            }
-        }
-    }
 
     def "Executing a Dockerfile task without specified instructions throws exception"() {
         given:
@@ -203,7 +184,9 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 
     def "Can create Dockerfile from template file"() {
         given:
-        setupDockerTemplateFile()
+        File dockerDir = temporaryFolder.newFolder('src', 'main', 'docker')
+        new File(dockerDir, 'Dockerfile.template') << """FROM alpine:3.4
+MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"""
         buildFile << """
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
