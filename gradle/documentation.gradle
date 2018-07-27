@@ -31,8 +31,8 @@ gitPublish {
     branch = 'gh-pages'
 
     contents {
-        from(groovydoc.outputs.files) {
-            into 'api'
+        into('api') {
+            from groovydoc.outputs.files
         }
         from "$asciidoctor.outputDir/html5"
     }
