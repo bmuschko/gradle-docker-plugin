@@ -90,22 +90,17 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
         plugin << REACTED_PLUGINS
     }
 
-    @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
+    @Requires({ TestPrecondition.DOCKER_HUB_CREDENTIALS_AVAILABLE })
     @Unroll
     def "Can create image for a Spring Boot application and push it to DockerHub [#plugin.identifier plugin]"() {
-        Properties gradleProperties = TestPrecondition.readDockerHubCredentials()
-        new File(projectDir, 'gradle.properties') << """
-            dockerHubUsername=${gradleProperties['dockerHubUsername']}
-            dockerHubPassword=${gradleProperties['dockerHubPassword']}
-            dockerHubEmail=${gradleProperties['dockerHubEmail']}
-        """
+        DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
         setupSpringBootBuild(plugin.identifier)
         buildFile << """
             docker {
                 registryCredentials {
-                    username = project.property('dockerHubUsername')
-                    password = project.property('dockerHubPassword')
-                    email = project.property('dockerHubEmail')
+                    username = '$credentials.username'
+                    password = '$credentials.password'
+                    email = '$credentials.email'
                 }
 
                 springBootApplication {

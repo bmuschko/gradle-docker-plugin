@@ -256,25 +256,20 @@ EXPOSE 9090
         result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
     }
 
-    @Requires({ TestPrecondition.DOCKERHUB_CREDENTIALS_AVAILABLE })
+    @Requires({ TestPrecondition.DOCKER_HUB_CREDENTIALS_AVAILABLE })
     def "Can create image for Java application and push to DockerHub"() {
         String projectName = temporaryFolder.root.name
         createJettyMainClass()
         writeBasicSetupToBuildFile()
-        Properties gradleProperties = TestPrecondition.readDockerHubCredentials()
-        new File(projectDir, 'gradle.properties') << """
-            dockerHubUsername=${gradleProperties['dockerHubUsername']}
-            dockerHubPassword=${gradleProperties['dockerHubPassword']}
-            dockerHubEmail=${gradleProperties['dockerHubEmail']}
-        """
+        DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
         buildFile << """
             applicationName = 'javaapp'
 
             docker {
                 registryCredentials {
-                    username = project.property('dockerHubUsername')
-                    password = project.property('dockerHubPassword')
-                    email = project.property('dockerHubEmail')
+                    username = '$credentials.username'
+                    password = '$credentials.password'
+                    email = '$credentials.email'
                 }
 
                 javaApplication {
