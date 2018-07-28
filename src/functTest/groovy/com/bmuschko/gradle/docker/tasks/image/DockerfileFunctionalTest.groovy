@@ -124,9 +124,9 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
 CMD ["echo", "some", "command"]
 EXPOSE 8080 14500
-ENV ENV_VAR_KEY="envVarVal"
-ENV ENV_VAR_A="val_a"
-ENV ENV_VAR_B="val_b" ENV_VAR_C="val_c"
+ENV ENV_VAR_KEY envVarVal
+ENV ENV_VAR_A=val_a
+ENV ENV_VAR_B=val_b ENV_VAR_C=val_c
 ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]
@@ -134,7 +134,7 @@ VOLUME ["/jenkins", "/myApp"]
 USER root
 WORKDIR /tmp
 ONBUILD RUN echo "Hello World"
-LABEL version="1.0"
+LABEL version=1.0
 """
     }
 

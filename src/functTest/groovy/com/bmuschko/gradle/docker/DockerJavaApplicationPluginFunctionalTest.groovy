@@ -20,7 +20,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
         dockerfile.exists()
         dockerfile.text ==
 """FROM openjdk
-LABEL maintainer="${System.getProperty('user.name')}"
+LABEL maintainer=${System.getProperty('user.name')}
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
@@ -54,7 +54,7 @@ EXPOSE 8080
         dockerfile.exists()
         dockerfile.text ==
 """FROM $CUSTOM_BASE_IMAGE
-LABEL maintainer="benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
@@ -89,7 +89,7 @@ EXPOSE 9090
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-LABEL maintainer="benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
@@ -124,7 +124,7 @@ EXPOSE 9090 8080
         dockerfile.exists()
         dockerfile.text ==
             """FROM $CUSTOM_BASE_IMAGE
-LABEL maintainer="benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
@@ -162,7 +162,7 @@ ENTRYPOINT ["/${projectName}/bin/${projectName}"]
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-LABEL maintainer="benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 CMD ["arg1"]
@@ -197,7 +197,7 @@ EXPOSE 9090
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-LABEL maintainer="benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 
@@ -246,7 +246,7 @@ EXPOSE 9090
         dockerfile.exists()
         dockerfile.text ==
 """FROM $CUSTOM_BASE_IMAGE
-LABEL maintainer="benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
@@ -291,7 +291,7 @@ EXPOSE 9090
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-LABEL maintainer="${System.getProperty('user.name')}"
+LABEL maintainer=${System.getProperty('user.name')}
 ADD javaapp /javaapp
 ADD app-lib/${projectName}-1.0.jar /javaapp/lib/$projectName-1.0.jar
 ENTRYPOINT ["/javaapp/bin/javaapp"]
@@ -323,7 +323,7 @@ EXPOSE 8080
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-LABEL maintainer="${System.getProperty('user.name')}"
+LABEL maintainer=${System.getProperty('user.name')}
 ADD javaapp /javaapp
 ADD app-lib/${projectName}-1.0.jar /javaapp/lib/$projectName-1.0.jar
 ENTRYPOINT ["/javaapp/bin/javaapp"]
@@ -352,7 +352,7 @@ EXPOSE 8080
         dockerfile.exists()
         dockerfile.text ==
             """FROM openjdk
-LABEL maintainer="${System.getProperty('user.name')}"
+LABEL maintainer=${System.getProperty('user.name')}
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]

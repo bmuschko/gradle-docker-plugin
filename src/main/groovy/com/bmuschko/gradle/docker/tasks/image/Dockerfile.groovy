@@ -516,7 +516,7 @@ class Dockerfile extends DefaultTask {
                 def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
                 def value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.value) ? ItemJoinerUtil.toQuotedString(entry.value) : entry.value
                 value = value.replaceAll("(\r)*\n", "\\\\\n")
-                result << "$key=\"$value\""
+                result << "$key=$value"
             }.join(' ')
         }
     }
@@ -547,14 +547,20 @@ class Dockerfile extends DefaultTask {
     static abstract class MapInstruction implements Instruction {
         final Map<String, String> command
         final Closure commandClosure
-        final ItemJoiner joiner = new MultiItemJoiner()
+        final ItemJoiner joiner
+
+        MapInstruction(Map<String, String> command, ItemJoiner joiner) {
+            this.command = command
+            this.joiner = joiner
+        }
 
         MapInstruction(Map<String, String> command) {
-            this.command = command
+            this(command, new MultiItemJoiner())
         }
 
         MapInstruction(Closure command) {
             this.commandClosure = command
+            this.joiner = new MultiItemJoiner()
         }
 
         @Override
@@ -751,7 +757,7 @@ class Dockerfile extends DefaultTask {
 
     static class EnvironmentVariableInstruction extends MapInstruction {
         EnvironmentVariableInstruction(String key, String value) {
-            super([(key): value])
+            super([(key): value], new SingleItemJoiner())
         }
 
         EnvironmentVariableInstruction(Map envVars) {
