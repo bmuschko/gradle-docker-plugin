@@ -73,7 +73,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             description = 'Creates the Docker image for the Java application.'
             dependsOn jarTask
             from { dockerJavaApplication.baseImage }
-            maintainer { dockerJavaApplication.maintainer }
+            label { ['maintainer': dockerJavaApplication.maintainer] }
             addFile({ installTask.destinationDir.name }, { "/${installTask.destinationDir.name}" })
             addFile({ "app-lib/${jarTask.archiveName}" }, { "/${installTask.destinationDir.name}/lib/${jarTask.archiveName}" })
             instructions << dockerJavaApplication.exec

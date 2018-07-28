@@ -144,7 +144,9 @@ class Dockerfile extends DefaultTask {
      * the Author field of the generated images.
      *
      * @param maintainer Maintainer
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link #label(Map)} or {@link #label(Closure)} instead.
      */
+    @Deprecated
     void maintainer(String maintainer) {
         instructions << new MaintainerInstruction(maintainer)
     }
@@ -154,7 +156,9 @@ class Dockerfile extends DefaultTask {
      * the Author field of the generated images.
      *
      * @param maintainer Maintainer
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link #label(Map)} or {@link #label(Closure)} instead.
      */
+    @Deprecated
     void maintainer(Closure maintainer) {
         instructions << new MaintainerInstruction(maintainer)
     }
@@ -512,7 +516,7 @@ class Dockerfile extends DefaultTask {
                 def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
                 def value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.value) ? ItemJoinerUtil.toQuotedString(entry.value) : entry.value
                 value = value.replaceAll("(\r)*\n", "\\\\\n")
-                result << "$key=$value"
+                result << "$key=\"$value\""
             }.join(' ')
         }
     }
@@ -543,20 +547,14 @@ class Dockerfile extends DefaultTask {
     static abstract class MapInstruction implements Instruction {
         final Map<String, String> command
         final Closure commandClosure
-        final ItemJoiner joiner
-
-        MapInstruction(Map<String, String> command, ItemJoiner joiner) {
-            this.command = command
-            this.joiner = joiner
-        }
+        final ItemJoiner joiner = new MultiItemJoiner()
 
         MapInstruction(Map<String, String> command) {
-            this(command, new MultiItemJoiner())
+            this.command = command
         }
 
         MapInstruction(Closure command) {
             this.commandClosure = command
-            this.joiner = new MultiItemJoiner()
         }
 
         @Override
@@ -566,7 +564,7 @@ class Dockerfile extends DefaultTask {
                 def evaluatedCommand = commandClosure()
 
                 if (!(evaluatedCommand instanceof Map<String, String>)) {
-                    throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provie a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
+                    throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provide a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
                 }
                 commandToJoin = evaluatedCommand as Map<String, String>
             }
@@ -670,6 +668,10 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link LabelInstruction} instead.
+     */
+    @Deprecated
     static class MaintainerInstruction extends StringCommandInstruction {
         MaintainerInstruction(String maintainer) {
             super(maintainer)
@@ -749,7 +751,7 @@ class Dockerfile extends DefaultTask {
 
     static class EnvironmentVariableInstruction extends MapInstruction {
         EnvironmentVariableInstruction(String key, String value) {
-            super([(key): value], new SingleItemJoiner())
+            super([(key): value])
         }
 
         EnvironmentVariableInstruction(Map envVars) {
