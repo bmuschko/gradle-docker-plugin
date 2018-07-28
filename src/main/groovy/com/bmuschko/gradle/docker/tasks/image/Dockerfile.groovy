@@ -521,18 +521,6 @@ class Dockerfile extends DefaultTask {
         }
     }
 
-    static class SingleItemJoiner implements ItemJoiner {
-        @Override
-        String join(Map<String, String> map) {
-            map.inject([]) { result, entry ->
-                def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
-                // preserve multiline value in a single item key value instruction but ignore any other whitespaces or quotings
-                def value = entry.value.replaceAll("(\r)*\n", "\\\\\n")
-                result << "$key $value"
-            }.join('')
-        }
-    }
-
     private class ItemJoinerUtil {
         private static boolean isUnquotedStringWithWhitespaces(String str) {
             return !str.matches('["].*["]') &&
