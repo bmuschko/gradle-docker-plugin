@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -9,7 +10,9 @@ import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.*
 
 class DockerfileTest extends Specification {
     private static Logger LOG = Logger.getLogger(DockerfileTest.class.getCanonicalName());
-    def "Instruction String representation is built correctly"() {
+
+    @Unroll
+    def "#expectedKeyword instruction String representation is built correctly"() {
 
         expect:
         LOG.fine "testing " + [
