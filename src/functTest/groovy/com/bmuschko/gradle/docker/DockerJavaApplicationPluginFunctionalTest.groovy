@@ -20,7 +20,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
         dockerfile.exists()
         dockerfile.text ==
 """FROM openjdk
-MAINTAINER ${System.getProperty('user.name')}
+LABEL maintainer=${System.getProperty('user.name')}
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
@@ -39,7 +39,7 @@ EXPOSE 8080
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    maintainer = 'benjamin.muschko@gmail.com'
                     port = 9090
                     tag = 'jettyapp:1.115'
                 }
@@ -54,13 +54,14 @@ EXPOSE 8080
         dockerfile.exists()
         dockerfile.text ==
 """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
 EXPOSE 9090
 """
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : ')
+        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can create image for Java application with user-driven configuration with several ports"() {
@@ -73,7 +74,7 @@ EXPOSE 9090
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    maintainer = 'benjamin.muschko@gmail.com'
                     ports = [9090, 8080]
                     tag = 'jettyapp:1.115'
                 }
@@ -88,13 +89,14 @@ EXPOSE 9090
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
 EXPOSE 9090 8080
 """
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : ')
+        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can create image for Java application with user-driven configuration without exposed ports"() {
@@ -107,7 +109,7 @@ EXPOSE 9090 8080
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    maintainer = 'benjamin.muschko@gmail.com'
                     ports = []
                     tag = 'jettyapp:1.115'
                 }
@@ -122,12 +124,13 @@ EXPOSE 9090 8080
         dockerfile.exists()
         dockerfile.text ==
             """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
 """
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : ')
+        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can create image for Java application with user-driven configuration with custom cmd/entrypoint"() {
@@ -140,7 +143,7 @@ ENTRYPOINT ["/${projectName}/bin/${projectName}"]
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    maintainer = 'benjamin.muschko@gmail.com'
                     port = 9090
                     tag = 'jettyapp:1.115'
                     exec {
@@ -152,14 +155,14 @@ ENTRYPOINT ["/${projectName}/bin/${projectName}"]
         """
 
         when:
-        BuildResult result = build('dockerBuildImage')
+        build('dockerBuildImage')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 CMD ["arg1"]
@@ -178,7 +181,7 @@ EXPOSE 9090
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    maintainer = 'benjamin.muschko@gmail.com'
                     port = 9090
                     tag = 'jettyapp:1.115'
                     ${execDirective}
@@ -187,14 +190,14 @@ EXPOSE 9090
         """
 
         when:
-        BuildResult result = build('dockerBuildImage')
+        build('dockerBuildImage')
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 
@@ -228,7 +231,7 @@ EXPOSE 9090
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                    maintainer = 'benjamin.muschko@gmail.com'
                     port = 9090
                     tag = 'jettyapp:1.115'
                 }
@@ -243,7 +246,7 @@ EXPOSE 9090
         dockerfile.exists()
         dockerfile.text ==
 """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]
@@ -253,7 +256,8 @@ EXPOSE 9090
 """
         new File(projectDir, 'build/docker/file1.txt').exists()
         new File(projectDir, 'build/docker/file2.txt').exists()
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Author           : ')
+        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     @Requires({ TestPrecondition.DOCKER_HUB_CREDENTIALS_AVAILABLE })
@@ -287,7 +291,7 @@ EXPOSE 9090
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER ${System.getProperty('user.name')}
+LABEL maintainer=${System.getProperty('user.name')}
 ADD javaapp /javaapp
 ADD app-lib/${projectName}-1.0.jar /javaapp/lib/$projectName-1.0.jar
 ENTRYPOINT ["/javaapp/bin/javaapp"]
@@ -319,13 +323,12 @@ EXPOSE 8080
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $CUSTOM_BASE_IMAGE
-MAINTAINER ${System.getProperty('user.name')}
+LABEL maintainer=${System.getProperty('user.name')}
 ADD javaapp /javaapp
 ADD app-lib/${projectName}-1.0.jar /javaapp/lib/$projectName-1.0.jar
 ENTRYPOINT ["/javaapp/bin/javaapp"]
 EXPOSE 8080
 """
-        noExceptionThrown()
     }
 
     def "Can create image without MAINTAINER"() {
@@ -349,6 +352,7 @@ EXPOSE 8080
         dockerfile.exists()
         dockerfile.text ==
             """FROM openjdk
+LABEL maintainer=${System.getProperty('user.name')}
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
 ENTRYPOINT ["/${projectName}/bin/${projectName}"]

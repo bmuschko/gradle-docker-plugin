@@ -144,7 +144,9 @@ class Dockerfile extends DefaultTask {
      * the Author field of the generated images.
      *
      * @param maintainer Maintainer
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link #label(Map)} or {@link #label(Closure)} instead.
      */
+    @Deprecated
     void maintainer(String maintainer) {
         instructions << new MaintainerInstruction(maintainer)
     }
@@ -154,7 +156,9 @@ class Dockerfile extends DefaultTask {
      * the Author field of the generated images.
      *
      * @param maintainer Maintainer
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link #label(Map)} or {@link #label(Closure)} instead.
      */
+    @Deprecated
     void maintainer(Closure maintainer) {
         instructions << new MaintainerInstruction(maintainer)
     }
@@ -566,7 +570,7 @@ class Dockerfile extends DefaultTask {
                 def evaluatedCommand = commandClosure()
 
                 if (!(evaluatedCommand instanceof Map<String, String>)) {
-                    throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provie a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
+                    throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provide a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
                 }
                 commandToJoin = evaluatedCommand as Map<String, String>
             }
@@ -670,6 +674,10 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link LabelInstruction} instead.
+     */
+    @Deprecated
     static class MaintainerInstruction extends StringCommandInstruction {
         MaintainerInstruction(String maintainer) {
             super(maintainer)
