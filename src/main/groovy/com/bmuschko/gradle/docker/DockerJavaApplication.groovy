@@ -18,7 +18,7 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile.CompositeExecInstruction
 
 class DockerJavaApplication {
-    String baseImage = 'openjdk'
+    String baseImage = 'openjdk:jre-alpine'
     final CompositeExecInstruction exec = new CompositeExecInstruction()
 
     /**

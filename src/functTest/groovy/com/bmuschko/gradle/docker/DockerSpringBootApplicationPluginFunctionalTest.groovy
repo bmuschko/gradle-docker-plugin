@@ -5,7 +5,8 @@ import spock.lang.Unroll
 
 class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctionalTest {
     private static final String PROJECT_NAME = 'spring-boot'
-    private static final String CUSTOM_BASE_IMAGE = 'openjdk:8-alpine'
+    public static final DEFAULT_BASE_IMAGE = 'openjdk:jre-alpine'
+    private static final String CUSTOM_BASE_IMAGE = 'openjdk:8u171-jre-alpine'
     private static final List<ReactedPlugin> REACTED_PLUGINS = [ReactedPlugin.WAR, ReactedPlugin.JAVA]
 
     def setup() {
@@ -32,7 +33,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent('openjdk', plugin.archiveExtension, [8080])
+        dockerfile.text == expectedDockerFileContent(DEFAULT_BASE_IMAGE, plugin.archiveExtension, [8080])
 
         where:
         plugin << REACTED_PLUGINS
