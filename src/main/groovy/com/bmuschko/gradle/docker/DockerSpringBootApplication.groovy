@@ -10,7 +10,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class DockerSpringBootApplication {
     final CompositeExecInstruction exec = new CompositeExecInstruction()
-    String baseImage = 'openjdk'
+    String baseImage = 'openjdk:jre-alpine'
     Set<Integer> ports
     String tag
 

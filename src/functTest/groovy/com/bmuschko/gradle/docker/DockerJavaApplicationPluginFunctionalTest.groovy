@@ -4,7 +4,8 @@ import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
 class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
-    public static final CUSTOM_BASE_IMAGE = 'openjdk:8-alpine'
+    public static final DEFAULT_BASE_IMAGE = 'openjdk:jre-alpine'
+    public static final CUSTOM_BASE_IMAGE = 'openjdk:8u171-jre-alpine'
 
     def "Can create image for Java application with default configuration"() {
         String projectName = temporaryFolder.root.name
@@ -19,7 +20,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-"""FROM openjdk
+"""FROM $DEFAULT_BASE_IMAGE
 LABEL maintainer=${System.getProperty('user.name')}
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
@@ -351,7 +352,7 @@ EXPOSE 8080
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
         dockerfile.text ==
-            """FROM openjdk
+            """FROM $DEFAULT_BASE_IMAGE
 LABEL maintainer=${System.getProperty('user.name')}
 ADD ${projectName} /${projectName}
 ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
