@@ -1,7 +1,9 @@
 ### Version 3.5.1 (TBA)
+* Use smaller base images for convention plugins - [Pull Request 636](https://github.com/bmuschko/gradle-docker-plugin/pull/636)
+* Fully deprecate MAINTAINER instruction and replace with LABEL - [Pull Request 635](https://github.com/bmuschko/gradle-docker-plugin/pull/635)
 
 ### Version 3.5.0 (July 24, 2018)
-* Support for dockerizing Spring Boot applications. - [Pull Request 619](https://github.com/bmuschko/gradle-docker-plugin/pull/619)
+* Support for dockerizing Spring Boot applications - [Pull Request 619](https://github.com/bmuschko/gradle-docker-plugin/pull/619)
 * Removed deprecated `ResponseHandler` - [Pull Request 624](https://github.com/bmuschko/gradle-docker-plugin/pull/624)
 * Introduce user guide for more readable, maintainable documentation - [Pull Request 630](https://github.com/bmuschko/gradle-docker-plugin/pull/630)
 * Upgrade to Gradle Wrapper 4.9
