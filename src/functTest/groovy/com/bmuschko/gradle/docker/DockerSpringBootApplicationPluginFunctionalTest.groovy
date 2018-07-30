@@ -3,18 +3,15 @@ package com.bmuschko.gradle.docker
 import spock.lang.Requires
 import spock.lang.Unroll
 
+import static com.bmuschko.gradle.docker.DockerConventionPluginFixture.*
+
 class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctionalTest {
-    private static final String PROJECT_NAME = 'spring-boot'
-    public static final DEFAULT_BASE_IMAGE = 'openjdk:jre-alpine'
-    private static final String CUSTOM_BASE_IMAGE = 'openjdk:8u171-jre-alpine'
+
     private static final List<ReactedPlugin> REACTED_PLUGINS = [ReactedPlugin.WAR, ReactedPlugin.JAVA]
 
     def setup() {
-        def settingsFile = temporaryFolder.newFile('settings.gradle')
-        settingsFile << """
-            rootProject.name = '$PROJECT_NAME'
-        """
-        createSpringBootApplicationClasses()
+        writeSettingsFile()
+        writeSpringBootApplicationClasses()
     }
 
     @Override
@@ -23,12 +20,12 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
     }
 
     @Unroll
-    def "Can create image for Spring Boot application with default configuration [#plugin.identifier plugin]"() {
+    def "Can create image and start container for Spring Boot application with default configuration [#plugin.identifier plugin]"() {
         given:
         setupSpringBootBuild(plugin.identifier)
 
         when:
-        build('startContainer')
+        build('buildAndCleanResources')
 
         then:
         File dockerfile = dockerFile()
@@ -40,9 +37,10 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
     }
 
     @Unroll
-    def "Can create image for Spring Boot application with user-provided custom ports [#plugin.identifier plugin]"() {
+    def "Can create image and start container for Spring Boot application with user-provided custom ports [#plugin.identifier plugin]"() {
         given:
         setupSpringBootBuild(plugin.identifier)
+
         buildFile << """
             docker {
                 springBootApplication {
@@ -54,7 +52,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
         """
 
         when:
-        build('startContainer')
+        build('buildAndCleanResources')
 
         then:
         File dockerfile = dockerFile()
@@ -69,6 +67,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
     def "Can create image for Spring Boot application with user-provided empty ports [#plugin.identifier plugin]"() {
         given:
         setupSpringBootBuild(plugin.identifier)
+
         buildFile << """
             docker {
                 springBootApplication {
@@ -80,7 +79,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
         """
 
         when:
-        build('startContainer')
+        build('buildAndRemoveImage')
 
         then:
         File dockerfile = dockerFile()
@@ -94,8 +93,10 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
     @Requires({ TestPrecondition.DOCKER_HUB_CREDENTIALS_AVAILABLE })
     @Unroll
     def "Can create image for a Spring Boot application and push it to DockerHub [#plugin.identifier plugin]"() {
-        DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
+        given:
         setupSpringBootBuild(plugin.identifier)
+
+        DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
         buildFile << """
             docker {
                 registryCredentials {
@@ -112,7 +113,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
         """
 
         when:
-        build('dockerPushImage')
+        build('pushAndRemoveImage')
 
         then:
         File dockerfile = dockerFile()
@@ -126,7 +127,9 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     @Unroll
     def "Can create image for a Spring Boot application and push it to private registry [#plugin.identifier plugin]"() {
+        given:
         setupSpringBootBuild(plugin.identifier)
+
         buildFile << """
             docker {
                 springBootApplication {
@@ -137,7 +140,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
         """
 
         when:
-        build('dockerPushImage')
+        build('pushAndRemoveImage')
 
         then:
         File dockerfile = dockerFile()
@@ -148,34 +151,18 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
         plugin << REACTED_PLUGINS
     }
 
-    private File dockerFile() {
-        new File(projectDir, 'build/docker/Dockerfile')
+    private void writeSettingsFile() {
+        temporaryFolder.newFile('settings.gradle') << settingsFile()
     }
 
-    static String expectedDockerFileContent(String image, String archiveExtension) {
-        expectedDockerFileContent(image, archiveExtension, [8080])
-    }
-
-    static String expectedDockerFileContent(String image, String archiveExtension, List<String> ports) {
-        String dockerFileContent = """FROM $image
-COPY ${PROJECT_NAME}-1.0.${archiveExtension} /app/$PROJECT_NAME-1.0.${archiveExtension}
-ENTRYPOINT ["java"]
-CMD ["-jar", "/app/${PROJECT_NAME}-1.0.${archiveExtension}"]
-"""
-
-        if(!ports.empty) {
-            dockerFileContent += """EXPOSE ${ports.join(' ')}
-"""
-        }
-
-        dockerFileContent
-    }
-
-    private void createSpringBootApplicationClasses() {
+    private void writeSpringBootApplicationClasses() {
         File packageDir = temporaryFolder.newFolder('src', 'main', 'java', 'com', 'bmuschko', 'gradle', 'docker', 'springboot')
-        File helloControllerClass = new File(packageDir, 'HelloController.java')
-        helloControllerClass.createNewFile()
-        helloControllerClass << """
+        new File(packageDir, 'HelloController.java').text = helloWorldControllerClass()
+        new File(packageDir, 'Application.java').text = applicationClass()
+    }
+
+    private static String helloWorldControllerClass() {
+        """
             package com.bmuschko.gradle.docker.springboot;
             
             import org.springframework.web.bind.annotation.RestController;
@@ -191,9 +178,10 @@ CMD ["-jar", "/app/${PROJECT_NAME}-1.0.${archiveExtension}"]
             
             }
         """
-        File applicationClass = new File(packageDir, 'Application.java')
-        applicationClass.createNewFile()
-        applicationClass << """
+    }
+
+    private static String applicationClass() {
+        """
             package com.bmuschko.gradle.docker.springboot;
             
             import java.util.Arrays;
@@ -255,26 +243,9 @@ CMD ["-jar", "/app/${PROJECT_NAME}-1.0.${archiveExtension}"]
     }
 
     private void writeCustomTasksToBuildFile() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-
-            task inspectImage(type: DockerInspectImage) {
-                dependsOn dockerBuildImage
-                targetImageId { dockerBuildImage.getImageId() }
-            }
-
-            task createContainer(type: DockerCreateContainer) {
-                dependsOn inspectImage
-                targetImageId { dockerBuildImage.getImageId() }
-            }
-
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
-            }
-        """
+        buildFile << imageTasks()
+        buildFile << containerTasks()
+        buildFile << lifecycleTask()
     }
 
     enum ReactedPlugin {
@@ -295,5 +266,28 @@ CMD ["-jar", "/app/${PROJECT_NAME}-1.0.${archiveExtension}"]
         String getArchiveExtension() {
             archiveExtension
         }
+    }
+
+    private File dockerFile() {
+        new File(projectDir, 'build/docker/Dockerfile')
+    }
+
+    private static String expectedDockerFileContent(String image, String archiveExtension) {
+        expectedDockerFileContent(image, archiveExtension, [8080])
+    }
+
+    private static String expectedDockerFileContent(String image, String archiveExtension, List<String> ports) {
+        String dockerFileContent = """FROM $image
+COPY ${PROJECT_NAME}-1.0.${archiveExtension} /app/$PROJECT_NAME-1.0.${archiveExtension}
+ENTRYPOINT ["java"]
+CMD ["-jar", "/app/${PROJECT_NAME}-1.0.${archiveExtension}"]
+"""
+
+        if(!ports.empty) {
+            dockerFileContent += """EXPOSE ${ports.join(' ')}
+"""
+        }
+
+        dockerFileContent
     }
 }

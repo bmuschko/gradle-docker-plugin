@@ -1,41 +1,33 @@
 package com.bmuschko.gradle.docker
 
-import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
+import static com.bmuschko.gradle.docker.DockerConventionPluginFixture.*
+
 class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
-    public static final DEFAULT_BASE_IMAGE = 'openjdk:jre-alpine'
-    public static final CUSTOM_BASE_IMAGE = 'openjdk:8u171-jre-alpine'
 
-    def "Can create image for Java application with default configuration"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
-        when:
-        BuildResult result = build('startContainer')
-
-        then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text ==
-"""FROM $DEFAULT_BASE_IMAGE
-LABEL maintainer=${System.getProperty('user.name')}
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
-ENTRYPOINT ["/${projectName}/bin/${projectName}"]
-EXPOSE 8080
-"""
-        result.output.contains('Author           : ')
+    def setup() {
+        setupProjectUnderTest()
     }
 
-    def "Can create image for Java application with user-driven configuration"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
+    def "Can create image and start container for Java application with default configuration"() {
+        when:
+        build('buildAndCleanResources')
 
+        then:
+        File dockerfile = dockerFile()
+        dockerfile.exists()
+        dockerfile.text == """FROM $DEFAULT_BASE_IMAGE
+LABEL maintainer=${System.getProperty('user.name')}
+ADD ${PROJECT_NAME} /${PROJECT_NAME}
+ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
+ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
+EXPOSE 8080
+"""
+    }
+
+    def "Can create image and start container for Java application with user-driven configuration"() {
+        given:
         buildFile << """
             docker {
                 javaApplication {
@@ -48,29 +40,22 @@ EXPOSE 8080
         """
 
         when:
-        BuildResult result = build('startContainer', '-s')
+        build('buildAndCleanResources')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-"""FROM $CUSTOM_BASE_IMAGE
+        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=benjamin.muschko@gmail.com
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
-ENTRYPOINT ["/${projectName}/bin/${projectName}"]
+ADD ${PROJECT_NAME} /${PROJECT_NAME}
+ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
+ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
 EXPOSE 9090
 """
-        result.output.contains('Author           : ')
-        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can create image for Java application with user-driven configuration with several ports"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
+        given:
         buildFile << """
             docker {
                 javaApplication {
@@ -83,29 +68,22 @@ EXPOSE 9090
         """
 
         when:
-        BuildResult result = build('startContainer', '-s')
+        build('buildAndRemoveImage')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $CUSTOM_BASE_IMAGE
+        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=benjamin.muschko@gmail.com
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
-ENTRYPOINT ["/${projectName}/bin/${projectName}"]
+ADD ${PROJECT_NAME} /${PROJECT_NAME}
+ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
+ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
 EXPOSE 9090 8080
 """
-        result.output.contains('Author           : ')
-        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can create image for Java application with user-driven configuration without exposed ports"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
+        given:
         buildFile << """
             docker {
                 javaApplication {
@@ -118,28 +96,21 @@ EXPOSE 9090 8080
         """
 
         when:
-        BuildResult result = build('startContainer', '-s')
+        build('buildAndRemoveImage')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-            """FROM $CUSTOM_BASE_IMAGE
+        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=benjamin.muschko@gmail.com
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
-ENTRYPOINT ["/${projectName}/bin/${projectName}"]
+ADD ${PROJECT_NAME} /${PROJECT_NAME}
+ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
+ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
 """
-        result.output.contains('Author           : ')
-        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can create image for Java application with user-driven configuration with custom cmd/entrypoint"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
+        given:
         buildFile << """
             docker {
                 javaApplication {
@@ -156,16 +127,15 @@ ENTRYPOINT ["/${projectName}/bin/${projectName}"]
         """
 
         when:
-        build('dockerBuildImage')
+        build('buildAndRemoveImage')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $CUSTOM_BASE_IMAGE
+        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=benjamin.muschko@gmail.com
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
+ADD ${PROJECT_NAME} /${PROJECT_NAME}
+ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
 CMD ["arg1"]
 ENTRYPOINT ["bin/run.sh"]
 EXPOSE 9090
@@ -173,11 +143,7 @@ EXPOSE 9090
     }
 
     def "Can create image for Java application with user-driven configuration with no cmd/entrypoint"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
+        given:
         buildFile << """
             docker {
                 javaApplication {
@@ -191,16 +157,15 @@ EXPOSE 9090
         """
 
         when:
-        build('dockerBuildImage')
+        build('buildAndRemoveImage')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $CUSTOM_BASE_IMAGE
+        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=benjamin.muschko@gmail.com
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
+ADD ${PROJECT_NAME} /${PROJECT_NAME}
+ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
 
 EXPOSE 9090
 """
@@ -211,12 +176,9 @@ EXPOSE 9090
     }
 
     def "Can create image for Java application with additional files"() {
-        String projectName = temporaryFolder.root.name
+        given:
         temporaryFolder.newFile('file1.txt')
         temporaryFolder.newFile('file2.txt')
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
 
         buildFile << """
             dockerCopyDistResources {
@@ -240,32 +202,27 @@ EXPOSE 9090
         """
 
         when:
-        BuildResult result = build('startContainer')
+        build('buildAndRemoveImage')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-"""FROM $CUSTOM_BASE_IMAGE
+        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=benjamin.muschko@gmail.com
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
-ENTRYPOINT ["/${projectName}/bin/${projectName}"]
+ADD ${PROJECT_NAME} /${PROJECT_NAME}
+ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
+ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
 EXPOSE 9090
 """
         new File(projectDir, 'build/docker/file1.txt').exists()
         new File(projectDir, 'build/docker/file2.txt').exists()
-        result.output.contains('Author           : ')
-        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     @Requires({ TestPrecondition.DOCKER_HUB_CREDENTIALS_AVAILABLE })
     def "Can create image for Java application and push to DockerHub"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
+        given:
         DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
         buildFile << """
             applicationName = 'javaapp'
@@ -285,16 +242,15 @@ EXPOSE 9090
         """
 
         when:
-        build('dockerPushImage')
+        build('pushAndRemoveImage')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $CUSTOM_BASE_IMAGE
+        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=${System.getProperty('user.name')}
 ADD javaapp /javaapp
-ADD app-lib/${projectName}-1.0.jar /javaapp/lib/$projectName-1.0.jar
+ADD app-lib/${PROJECT_NAME}-1.0.jar /javaapp/lib/$PROJECT_NAME-1.0.jar
 ENTRYPOINT ["/javaapp/bin/javaapp"]
 EXPOSE 8080
 """
@@ -302,9 +258,7 @@ EXPOSE 8080
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can create image for Java application and push to private registry"() {
-        String projectName = temporaryFolder.root.name
-        createJettyMainClass()
-        writeBasicSetupToBuildFile()
+        given:
         buildFile << """
             applicationName = 'javaapp'
 
@@ -317,26 +271,22 @@ EXPOSE 8080
         """
 
         when:
-        build('dockerPushImage')
+        build('pushAndRemoveImage')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $CUSTOM_BASE_IMAGE
+        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=${System.getProperty('user.name')}
 ADD javaapp /javaapp
-ADD app-lib/${projectName}-1.0.jar /javaapp/lib/$projectName-1.0.jar
+ADD app-lib/${PROJECT_NAME}-1.0.jar /javaapp/lib/$PROJECT_NAME-1.0.jar
 ENTRYPOINT ["/javaapp/bin/javaapp"]
 EXPOSE 8080
 """
     }
 
     def "Can create image without MAINTAINER"() {
-        String projectName = temporaryFolder.root.name
-        writeBasicSetupToBuildFile()
-        writeCustomTasksToBuildFile()
-
+        given:
         buildFile << """
             docker {
                 javaApplication {
@@ -346,63 +296,29 @@ EXPOSE 8080
         """
 
         when:
-        build('inspectImage', '-s')
+        build('buildAndRemoveImage')
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
+        File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text ==
-            """FROM $DEFAULT_BASE_IMAGE
+        dockerfile.text == """FROM $DEFAULT_BASE_IMAGE
 LABEL maintainer=${System.getProperty('user.name')}
-ADD ${projectName} /${projectName}
-ADD app-lib/${projectName}-1.0.jar /$projectName/lib/$projectName-1.0.jar
-ENTRYPOINT ["/${projectName}/bin/${projectName}"]
+ADD ${PROJECT_NAME} /${PROJECT_NAME}
+ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
+ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
 EXPOSE 8080
 """
     }
 
-    private void createJettyMainClass() {
-        File packageDir = temporaryFolder.newFolder('src', 'main', 'java', 'com', 'bmuschko', 'gradle', 'docker', 'application')
-        File jettyMainClass = new File(packageDir, 'JettyMain.java')
-        jettyMainClass.createNewFile()
-        jettyMainClass << """
-package com.bmuschko.gradle.docker.application;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-
-import java.io.IOException;
-
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-
-public class JettyMain extends AbstractHandler
-{
-    public void handle(String target,
-                       Request baseRequest,
-                       HttpServletRequest request,
-                       HttpServletResponse response)
-            throws IOException, ServletException
-    {
-        response.setContentType("text/html;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        baseRequest.setHandled(true);
-        response.getWriter().println("<p><img src='http://www.docker.io/static/img/homepage-docker-logo.png'></p>");
-        response.getWriter().println("<br><h1>Hello, Docker!</h1>");
+    private void setupProjectUnderTest() {
+        writeSettingsFile()
+        writeBasicSetupToBuildFile()
+        writeCustomTasksToBuildFile()
+        writeJettyMainClass()
     }
 
-    public static void main(String[] args) throws Exception
-    {
-        Server server = new Server(8080);
-        server.setHandler(new JettyMain());
-
-        server.start();
-        server.join();
-    }
-}
-"""
+    private void writeSettingsFile() {
+        temporaryFolder.newFile('settings.gradle') << settingsFile()
     }
 
     private void writeBasicSetupToBuildFile() {
@@ -427,25 +343,54 @@ public class JettyMain extends AbstractHandler
     }
 
     private void writeCustomTasksToBuildFile() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+        buildFile << imageTasks()
+        buildFile << containerTasks()
+        buildFile << lifecycleTask()
+    }
 
-            task inspectImage(type: DockerInspectImage) {
-                dependsOn dockerBuildImage
-                targetImageId { dockerBuildImage.getImageId() }
-            }
+    private void writeJettyMainClass() {
+        File packageDir = temporaryFolder.newFolder('src', 'main', 'java', 'com', 'bmuschko', 'gradle', 'docker', 'application')
+        File jettyMainClassFile = new File(packageDir, 'JettyMain.java')
+        jettyMainClassFile.text = jettyMainClass()
+    }
 
-            task createContainer(type: DockerCreateContainer) {
-                dependsOn inspectImage
-                targetImageId { dockerBuildImage.getImageId() }
-            }
-
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+    private static String jettyMainClass() {
+        """
+            package com.bmuschko.gradle.docker.application;
+            
+            import javax.servlet.http.HttpServletRequest;
+            import javax.servlet.http.HttpServletResponse;
+            import javax.servlet.ServletException;
+            
+            import java.io.IOException;
+            
+            import org.eclipse.jetty.server.Server;
+            import org.eclipse.jetty.server.Request;
+            import org.eclipse.jetty.server.handler.AbstractHandler;
+            
+            public class JettyMain extends AbstractHandler {
+                public void handle(String target,
+                                   Request baseRequest,
+                                   HttpServletRequest request,
+                                   HttpServletResponse response)
+                        throws IOException, ServletException {
+                    response.setContentType("text/html;charset=utf-8");
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    baseRequest.setHandled(true);
+                    response.getWriter().println("Hello, Docker!");
+                }
+            
+                public static void main(String[] args) throws Exception {
+                    Server server = new Server(8080);
+                    server.setHandler(new JettyMain());
+                    server.start();
+                    server.join();
+                }
             }
         """
+    }
+
+    private File dockerFile() {
+        new File(projectDir, 'build/docker/Dockerfile')
     }
 }
