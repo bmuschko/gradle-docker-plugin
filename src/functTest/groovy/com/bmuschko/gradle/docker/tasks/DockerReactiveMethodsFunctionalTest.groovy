@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker.tasks
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.TestConfiguration
+import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
@@ -78,7 +81,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
                 maintainer 'John Doe <john.doe@example.com>'
             }
 
@@ -109,8 +112,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                repository = '$AbstractFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -159,8 +162,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
     
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                repository = '$AbstractFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
             }
 
             task listImages(type: DockerListImages) {
@@ -191,7 +194,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { '$TEST_IMAGE_WITH_TAG' }
+                targetImageId { '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG' }
                 containerName = "$uniqueContainerName"
                 cmd = ['/bin/sh']
             }
@@ -223,7 +226,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { '$TEST_IMAGE_WITH_TAG' }
+                targetImageId { '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG' }
                 containerName = "$uniqueContainerName"
                 cmd = ['/bin/sh']
                 
@@ -250,7 +253,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { '$TEST_IMAGE_WITH_TAG' }
+                targetImageId { '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG' }
                 cmd = ['sleep','10']
             }
 
@@ -293,7 +296,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { '$TEST_IMAGE_WITH_TAG' }
+                targetImageId { '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG' }
                 cmd = ['sleep','10']
             }
 
@@ -332,7 +335,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 
             task createContainer(type: DockerCreateContainer){
-                targetImageId { '$TEST_IMAGE_WITH_TAG' }
+                targetImageId { '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG' }
                 cmd 'sh', '-c', 'exit 1'
             }
 
@@ -363,8 +366,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                repository = '$AbstractFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
             }
 
             task inspectImage(type: DockerInspectImage) {
@@ -434,7 +437,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file("${dockerFileLocation.path}")
-                from '$TEST_IMAGE_WITH_TAG'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
                 maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
                 runCommand 'mkdir -p /tmp/${createUniqueImageId()}'
             }

@@ -1,7 +1,7 @@
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker.tasks
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 
 class DockerInfoFunctionalTest extends AbstractFunctionalTest {
     def "Can get Docker info"() {

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker.tasks.container
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
 class DockerRenameContainerFunctionalTest extends AbstractFunctionalTest {
@@ -28,8 +29,8 @@ class DockerRenameContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.*
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                repository = '$AbstractFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -68,8 +69,8 @@ class DockerRenameContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.*
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                repository = '$AbstractFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {

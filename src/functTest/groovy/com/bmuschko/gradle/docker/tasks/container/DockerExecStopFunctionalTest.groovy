@@ -1,5 +1,6 @@
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker.tasks.container
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
 class DockerExecStopFunctionalTest extends AbstractFunctionalTest {

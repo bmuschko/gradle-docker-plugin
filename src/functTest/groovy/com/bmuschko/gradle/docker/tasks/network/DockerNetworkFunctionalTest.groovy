@@ -1,4 +1,6 @@
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker.tasks.network
+
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 
 class DockerNetworkFunctionalTest extends AbstractFunctionalTest {
     /**

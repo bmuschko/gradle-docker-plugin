@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker.tasks.container
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
 class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
@@ -26,7 +27,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
@@ -76,8 +77,8 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                repository = '$AbstractFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -115,7 +116,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
@@ -170,7 +171,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
@@ -224,7 +225,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 10; touch /tmp/HEALTHY; sleep 60'
             }
@@ -275,7 +276,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 5'
             }
@@ -326,7 +327,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 10'
             }
