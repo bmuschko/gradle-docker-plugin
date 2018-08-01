@@ -14,7 +14,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                maintainer 'Jane Doe <jane.doe@example.com>'
+                label(['maintainer': 'jane.doe@example.com'])
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -52,7 +52,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                maintainer 'Jane Doe <jane.doe@example.com>'
+                label(['maintainer': 'jane.doe@example.com'])
             }
 
             task buildImage(type: DockerBuildImage) {

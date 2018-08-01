@@ -28,7 +28,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile)
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+    label(['maintainer': 'benjamin.muschko@gmail.com'])
 }
 
 task ${DOCKERFILE_TASK_NAME}simple(type: Dockerfile) {
@@ -73,7 +73,7 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     from '$TEST_IMAGE_WITH_TAG'
-    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+    label(['maintainer': 'benjamin.muschko@gmail.com'])
 }
 """
         when:
@@ -84,7 +84,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $TEST_IMAGE_WITH_TAG
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 """
     }
 
@@ -95,7 +95,7 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     from '$TEST_IMAGE_WITH_TAG'
-    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+    label(['maintainer': 'benjamin.muschko@gmail.com'])
     runCommand 'echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
     defaultCommand 'echo', 'some', 'command'
     exposePort 8080, 14500
@@ -120,7 +120,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $TEST_IMAGE_WITH_TAG
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
 CMD ["echo", "some", "command"]
 EXPOSE 8080 14500
@@ -145,7 +145,7 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     instructions = [new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG'),
-                    new Dockerfile.MaintainerInstruction('Benjamin Muschko "benjamin.muschko@gmail.com"')]
+                    new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com'])]
 }
 """
         when:
@@ -156,7 +156,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $TEST_IMAGE_WITH_TAG
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 """
     }
 
@@ -167,7 +167,7 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     instruction 'FROM $TEST_IMAGE_WITH_TAG'
-    instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
+    instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
 }
 """
         when:
@@ -178,7 +178,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
         dockerfile.text ==
                 """FROM $TEST_IMAGE_WITH_TAG
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 """
     }
 
@@ -186,7 +186,7 @@ MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
         given:
         File dockerDir = temporaryFolder.newFolder('src', 'main', 'docker')
         new File(dockerDir, 'Dockerfile.template') << """FROM alpine:3.4
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"""
+LABEL maintainer=benjamin.muschko@gmail.com"""
         buildFile << """
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
@@ -202,7 +202,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
         dockerfile.text ==
             """FROM $TEST_IMAGE_WITH_TAG
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com
+LABEL maintainer=benjamin.muschko@gmail.com
 """
     }
 
@@ -215,7 +215,7 @@ ext.version = project.properties.getOrDefault('version', '1.0')
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     instruction 'FROM $TEST_IMAGE_WITH_TAG'
-    instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
+    instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
     label([ver: version])
 }
 """
@@ -380,7 +380,7 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     from '$TEST_IMAGE_WITH_TAG', 'builder'
-    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+    label(['maintainer': 'benjamin.muschko@gmail.com'])
     copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
     from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
     copyFile '/opt/h2.jar', '/opt/h2.jar', 'builder'
@@ -394,7 +394,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
         dockerfile.text ==
             """FROM $TEST_IMAGE_WITH_TAG AS builder
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 FROM alpine:3.4 AS prod
 COPY --from=builder /opt/h2.jar /opt/h2.jar
@@ -410,7 +410,7 @@ ext.buildStageName = ''
 
 task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
     from({'$TEST_IMAGE_WITH_TAG'}, {buildStageName})
-    maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+    label(['maintainer': 'benjamin.muschko@gmail.com'])
     copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
     from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
     copyFile({'/opt/h2.jar'}, {'/opt/h2.jar'}, {buildStageName})
@@ -427,7 +427,7 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         dockerfile.exists()
         dockerfile.text ==
             """FROM $TEST_IMAGE_WITH_TAG AS builder
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 FROM alpine:3.4 AS prod
 COPY --from=builder /opt/h2.jar /opt/h2.jar

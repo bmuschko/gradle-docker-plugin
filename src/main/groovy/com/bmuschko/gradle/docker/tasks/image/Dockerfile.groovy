@@ -79,7 +79,7 @@ class Dockerfile extends DefaultTask {
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     instruction 'FROM ubuntu:14.04'
-     *     instruction 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+     *     instruction 'LABEL maintainer=benjamin.muschko@gmail.com'
      * }
      * </pre>
      *
@@ -97,7 +97,7 @@ class Dockerfile extends DefaultTask {
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     instruction { 'FROM ubuntu:14.04' }
-     *     instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
+     *     instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
      * }
      * </pre>
      *

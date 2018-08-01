@@ -49,7 +49,7 @@ will result in
 
 ----
 FROM java
-MAINTAINER user
+LABEL maintainer=user
 ADD javaapp-1.0.0-SNAPSHOT.tar /
 ENTRYPOINT ["/javaapp-1.0.0-SNAPSHOT/bin/javaapp"]
 EXPOSE 8080

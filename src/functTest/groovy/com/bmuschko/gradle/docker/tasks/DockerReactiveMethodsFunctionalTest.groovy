@@ -82,7 +82,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
-                maintainer 'John Doe <john.doe@example.com>'
+                label(['maintainer': 'john.doe@example.com'])
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -438,7 +438,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractFunctionalTest {
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file("${dockerFileLocation.path}")
                 from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
-                maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
                 runCommand 'mkdir -p /tmp/${createUniqueImageId()}'
             }
 

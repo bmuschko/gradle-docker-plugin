@@ -29,7 +29,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file('build/mydockerfile/Dockerfile')
                 from '$TEST_IMAGE_WITH_TAG'
-                maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -53,7 +53,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         then:
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can build and verify image"() {
@@ -83,7 +83,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
 
         then:
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can build an image, create and start a container"() {
@@ -247,7 +247,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file("${dockerFileLocation.path}")
                 from '$TEST_IMAGE_WITH_TAG'
-                maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
                 doLast {
                     if (new File("${dockerFileLocation.path}").exists()) {
                         println "Dockerfile does indeed exist."
@@ -673,7 +673,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 onNext { c ->
-                    if(c.config.labels.size() != 2) {
+                    if(c.config.labels.size() != 3) {
                         throw new GradleException("Invalid labels size!")
                     }
                 }
@@ -747,7 +747,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """
 FROM $TEST_IMAGE_WITH_TAG
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+LABEL maintainer=benjamin.muschko@gmail.com
 """
         dockerFile
     }
