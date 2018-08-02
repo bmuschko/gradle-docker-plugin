@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testkit.runner.BuildResult
 
 class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
@@ -133,4 +134,94 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("seven=eight")
         result.output.contains("nine=ten")
     }
+
+    def "Set autoRemove"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$AbstractFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                autoRemove = true
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task stopContainer(type: DockerStopContainer) {
+                dependsOn startContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn stopContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+            
+            task workflow {
+                dependsOn inspectContainer
+            }
+        """
+
+        expect:
+        BuildResult result = buildAndFail('workflow')
+        result.output.contains('No such container')
+    }
+
+    def "Unset autoRemove"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$AbstractFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task stopContainer(type: DockerStopContainer) {
+                dependsOn startContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn stopContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+            
+            task workflow {
+                dependsOn inspectContainer
+            }
+        """
+
+        when:
+        build('workflow')
+
+        then:
+        notThrown(Exception)
+    }
+    
 }
