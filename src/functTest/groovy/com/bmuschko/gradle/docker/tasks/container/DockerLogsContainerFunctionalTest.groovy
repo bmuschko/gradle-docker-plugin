@@ -17,10 +17,169 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 
 class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
-    def setup() {
-        buildFile << """
+
+    def "Can start a container and watch logs"() {
+        given:
+        String logContainerTask = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                follow = true
+                tailAll = true
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        result.output =~ /.*[\n\r]Hello World[\n\r]  indent[\n\r].*/
+    }
+
+    def "Can limit container logs by the since parameter"() {
+        given:
+        String logContainerTask = """
+             task logContainer(type: DockerLogsContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                since = new Date()+1
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        !result.output.contains("Hello World")
+    }
+
+    def "can capture all output with tailAll option"() {
+        given:
+        String logContainerTask = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                tailAll = true
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        result.output.contains("Hello World")
+    }
+
+    def "Cannot specify the properties tailAll and tailCount together"() {
+        given:
+        String logContainerTask = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                tailAll = true
+                tailCount = 20
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        BuildResult result = buildAndFail('logContainer')
+
+        then:
+        result.task(':logContainer').outcome == TaskOutcome.FAILED
+    }
+
+    def "Setting tailCount to 0 should produce no output"() {
+        given:
+        String logContainerTask = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                tailCount = 0
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        !result.output.contains("Hello World")
+    }
+
+    def "Setting tailCount to 1 should produce output"() {
+        given:
+        String logContainerTask = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                tailCount = 1
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        result.output.contains("  indent")
+    }
+
+    def "Can render timestamps in output"() {
+        given:
+        String logContainerTask = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                tailAll = true
+                showTimestamps = true
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        result.output ==~ ~/(?s).*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][.][0-9]+Z\s+Hello World.*/
+    }
+
+    def "Can write output to file"() {
+        given:
+        String logContainerTask = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId { startContainer.getContainerId() }
+                sink = project.file("${projectDir.path}/log-sink.txt").newWriter()
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        build('logContainer')
+
+        then:
+        File outputFile = new File("${projectDir.path}/log-sink.txt")
+        outputFile.exists() && outputFile.text.contains("Hello World")
+    }
+
+    def "Prints an error message when obtaining logs fails"() {
+        given:
+        String logContainerTask = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId { "not_existing_container" }
+            }
+        """
+        buildFile << containerUsage(logContainerTask)
+
+        when:
+        BuildResult result = buildAndFail('logContainer')
+
+        then:
+        result.task(':logContainer').outcome == TaskOutcome.FAILED
+        result.output.contains("No such container: not_existing_container")
+    }
+
+    static String containerUsage(String logContainerTask) {
+        """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
@@ -28,8 +187,8 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -42,147 +201,20 @@ class DockerLogsContainerFunctionalTest extends AbstractFunctionalTest {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
             }
-
-           task removeContainer(type: DockerRemoveContainer) {
-                dependsOn 'logContainer'
+            
+            task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
                 targetContainerId { startContainer.getContainerId() }
             }
 
-            task workflow {
-                dependsOn removeContainer
-            }
-        """
+            ${logContainerTask}
 
-    }
-
-    def "Can start a container and watch logs"() {
-        buildFile << """
-            task logContainer(type: DockerLogsContainer) {
+            logContainer {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                follow = true
-                tailAll = true
+                finalizedBy removeContainer
             }
         """
-
-        expect:
-        BuildResult result = build('workflow')
-        result.output =~ /.*[\n\r]Hello World[\n\r]  indent[\n\r].*/
-    }
-
-    def "Container logs are limited by the since parameter"() {
-        buildFile << """
-             task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                since = new Date()+1
-            }
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        !result.output.contains("Hello World")
-    }
-
-    def "tailAll = true should have all output"() {
-        buildFile << """
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                tailAll = true
-            }
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        result.output.contains("Hello World")
-    }
-
-    def "tailAll and tailCount cannot be specified together"() {
-       buildFile << """
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                tailAll = true
-                tailCount = 20
-            }
-        """
-
-        expect:
-        BuildResult result = buildAndFail('workflow')
-    }
-
-    def "tailCount = 0 should have no output"() {
-        buildFile << """
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                tailCount = 0
-            }
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        !result.output.contains("Hello World")
-    }
-
-    def "tailCount = 1 should have output"() {
-        buildFile << """
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                tailCount = 1
-            }
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        result.output.contains("  indent")
-    }
-
-    def "showTimestamps works"() {
-        buildFile << """
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                tailAll = true
-                showTimestamps = true
-            }
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        result.output ==~ ~/(?s).*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][.][0-9]+Z\s+Hello World.*/
-    }
-
-    def "sink output to file"() {
-        buildFile << """
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                sink = project.file("${projectDir.path}/log-sink.txt").newWriter()
-            }
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        File outputFile = new File("${projectDir.path}/log-sink.txt")
-        outputFile.exists() && outputFile.text.contains("Hello World")
-    }
-
-    def "prints error message when obtaining logs fails"() {
-        buildFile << """
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                targetContainerId { "not_existing_container" }
-            }
-        """
-
-        expect:
-        BuildResult result = buildAndFail('workflow')
-        result.output.contains("No such container: not_existing_container")
     }
 }
 
