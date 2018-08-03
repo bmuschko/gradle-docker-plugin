@@ -134,8 +134,8 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
