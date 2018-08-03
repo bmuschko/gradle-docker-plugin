@@ -19,7 +19,6 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             
             task removeImage(type: DockerRemoveImage) {
                 targetImageId { buildImage.getImageId() }
-                force = true
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -99,7 +98,6 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             
             task removeImage(type: DockerRemoveImage) {
                 targetImageId { buildImage.getImageId() }
-                force = true
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -123,7 +121,6 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
 
             task removeImage(type: DockerRemoveImage) {
                 targetImageId { buildImage.getImageId() }
-                force = true
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -158,7 +155,6 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
 
             task removeImage(type: DockerRemoveImage) {
                 targetImageId { buildImage.getImageId() }
-                force = true
             }
             
             task inspectImage(type: DockerInspectImage) {
@@ -188,7 +184,6 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
             
             task removeImage(type: DockerRemoveImage) {
                 targetImageId { buildImage.getImageId() }
-                force = true
             }
 
             task inspectImage(type: DockerInspectImage) {
