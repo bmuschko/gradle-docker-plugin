@@ -10,23 +10,29 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
                 addFile('./aaa', 'aaa')
             }
+            
+            task removeImage(type: DockerRemoveImage) {
+                targetImageId { buildImage.getImageId() }
+            }
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                finalizedBy removeImage
                 inputDir = file("build/docker")
             }
         """
 
         when:
-        def result = buildAndFail('buildImage')
+        BuildResult result = buildAndFail('buildImage')
 
         then:
-        result.output.contains("aaa: no such file or directory")
+        result.output.contains('aaa: no such file or directory')
     }
 
     def "can build image"() {
@@ -36,7 +42,7 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('buildImage')
 
         then:
-        result.output.contains("Created image with ID")
+        result.output.contains('Created image with ID')
     }
 
     @Unroll
@@ -47,21 +53,26 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('inspectImage')
 
         then:
-        result.output.contains("label1:test1, label2:test2")
+        result.output.contains('label1:test1, label2:test2')
 
         where:
         gradleTaskDefinition << [imageCreationWithBuildArgs(), imageCreationWithLabelParameter()]
     }
 
-    def "can build image with multiple tags"() {
-        buildFile << buildImageWithTags()
+    @Unroll
+    def "can build image with #description"() {
+        buildFile << buildImageWithTags(tagsCommand)
 
         when:
-        BuildResult result = build('buildImageWithTags', 'buildImageWithTag')
+        BuildResult result = build('buildImage')
 
         then:
-        result.output.contains("Using tags 'test/image:123', 'registry.com:5000/test/image:123' for image.")
-        result.output.contains("Using tag 'test/image:123' for image.")
+        result.output.contains(expectedOutput)
+
+        where:
+        tagsCommand | expectedOutput | description
+        "tag = 'test/image:123'" | "Using tag 'test/image:123' for image." | 'single tag'
+        "tags = ['test/image:123', 'registry.com:5000/test/image:123']" | "Using tags 'test/image:123', 'registry.com:5000/test/image:123' for image." | 'multiple tags'
     }
 
 
@@ -69,50 +80,63 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
         buildFile << buildImageWithShmSize()
 
         when:
-        build("buildWithShmSize")
+        build('buildImage')
 
         then:
         noExceptionThrown()
     }
 
-    private String buildImageWithShmSize() {
+    private static String buildImageWithShmSize() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
+            }
+            
+            task removeImage(type: DockerRemoveImage) {
+                targetImageId { buildImage.getImageId() }
             }
 
-            task buildWithShmSize(type: DockerBuildImage) {
+            task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                finalizedBy removeImage
                 inputDir = file("build/docker")
                 shmSize = 128000
             }
         """
     }
 
-    private String imageCreation() {
+    private static String imageCreation() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
             }
 
+            task removeImage(type: DockerRemoveImage) {
+                targetImageId { buildImage.getImageId() }
+            }
+
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                finalizedBy removeImage
                 inputDir = file("build/docker")
             }
         """
     }
 
-    private String imageCreationWithBuildArgs() {
+    private static String imageCreationWithBuildArgs() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
@@ -129,18 +153,24 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
                 buildArgs = ['arg1':'test1', 'arg2':'test2', 'arg3': "\$project.name"]
             }
 
+            task removeImage(type: DockerRemoveImage) {
+                targetImageId { buildImage.getImageId() }
+            }
+            
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
+                finalizedBy removeImage
                 targetImageId { buildImage.getImageId() }
             }
         """
     }
 
-    private String imageCreationWithLabelParameter() {
+    private static String imageCreationWithLabelParameter() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
@@ -151,35 +181,39 @@ class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
                 inputDir = file("build/docker")
                 labels = ['label1':'test1', 'label2':'test2', 'label3':"\$project.name"]
             }
+            
+            task removeImage(type: DockerRemoveImage) {
+                targetImageId { buildImage.getImageId() }
+            }
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
+                finalizedBy removeImage
                 targetImageId { buildImage.getImageId() }
             }
         """
     }
 
-    private String buildImageWithTags() {
+    private static String buildImageWithTags(String tagsCommand) {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
-            project.version = "123"
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
             }
-
-            task buildImageWithTags(type: DockerBuildImage) {
-                dependsOn dockerfile
-                inputDir = file("build/docker")
-                tags = ['test/image:123', "registry.com:5000/test/image:\$project.version"]
-            }
             
-            task buildImageWithTag(type: DockerBuildImage) {
+            task removeImage(type: DockerRemoveImage) {
+                targetImageId { buildImage.getImageId() }
+                force = true
+            }
+
+            task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                finalizedBy removeImage
                 inputDir = file("build/docker")
-                tag = 'test/image:123'
+                $tagsCommand
             }
         """
     }
