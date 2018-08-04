@@ -44,6 +44,7 @@ class DockerInfoFunctionalTest extends AbstractFunctionalTest {
     }
 
     def "Can provide custom URL"() {
+        given:
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.DockerInfo
 
@@ -59,7 +60,8 @@ class DockerInfoFunctionalTest extends AbstractFunctionalTest {
         result.output.contains('Retrieving Docker info.')
     }
 
-    def "Fails with illegal overriden url"() {
+    def "Fails with illegal custom url"() {
+        given:
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.DockerInfo
 
