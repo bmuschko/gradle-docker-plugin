@@ -9,30 +9,8 @@ import org.gradle.testkit.runner.BuildResult
 class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
 
     def "Inspect executed command within running container"() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerInspectExecContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
-
-            task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
-            }
-
-            task createContainer(type: DockerCreateContainer) {
-                dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
-                cmd = ['sleep','10']
-            }
-
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
-            }
-
+        given:
+        String containerInspectExecutionTask = """
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId { startContainer.getContainerId() }
@@ -41,28 +19,50 @@ class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
             
             task inspectExec(type: DockerInspectExecContainer) {
                 dependsOn execContainer
+                finalizedBy removeContainer
                 targetExecId { execContainer.execId }
             }
-            
-            task removeContainer(type: DockerRemoveContainer) {
-                dependsOn inspectExec
-                removeVolumes = true
-                force = true
-                targetContainerId { startContainer.getContainerId() }
-            }
-
-            task workflow {
-                dependsOn removeContainer
-            }
         """
+        buildFile << containerUsage(containerInspectExecutionTask)
 
-        expect:
-        BuildResult result = build('workflow')
-        result.output.contains("Exec ID: ")
+        when:
+        BuildResult result = build('inspectExec')
+
+        then:
+        result.output.contains('Exec ID: ')
     }
 
     def "Inspect exit code of executed command within running container"() {
-        buildFile << """
+        given:
+        String containerInspectExecutionTask = """
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+                cmd = ['test', '-e', '/not_existing_file']
+            }
+
+            task inspectExec(type: DockerInspectExecContainer) {
+                dependsOn execContainer
+                finalizedBy removeContainer
+                targetExecId { execContainer.execId }
+                onNext { r ->
+                    if(r.exitCode) {
+                        throw new GradleException("Docker container exec failed with exit code: " + r.exitCode)
+                    }
+                }
+            }
+        """
+        buildFile << containerUsage(containerInspectExecutionTask)
+
+        when:
+        BuildResult result = buildAndFail('inspectExec')
+
+        then:
+        result.output.contains('Docker container exec failed with exit code: ')
+    }
+
+    static String containerUsage(String containerExecInspectExecutionTask) {
+        """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
@@ -71,8 +71,8 @@ class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -85,37 +85,14 @@ class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
             }
-
-            task execContainer(type: DockerExecContainer) {
-                dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                cmd = ['test', '-e', '/not_existing_file']
-            }
-            
-            task inspectExec(type: DockerInspectExecContainer) {
-                dependsOn execContainer
-                targetExecId { execContainer.execId }
-                onNext { r ->
-                    if(r.exitCode) {
-                        throw new GradleException("Docker container exec failed with exit code: " + r.exitCode)
-                    }
-                }
-            }
             
             task removeContainer(type: DockerRemoveContainer) {
-                dependsOn inspectExec
                 removeVolumes = true
                 force = true
                 targetContainerId { startContainer.getContainerId() }
             }
 
-            task workflow {
-                dependsOn removeContainer
-            }
+            ${containerExecInspectExecutionTask}
         """
-
-        expect:
-        BuildResult result = buildAndFail('workflow')
-        result.output.contains("Docker container exec failed with exit code: ")
     }
 }

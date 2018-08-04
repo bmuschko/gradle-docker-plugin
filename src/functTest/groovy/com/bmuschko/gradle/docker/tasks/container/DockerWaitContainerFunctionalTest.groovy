@@ -19,32 +19,13 @@ import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
 class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
+
     def "Wait for a container to finish and get the exit code"() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
-
-            task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
-            }
-
-            task createContainer(type: DockerCreateContainer){
-                dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
-                cmd 'sh', '-c', 'exit 0'
-            }
-
-            task startContainer(type: DockerStartContainer){
-                dependsOn createContainer
-                targetContainerId {createContainer.getContainerId()}
-            }
-
-            task runContainers(type: DockerWaitContainer){
-                dependsOn startContainer
-                targetContainerId {startContainer.getContainerId()}
+        given:
+        String containerCmd = "'sh', '-c', 'exit 0'"
+        String waitOnContainerTask = """
+            task waitOnContainer(type: DockerWaitContainer){
+                targetContainerId { startContainer.getContainerId() }
                 doLast{
                     if(getExitCode() != 0) {
                         println "Container failed with exit code \${getExitCode()}"
@@ -54,38 +35,21 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
                 }
             }
         """
+        buildFile << containerUsage(containerCmd, waitOnContainerTask)
 
-        expect:
-        BuildResult result = build('runContainers')
-        result.output.contains("Container successful")
+        when:
+        BuildResult result = build('waitOnContainer')
+
+        then:
+        result.output.contains('Container successful')
     }
 
     def "Wait for a container to fail and get the exit code"() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
-
-            task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
-            }
-
-            task createContainer(type: DockerCreateContainer){
-                dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
-                cmd 'sh', '-c', 'exit 1'
-            }
-
-            task startContainer(type: DockerStartContainer){
-                dependsOn createContainer
-                targetContainerId {createContainer.getContainerId()}
-            }
-
-            task runContainers(type: DockerWaitContainer){
-                dependsOn startContainer
-                targetContainerId {startContainer.getContainerId()}
+        given:
+        String containerCmd = "'sh', '-c', 'exit 1'"
+        String waitOnContainerTask = """
+            task waitOnContainer(type: DockerWaitContainer){
+                targetContainerId { startContainer.getContainerId() }
                 doLast{
                     if(getExitCode() != 0) {
                         println "Container failed with exit code \${getExitCode()}"
@@ -95,44 +59,68 @@ class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
                 }
             }
         """
+        buildFile << containerUsage(containerCmd, waitOnContainerTask)
 
-        expect:
-        BuildResult result = build('runContainers')
+        when:
+        BuildResult result = build('waitOnContainer')
+
+        then:
         result.output.contains("Container failed with exit code 1")
     }
 
     def "Wait for a container for a defined timeout"() {
-        buildFile << """
+        given:
+        String containerCmd = "'sh', '-c', 'sleep 15'"
+        String waitOnContainerTask = """
+            task waitOnContainer(type: DockerWaitContainer){
+                timeout = 1
+                targetContainerId { startContainer.getContainerId() }
+            }
+        """
+        buildFile << containerUsage(containerCmd, waitOnContainerTask)
+
+        when:
+        BuildResult result = buildAndFail('waitOnContainer')
+
+        then:
+        result.output.contains("Awaiting status code timeout")
+    }
+
+    static String containerUsage(String containerCommand, String waitOnContainerTask) {
+        """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer){
                 dependsOn pullImage
                 targetImageId { pullImage.getImageId() }
-                cmd 'sh', '-c', 'sleep 15'
+                cmd $containerCommand
             }
 
             task startContainer(type: DockerStartContainer){
                 dependsOn createContainer
                 targetContainerId {createContainer.getContainerId()}
             }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId { createContainer.getContainerId() }
+                force = true
+            }
 
-            task runContainers(type: DockerWaitContainer){
-                timeout = 1
+            ${waitOnContainerTask}
+
+            waitOnContainer {
                 dependsOn startContainer
-                targetContainerId {startContainer.getContainerId()}
+                finalizedBy removeContainer
             }
         """
-
-        expect:
-        BuildResult result = buildAndFail('runContainers')
-        result.output.contains("Awaiting status code timeout")
     }
 }

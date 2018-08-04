@@ -17,85 +17,70 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 
 class DockerRenameContainerFunctionalTest extends AbstractFunctionalTest {
 
     def "Create a container and rename it"() {
-
+        given:
         String uniqueContainerName = createUniqueContainerName()
-
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.*
-            import com.bmuschko.gradle.docker.tasks.container.*
-
-            task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
-            }
-
-            task createContainer(type: DockerCreateContainer) {
-                dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
-            }
-
+        String renameContainerTask = """
             task renameContainer(type: DockerRenameContainer) {
-                dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 renameTo = "$uniqueContainerName"
             }
-
-            task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { "$uniqueContainerName" }
-                force = true
-            }
-
-            task workflow {
-                dependsOn renameContainer
-                finalizedBy removeContainer
-            }
         """
+        buildFile << containerUsage(renameContainerTask)
 
         expect:
-        build('workflow')
+        build('renameContainer')
     }
 
     def "Create a container and rename it with incorrect source targetContainerId"() {
-
+        given:
         String randomName = createUniqueContainerName()
         String uniqueContainerName = createUniqueContainerName()
+        String renameContainerTask = """
+            task renameContainer(type: DockerRenameContainer) {
+                targetContainerId { "$randomName" }
+                renameTo = "$uniqueContainerName"
+            }
+        """
+        buildFile << containerUsage(renameContainerTask)
 
-        buildFile << """
+        when:
+        BuildResult result = buildAndFail('renameContainer')
+
+        then:
+        result.task(':renameContainer').outcome == TaskOutcome.FAILED
+    }
+
+    static String containerUsage(String renameContainerTask) {
+        """
             import com.bmuschko.gradle.docker.tasks.image.*
             import com.bmuschko.gradle.docker.tasks.container.*
-
+    
             task pullImage(type: DockerPullImage) {
                 repository = '$AbstractFunctionalTest.TEST_IMAGE'
                 tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
             }
-
+    
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
                 targetImageId { pullImage.getImageId() }
             }
-
-            task renameContainer(type: DockerRenameContainer) {
-                dependsOn createContainer
-                targetContainerId { "$randomName" }
-                renameTo = "$uniqueContainerName"
-            }
-
+    
             task removeContainer(type: DockerRemoveContainer) {
                 targetContainerId { createContainer.getContainerId() }
                 force = true
             }
-
-            task workflow {
-                dependsOn renameContainer
+    
+            ${renameContainerTask}
+    
+            renameContainer {
+                dependsOn createContainer
                 finalizedBy removeContainer
             }
         """
-
-        expect:
-        buildAndFail('workflow')
     }
 }

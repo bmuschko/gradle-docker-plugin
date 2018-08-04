@@ -5,15 +5,16 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
 class DockerfileFunctionalTest extends AbstractFunctionalTest {
-    static final String DOCKERFILE_TASK_NAME = 'dockerfile'
+    private static final String DOCKERFILE_TASK_NAME = 'dockerfile'
 
     def "Executing a Dockerfile task without specified instructions throws exception"() {
         given:
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile)
+        """
 
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile)
-"""
         when:
         BuildResult buildResult = buildAndFail(DOCKERFILE_TASK_NAME)
 
@@ -25,21 +26,21 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile)
     def "Specifying FROM instruction as first statement is mandatory"() {
         given:
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    label(['maintainer': 'benjamin.muschko@gmail.com'])
-}
-
-task ${DOCKERFILE_TASK_NAME}simple(type: Dockerfile) {
-    from '$TEST_IMAGE_WITH_TAG'
-}
-
-task ${DOCKERFILE_TASK_NAME}1705(type: Dockerfile) {
-    arg 'from=$TEST_IMAGE_WITH_TAG'
-    from '\$from'
-}
-"""
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
+            }
+            
+            task ${DOCKERFILE_TASK_NAME}simple(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+            }
+            
+            task ${DOCKERFILE_TASK_NAME}1705(type: Dockerfile) {
+                arg 'from=$TEST_IMAGE_WITH_TAG'
+                from '\$from'
+            }
+        """
         def outcome = new File(projectDir, 'build/docker/Dockerfile')
 
         when:
@@ -69,21 +70,21 @@ task ${DOCKERFILE_TASK_NAME}1705(type: Dockerfile) {
     def "Can create minimal Dockerfile in default location"() {
         given:
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
+            }
+        """
 
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    from '$TEST_IMAGE_WITH_TAG'
-    label(['maintainer': 'benjamin.muschko@gmail.com'])
-}
-"""
         when:
         build(DOCKERFILE_TASK_NAME)
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $TEST_IMAGE_WITH_TAG
+        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
 """
     }
@@ -91,35 +92,35 @@ LABEL maintainer=benjamin.muschko@gmail.com
     def "Can create Dockerfile using all instruction methods"() {
         given:
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
+                runCommand 'echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
+                defaultCommand 'echo', 'some', 'command'
+                exposePort 8080, 14500
+                environmentVariable 'ENV_VAR_KEY', 'envVarVal'
+                environmentVariable ENV_VAR_A: 'val_a'
+                environmentVariable ENV_VAR_B: 'val_b', ENV_VAR_C: 'val_c'
+                addFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
+                copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
+                entryPoint 'java', '-jar', '/opt/jenkins.war'
+                volume '/jenkins', '/myApp'
+                user 'root'
+                workingDir '/tmp'
+                onBuild 'RUN echo "Hello World"'
+                label version: '1.0'
+            }
+        """
 
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    from '$TEST_IMAGE_WITH_TAG'
-    label(['maintainer': 'benjamin.muschko@gmail.com'])
-    runCommand 'echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
-    defaultCommand 'echo', 'some', 'command'
-    exposePort 8080, 14500
-    environmentVariable 'ENV_VAR_KEY', 'envVarVal'
-    environmentVariable ENV_VAR_A: 'val_a'
-    environmentVariable ENV_VAR_B: 'val_b', ENV_VAR_C: 'val_c'
-    addFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
-    copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
-    entryPoint 'java', '-jar', '/opt/jenkins.war'
-    volume '/jenkins', '/myApp'
-    user 'root'
-    workingDir '/tmp'
-    onBuild 'RUN echo "Hello World"'
-    label version: '1.0'
-}
-"""
         when:
         build(DOCKERFILE_TASK_NAME)
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $TEST_IMAGE_WITH_TAG
+        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
 CMD ["echo", "some", "command"]
@@ -141,21 +142,21 @@ LABEL version=1.0
     def "Can create Dockerfile by adding instances of Instruction"() {
         given:
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                instructions = [new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG'),
+                                new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com'])]
+            }
+        """
 
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    instructions = [new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG'),
-                    new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com'])]
-}
-"""
         when:
         build(DOCKERFILE_TASK_NAME)
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $TEST_IMAGE_WITH_TAG
+        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
 """
     }
@@ -163,21 +164,21 @@ LABEL maintainer=benjamin.muschko@gmail.com
     def "Can create Dockerfile by adding raw instructions"() {
         given:
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                instruction 'FROM $TEST_IMAGE_WITH_TAG'
+                instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
+            }
+        """
 
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    instruction 'FROM $TEST_IMAGE_WITH_TAG'
-    instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
-}
-"""
         when:
         build(DOCKERFILE_TASK_NAME)
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
-        dockerfile.text ==
-                """FROM $TEST_IMAGE_WITH_TAG
+        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
 """
     }
@@ -188,20 +189,20 @@ LABEL maintainer=benjamin.muschko@gmail.com
         new File(dockerDir, 'Dockerfile.template') << """FROM alpine:3.4
 LABEL maintainer=benjamin.muschko@gmail.com"""
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                instructionsFromTemplate 'src/main/docker/Dockerfile.template'
+            }
+        """
 
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    instructionsFromTemplate 'src/main/docker/Dockerfile.template'
-}
-"""
         when:
         build(DOCKERFILE_TASK_NAME)
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
-        dockerfile.text ==
-            """FROM $TEST_IMAGE_WITH_TAG
+        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
 """
     }
@@ -209,16 +210,17 @@ LABEL maintainer=benjamin.muschko@gmail.com
     def "Dockerfile task can be up-to-date"() {
         given:
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            ext.version = project.properties.getOrDefault('version', '1.0')
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                instruction 'FROM $TEST_IMAGE_WITH_TAG'
+                instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
+                label([ver: version])
+            }
+        """
 
-ext.version = project.properties.getOrDefault('version', '1.0')
-
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    instruction 'FROM $TEST_IMAGE_WITH_TAG'
-    instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
-    label([ver: version])
-}
-"""
         when:
         def result = build(DOCKERFILE_TASK_NAME)
 
@@ -242,12 +244,12 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
 
         given: // … a simple docker file …
         buildFile << """
-                import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
-                task dockerFile(type: Dockerfile) {
-                    from "$TEST_IMAGE"
-                }
-            """
+            task dockerFile(type: Dockerfile) {
+                from "$TEST_IMAGE"
+            }
+        """
 
         when:
         def result = build('dockerFile')
@@ -259,13 +261,13 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         buildFile.delete()
         super.setupBuildfile()
         buildFile << """
-                import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
-                task dockerFile(type: Dockerfile) {
-                    outputs.upToDateWhen { true }
-                    from "$TEST_IMAGE"
-                }
-            """
+            task dockerFile(type: Dockerfile) {
+                outputs.upToDateWhen { true }
+                from "$TEST_IMAGE"
+            }
+        """
         result = build('dockerFile')
 
         then: // … this will have no effect
@@ -275,14 +277,14 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         buildFile.delete()
         super.setupBuildfile()
         buildFile << """
-                import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
-                task dockerFile(type: Dockerfile) {
-                    outputs.upToDateWhen { true }
-                    from "$TEST_IMAGE"
-                    environmentVariable "Foo", "Bar"
-                }
-            """
+            task dockerFile(type: Dockerfile) {
+                outputs.upToDateWhen { true }
+                from "$TEST_IMAGE"
+                environmentVariable "Foo", "Bar"
+            }
+        """
         result = build('dockerFile')
 
         then: // … it is compiled, the additional spec is not relevant …
@@ -298,15 +300,14 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
         buildFile.delete()
         super.setupBuildfile()
         buildFile << """
-                import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
-                task dockerFile(type: Dockerfile) {
-                    outputs.upToDateWhen { false }
-                    from "$TEST_IMAGE"
-                    environmentVariable "Foo", "Bar"
-                }
-            """
-        // println buildFile.text
+            task dockerFile(type: Dockerfile) {
+                outputs.upToDateWhen { false }
+                from "$TEST_IMAGE"
+                environmentVariable "Foo", "Bar"
+            }
+        """
         result = build('dockerFile')
 
         then: // … it succeeds …
@@ -376,24 +377,24 @@ task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
 
     def "supports multi-stage builds"() {
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG', 'builder'
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
+                copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
+                from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
+                copyFile '/opt/h2.jar', '/opt/h2.jar', 'builder'
+            }
+        """
 
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    from '$TEST_IMAGE_WITH_TAG', 'builder'
-    label(['maintainer': 'benjamin.muschko@gmail.com'])
-    copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
-    from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
-    copyFile '/opt/h2.jar', '/opt/h2.jar', 'builder'
-}
-"""
         when:
         build(DOCKERFILE_TASK_NAME)
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
-        dockerfile.text ==
-            """FROM $TEST_IMAGE_WITH_TAG AS builder
+        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG AS builder
 LABEL maintainer=benjamin.muschko@gmail.com
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 FROM alpine:3.4 AS prod
@@ -404,29 +405,29 @@ COPY --from=builder /opt/h2.jar /opt/h2.jar
 
     def "supports multi-stage builds (lazy evaluation)"() {
         buildFile << """
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            ext.buildStageName = ''
+            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                from({'$TEST_IMAGE_WITH_TAG'}, {buildStageName})
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
+                copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
+                from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
+                copyFile({'/opt/h2.jar'}, {'/opt/h2.jar'}, {buildStageName})
+                doFirst {
+                    buildStageName = 'builder'
+                }
+            }
+        """
 
-ext.buildStageName = ''
-
-task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-    from({'$TEST_IMAGE_WITH_TAG'}, {buildStageName})
-    label(['maintainer': 'benjamin.muschko@gmail.com'])
-    copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
-    from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
-    copyFile({'/opt/h2.jar'}, {'/opt/h2.jar'}, {buildStageName})
-    doFirst {
-        buildStageName = 'builder'
-    }
-}
-"""
         when:
         build(DOCKERFILE_TASK_NAME)
 
         then:
         File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
         dockerfile.exists()
-        dockerfile.text ==
-            """FROM $TEST_IMAGE_WITH_TAG AS builder
+        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG AS builder
 LABEL maintainer=benjamin.muschko@gmail.com
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 FROM alpine:3.4 AS prod
