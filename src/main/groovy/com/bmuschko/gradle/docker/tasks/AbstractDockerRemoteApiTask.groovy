@@ -16,12 +16,10 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
+import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.*
 
-abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
+abstract class AbstractDockerRemoteApiTask extends ConventionTask {
 
     /**
      * Docker remote API server URL. Defaults to "http://localhost:2375".
@@ -47,10 +45,35 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
     @Internal
     ThreadContextClassLoader threadContextClassLoader
 
-    @Override
-    void runReactiveStream() {
-        runInDockerClassPath { dockerClient ->
-            runRemoteCommand(dockerClient)
+    /**
+     * Reacts to an error during the operation.
+     */
+    @Internal
+    Closure onError
+
+    /**
+     * Reacts to the completion of the operation.
+     */
+    @Internal
+    Closure onComplete
+
+    @TaskAction
+    void start() {
+        boolean commandFailed = false
+        try {
+            runInDockerClassPath { dockerClient ->
+                runRemoteCommand(dockerClient)
+            }
+        } catch (Exception possibleException) {
+            commandFailed = true
+            if (onError) {
+                onError(possibleException)
+            } else {
+                throw possibleException
+            }
+        }
+        if(!commandFailed && onComplete) {
+            onComplete()
         }
     }
 

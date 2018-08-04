@@ -15,7 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
-class DockerInfo extends AbstractDockerRemoteApiTask {
+class DockerInfo extends AbstractDockerRemoteApiTask implements ResultCallback {
 
     @Override
     void runRemoteCommand(dockerClient) {

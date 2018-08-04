@@ -15,12 +15,13 @@
  */
 package com.bmuschko.gradle.docker.tasks.container.extras
 
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-class DockerWaitHealthyContainer extends DockerExistingContainer {
+class DockerWaitHealthyContainer extends DockerExistingContainer implements ResultCallback {
 
     /**
      * Wait timeout in seconds.

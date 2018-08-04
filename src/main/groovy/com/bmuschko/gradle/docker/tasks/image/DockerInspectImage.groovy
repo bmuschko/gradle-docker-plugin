@@ -15,7 +15,9 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-class DockerInspectImage extends DockerExistingImage {
+import com.bmuschko.gradle.docker.tasks.ResultCallback
+
+class DockerInspectImage extends DockerExistingImage implements ResultCallback {
 
     DockerInspectImage() {
         defaultResponseHandling()

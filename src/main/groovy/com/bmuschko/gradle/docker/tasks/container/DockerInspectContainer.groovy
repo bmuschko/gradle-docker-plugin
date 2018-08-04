@@ -15,7 +15,9 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-class DockerInspectContainer extends DockerExistingContainer {
+import com.bmuschko.gradle.docker.tasks.ResultCallback
+
+class DockerInspectContainer extends DockerExistingContainer implements ResultCallback {
 
     DockerInspectContainer() {
         defaultResponseHandling()

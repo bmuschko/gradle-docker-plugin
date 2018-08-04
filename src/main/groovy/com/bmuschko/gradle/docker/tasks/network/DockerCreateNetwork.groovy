@@ -1,9 +1,10 @@
 package com.bmuschko.gradle.docker.tasks.network
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import org.gradle.api.tasks.Input
 
-class DockerCreateNetwork extends AbstractDockerRemoteApiTask {
+class DockerCreateNetwork extends AbstractDockerRemoteApiTask implements ResultCallback {
     @Input
     String networkId
 

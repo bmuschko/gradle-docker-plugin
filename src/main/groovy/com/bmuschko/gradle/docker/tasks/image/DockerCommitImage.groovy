@@ -15,12 +15,13 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
-class DockerCommitImage extends DockerExistingContainer {
+class DockerCommitImage extends DockerExistingContainer implements ResultCallback {
     /**
      * Repository.
      */

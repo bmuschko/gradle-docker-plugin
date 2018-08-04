@@ -15,12 +15,13 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
 
-class DockerWaitContainer extends DockerExistingContainer {
+class DockerWaitContainer extends DockerExistingContainer implements ResultCallback {
 
     protected int exitCode
 
