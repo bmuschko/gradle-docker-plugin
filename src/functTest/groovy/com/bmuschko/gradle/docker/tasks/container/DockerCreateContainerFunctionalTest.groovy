@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractFunctionalTest
-import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testkit.runner.BuildResult
 
 class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
@@ -76,43 +75,8 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("nine=ten")
     }
 
-    static String containerUsage(String containerCreationTask) {
-        """
-            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
-
-            task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
-            }
-
-            ${containerCreationTask}
-
-            task startContainer(type: DockerStartContainer) {
-                dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
-            }
-            
-            task removeContainer(type: DockerRemoveContainer) {
-                removeVolumes = true
-                force = true
-                targetContainerId { startContainer.getContainerId() }
-            }
-
-            task logContainer(type: DockerLogsContainer) {
-                dependsOn startContainer
-                finalizedBy removeContainer
-                targetContainerId { startContainer.getContainerId() }
-                follow = true
-                tailAll = true
-            }
-        """
-    }
-
-    def "Set autoRemove"() {
+    def "with autoRemove set, the container is gone after stopping "() {
+        given:
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -151,12 +115,15 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
             }
         """
 
-        expect:
+        when:
         BuildResult result = buildAndFail('workflow')
+
+        then:
         result.output.contains('No such container')
     }
 
-    def "Unset autoRemove"() {
+    def "without autoRemove set, the container is still present after stopping"() {
+        given:
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -199,6 +166,42 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
 
         then:
         notThrown(Exception)
+    }
+
+    static String containerUsage(String containerCreationTask) {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task pullImage(type: DockerPullImage) {
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
+            }
+
+            ${containerCreationTask}
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId { startContainer.getContainerId() }
+            }
+
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId { startContainer.getContainerId() }
+                follow = true
+                tailAll = true
+            }
+        """
     }
     
 }

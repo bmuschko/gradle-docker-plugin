@@ -179,7 +179,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     /* 
      * Automatically remove the container when the container's process exits.
-     * This has no effect if RestartPolicy is set.
+     *
+     * This has no effect if {@link #restartPolicy} is set.
+     * @since 3.6.0
      */
     @Input
     @Optional
