@@ -11,6 +11,7 @@ buildscript {
 group = 'com.bmuschko'
 
 apply plugin: 'groovy'
+apply plugin: 'java-gradle-plugin'
 apply plugin: 'org.ajoberstar.release-opinion'
 apply from: "$rootDir/gradle/test-setup.gradle"
 apply from: "$rootDir/gradle/integration-test.gradle"
@@ -27,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    compile localGroovy(), gradleApi()
+    compile localGroovy()
     testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
     }
