@@ -1,4 +1,4 @@
-### Version 3.5.1 (TBA)
+### Version 3.6.0 (TBA)
 * Use smaller base images for convention plugins - [Pull Request 636](https://github.com/bmuschko/gradle-docker-plugin/pull/636)
 * Fully deprecate MAINTAINER instruction and replace with LABEL - [Pull Request 635](https://github.com/bmuschko/gradle-docker-plugin/pull/635)
 
