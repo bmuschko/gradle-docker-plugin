@@ -6,6 +6,7 @@ import org.gradle.testkit.runner.TaskOutcome
 
 class DockerfileFunctionalTest extends AbstractFunctionalTest {
     private static final String DOCKERFILE_TASK_NAME = 'dockerfile'
+    private static final String DOCKERFILE_TASK_PATH = ":$DOCKERFILE_TASK_NAME".toString()
 
     def "Executing a Dockerfile task without specified instructions throws exception"() {
         given:
@@ -212,32 +213,32 @@ LABEL maintainer=benjamin.muschko@gmail.com
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             
-            ext.version = project.properties.getOrDefault('version', '1.0')
+            ext.labelVersion = project.properties.getOrDefault('labelVersion', '1.0')
             
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 instruction 'FROM $TEST_IMAGE_WITH_TAG'
                 instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
-                label([ver: version])
+                label([ver: labelVersion])
             }
         """
 
         when:
-        def result = build(DOCKERFILE_TASK_NAME)
+        BuildResult result = build(DOCKERFILE_TASK_NAME)
 
         then:
-        TaskOutcome.SUCCESS == result.tasks.first().outcome
+        result.task(DOCKERFILE_TASK_PATH).outcome == TaskOutcome.SUCCESS
 
         when:
         result = build(DOCKERFILE_TASK_NAME)
 
         then:
-        TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
+        result.task(DOCKERFILE_TASK_PATH).outcome == TaskOutcome.UP_TO_DATE
 
         when:
-        result = build(DOCKERFILE_TASK_NAME, "-Pversion=1.1")
+        result = build(DOCKERFILE_TASK_NAME, "-PlabelVersion=1.1")
 
         then:
-        TaskOutcome.SUCCESS == result.tasks.first().outcome
+        result.task(DOCKERFILE_TASK_PATH).outcome == TaskOutcome.SUCCESS
     }
 
     def "Dockerfile task can be up-to-date false by self defined rule"() {
