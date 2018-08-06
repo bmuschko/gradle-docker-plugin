@@ -322,11 +322,6 @@ LABEL maintainer=benjamin.muschko@gmail.com
     }
 
     def "Do not fail on configuration phase"() {
-
-        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
-            it.write('Hello, World!')
-        }
-
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
@@ -348,11 +343,6 @@ LABEL maintainer=benjamin.muschko@gmail.com
     }
 
     def "Do fail on task execution phase"() {
-
-        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
-            it.write('Hello, World!')
-        }
-
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 

@@ -106,7 +106,7 @@ abstract class AbstractFunctionalTest extends Specification {
         if (arguments) {
             args.addAll(arguments)
         }
-        GradleRunner.create().withProjectDir(projectDir).withArguments(args).withPluginClasspath()
+        GradleRunner.create().withProjectDir(projectDir).withArguments(args).withPluginClasspath().forwardOutput()
     }
 
     protected String createUniqueImageId() {
