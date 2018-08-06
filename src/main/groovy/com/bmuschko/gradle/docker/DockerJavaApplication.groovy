@@ -15,7 +15,8 @@
  */
 package com.bmuschko.gradle.docker
 
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile.CompositeExecInstruction
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import org.gradle.api.tasks.Nested
 
 class DockerJavaApplication {
     String baseImage = 'openjdk:jre-alpine'
@@ -47,5 +48,55 @@ class DockerJavaApplication {
     CompositeExecInstruction exec(@DelegatesTo(CompositeExecInstruction) Closure<Void> closure) {
         exec.clear()
         exec.apply(closure)
+    }
+
+    /**
+     * Helper Instruction used by DockerJavaApplicationPlugin
+     * to allow customizing generated ENTRYPOINT/CMD
+     */
+    static class CompositeExecInstruction implements Dockerfile.Instruction {
+        private final List<Dockerfile.Instruction> instructions = new ArrayList<>()
+
+        @Nested
+        List<Dockerfile.Instruction> getInstructions() {
+            instructions
+        }
+
+        @Override
+        String getKeyword() { '' }
+
+        @Override
+        String getText() {
+            build()
+        }
+
+        @Override
+        String build() { instructions*.build().join(System.getProperty('line.separator')) }
+
+        CompositeExecInstruction apply(Closure<Void> closure) {
+            closure?.delegate = this
+            closure?.call()
+            this
+        }
+
+        void clear() {
+            instructions.clear()
+        }
+
+        void defaultCommand(String... command) {
+            instructions << new Dockerfile.DefaultCommandInstruction(command)
+        }
+
+        void defaultCommand(Closure command) {
+            instructions << new Dockerfile.DefaultCommandInstruction(command)
+        }
+
+        void entryPoint(String... entryPoint) {
+            instructions << new Dockerfile.EntryPointInstruction(entryPoint)
+        }
+
+        void entryPoint(Closure entryPoint) {
+            instructions << new Dockerfile.EntryPointInstruction(entryPoint)
+        }
     }
 }
