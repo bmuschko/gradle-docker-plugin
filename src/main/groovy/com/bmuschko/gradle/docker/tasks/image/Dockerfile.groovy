@@ -37,7 +37,7 @@ class Dockerfile extends DefaultTask {
 
         getDestFile().withWriter { out ->
             getInstructions().each { instruction ->
-                out.println instruction.build()
+                out.println instruction.getText()
             }
         }
     }

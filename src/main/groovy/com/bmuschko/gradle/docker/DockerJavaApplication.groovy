@@ -71,7 +71,7 @@ class DockerJavaApplication {
         }
 
         @Override
-        String build() { instructions*.build().join(System.getProperty('line.separator')) }
+        String build() { instructions*.getText().join(System.getProperty('line.separator')) }
 
         CompositeExecInstruction apply(Closure<Void> closure) {
             closure?.delegate = this
