@@ -145,8 +145,8 @@ LABEL version=1.0
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                instructions = [new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG'),
-                                new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com'])]
+                instructions << new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG')
+                instructions << new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com'])
             }
         """
 

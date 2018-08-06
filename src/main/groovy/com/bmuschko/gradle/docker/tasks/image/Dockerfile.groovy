@@ -16,19 +16,19 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 
+@CacheableTask
 class Dockerfile extends DefaultTask {
-    @Internal
-    List<Instruction> instructions = new ArrayList<Instruction>()
+    private final List<Instruction> instructions = new ArrayList<Instruction>()
 
     @OutputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     File destFile = project.file("$project.buildDir/docker/Dockerfile")
 
-    Dockerfile() {
-        inputs.property("instructionsCache", { instructions.collect { it.build() }.join('\n') })
+    @Nested
+    List<Instruction> getInstructions() {
+        instructions
     }
 
     @TaskAction
@@ -419,12 +419,24 @@ class Dockerfile extends DefaultTask {
     }
 
     static interface Instruction {
+        @Internal
         String getKeyword()
+
+        /**
+         * @since 3.6.0
+         */
+        @Input
+        String getText()
+
+        /**
+         * @deprecated Use {@link #getText()} instead.
+         */
+        @Deprecated
         String build()
     }
 
     static class GenericInstruction implements Instruction {
-        final Object instruction
+        private final Object instruction
 
         GenericInstruction(String instruction) {
             this.instruction = instruction
@@ -448,6 +460,11 @@ class Dockerfile extends DefaultTask {
         }
 
         @Override
+        String getText() {
+            build()
+        }
+
+        @Override
         String build() {
             if (instruction instanceof String) {
                 instruction
@@ -458,7 +475,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static abstract class StringCommandInstruction implements Instruction {
-        final Object command
+        private final Object command
 
         StringCommandInstruction(String command) {
             this.command = command
@@ -466,6 +483,11 @@ class Dockerfile extends DefaultTask {
 
         StringCommandInstruction(Closure command) {
             this.command = command
+        }
+
+        @Override
+        String getText() {
+            build()
         }
 
         @Override
@@ -479,7 +501,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static abstract class StringArrayInstruction implements Instruction {
-        final Object command
+        private final Object command
 
         StringArrayInstruction(String... command) {
             this.command = command
@@ -487,6 +509,11 @@ class Dockerfile extends DefaultTask {
 
         StringArrayInstruction(Closure command) {
             this.command = command
+        }
+
+        @Override
+        String getText() {
+            build()
         }
 
         @Override
@@ -545,9 +572,9 @@ class Dockerfile extends DefaultTask {
     }
 
     static abstract class MapInstruction implements Instruction {
-        final Map<String, String> command
-        final Closure commandClosure
-        final ItemJoiner joiner
+        private final Map<String, String> command
+        private final Closure commandClosure
+        private final ItemJoiner joiner
 
         MapInstruction(Map<String, String> command, ItemJoiner joiner) {
             this.command = command
@@ -561,6 +588,11 @@ class Dockerfile extends DefaultTask {
         MapInstruction(Closure command) {
             this.commandClosure = command
             this.joiner = new MultiItemJoiner()
+        }
+
+        @Override
+        String getText() {
+            build()
         }
 
         @Override
@@ -591,9 +623,9 @@ class Dockerfile extends DefaultTask {
     }
 
     static abstract class FileInstruction implements Instruction {
-        final Object src
-        final Object dest
-        final Object flags
+        private final Object src
+        private final Object dest
+        private final Object flags
 
         FileInstruction(String src, String dest, String flags = null) {
             this.src = src
@@ -605,6 +637,11 @@ class Dockerfile extends DefaultTask {
             this.src = src
             this.dest = dest
             this.flags = flags
+        }
+
+        @Override
+        String getText() {
+            build()
         }
 
         @Override
@@ -626,7 +663,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static class FromInstruction extends StringCommandInstruction {
-        final Object stageName
+        private final Object stageName
 
         FromInstruction(String image, String stageName = null) {
             super(image)
@@ -724,7 +761,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static class ExposePortInstruction implements Instruction {
-        final Object ports
+        private final Object ports
 
         ExposePortInstruction(Integer... ports) {
             this.ports = ports
@@ -737,6 +774,11 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             "EXPOSE"
+        }
+
+        @Override
+        String getText() {
+            build()
         }
 
         @Override
@@ -891,47 +933,6 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             "LABEL"
-        }
-    }
-
-    /**
-     * Helper Instruction used by DockerJavaApplicationPlugin
-     * to allow customizing generated ENTRYPOINT/CMD
-     */
-    static class CompositeExecInstruction implements Instruction {
-        @Internal
-        private final List<Instruction> instructions = new ArrayList<>()
-
-        @Override
-        String getKeyword() { '' }
-
-        @Override
-        String build() { instructions*.build().join('\n') }
-
-        CompositeExecInstruction apply(Closure<Void> closure) {
-            closure?.delegate = this
-            closure?.call()
-            this
-        }
-
-        public void clear() {
-            instructions.clear()
-        }
-
-        void defaultCommand(String... command) {
-            instructions << new DefaultCommandInstruction(command)
-        }
-
-        void defaultCommand(Closure command) {
-            instructions << new DefaultCommandInstruction(command)
-        }
-
-        void entryPoint(String... entryPoint) {
-            instructions << new EntryPointInstruction(entryPoint)
-        }
-
-        void entryPoint(Closure entryPoint) {
-            instructions << new EntryPointInstruction(entryPoint)
         }
     }
 }
