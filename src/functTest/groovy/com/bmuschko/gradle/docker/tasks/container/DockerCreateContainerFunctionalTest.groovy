@@ -32,7 +32,9 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 labels = ["project.name": "\$project.name"]
             }
         """
-        buildFile << containerUsage(containerCreationTask)
+        buildFile <<
+            containerStart(containerCreationTask) <<
+            containerLogAndRemove
 
         when:
         BuildResult result = build('logContainer')
@@ -61,7 +63,9 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 withEnvVar('nine', {'ten'})
             }
         """
-        buildFile << containerUsage(containerCreationTask)
+        buildFile << 
+            containerStart(containerCreationTask) <<
+            containerLogAndRemove
 
         when:
         BuildResult result = build('logContainer')
@@ -75,7 +79,7 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("nine=ten")
     }
 
-    def "with autoRemove set, the container is already being removed after stopping"() {
+    def "with autoRemove set, the container is removed after stopping"() {
         given:
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
@@ -84,22 +88,68 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 autoRemove = true
             }
         """
-        buildFile << containerUsage(containerCreationTask)
+
+        String containerInspect = """
+            task inspectStoppedContainer(type: DockerInspectContainer) {
+                dependsOn stopContainer
+                targetContainerId { startContainer.getContainerId() }
+
+                onError = { err -> println 'RESULT: ' + err }
+            }
+        """
+
+        buildFile <<
+            containerStart(containerCreationTask) <<
+            containerStop << 
+            containerInspect
 
         when:
-        BuildResult result = buildAndFail('logContainer')
+        BuildResult result = build('inspectStoppedContainer')
 
         then:
-        result.output.matches(/(?ms).*removal of container \w+ is already in progress.*/)
+        result.output.contains(
+            'RESULT: com.github.dockerjava.api.exception.NotFoundException')
     }
 
-    static String containerUsage(String containerCreationTask) {
+    def "without autoRemove set, the container still exists after stopping"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+            }
         """
-            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+
+        String containerInspect = """
+            task inspectStoppedContainer(type: DockerInspectContainer) {
+                dependsOn stopContainer
+                targetContainerId { startContainer.getContainerId() }
+            }
+        """
+
+        buildFile <<
+            containerStart(containerCreationTask) <<
+            containerStop << 
+            containerInspect
+
+        when:
+        BuildResult result = build('inspectStoppedContainer')
+
+        then:
+        notThrown(Exception)
+    }
+
+
+    static String containerStart(String containerCreationTask) {
+        // Starts with the union of all needed imports.
+        """
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
             task pullImage(type: DockerPullImage) {
                 repository = '$TEST_IMAGE'
@@ -112,7 +162,11 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
             }
-            
+        """
+    }
+
+    static String containerLogAndRemove =
+        """
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
@@ -127,5 +181,13 @@ class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
                 tailAll = true
             }
         """
-    }
+
+    static String containerStop =
+        """
+            task stopContainer(type: DockerStopContainer) {
+                dependsOn startContainer
+                targetContainerId { startContainer.getContainerId() }
+            }
+        """
+    
 }
