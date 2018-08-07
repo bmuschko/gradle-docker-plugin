@@ -408,8 +408,9 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if(getShmSize() != null) { // 0 is valid input
             containerCommand.hostConfig.withShmSize(getShmSize())
         }
+
         if (getAutoRemove() != null) { // explicit false is valid
-            containerCommand.hostConfig.withAutoRemove(autoRemove)
+            containerCommand.hostConfig.withAutoRemove(getAutoRemove())
         }
 
         if(getLabels()) {
