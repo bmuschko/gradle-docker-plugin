@@ -76,6 +76,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     Map<String, String> buildArgs = [:]
 
+    @Input
+    @Optional
+    Set<String> cacheFrom = []
+
     /**
      * Size of <code>/dev/shm</code> in bytes.
      * The size must be greater than 0.
@@ -154,6 +158,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         buildArgs.each { arg, value ->
             buildImageCmd = buildImageCmd.withBuildArg(arg, value)
+        }
+
+        if (!cacheFrom.isEmpty()) {
+            buildImageCmd = buildImageCmd.withCacheFrom(cacheFrom)
         }
 
         def callback = onNext ? threadContextClassLoader.createBuildImageResultCallback(this.onNext)
