@@ -1,4 +1,6 @@
-### Version 3.6.0 (TBA)
+### Version 3.6.1 (TBA)
+
+### Version 3.6.0 (August 7, 2018)
 * Use smaller base images for convention plugins - [Pull Request 636](https://github.com/bmuschko/gradle-docker-plugin/pull/636)
 * Fully deprecate MAINTAINER instruction and replace with LABEL - [Pull Request 635](https://github.com/bmuschko/gradle-docker-plugin/pull/635)
 * Make Dockerfile task cacheable via Gradle build cache - [Pull Request 641](https://github.com/bmuschko/gradle-docker-plugin/pull/641)
