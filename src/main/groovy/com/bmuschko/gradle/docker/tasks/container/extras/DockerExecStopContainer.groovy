@@ -20,6 +20,7 @@ import com.bmuschko.gradle.docker.domain.ExecProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
@@ -34,7 +35,7 @@ import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
  */
 class DockerExecStopContainer extends DockerExecContainer {
 
-    @Input
+    @Nested
     @Optional
     ExecProbe execStopProbe
 
