@@ -34,11 +34,7 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     private GradleRunner createAndConfigureGradleRunner(String... arguments) {
-        def args = ['--stacktrace']
-        if (arguments) {
-            args.addAll(arguments)
-        }
-        GradleRunner.create().withProjectDir(projectDir).withArguments(args).withPluginClasspath()
+        GradleRunner.create().withProjectDir(projectDir).withArguments(arguments + '-s').withPluginClasspath()
     }
 
     abstract String getBuildFileName()
