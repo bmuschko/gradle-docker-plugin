@@ -2,9 +2,10 @@ package com.bmuschko.gradle.docker
 
 import spock.lang.Requires
 
-import static com.bmuschko.gradle.docker.DockerConventionPluginFixture.*
+import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.*
+import static com.bmuschko.gradle.docker.fixtures.DockerJavaApplicationPluginFixture.writeJettyMainClass
 
-class DockerJavaApplicationPluginFunctionalTest extends AbstractFunctionalTest {
+class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def setup() {
         setupProjectUnderTest()
@@ -314,11 +315,11 @@ EXPOSE 8080
         writeSettingsFile()
         writeBasicSetupToBuildFile()
         writeCustomTasksToBuildFile()
-        writeJettyMainClass()
+        writeJettyMainClass(projectDir)
     }
 
     private void writeSettingsFile() {
-        temporaryFolder.newFile('settings.gradle') << settingsFile()
+        settingsFile << groovySettingsFile()
     }
 
     private void writeBasicSetupToBuildFile() {
@@ -346,48 +347,6 @@ EXPOSE 8080
         buildFile << imageTasks()
         buildFile << containerTasks()
         buildFile << lifecycleTask()
-    }
-
-    private void writeJettyMainClass() {
-        File packageDir = temporaryFolder.newFolder('src', 'main', 'java', 'com', 'bmuschko', 'gradle', 'docker', 'application')
-        File jettyMainClassFile = new File(packageDir, 'JettyMain.java')
-        jettyMainClassFile.text = jettyMainClass()
-    }
-
-    private static String jettyMainClass() {
-        """
-            package com.bmuschko.gradle.docker.application;
-            
-            import javax.servlet.http.HttpServletRequest;
-            import javax.servlet.http.HttpServletResponse;
-            import javax.servlet.ServletException;
-            
-            import java.io.IOException;
-            
-            import org.eclipse.jetty.server.Server;
-            import org.eclipse.jetty.server.Request;
-            import org.eclipse.jetty.server.handler.AbstractHandler;
-            
-            public class JettyMain extends AbstractHandler {
-                public void handle(String target,
-                                   Request baseRequest,
-                                   HttpServletRequest request,
-                                   HttpServletResponse response)
-                        throws IOException, ServletException {
-                    response.setContentType("text/html;charset=utf-8");
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    baseRequest.setHandled(true);
-                    response.getWriter().println("Hello, Docker!");
-                }
-            
-                public static void main(String[] args) throws Exception {
-                    Server server = new Server(8080);
-                    server.setHandler(new JettyMain());
-                    server.start();
-                    server.join();
-                }
-            }
-        """
     }
 
     private File dockerFile() {

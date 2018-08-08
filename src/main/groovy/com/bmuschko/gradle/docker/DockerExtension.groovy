@@ -16,10 +16,8 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
-import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.plugins.ExtensionContainer
 
 @CompileStatic
 class DockerExtension {
@@ -76,29 +74,5 @@ class DockerExtension {
             }
         }
         return null
-    }
-
-    DockerJavaApplication getJavaApplication() {
-        return (getProperty("extensions") as ExtensionContainer)
-            .getByName(DockerJavaApplicationPlugin.JAVA_APPLICATION_EXTENSION_NAME) as DockerJavaApplication
-    }
-
-    /**
-     * @since 3.4.5
-     */
-    DockerSpringBootApplication getSpringBootApplication() {
-        return (getProperty("extensions") as ExtensionContainer)
-            .getByName(DockerSpringBootApplicationPlugin.SPRING_BOOT_APPLICATION_EXTENSION_NAME) as DockerSpringBootApplication
-    }
-
-    void javaApplication(final Action<DockerJavaApplication> closure) {
-        closure.execute(getJavaApplication())
-    }
-
-    /**
-     * @since 3.4.5
-     */
-    void springBootApplication(final Action<DockerSpringBootApplication> closure) {
-        closure.execute(getSpringBootApplication())
     }
 }

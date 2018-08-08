@@ -15,10 +15,10 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
-class DockerWaitContainerFunctionalTest extends AbstractFunctionalTest {
+class DockerWaitContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Wait for a container to finish and get the exit code"() {
         given:

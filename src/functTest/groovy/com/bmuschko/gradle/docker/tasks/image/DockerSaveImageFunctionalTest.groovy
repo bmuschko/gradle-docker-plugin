@@ -1,14 +1,11 @@
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
-import com.bmuschko.gradle.docker.utils.IOUtils
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Stepwise
 
-import java.util.zip.GZIPInputStream
-
 @Stepwise
-class DockerSaveImageFunctionalTest extends AbstractFunctionalTest {
+class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     final String ImageId = createUniqueImageId()
     final String controlSavedImage = "build/docker/${ImageId}-docker-image-control.tar"

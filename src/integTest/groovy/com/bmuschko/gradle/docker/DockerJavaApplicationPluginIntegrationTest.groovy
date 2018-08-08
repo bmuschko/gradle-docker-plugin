@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.testfixtures.ProjectBuilder
 
 class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest {
@@ -86,8 +87,11 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
     def "Can access the dockerJava.javaApplication extension statically"() {
         given:
         applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+
         when:
-        project.extensions.getByType(DockerExtension).javaApplication
+        ExtensionAware dockerExtension = (ExtensionAware) project.extensions.getByType(DockerExtension)
+        dockerExtension.extensions.getByType(DockerJavaApplication)
+
         then:
         noExceptionThrown()
     }
@@ -97,11 +101,12 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         given:
         String testTagName = "some-test-tag"
         applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+
         when:
-        project.extensions.getByType(DockerExtension).javaApplication {
-            // In kotlin this becomes much nicer.
-            it.tag = "some-test-tag"
-        }
+        ExtensionAware dockerExtension = (ExtensionAware) project.extensions.getByType(DockerExtension)
+        DockerJavaApplication dockerJavaApplicationExtension = dockerExtension.extensions.getByType(DockerJavaApplication)
+        dockerJavaApplicationExtension.tag = "some-test-tag"
+
         then:
         DockerBuildImage task = project
             .tasks

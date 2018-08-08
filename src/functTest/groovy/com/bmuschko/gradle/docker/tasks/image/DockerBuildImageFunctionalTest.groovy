@@ -1,10 +1,10 @@
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Unroll
 
-class DockerBuildImageFunctionalTest extends AbstractFunctionalTest {
+class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "prints error message when image build fails"() {
         buildFile << """

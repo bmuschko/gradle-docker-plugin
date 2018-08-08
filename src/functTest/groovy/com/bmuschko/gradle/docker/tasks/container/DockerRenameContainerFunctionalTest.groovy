@@ -15,11 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class DockerRenameContainerFunctionalTest extends AbstractFunctionalTest {
+class DockerRenameContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Create a container and rename it"() {
         given:
@@ -61,8 +61,8 @@ class DockerRenameContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.*
     
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
             }
     
             task createContainer(type: DockerCreateContainer) {

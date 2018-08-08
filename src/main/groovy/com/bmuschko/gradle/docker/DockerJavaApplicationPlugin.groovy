@@ -22,6 +22,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.Sync
 import org.gradle.jvm.tasks.Jar
@@ -64,8 +65,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
      * @return Java application configuration
      */
     private static DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
-        dockerExtension.extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication)
-        return dockerExtension.javaApplication
+        ((ExtensionAware) dockerExtension).extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication)
     }
 
     private Dockerfile createDockerfileTask(Project project, Sync installTask, Jar jarTask, DockerJavaApplication dockerJavaApplication) {

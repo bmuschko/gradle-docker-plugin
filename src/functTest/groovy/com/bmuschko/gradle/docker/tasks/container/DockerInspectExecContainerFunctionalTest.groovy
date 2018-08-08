@@ -1,12 +1,12 @@
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
 /**
  * System tests for {@link com.bmuschko.gradle.docker.tasks.container.DockerInspectExecContainer} class.
  */
-class DockerInspectExecContainerFunctionalTest extends AbstractFunctionalTest {
+class DockerInspectExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Inspect executed command within running container"() {
         given:

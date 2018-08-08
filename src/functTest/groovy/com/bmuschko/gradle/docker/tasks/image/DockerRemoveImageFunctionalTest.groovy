@@ -1,9 +1,9 @@
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
-class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
+class DockerRemoveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "can remove image"() {
         buildFile << """

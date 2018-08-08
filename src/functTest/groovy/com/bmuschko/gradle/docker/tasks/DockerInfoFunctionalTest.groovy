@@ -1,10 +1,10 @@
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class DockerInfoFunctionalTest extends AbstractFunctionalTest {
+class DockerInfoFunctionalTest extends AbstractGroovyDslFunctionalTest {
     def "Can retrieve Docker info"() {
         given:
         buildFile << """

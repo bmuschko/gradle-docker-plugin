@@ -15,10 +15,10 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
-class DockerCreateContainerFunctionalTest extends AbstractFunctionalTest {
+class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "can override default MAC address"() {
         given:

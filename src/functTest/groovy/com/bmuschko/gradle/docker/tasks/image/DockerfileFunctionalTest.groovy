@@ -1,10 +1,10 @@
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class DockerfileFunctionalTest extends AbstractFunctionalTest {
+class DockerfileFunctionalTest extends AbstractGroovyDslFunctionalTest {
     private static final String DOCKERFILE_TASK_NAME = 'dockerfile'
     private static final String DOCKERFILE_TASK_PATH = ":$DOCKERFILE_TASK_NAME".toString()
 
