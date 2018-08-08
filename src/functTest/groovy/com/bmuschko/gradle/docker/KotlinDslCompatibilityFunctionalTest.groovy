@@ -9,6 +9,7 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
     def "can configure extension for Docker Java application plugin"() {
         given:
         buildFile << javaApplicationBuildFile()
+        buildFile << registryCredentials()
         buildFile << """
             docker {
                 javaApplication {
@@ -28,6 +29,7 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
     def "can configure extension for Docker Spring Boot application plugin"() {
         given:
         buildFile << springBootApplicationBuildFile()
+        buildFile << registryCredentials()
         buildFile << """
             docker {
                 springBootApplication {
@@ -85,6 +87,16 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
         """
             repositories {
                 jcenter()
+            }
+        """
+    }
+
+    private static String registryCredentials() {
+        """
+            docker {
+                registryCredentials {
+                    url = "http://localhost:5000"
+                }
             }
         """
     }

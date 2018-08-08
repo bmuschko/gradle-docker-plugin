@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 
@@ -34,11 +35,9 @@ class DockerExtension {
         this.certPath = getDefaultDockerCert()
     }
 
-    void registryCredentials(Closure closure) {
+    void registryCredentials(Action<DockerRegistryCredentials> action) {
         registryCredentials = new DockerRegistryCredentials()
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.delegate = registryCredentials
-        closure()
+        action.execute(registryCredentials)
     }
 
     String getDefaultDockerUrl() {
