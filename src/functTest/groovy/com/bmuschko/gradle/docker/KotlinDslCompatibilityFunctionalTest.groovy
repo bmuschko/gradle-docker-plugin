@@ -52,10 +52,7 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
                 id("com.bmuschko.docker-java-application")
             }
 
-            repositories {
-                jcenter()
-            }
-            
+            ${jcenterRepository()}
             
             dependencies {
                 implementation("org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112")
@@ -76,12 +73,18 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
                 id("com.bmuschko.docker-spring-boot-application")
             }
 
-            repositories {
-                jcenter()
-            }
+            ${jcenterRepository()}
             
             dependencies {
                 implementation("org.springframework.boot:spring-boot-starter-web")
+            }
+        """
+    }
+
+    private static String jcenterRepository() {
+        """
+            repositories {
+                jcenter()
             }
         """
     }
