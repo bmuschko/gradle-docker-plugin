@@ -22,7 +22,6 @@ import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.file.FileCollection
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
@@ -35,43 +34,28 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        project.configurations.create(DOCKER_JAVA_CONFIGURATION_NAME)
+        project.plugins.apply(RepositoriesFallbackPlugin)
+        Configuration dockerJavaConfig = project.configurations.create(DOCKER_JAVA_CONFIGURATION_NAME)
                 .setVisible(false)
                 .setTransitive(true)
                 .setDescription('The Docker Java libraries to be used for this project.')
+        declareDefaultDependencies(project, dockerJavaConfig)
 
-        // if no repositories were defined fallback to buildscript
-        // repositories to resolve dependencies as a last resort
-        project.afterEvaluate {
-            if (project.repositories.size() == 0) {
-                project.repositories.addAll(project.buildscript.repositories.collect())
-            }
+        DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
+        extension.classpath = dockerJavaConfig
 
-            // if still 0 attempt to grab rootProject buildscript repos
-            if (project.repositories.size() == 0) {
-                project.repositories.addAll(project.rootProject.buildscript.repositories.collect())
-            }
+        configureAbstractDockerTask(project, extension)
+        configureRegistryAwareTasks(project, extension)
+    }
 
-            // and if still 0 attempt to grab rootProject repos
-            if (project.repositories.size() == 0) {
-                project.repositories.addAll(project.rootProject.repositories.collect())
-            }
-        }
-
-        Configuration config = project.configurations[DOCKER_JAVA_CONFIGURATION_NAME]
-        config.defaultDependencies { dependencies ->
+    private void declareDefaultDependencies(Project project, Configuration configuration) {
+        configuration.defaultDependencies { dependencies ->
             dependencies.add(project.dependencies.create("com.aries:docker-java-shaded:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION:cglib@jar") {
                 transitive = false
             })
             dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
             dependencies.add(project.dependencies.create('javax.activation:activation:1.1.1'))
         }
-
-        DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
-        extension.classpath = config
-
-        configureAbstractDockerTask(project, extension)
-        configureRegistryAwareTasks(project, extension)
     }
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
