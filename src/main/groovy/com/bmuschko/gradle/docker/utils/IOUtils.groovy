@@ -1,8 +1,8 @@
 package com.bmuschko.gradle.docker.utils
 
 import org.gradle.api.Project
-import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.internal.logging.progress.ProgressLogger
+import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.internal.service.ServiceRegistry
 
 final class IOUtils {
@@ -36,8 +36,7 @@ final class IOUtils {
      * @param clazz optional class to pair the ProgressLogger to. Defaults to _this_ class if null.
      * @return instance of ProgressLogger.
      */
-    static ProgressLogger getProgressLogger(final Project project,
-                                               final Class clazz = GradleDockerDatabasesPluginUtils) {
+    static ProgressLogger getProgressLogger(final Project project, final Class clazz) {
         ServiceRegistry registry = project.gradle.getServices()
         ProgressLoggerFactory factory = registry.get(ProgressLoggerFactory)
         ProgressLogger progressLogger = factory.newOperation(Objects.requireNonNull(clazz))
