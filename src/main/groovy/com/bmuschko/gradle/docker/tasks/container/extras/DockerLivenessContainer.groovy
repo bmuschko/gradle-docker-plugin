@@ -16,18 +16,16 @@
 
 package com.bmuschko.gradle.docker.tasks.container.extras
 
+import com.bmuschko.gradle.docker.domain.LivenessProbe
+import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
 
 import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
-
-import com.bmuschko.gradle.docker.domain.LivenessProbe
-import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
-
-import org.gradle.api.GradleException
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 
 /**
  *  Poll a given running container for an arbitrary log message to confirm liveness. If a livenessProbe is
@@ -35,7 +33,7 @@ import org.gradle.api.tasks.Optional
  */
 class DockerLivenessContainer extends DockerLogsContainer {
 
-    @Input
+    @Nested
     @Optional
     LivenessProbe livenessProbe
 
