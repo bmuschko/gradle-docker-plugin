@@ -16,11 +16,12 @@
 package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import org.gradle.api.Action
 import org.gradle.api.tasks.Nested
 
 class DockerJavaApplication {
     String baseImage = 'openjdk:jre-alpine'
-    final CompositeExecInstruction exec = new CompositeExecInstruction()
+    private final CompositeExecInstruction compositeExecInstruction = new CompositeExecInstruction()
 
     /**
      * Deprecated as per https://docs.docker.com/engine/deprecated/#maintainer-in-dockerfile
@@ -45,17 +46,20 @@ class DockerJavaApplication {
         return ports != null ? ports : [port]
     }
 
-    CompositeExecInstruction exec(@DelegatesTo(CompositeExecInstruction) Closure<Void> closure) {
-        exec.clear()
-        exec.apply(closure)
+    CompositeExecInstruction exec(Action<CompositeExecInstruction> action) {
+        compositeExecInstruction.clear()
+        action.execute(compositeExecInstruction)
+    }
+
+    CompositeExecInstruction getExecInstruction() {
+        compositeExecInstruction
     }
 
     /**
-     * Helper Instruction used by DockerJavaApplicationPlugin
-     * to allow customizing generated ENTRYPOINT/CMD
+     * Helper Instruction to allow customizing generated ENTRYPOINT/CMD.
      */
     static class CompositeExecInstruction implements Dockerfile.Instruction {
-        private final List<Dockerfile.Instruction> instructions = new ArrayList<>()
+        private final List<Dockerfile.Instruction> instructions = new ArrayList<Dockerfile.Instruction>()
 
         @Nested
         List<Dockerfile.Instruction> getInstructions() {
@@ -72,12 +76,6 @@ class DockerJavaApplication {
 
         @Override
         String build() { instructions*.getText().join(System.getProperty('line.separator')) }
-
-        CompositeExecInstruction apply(Closure<Void> closure) {
-            closure?.delegate = this
-            closure?.call()
-            this
-        }
 
         void clear() {
             instructions.clear()

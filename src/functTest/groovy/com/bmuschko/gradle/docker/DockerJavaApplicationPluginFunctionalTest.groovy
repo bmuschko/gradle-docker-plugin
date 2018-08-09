@@ -143,7 +143,7 @@ EXPOSE 9090
 """
     }
 
-    def "Can create image for Java application with user-driven configuration with no cmd/entrypoint"() {
+    def "Can create image for Java application with user-driven configuration with empty cmd/entrypoint"() {
         given:
         buildFile << """
             docker {
@@ -152,7 +152,7 @@ EXPOSE 9090
                     maintainer = 'benjamin.muschko@gmail.com'
                     port = 9090
                     tag = 'jettyapp:1.115'
-                    ${execDirective}
+                    exec {}
                 }
             }
         """
@@ -170,10 +170,6 @@ ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
 
 EXPOSE 9090
 """
-
-        where:
-        execDirective << ['exec null',
-                          'exec {}']
     }
 
     def "Can create image for Java application with additional files"() {
