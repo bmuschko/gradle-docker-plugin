@@ -1,0 +1,65 @@
+=== Examples
+
+The following usage examples demonstrate code for common use cases.
+More scenarios can be found in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerJavaApplicationPluginFunctionalTest.groovy[functional tests].
+
+==== Using the Plugin for an Application Run on Jetty
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.bmuschko.docker-java-application'
+
+version = '1.0'
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
+}
+
+mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
+
+docker {
+    javaApplication {
+        maintainer = 'Jon Doe "jon.doe@gmail.com"'
+    }
+}
+----
+
+==== Additional Instructions in Dockerfile
+
+You can add additional instructions to the dockerfile using `dockerDistTar` and http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task] DSL:
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+dockerDistTar {
+    instruction {'RUN ls -la'}
+    environmentVariable('JAVA_OPTS', '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap')
+}
+----
+
+will result in
+
+----
+FROM java
+LABEL maintainer=user
+ADD javaapp-1.0.0-SNAPSHOT.tar /
+ENTRYPOINT ["/javaapp-1.0.0-SNAPSHOT/bin/javaapp"]
+EXPOSE 8080
+RUN ls -la
+----
+
+Or you can use form
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+dockerDistTar.instructionsFromTemplate file('Dockerfile.tmpl')
+----

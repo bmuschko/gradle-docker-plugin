@@ -16,22 +16,24 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import groovy.transform.CompileStatic
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
+
+import java.util.concurrent.Callable
 
 abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
     /**
      * Container ID used to perform operation. The container for the provided ID has to be created first.
      */
-    @Internal
+    @Input
     String containerId
 
     void targetContainerId(Closure containerId) {
         conventionMapping.containerId = containerId
     }
 
-    @Input
-    String getContainerId() {
-        containerId
+    @CompileStatic
+    void targetContainerId(Callable<String> containerId) {
+        targetContainerId { containerId.call() }
     }
 }

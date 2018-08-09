@@ -1,0 +1,39 @@
+=== Usage
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath com.bmuschko:gradle-docker-plugin:{project-version}'
+    }
+}
+
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+// Import task types
+import com.bmuschko.gradle.docker.tasks.image.*
+
+// Use task types
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('docker/myapp')
+    tag = 'test/myapp:latest'
+}
+----
+
+The plugin automatically resolves the Docker Java library with the pre-configured version under the covers.
+The only configuration you will have to provide in your build script is the repository hosting the library and its transitive dependencies.
+One repository that hosts them all is Maven Central.
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+repositories {
+    mavenCentral()
+}
+----

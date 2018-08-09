@@ -1,0 +1,12 @@
+=== Tasks
+
+The plugin provides a set of tasks for your project and preconfigures them with sensible defaults.
+
+[options="header"]
+|=======
+|Task name                 |Depends On                |Type                                                                                 |Description
+|`dockerCopyDistResources` |`distTar`                 |http://www.gradle.org/docs/current/javadoc/org/gradle/api/tasks/Sync.html[Sync]      |Copies the resource files (like the Java application's TAR file) to a temporary directory for image creation.
+|`dockerDistTar`           |`dockerCopyDistResources` |Dockerfile                                                                           |Creates the Docker image for the Java application.
+|`dockerBuildImage`        |`dockerDistTar`           |DockerBuildImage                                                                     |Builds the Docker image for the Java application.
+|`dockerPushImage`         |`dockerBuildImage`        |DockerPushImage                                                                      |Pushes created Docker image to the repository.
+|=======

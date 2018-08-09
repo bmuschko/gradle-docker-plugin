@@ -20,15 +20,10 @@ class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
         conventionMapping.execId = execId
     }
 
-    @Input
-    String getExecId() {
-        execId
-    }
-
     @Override
     void runRemoteCommand(Object dockerClient) {
         logger.quiet "Inspecting exec with ID '${getExecId()}'."
-        def result = dockerClient.inspectExecCmd(getExecId()).exec()
+        def result = _runRemoteCommand(dockerClient, getExecId())
         if (onNext) {
             onNext.call(result)
         } else {
@@ -37,5 +32,12 @@ class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
             logger.quiet("Is running: {}", result.running)
             logger.quiet("Exit code: {}", result.exitCode)
         }
+    }
+
+    // overloaded method to get the response of a given "exec"
+    // from potentially outside of this context or in a sub-class
+    // without all the extra baggage the default method brings.
+    static def _runRemoteCommand(dockerClient, String executionId) {
+        dockerClient.inspectExecCmd(executionId).exec()
     }
 }

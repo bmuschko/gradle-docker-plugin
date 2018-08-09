@@ -16,19 +16,19 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 
+@CacheableTask
 class Dockerfile extends DefaultTask {
-    @Internal
-    List<Instruction> instructions = new ArrayList<Instruction>()
+    private final List<Instruction> instructions = new ArrayList<Instruction>()
 
     @OutputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     File destFile = project.file("$project.buildDir/docker/Dockerfile")
 
-    Dockerfile() {
-
+    @Nested
+    List<Instruction> getInstructions() {
+        instructions
     }
 
     @TaskAction
@@ -37,18 +37,20 @@ class Dockerfile extends DefaultTask {
 
         getDestFile().withWriter { out ->
             getInstructions().each { instruction ->
-                out.println instruction.build()
+                out.println instruction.getText()
             }
         }
     }
 
     private void verifyValidInstructions() {
-        if(getInstructions().empty) {
+        if (getInstructions().empty) {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
-        if(!(getInstructions()[0].keyword == 'FROM')) {
-            throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM')
+        def fromPos = getInstructions().findIndexOf { it.keyword == 'FROM' }
+        def othersPos = getInstructions().findIndexOf { it.keyword != 'ARG' && it.keyword != 'FROM' }
+        if (fromPos < 0 || (othersPos >= 0 && fromPos > othersPos)) {
+            throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
         }
     }
 
@@ -77,7 +79,7 @@ class Dockerfile extends DefaultTask {
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     instruction 'FROM ubuntu:14.04'
-     *     instruction 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"'
+     *     instruction 'LABEL maintainer=benjamin.muschko@gmail.com'
      * }
      * </pre>
      *
@@ -95,7 +97,7 @@ class Dockerfile extends DefaultTask {
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     instruction { 'FROM ubuntu:14.04' }
-     *     instruction { 'MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"' }
+     *     instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
      * }
      * </pre>
      *
@@ -110,16 +112,17 @@ class Dockerfile extends DefaultTask {
      * subsequent instructions.
      *
      * @param image Base image name
+     * @param stageName stage name in case of multi-stage builds (default null)
      */
-    void from(String image) {
-        instructions << new FromInstruction(image)
+    void from(String image, String stageName = null) {
+        instructions << new FromInstruction(image, stageName)
     }
 
     /**
-     * The <a href="https://docs.docker.com/reference/builder/#from">FROM instruction</a> sets the Base Image for
-     * subsequent instructions.
+     * The <a href="https://docs.docker.com/reference/builder/#arg">ARG instruction</a> defines a variable that
+     * users can pass at build-time to the builder.
      *
-     * @param image Base image name
+     * @param arg Argument to pass, possibly with default value.
      */
     void arg(String arg) {
         instructions << new ArgInstruction(arg)
@@ -130,9 +133,10 @@ class Dockerfile extends DefaultTask {
      * subsequent instructions.
      *
      * @param image Base image name
+     * @param stageName closure returning stage name in case of multi-stage builds (default null)
      */
-    void from(Closure image) {
-        instructions << new FromInstruction(image)
+    void from(Closure image, Closure stageName = null) {
+        instructions << new FromInstruction(image, stageName)
     }
 
     /**
@@ -140,7 +144,9 @@ class Dockerfile extends DefaultTask {
      * the Author field of the generated images.
      *
      * @param maintainer Maintainer
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link #label(Map)} or {@link #label(Closure)} instead.
      */
+    @Deprecated
     void maintainer(String maintainer) {
         instructions << new MaintainerInstruction(maintainer)
     }
@@ -150,7 +156,9 @@ class Dockerfile extends DefaultTask {
      * the Author field of the generated images.
      *
      * @param maintainer Maintainer
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link #label(Map)} or {@link #label(Closure)} instead.
      */
+    @Deprecated
     void maintainer(Closure maintainer) {
         instructions << new MaintainerInstruction(maintainer)
     }
@@ -274,9 +282,10 @@ class Dockerfile extends DefaultTask {
      *
      * @param src Source file
      * @param dest Destination path
+     * @param stageName stage name in case of multi stage build
      */
-    void copyFile(String src, String dest) {
-        instructions << new CopyFileInstruction(src, dest)
+    void copyFile(String src, String dest, String stageName = null) {
+        instructions << new CopyFileInstruction(src, dest, stageName)
     }
 
     /**
@@ -285,9 +294,10 @@ class Dockerfile extends DefaultTask {
      *
      * @param src Source file
      * @param dest Destination path
+     * @param stageName closure returning stage name in case of multi stage build
      */
-    void copyFile(Closure src, Closure dest) {
-        instructions << new CopyFileInstruction(src, dest)
+    void copyFile(Closure src, Closure dest, Closure stageName) {
+        instructions << new CopyFileInstruction(src, dest, stageName)
     }
 
     /**
@@ -409,12 +419,24 @@ class Dockerfile extends DefaultTask {
     }
 
     static interface Instruction {
+        @Internal
         String getKeyword()
+
+        /**
+         * @since 3.6.0
+         */
+        @Input
+        String getText()
+
+        /**
+         * @deprecated Use {@link #getText()} instead.
+         */
+        @Deprecated
         String build()
     }
 
     static class GenericInstruction implements Instruction {
-        final Object instruction
+        private final Object instruction
 
         GenericInstruction(String instruction) {
             this.instruction = instruction
@@ -426,10 +448,9 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getKeyword() {
-            if(instruction instanceof String) {
+            if (instruction instanceof String) {
                 parseKeyword(instruction)
-            }
-            else if(instruction instanceof Closure) {
+            } else if (instruction instanceof Closure) {
                 parseKeyword(instruction())
             }
         }
@@ -439,18 +460,22 @@ class Dockerfile extends DefaultTask {
         }
 
         @Override
+        String getText() {
+            build()
+        }
+
+        @Override
         String build() {
-            if(instruction instanceof String) {
-               instruction
-            }
-            else if(instruction instanceof Closure) {
+            if (instruction instanceof String) {
+                instruction
+            } else if (instruction instanceof Closure) {
                 instruction()
             }
         }
     }
 
     static abstract class StringCommandInstruction implements Instruction {
-        final Object command
+        private final Object command
 
         StringCommandInstruction(String command) {
             this.command = command
@@ -461,18 +486,22 @@ class Dockerfile extends DefaultTask {
         }
 
         @Override
+        String getText() {
+            build()
+        }
+
+        @Override
         String build() {
-            if(command instanceof String) {
+            if (command instanceof String) {
                 "$keyword $command"
-            }
-            else if(command instanceof Closure) {
+            } else if (command instanceof Closure) {
                 "$keyword ${command()}"
             }
         }
     }
 
     static abstract class StringArrayInstruction implements Instruction {
-        final Object command
+        private final Object command
 
         StringArrayInstruction(String... command) {
             this.command = command
@@ -483,17 +512,20 @@ class Dockerfile extends DefaultTask {
         }
 
         @Override
+        String getText() {
+            build()
+        }
+
+        @Override
         String build() {
-            if(command instanceof String[]) {
+            if (command instanceof String[]) {
                 keyword + ' ["' + command.join('", "') + '"]'
-            }
-            else if(command instanceof Closure) {
+            } else if (command instanceof Closure) {
                 def evaluatedCommand = command()
 
-                if(evaluatedCommand instanceof String) {
+                if (evaluatedCommand instanceof String) {
                     keyword + ' ["' + evaluatedCommand + '"]'
-                }
-                else {
+                } else {
                     keyword + ' ["' + command().join('", "') + '"]'
                 }
             }
@@ -501,26 +533,48 @@ class Dockerfile extends DefaultTask {
     }
 
     interface ItemJoiner {
-        String join(Map map)
+        String join(Map<String, String> map)
     }
 
     static class MultiItemJoiner implements ItemJoiner {
         @Override
-        String join(Map map) {
-            map.inject([]) { result, entry -> result << "\"$entry.key\"=\"$entry.value\"" }.join(' ')
+        String join(Map<String, String> map) {
+            map.inject([]) { result, entry ->
+                def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
+                def value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.value) ? ItemJoinerUtil.toQuotedString(entry.value) : entry.value
+                value = value.replaceAll("(\r)*\n", "\\\\\n")
+                result << "$key=$value"
+            }.join(' ')
         }
     }
 
     static class SingleItemJoiner implements ItemJoiner {
         @Override
-        String join(Map map) {
-            map.inject([]) { result, entry -> result << "$entry.key $entry.value" }.join(' ')
+        String join(Map<String, String> map) {
+            map.inject([]) { result, entry ->
+                def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
+                // preserve multiline value in a single item key value instruction but ignore any other whitespaces or quotings
+                def value = entry.value.replaceAll("(\r)*\n", "\\\\\n")
+                result << "$key $value"
+            }.join('')
+        }
+    }
+
+    private class ItemJoinerUtil {
+        private static boolean isUnquotedStringWithWhitespaces(String str) {
+            return !str.matches('["].*["]') &&
+                str.matches('.*(?: |(?:\r?\n)).*')
+        }
+
+        private static String toQuotedString(final String str) {
+            '"'.concat(str.replaceAll('"', '\\\\"')).concat('"')
         }
     }
 
     static abstract class MapInstruction implements Instruction {
-        final Object command
-        final ItemJoiner joiner
+        private final Map<String, String> command
+        private final Closure commandClosure
+        private final ItemJoiner joiner
 
         MapInstruction(Map<String, String> command, ItemJoiner joiner) {
             this.command = command
@@ -532,62 +586,113 @@ class Dockerfile extends DefaultTask {
         }
 
         MapInstruction(Closure command) {
-            this.command = command
+            this.commandClosure = command
             this.joiner = new MultiItemJoiner()
         }
 
         @Override
-        String build() {
-            if (command instanceof Map<String, String>) {
-                "$keyword ${joiner.join(command)}"
-            }
-            else if(command instanceof Closure) {
-                def evaluatedCommand = command()
+        String getText() {
+            build()
+        }
 
-                if(evaluatedCommand instanceof Map) {
-                    "$keyword ${joiner.join(evaluatedCommand)}"
+        @Override
+        String build() {
+            Map<String, String> commandToJoin = command
+            if (commandClosure != null) {
+                def evaluatedCommand = commandClosure()
+
+                if (!(evaluatedCommand instanceof Map<String, String>)) {
+                    throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provide a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
+                }
+                commandToJoin = evaluatedCommand as Map<String, String>
+            }
+            if (commandToJoin == null) {
+                throw new IllegalArgumentException("instruction has to be set for ${keyword}")
+            }
+            validateKeysAreNotBlank commandToJoin
+            "$keyword ${joiner.join(commandToJoin)}"
+        }
+
+        private void validateKeysAreNotBlank(Map<String, String> command) throws IllegalArgumentException {
+            command.each { entry ->
+                if (entry.key.trim().length() == 0) {
+                    throw new IllegalArgumentException("blank keys for a key=value pair are not allowed: please check instruction ${keyword} and given pair `${entry}`")
                 }
             }
         }
     }
 
     static abstract class FileInstruction implements Instruction {
-        final Object src
-        final Object dest
+        private final Object src
+        private final Object dest
+        private final Object flags
 
-        FileInstruction(String src, String dest) {
+        FileInstruction(String src, String dest, String flags = null) {
             this.src = src
             this.dest = dest
+            this.flags = flags
         }
 
-        FileInstruction(Closure src, Closure dest) {
+        FileInstruction(Closure src, Closure dest, Closure flags = null) {
             this.src = src
             this.dest = dest
+            this.flags = flags
+        }
+
+        @Override
+        String getText() {
+            build()
         }
 
         @Override
         String build() {
-            if(src instanceof String && dest instanceof String) {
-                "$keyword $src $dest"
+            String keyword = getKeyword()
+            if (flags) {
+                if (flags instanceof String) {
+                    keyword += " $flags"
+                } else if (flags instanceof Closure) {
+                    keyword += " ${flags()}"
+                }
             }
-            else if(src instanceof Closure && dest instanceof Closure) {
+            if (src instanceof String && dest instanceof String) {
+                "$keyword $src $dest"
+            } else if (src instanceof Closure && dest instanceof Closure) {
                 "$keyword ${src()} ${dest()}"
             }
         }
     }
 
     static class FromInstruction extends StringCommandInstruction {
-        FromInstruction(String image) {
+        private final Object stageName
+
+        FromInstruction(String image, String stageName = null) {
             super(image)
+            this.stageName = stageName
         }
 
-        FromInstruction(Closure image) {
+        FromInstruction(Closure image, Closure stageName = null) {
             super(image)
+            this.stageName = stageName
         }
 
         @Override
         String getKeyword() {
             "FROM"
+        }
+
+        @Override
+        String build() {
+            String result = super.build()
+
+            if (stageName) {
+                if (stageName instanceof String) {
+                    result += " AS $stageName"
+                } else if (stageName instanceof Closure) {
+                    result += " AS ${stageName()}"
+                }
+            }
+
+            result
         }
     }
 
@@ -606,6 +711,10 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * @deprecated Docker <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">deprecated</a> the MAINTAINER instruction. Use {@link LabelInstruction} instead.
+     */
+    @Deprecated
     static class MaintainerInstruction extends StringCommandInstruction {
         MaintainerInstruction(String maintainer) {
             super(maintainer)
@@ -622,7 +731,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static class RunCommandInstruction extends StringCommandInstruction {
-       RunCommandInstruction(String command) {
+        RunCommandInstruction(String command) {
             super(command)
         }
 
@@ -652,7 +761,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static class ExposePortInstruction implements Instruction {
-        final Object ports
+        private final Object ports
 
         ExposePortInstruction(Integer... ports) {
             this.ports = ports
@@ -668,17 +777,20 @@ class Dockerfile extends DefaultTask {
         }
 
         @Override
+        String getText() {
+            build()
+        }
+
+        @Override
         String build() {
-            if(ports instanceof Integer[]) {
+            if (ports instanceof Integer[]) {
                 "$keyword ${ports.join(' ')}"
-            }
-            else if(ports instanceof Closure) {
+            } else if (ports instanceof Closure) {
                 def evaluatedPorts = ports()
 
-                if(evaluatedPorts instanceof String || evaluatedPorts instanceof Integer) {
+                if (evaluatedPorts instanceof String || evaluatedPorts instanceof Integer) {
                     "$keyword ${evaluatedPorts}"
-                }
-                else {
+                } else {
                     "$keyword ${evaluatedPorts.join(' ')}"
                 }
             }
@@ -720,12 +832,12 @@ class Dockerfile extends DefaultTask {
     }
 
     static class CopyFileInstruction extends FileInstruction {
-        CopyFileInstruction(String src, String dest) {
-            super(src, dest)
+        CopyFileInstruction(String src, String dest, String stageName = null) {
+            super(src, dest, stageName ? "--from=$stageName" : null)
         }
 
-        CopyFileInstruction(Closure src, Closure dest) {
-            super(src, dest)
+        CopyFileInstruction(Closure src, Closure dest, Closure stageName = null) {
+            super(src, dest, stageName ? { "--from=${stageName()}" } : null)
         }
 
         @Override
@@ -821,45 +933,6 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             "LABEL"
-        }
-    }
-
-    /**
-     * Helper Instruction used by DockerJavaApplicationPlugin
-     * to allow customizing generated ENTRYPOINT/CMD
-     */
-    static class CompositeExecInstruction implements Instruction {
-        @Internal
-        private final List<Instruction> instructions = new ArrayList<>()
-
-        @Override
-        String getKeyword() { '' }
-
-        @Override
-        String build() { instructions*.build().join('\n') }
-
-        CompositeExecInstruction apply(Closure<Void> closure) {
-            closure?.delegate = this
-            closure?.call()
-            this
-        }
-
-        public void clear() {
-            instructions.clear()
-        }
-
-        void defaultCommand(String... command) {
-            instructions << new DefaultCommandInstruction(command)
-        }
-        void defaultCommand(Closure command) {
-            instructions << new DefaultCommandInstruction(command)
-        }
-
-        void entryPoint(String... entryPoint) {
-            instructions << new EntryPointInstruction(entryPoint)
-        }
-        void entryPoint(Closure entryPoint) {
-            instructions << new EntryPointInstruction(entryPoint)
         }
     }
 }

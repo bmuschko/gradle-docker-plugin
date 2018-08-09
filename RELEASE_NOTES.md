@@ -1,4 +1,140 @@
-### Version 3.0.7 (TBA)
+### Version 3.6.1 (TBA)
+
+### Version 3.6.0 (August 7, 2018)
+* Use smaller base images for convention plugins - [Pull Request 636](https://github.com/bmuschko/gradle-docker-plugin/pull/636)
+* Fully deprecate MAINTAINER instruction and replace with LABEL - [Pull Request 635](https://github.com/bmuschko/gradle-docker-plugin/pull/635)
+* Make Dockerfile task cacheable via Gradle build cache - [Pull Request 641](https://github.com/bmuschko/gradle-docker-plugin/pull/641)
+
+### Version 3.5.0 (July 24, 2018)
+* Support for dockerizing Spring Boot applications - [Pull Request 619](https://github.com/bmuschko/gradle-docker-plugin/pull/619)
+* Removed deprecated `ResponseHandler` - [Pull Request 624](https://github.com/bmuschko/gradle-docker-plugin/pull/624)
+* Introduce user guide for more readable, maintainable documentation - [Pull Request 630](https://github.com/bmuschko/gradle-docker-plugin/pull/630)
+* Upgrade to Gradle Wrapper 4.9
+
+### Version 3.4.4 (July 15, 2018)
+* Task `DockerLivenessContainer` had its polling logic reworked to be more failure proof.
+
+### Version 3.4.3 (July 8, 2018)
+* Task `DockerCreateContainer` has its method `withEnvVars` changed to accept a `def`, which in turn can be anything (String, Integer, Closure, etc) but will eventually have all its keys/values resolved to java strings. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Task `DockerLivenessContainer` had minor verbiage changes to its output. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Use `-all` wrapper to better integrate with IDE's. - [Pull Request 617](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+
+### Version 3.4.2 (July 7, 2018)
+* Shade cglib and its dependencies. - [Pull Request 616](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+* Bump `docker-java` to `3.1.0-rc-3`. - [Pull Request 616](https://github.com/bmuschko/gradle-docker-plugin/pull/616)
+
+### Version 3.4.1 (July 3, 2018)
+* BUGFIX for task `DockerCreateContainer` where `envs` were not being properly honored. - [Pull Request 614](https://github.com/bmuschko/gradle-docker-plugin/pull/614)
+
+### Version 3.4.0 (July 1, 2018)
+* Task `Dockerfile` now supports multi-stage builds - [Pull Request 607](https://github.com/bmuschko/gradle-docker-plugin/pull/607)
+* When plugin is applied to sub-projects we will additionally search rootProject for repos to use - [Pull Request 610](https://github.com/bmuschko/gradle-docker-plugin/pull/610)
+* Task `DockerCreateContainer` has deprecated `env` in favor of `envVars` which can ONLY be added to with a helper method `withEnvVar` that can be called **N** times for setting environment variables. - [Pull Request 609](https://github.com/bmuschko/gradle-docker-plugin/pull/609)
+* Task `DockerLivenessProbeContainer` has been renamed to `DockerLivenessContainer`. It's `probe` method has been renamed to `livnessProbe`. Task `DockerExecStopContainer` had its `probe` method renamed to `execStopProbe`. - [Pull Request 611](https://github.com/bmuschko/gradle-docker-plugin/pull/611)
+
+### Version 3.3.6 (June 23, 2018)
+* Task `DockerCopyFileToContainer` can now copy **N** number of files via methods `withFile` and `withTarFile`. - [Pull request 605](https://github.com/bmuschko/gradle-docker-plugin/pull/605)
+
+### Version 3.3.5 (June 17, 2018)
+* Fix bug within `DockerExecContainer` when `exitCode` can be null (default to 0 if so). - [Pull request 602](https://github.com/bmuschko/gradle-docker-plugin/pull/602)
+
+### Version 3.3.4 (June 16, 2018)
+* Task `DockerExecContainer` gained ability to specify multiple execution commands to be run. - [Pull request 600](https://github.com/bmuschko/gradle-docker-plugin/pull/600)
+* Various tasks had their progress logger output cleaned up. - [Pull request 601](https://github.com/bmuschko/gradle-docker-plugin/pull/601)
+
+### Version 3.3.3 (June 8, 2018)
+* Explicitly call `toString()` on values in maps passed to Docker API. - [Pull request 595](https://github.com/bmuschko/gradle-docker-plugin/pull/595)
+* Task `DockerLivenessProbeContainer` gained method `lastInspection()` which will return the last "docker inspect container" response AFTER execution has completed. - [Pull request 596](https://github.com/bmuschko/gradle-docker-plugin/pull/596)
+
+### Version 3.3.2 (June 5, 2018)
+* Task `DockerLivenessProbeContainer` now has the `probe` option set to optional and if NOT defined will fallback to checking if container is in a running state. - [Pull request 594](https://github.com/bmuschko/gradle-docker-plugin/pull/594)
+
+### Version 3.3.1 (June 2, 2018)
+* Various minor refactorings surrounding new task `DockerExecStopContainer`. - [Pull request 592](https://github.com/bmuschko/gradle-docker-plugin/pull/592)
+
+### Version 3.3.0 (June 1, 2018)
+* Added task `DockerClient` to pass the raw `docker-java` client to the `onNext` closure if defined. - [Pull request 589](https://github.com/bmuschko/gradle-docker-plugin/pull/589)
+* Task `DockerCreateContainer` will now log the `containerName` if set, which is the standard within this plugin, otherwise fallback to the just created `containerId`.
+* Task `DockerExecContainer` gained option `successOnExitCodes` to allow user to define a list of successful exit codes the exec is allowed to return and will fail if not in list. Default behavior is to do no check. - [Pull request 590](https://github.com/bmuschko/gradle-docker-plugin/pull/590)
+* Added task `DockerLivenessProbeContainer` which will poll, for some defined amount of time, a running containers logs looking for a given message and fail if not found. - [Pull request 587](https://github.com/bmuschko/gradle-docker-plugin/pull/587)
+* Added task `DockerExecStopContainer` to allow the user to execute an arbitrary cmd against a container, polling for it to enter a non-running state, and if that does not succeed in time issue stop request. - [Pull request 591](https://github.com/bmuschko/gradle-docker-plugin/pull/591)
+
+### Version 3.2.9 (May 22, 2018)
+* Fixed a bug in task `DockerCreateContainer` where option `cpuset` is now renamed differetnly in `docker-java`. - [Pull request 585](https://github.com/bmuschko/gradle-docker-plugin/pull/585)
+
+### Version 3.2.8 (April 30, 2018)
+* Task `DockerExecContainer` gained option `user` to specify a user/group. - [Pull request 574](https://github.com/bmuschko/gradle-docker-plugin/pull/574)
+* Task `DockerCreateContainer` gained option `ipV4Address` to specify a specific ipv4 address to use. - [Pull request 449](https://github.com/bmuschko/gradle-docker-plugin/pull/449)
+* Bump gradle to `4.7`. - [Pull request 578](https://github.com/bmuschko/gradle-docker-plugin/pull/578)
+
+### Version 3.2.7 (April 19, 2018)
+* Task `DockerSaveImage` gained option `useCompression` to optionally gzip the created tar. - [Pull request 565](https://github.com/bmuschko/gradle-docker-plugin/pull/565)
+* Add `javax.activation` dependency for users who are working with jdk9+. - [Pull request 572](https://github.com/bmuschko/gradle-docker-plugin/pull/572)
+
+### Version 3.2.6 (March 31, 2018)
+* Cache `docker-java` client instead of recreating for every request/task invocation. This is a somewhat big internal change but has a lot of consequences and so it was deserving of its own point release. - [Pull request 558](https://github.com/bmuschko/gradle-docker-plugin/pull/558)
+
+### Version 3.2.5 (March 2, 2018)
+* Added `macAddress` option to task `DockerCreateContainer` - [Pull request 538](https://github.com/bmuschko/gradle-docker-plugin/pull/538)
+* Initial work for `codenarc` analysis - [Pull request 537](https://github.com/bmuschko/gradle-docker-plugin/pull/537)
+* Use of `docker-java-shaded` library in favor of `docker-java` proper to get around class-loading/clobbering issues - [Pull request 550](https://github.com/bmuschko/gradle-docker-plugin/pull/550)
+* Honor DOCKER_CERT_PATH env var if present - [Pull request 549](https://github.com/bmuschko/gradle-docker-plugin/pull/549)
+* Task `DockerSaveImage` will now create file for you should it not exist - [Pull request 552](https://github.com/bmuschko/gradle-docker-plugin/pull/552)
+* Task `DockerPushImage` will now include tag info in logging if applicable - [Pull request 554](https://github.com/bmuschko/gradle-docker-plugin/pull/554)
+* !!!!! BREAKING: Property `inputStream` of task `DockerLoadImage` has been changed from type `InputStream` to `Closure<InputStream>`. This was done to allow scripts/code/pipelines to delay getting the image and side-step this property getting configured during gradles config-phase. - [Pull request 552](https://github.com/bmuschko/gradle-docker-plugin/pull/552)
+
+### Version 3.2.4 (February 5, 2018)
+* Use openjdk as a default image in DockerJavaApplicationPlugin - [Pull request 528](https://github.com/bmuschko/gradle-docker-plugin/pull/528)
+* Add `skipMaintainer` to `DockerJavaApplication` - [Pull request 529](https://github.com/bmuschko/gradle-docker-plugin/pull/529)
+* Can now define `labels` in `DockerCreateContainer` task - [Pull request 530](https://github.com/bmuschko/gradle-docker-plugin/pull/530)
+* Added task `DockerRenameContainer` - [Pull request 533](https://github.com/bmuschko/gradle-docker-plugin/pull/533)
+
+### Version 3.2.3 (January 26, 2018)
+* If `DockerWaitHealthyContainer` is run on an image which was not built with `HEALTHCHECK` than fallback to using generic status - [Pull request 520](https://github.com/bmuschko/gradle-docker-plugin/pull/520)
+
+### Version 3.2.2 (January 17, 2018)
+* Bump gradle to `4.3.1` - [Pull request 500](https://github.com/bmuschko/gradle-docker-plugin/pull/500)
+* Bug fix for [ISSUE-490](https://github.com/bmuschko/gradle-docker-plugin/issues/490) wherein `on*` reactive-stream closures are evaluated with null exception when using gradle-4.3 - [Commit 93b80f](https://github.com/bmuschko/gradle-docker-plugin/commit/93b80f2bd18c4f04d0f58443b45c59cb58a54e77)
+* Support for zero exposed ports in `DockerJavaApplication` - [Pull request 504](https://github.com/bmuschko/gradle-docker-plugin/pull/504)
+
+### Version 3.2.1 (November 22, 2017)
+* Bump gradle to `4.2` - [Pull request 471](https://github.com/bmuschko/gradle-docker-plugin/pull/471)
+* Fix setting `shmSize` when creating container - [Pull request 480](https://github.com/bmuschko/gradle-docker-plugin/pull/480)
+* Add support for entrypoint on `DockerCreateContainer` - [Pull request 479](https://github.com/bmuschko/gradle-docker-plugin/pull/479)
+* Bump verison of docker-java to 3.0.14 - [Pull request 482](https://github.com/bmuschko/gradle-docker-plugin/pull/482)
+* Added `DockerWaitHealthyContainer` task - [Pull request 485](https://github.com/bmuschko/gradle-docker-plugin/pull/485)
+* Use groovy join function in favor or jdk8 join function. - [Pull request 498](https://github.com/bmuschko/gradle-docker-plugin/pull/498)
+
+### Version 3.2.0 (September 29, 2017)
+* Update `createBind` to use docker-java `parse` method - [Pull request 452](https://github.com/bmuschko/gradle-docker-plugin/pull/452)
+* Allow Docker to cache app libraries dir when `DockerJavaApplication` plugin is used - [Pull request 459](https://github.com/bmuschko/gradle-docker-plugin/pull/459)
+
+### Version 3.1.0 (August 21, 2017)
+* `DockerListImages` gained better support for filters - [Pull request 414](https://github.com/bmuschko/gradle-docker-plugin/pull/414)
+* Use `alpine:3.4` image in functional tests - [Pull request 416](https://github.com/bmuschko/gradle-docker-plugin/pull/416)
+* `DockerBuildImage` and `DockerCreateContainer` gained optional argument `shmSize` - [Pull request 413](https://github.com/bmuschko/gradle-docker-plugin/pull/413)
+* Added tasks `DockerInspectNetwork`, `DockerCreateNetwork`, and `DockerRemoveNetwork` - [Pull request 422](https://github.com/bmuschko/gradle-docker-plugin/pull/422)
+* Add statically typed methods for configuring plugin with Kotlin - [Pull request 426](https://github.com/bmuschko/gradle-docker-plugin/pull/426)
+* Fix `Dockerfile` task up-to-date logic - [Pull request 433](https://github.com/bmuschko/gradle-docker-plugin/pull/433)
+* Multiple ENVs are not set the same way as single ENV instructions - [Pull request 415](https://github.com/bmuschko/gradle-docker-plugin/pull/415)
+* `DockerCreateContainer` changed optional input `networkMode` to `network` to better align with docker standatds - [Pull request 440](https://github.com/bmuschko/gradle-docker-plugin/pull/440)
+* The first instruction of a Dockerfile has to be FROM except for Docker versions later than 17.05 - [Pull request 435](https://github.com/bmuschko/gradle-docker-plugin/pull/435)
+* Bump verison of docker-java to 3.0.13 - [Commit b2d936](https://github.com/bmuschko/gradle-docker-plugin/commit/b2d93671ed0a0b7177a450d503c28eca6aa6795d)
+
+### Version 3.0.10 (July 7, 2017)
+* Bump verison of docker-java to 3.0.12 - [Pull request 408](https://github.com/bmuschko/gradle-docker-plugin/pull/408)
+* Publish javadocs on new release - [Pull request 405](https://github.com/bmuschko/gradle-docker-plugin/pull/405)
+
+### Version 3.0.9 (July 4, 2017)
+* Bump verison of docker-java to 3.0.11 - [Pull request 403](https://github.com/bmuschko/gradle-docker-plugin/pull/403)
+* New release process - [Pull request 402](https://github.com/bmuschko/gradle-docker-plugin/pull/402)
+
+### Version 3.0.8 (June 16, 2017)
+* Task `DockerPullImage` gained method `getImageId()` which returns the fully qualified imageId of the image that was just pulled - [Pull request 379](https://github.com/bmuschko/gradle-docker-plugin/pull/379)
+* Task `DockerBuildImage` gained property `tags` which allows for multiple tags to be specified when building an image - [Pull request 380](https://github.com/bmuschko/gradle-docker-plugin/pull/380)
+* Task `DockerCreateContainer` gained property `networkAliases` - [Pull request 384](https://github.com/bmuschko/gradle-docker-plugin/pull/384)
+
+### Version 3.0.7 (May 17, 2017)
 * Invoke onNext closures call() method explicitly - [Pull request 368](https://github.com/bmuschko/gradle-docker-plugin/pull/368)
 * Adds new task DockerInspectExecContainer which allows to inspect exec instance - [Pull request 362](https://github.com/bmuschko/gradle-docker-plugin/pull/362)
 * `functionalTest`'s can now run against a native docker instance - [Pull request 369](https://github.com/bmuschko/gradle-docker-plugin/pull/369)
@@ -6,6 +142,7 @@
 * Allow customization of app plugin entrypoint/cmd instructions - [Pull request 359](https://github.com/bmuschko/gradle-docker-plugin/pull/359)
 * Task `Dockerfile` will no longer be forced as `UP-TO-DATE`, instead the onus will be put on developers to code this should they want this functionality. - [ISSUE 357](https://github.com/bmuschko/gradle-docker-plugin/issues/357)
 * Now that `functionalTest`'s work natively, and in CI, add the test `started`, `passed` and `failed` logging messages so as to make it absolutely clear to users what is being run vs having no output at all. - [Pull request 373](https://github.com/bmuschko/gradle-docker-plugin/pull/373)
+* Bump `docker-java` to version `3.0.10` - [Pull request 378](https://github.com/bmuschko/gradle-docker-plugin/pull/378)
 
 ### Version 3.0.6 (March 2, 2017)
 

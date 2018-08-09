@@ -1,0 +1,18 @@
+=== Usage
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath com.bmuschko:gradle-docker-plugin:{project-version}'
+    }
+}
+
+apply plugin: 'com.bmuschko.docker-java-application'
+----

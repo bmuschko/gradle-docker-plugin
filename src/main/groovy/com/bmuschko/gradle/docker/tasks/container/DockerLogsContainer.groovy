@@ -25,6 +25,7 @@ import org.gradle.api.tasks.Optional
  * to standard out will go to standard out, and standard err to standard err.
  */
 class DockerLogsContainer extends DockerExistingContainer {
+
     /**
      * Set to true to follow the output, which will cause this task to block until the container exists.
      * Default is unspecified (docker defaults to false).
@@ -94,6 +95,13 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Logs for container with ID '${getContainerId()}'."
+        _runRemoteCommand(dockerClient)
+    }
+
+    // method used for sub-classes who wish to invoke this task
+    // multiple times but don't want the logging message to be
+    // printed for every iteration.
+    void _runRemoteCommand(dockerClient) {
         def logCommand = dockerClient.logContainerCmd(getContainerId())
         setContainerCommandConfig(logCommand)
         logCommand.exec(createCallback())?.awaitCompletion()

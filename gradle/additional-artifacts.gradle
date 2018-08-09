@@ -3,12 +3,14 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-task groovydocJar(type: Jar, dependsOn: groovydoc) {
+task groovydocJar(type: Jar) {
+    dependsOn groovydoc
     classifier 'groovydoc'
     from groovydoc.destinationDir
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar) {
+    dependsOn javadoc
     classifier 'javadoc'
     from javadoc.destinationDir
 }

@@ -1,0 +1,43 @@
+== Introduction
+
+Gradle plugin for managing https://www.docker.io/[Docker] images and containers using via its
+http://docs.docker.io/reference/api/docker_remote_api/[remote API].
+The heavy lifting of communicating with the
+Docker remote API is handled by the https://github.com/docker-java/docker-java[Docker Java library].
+Please refer to the library's documentation for more information on the supported Docker's client API and Docker server version.
+
+[IMPORTANT]
+This plugin requires Gradle >= 2.5 to work properly.
+
+=== Benefits
+
+There are various benefits for using this plugin:
+
+1. Seamless integration with the build tool Gradle and its DSL.
+2. Handles complicated communication logic between Docker client and daemon under the covers.
+3. Simplifies the definition of complex workflows.
+4. Minimizes build script setup logic by providing sensible conventions for different use cases.
+
+=== Limitations
+
+The functionality of the plugin does not cover all possible use cases.
+Be aware of the following limitations:
+
+* A task type may not provide all possible options for the underlying Docker operation.
+Open an issue if you feel like it should be supported.
+* You cannot build multi-container applications via Docker Compose.
+The https://github.com/avast/gradle-docker-compose-plugin[Avast Docker Compose plugin] has proven to be a capable alternative.
+* Managing a Docker Swarm and/or Stack is not supported.
+
+=== Further Readings
+
+Want to learn more about using this plugin in different contexts? The following blog posts should get you started.
+
+* https://bmuschko.com/blog/dockerized-spring-boot-app/[Docker with Gradle: Dockerizing a Spring Boot application]
+* https://bmuschko.com/blog/docker-integration-testing/[Docker with Gradle: Integration testing using containers]
+* https://bmuschko.com/blog/gradle-docker-convention-plugin/[Docker with Gradle: Writing a Node.js convention plugin]
+* https://bmuschko.com/blog/gradle-docker-compose/[Docker with Gradle: Getting started with Docker Compose]
+
+include::01-provided-plugins.adoc[]
+
+include::02-getting-started.adoc[]

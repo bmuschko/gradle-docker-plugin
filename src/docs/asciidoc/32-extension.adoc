@@ -1,0 +1,24 @@
+=== Extension
+
+The plugin defines an extension with the namespace `springBootApplication` as a child of the `docker` namespace.
+The following properties can be configured:
+
+[options="header"]
+|=======
+|Property name   |Type        |Default value                                            |Description
+|`baseImage`     |`String`    |`openjdk:jre-alpine`                                     |The Docker base image used for the Spring Boot application.
+|`ports`         |`Integer[]` |`[8080]`                                                 |The Docker image exposed ports.
+|`tag`           |`String`    |`<project.group>/<project.name>:<project.version>`       |The tag used for the Docker image.
+|=======
+
+.build.gradle
+[source,groovy,subs="+attributes"]
+----
+docker {
+    springBootApplication {
+        baseImage = 'openjdk:8-alpine'
+        ports = [9090, 8080]
+        tag = 'awesome-spring-boot:1.115'
+    }
+}
+----

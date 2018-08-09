@@ -1,24 +1,34 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.ajoberstar:gradle-git:1.7.1"
+    }
+}
+
 group = 'com.bmuschko'
-version = '3.0.6'
 
 apply plugin: 'groovy'
-apply plugin: 'idea'
-apply from: "$rootDir/gradle/dependencies.gradle"
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'org.ajoberstar.release-opinion'
 apply from: "$rootDir/gradle/test-setup.gradle"
 apply from: "$rootDir/gradle/integration-test.gradle"
 apply from: "$rootDir/gradle/functional-test.gradle"
 apply from: "$rootDir/gradle/additional-artifacts.gradle"
-apply from: "$rootDir/gradle/publishing.gradle"
-apply from: "$rootDir/gradle/documentation.gradle"
 apply from: "$rootDir/gradle/release.gradle"
+apply from: "$rootDir/gradle/publishing.gradle"
+apply from: "$rootDir/gradle/asciidoc.gradle"
+apply from: "$rootDir/gradle/documentation.gradle"
+apply from: "$rootDir/gradle/codenarc.gradle"
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    compile localGroovy(), gradleApi()
-    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+    testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
     }
 }
@@ -35,22 +45,5 @@ jar {
                    'Built-Date': new Date(),
                    'Built-JDK': System.getProperty('java.version'),
                    'Built-Gradle': gradle.gradleVersion
-    }
-}
-
-idea.project {
-    jdkName = '1.8'
-    languageLevel = compatibilityVersion
-
-    ipr.withXml { provider ->
-        def node = provider.asNode()
-
-        // Use GIT
-        def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
-        vcsConfig.mapping[0].'@vcs' = 'Git'
-
-        // Set Gradle home
-        def gradleSettings = node.appendNode('component', [name: 'GradleSettings'])
-        gradleSettings.appendNode('option', [name: 'SDK_HOME', value: gradle.gradleHomeDir])
     }
 }

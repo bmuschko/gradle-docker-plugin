@@ -19,6 +19,7 @@ import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
@@ -59,5 +60,10 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
         def response = pullImageCmd.exec(threadContextClassLoader.createPullImageResultCallback(onNext))
         response.awaitSuccess()
+    }
+
+    @Internal
+    String getImageId() {
+        tag?.trim() ? "${repository}:${tag}" : repository
     }
 }

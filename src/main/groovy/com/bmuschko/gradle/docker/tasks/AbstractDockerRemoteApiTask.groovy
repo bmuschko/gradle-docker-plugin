@@ -16,16 +16,12 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
-import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 
 abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
-    /**
-     * Classpath for Docker Java libraries.
-     */
-    @InputFiles
-    @Optional
-    FileCollection classpath
 
     /**
      * Docker remote API server URL. Defaults to "http://localhost:2375".
@@ -59,7 +55,7 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
     }
 
     void runInDockerClassPath(Closure closure) {
-        threadContextClassLoader.withClasspath(getClasspath()?.files, createDockerClientConfig(), closure)
+        threadContextClassLoader.withContext(createDockerClientConfig(), closure)
     }
 
     private DockerClientConfiguration createDockerClientConfig() {

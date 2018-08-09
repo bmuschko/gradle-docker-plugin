@@ -1,0 +1,12 @@
+=== Tasks
+
+The plugin provides a set of tasks for your project and preconfigures them with sensible defaults.
+
+[options="header"]
+|=======
+|Task name                 |Depends On                |Type                                                                                 |Description
+|`dockerSyncArchive`       |`assemble`                |http://www.gradle.org/docs/current/javadoc/org/gradle/api/tasks/Sync.html[Sync]      |Copies the Spring Boot archive to a temporary directory for image creation.
+|`dockerCreateDockerfile`  |`bootJar` or `bootWar`    |Dockerfile                                                                           |Creates the Docker image for the Spring Boot application.
+|`dockerBuildImage`        |`dockerCreateDockerfile`  |DockerBuildImage                                                                     |Builds the Docker image for the Spring Boot application.
+|`dockerPushImage`         |`dockerBuildImage`        |DockerPushImage                                                                      |Pushes created Docker image to the repository.
+|=======

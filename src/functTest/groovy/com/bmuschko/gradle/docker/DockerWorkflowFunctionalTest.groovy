@@ -17,8 +17,9 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
+import spock.lang.Requires
 
-class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
+class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     def "Can create Dockerfile and build an image from it"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -27,8 +28,8 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file('build/mydockerfile/Dockerfile')
-                from 'alpine:3.4'
-                maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                from '$TEST_IMAGE_WITH_TAG'
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -52,7 +53,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
         then:
         new File(projectDir, 'build/mydockerfile/Dockerfile').exists()
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can build and verify image"() {
@@ -82,7 +83,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         BuildResult result = build('workflow')
 
         then:
-        result.output.contains('Author           : Benjamin Muschko "benjamin.muschko@gmail.com"')
+        result.output.contains('Labels           : [maintainer:benjamin.muschko@gmail.com]')
     }
 
     def "Can build an image, create and start a container"() {
@@ -232,6 +233,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("VolumesFrom : [${uniqueContainerName}-1:rw]")
     }
 
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
         File dockerFileLocation = new File(getProjectDir(), 'build/private-reg/Dockerfile')
         if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
@@ -244,8 +246,8 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.file("${dockerFileLocation.path}")
-                from 'alpine:3.4'
-                maintainer 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+                from '$TEST_IMAGE_WITH_TAG'
+                label(['maintainer': 'benjamin.muschko@gmail.com'])
                 doLast {
                     if (new File("${dockerFileLocation.path}").exists()) {
                         println "Dockerfile does indeed exist."
@@ -281,7 +283,7 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         String uniqueContainerName = createUniqueContainerName()
 
         // required for task `copyFileFromContainerToHostDir`
-        File hostPathDir = new File(getProjectDir(),"copy-file-host-dir")
+        File hostPathDir = new File(getProjectDir(), "copy-file-host-dir")
         if (!hostPathDir.mkdirs())
             throw new GradleException("Could not successfully create hostPathDir @ ${hostPathDir.path}")
 
@@ -494,11 +496,258 @@ class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
         result.output.contains("Devices : [/dev/sda:/dev/xvda:rwm]")
     }
 
+    def "Can build an image, create a container and set /dev/shm size"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                portBindings = ['8080:8080']
+                shmSize = 128000
+                cmd = ['/bin/sh']
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                onNext { c ->
+                    if(c.hostConfig.shmSize != 128000) {
+                        throw new GradleException("Invalid ShmSize value!")
+                    }
+                    if(!c.hostConfig.portBindings) {
+                        throw new GradleException("Invalid port bindings!")
+                    }
+                }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+        """
+
+        expect:
+        build('workflow')
+    }
+
+    def "Can build an image, create a container and assign a network and alias"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+        String uniqueNetworkName = createUniqueNetworkName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+            import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
+            import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
+
+            task createNetwork(type: DockerCreateNetwork) {
+                networkId = "${uniqueNetworkName}"
+            }
+
+            task removeNetwork(type: DockerRemoveNetwork) {
+                targetNetworkId { createNetwork.getNetworkId() }
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage, createNetwork
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                network = createNetwork.getNetworkId()
+                networkAliases = ["some-alias"]
+                cmd = ['/bin/sh']
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                onNext { container ->
+                    println container.networkSettings.networks[createNetwork.getNetworkId()].aliases
+                }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+
+            removeNetwork.mustRunAfter workflow
+            createNetwork.finalizedBy removeNetwork
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains('[some-alias]')
+    }
+
+    def "Can build an image, create a container and assign an entrypoint"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                entrypoint = ['env']
+                cmd = ['/bin/sh']
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                onNext { container ->
+                    println container.config.entrypoint
+                    assert container.config.entrypoint == ['env']
+                }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+
+        """
+
+        expect:
+        BuildResult result = build('workflow')
+        result.output.contains('[env]')
+    }
+
+    def "Can build an image and create a container with labels"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${createUniqueImageId()}"
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId { buildImage.getImageId() }
+                containerName = "${uniqueContainerName}"
+                labels = ["test.label1":"aaa", "test.label2": "bbb"]
+            }
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn createContainer
+                targetContainerId { createContainer.getContainerId() }
+                onNext { c ->
+                    if(c.config.labels.size() != 3) {
+                        throw new GradleException("Invalid labels size!")
+                    }
+                }
+            }
+
+            task workflow {
+                dependsOn inspectContainer
+            }
+        """
+
+        expect:
+        build('workflow')
+    }
+
+    def "Can build an image and save it to a file and load"() {
+        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File dockerFile = createDockerfile(imageDir)
+        dockerFile << "EXPOSE 8888" // add random instruction to be able to remove image
+        String imageName = createUniqueImageId()
+        String savedImagePath = "${temporaryFolder.getRoot()}/someFile.tmp"
+        String uniqueContainerName = createUniqueContainerName()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerLoadImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            
+            task buildImage(type: DockerBuildImage) {
+                inputDir = file("${dockerFile.parentFile.path}")
+                tag = "${imageName}"
+            }
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn buildImage
+                repository = "${imageName}"
+                destFile = new File("${savedImagePath}")
+            }
+            
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn saveImage
+                force = true
+                targetImageId { buildImage.getImageId() }
+            }
+            
+            task loadImage(type: DockerLoadImage) {
+                dependsOn removeImage
+                imageStream {
+                    new File("${savedImagePath}").newInputStream()
+                }
+            }
+            
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn loadImage
+                targetImageId { "${imageName}" }
+                containerName = "${uniqueContainerName}"
+            }
+
+            task workflow {
+                dependsOn createContainer
+            }
+        """
+
+        expect:
+        build('workflow')
+        new File(savedImagePath).newInputStream().available() > 0
+    }
+
     private File createDockerfile(File imageDir) {
         File dockerFile = new File(imageDir, 'Dockerfile')
         dockerFile << """
-FROM alpine:3.4
-MAINTAINER Benjamin Muschko "benjamin.muschko@gmail.com"
+FROM $TEST_IMAGE_WITH_TAG
+LABEL maintainer=benjamin.muschko@gmail.com
 """
         dockerFile
     }

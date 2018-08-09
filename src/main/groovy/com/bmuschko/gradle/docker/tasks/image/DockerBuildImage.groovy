@@ -37,10 +37,19 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     File dockerFile
 
     /**
-     * Tag for image.
+     * Tags for image.
      */
     @Input
     @Optional
+    Set<String> tags = []
+
+    /**
+     * Tag for image.
+     * @deprecated use {@link #tags}
+     */
+    @Input
+    @Optional
+    @Deprecated
     String tag
 
     @Input
@@ -66,6 +75,15 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Input
     @Optional
     Map<String, String> buildArgs = [:]
+
+    /**
+     * Size of <code>/dev/shm</code> in bytes.
+     * The size must be greater than 0.
+     * If omitted the system uses 64MB.
+     */
+    @Input
+    @Optional
+    Long shmSize
 
     /**
      * The target Docker registry credentials for building image.
@@ -95,9 +113,13 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd = dockerClient.buildImageCmd(getInputDir())
         }
 
-        if (getTag()) {
+        if(getTag()) {
             logger.quiet "Using tag '${getTag()}' for image."
             buildImageCmd.withTag(getTag())
+        } else if (getTags()) {
+            def tagListString = getTags().collect {"'${it}'"}.join(", ")
+            logger.quiet "Using tags ${tagListString} for image."
+            buildImageCmd.withTags(getTags().collect { it.toString() }.toSet() )
         }
 
         if (getNoCache()) {
@@ -117,7 +139,11 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (getLabels()) {
-            buildImageCmd.withLabels(getLabels())
+            buildImageCmd.withLabels(getLabels().collectEntries { [it.key, it.value.toString()] })
+        }
+
+        if(getShmSize() != null) { // 0 is valid input
+            buildImageCmd.withShmsize(getShmSize())
         }
 
         if (getRegistryCredentials()) {
@@ -127,7 +153,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         buildArgs.each { arg, value ->
-            buildImageCmd = buildImageCmd.withBuildArg(arg, value);
+            buildImageCmd = buildImageCmd.withBuildArg(arg, value)
         }
 
         def callback = onNext ? threadContextClassLoader.createBuildImageResultCallback(this.onNext)

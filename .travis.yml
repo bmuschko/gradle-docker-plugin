@@ -8,11 +8,19 @@ services:
 before_install:
   - docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
-jdk:
-  - oraclejdk8
+jdk: oraclejdk8
 
-script:
-  - ./gradlew build -s
+jobs:
+  include:
+    - stage: all tests
+      script: ./gradlew build -s
+    - stage: release
+      script: skip
+      deploy:
+        provider: script
+        script: ./gradlew -s clean assemble bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=$GH_TOKEN
+        on:
+          tags: true
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

@@ -15,14 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.response.ResponseHandler
-import com.bmuschko.gradle.docker.response.image.ListImagesResponseHandler
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class DockerListImages extends AbstractDockerRemoteApiTask {
-    private ResponseHandler<Void, List<Object>> responseHandler = new ListImagesResponseHandler()
 
     @Input
     @Optional
@@ -30,7 +27,19 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    String filters
+    Boolean dangling
+
+    @Input
+    @Optional
+    Map<String, String> labels
+
+    @Input
+    @Optional
+    String imageName
+
+    DockerListImages() {
+        defaultResponseHandling()
+    }
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -40,24 +49,36 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
             listImagesCmd.withShowAll(getShowAll())
         }
 
-        if (getFilters()) {
-            listImagesCmd.withLabelFilter(getFilters())
+        if (getDangling()) {
+            listImagesCmd.withDanglingFilter(getDangling())
+        }
+
+        if (getLabels()) {
+            listImagesCmd.withLabelFilter(getLabels().collectEntries { [it.key, it.value.toString()] })
+        }
+
+        if (getImageName()) {
+            listImagesCmd.withImageNameFilter(getImageName())
         }
 
         def images = listImagesCmd.exec()
+
         if (onNext) {
             onNext.call(images)
-        } else if (responseHandler) {
-            responseHandler.handle(images)
         }
     }
 
-    /**
-     * Deprecated. Use {@link #onNext} instead.
-     * @param responseHandler
-     */
-    @Deprecated
-    void setResponseHandler(ResponseHandler<Void, List<Object>> responseHandler) {
-        this.responseHandler = responseHandler
+    private void defaultResponseHandling() {
+        Closure<List> c = { images ->
+            for(image in images) {
+                logger.quiet "Repository Tags : ${image.repoTags?.join(', ')}"
+                logger.quiet "Image ID        : $image.id"
+                logger.quiet "Created         : ${new Date(image.created * 1000)}"
+                logger.quiet "Virtual Size    : $image.virtualSize"
+                logger.quiet "-----------------------------------------------"
+            }
+        }
+
+        onNext = c
     }
 }

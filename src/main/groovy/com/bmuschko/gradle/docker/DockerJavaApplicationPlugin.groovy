@@ -18,17 +18,21 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
-import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.bundling.Tar
-import org.gradle.util.ConfigureUtil
+import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.Sync
+import org.gradle.jvm.tasks.Jar
 
 /**
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
  */
 class DockerJavaApplicationPlugin implements Plugin<Project> {
+    public static final String JAVA_APPLICATION_EXTENSION_NAME = "javaApplication"
     public static final String COPY_DIST_RESOURCES_TASK_NAME = 'dockerCopyDistResources'
     public static final String DOCKERFILE_TASK_NAME = 'dockerDistTar'
     public static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
@@ -42,12 +46,16 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         DockerJavaApplication dockerJavaApplication = configureExtension(dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
-            Tar tarTask = project.tasks.getByName(ApplicationPlugin.TASK_DIST_TAR_NAME)
-            dockerJavaApplication.exec {
-                entryPoint { determineEntryPoint(project, tarTask) }
-            }
-            Dockerfile createDockerfileTask = createDockerfileTask(project, tarTask, dockerJavaApplication)
-            Copy copyTarTask = createDistCopyResourcesTask(project, tarTask, createDockerfileTask)
+            Sync installTask = project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME)
+            Jar jarTask = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
+            dockerJavaApplication.exec(new Action<DockerJavaApplication.CompositeExecInstruction>() {
+                @Override
+                void execute(DockerJavaApplication.CompositeExecInstruction compositeExecInstruction) {
+                    compositeExecInstruction.entryPoint { determineEntryPoint(project, installTask) }
+                }
+            })
+            Dockerfile createDockerfileTask = createDockerfileTask(project, installTask, jarTask, dockerJavaApplication)
+            Sync copyTarTask = createDistCopyResourcesTask(project, installTask, jarTask, createDockerfileTask)
             createDockerfileTask.dependsOn copyTarTask
             DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerJavaApplication)
             createPushImageTask(project, dockerBuildImageTask)
@@ -60,41 +68,46 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
      * @param dockerExtension Docker extension
      * @return Java application configuration
      */
-    private DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
-        DockerJavaApplication dockerJavaApplication = new DockerJavaApplication()
-        dockerExtension.metaClass.javaApplication = dockerJavaApplication
-        dockerExtension.metaClass.javaApplication = { Closure closure ->
-            ConfigureUtil.configure(closure, dockerJavaApplication)
-        }
-
-        dockerJavaApplication
+    private static DockerJavaApplication configureExtension(DockerExtension dockerExtension) {
+        ((ExtensionAware) dockerExtension).extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication)
     }
 
-    private Dockerfile createDockerfileTask(Project project, Tar tarTask, DockerJavaApplication dockerJavaApplication) {
+    private Dockerfile createDockerfileTask(Project project, Sync installTask, Jar jarTask, DockerJavaApplication dockerJavaApplication) {
         project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
             description = 'Creates the Docker image for the Java application.'
-            dependsOn tarTask
+            dependsOn jarTask
             from { dockerJavaApplication.baseImage }
-            maintainer { dockerJavaApplication.maintainer }
-            addFile({ tarTask.archivePath.name }, { '/' })
-            instructions << dockerJavaApplication.exec
-            exposePort { dockerJavaApplication.getPorts() }
-        }
+            label { ['maintainer': dockerJavaApplication.maintainer] }
+            addFile({ installTask.destinationDir.name }, { "/${installTask.destinationDir.name}" })
+            addFile({ "app-lib/${jarTask.archiveName}" }, { "/${installTask.destinationDir.name}/lib/${jarTask.archiveName}" })
+            instructions << dockerJavaApplication.execInstruction
+            doFirst {
+                if (dockerJavaApplication.getPorts().length > 0) {
+                    exposePort { dockerJavaApplication.getPorts() }
+                }
+                if(dockerJavaApplication.skipMaintainer) {
+                    instructions.removeAll { it instanceof Dockerfile.MaintainerInstruction }
+                }
+            }
+        } as Dockerfile
     }
 
-    private Copy createDistCopyResourcesTask(Project project, Tar tarTask, Dockerfile createDockerfileTask) {
-        project.task(COPY_DIST_RESOURCES_TASK_NAME, type: Copy) {
+    private Sync createDistCopyResourcesTask(Project project, Sync installTask, Jar jarTask, Dockerfile createDockerfileTask) {
+        project.task(COPY_DIST_RESOURCES_TASK_NAME, type: Sync) {
             group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
             description = "Copies the distribution resources to a temporary directory for image creation."
-            dependsOn tarTask
-            from { tarTask.archivePath }
+            dependsOn installTask
+            from { installTask.destinationDir.parentFile }
             into { createDockerfileTask.destFile.parentFile }
-        }
+            exclude "**/lib/${jarTask.archiveName}"
+            into("app-lib") {
+                from jarTask
+            }
+        } as Sync
     }
 
-    private String determineEntryPoint(Project project, Tar tarTask) {
-        String installDir = tarTask.archiveName - ".${tarTask.extension}"
-        "/$installDir/bin/$project.applicationName".toString()
+    private String determineEntryPoint(Project project, Sync installTask) {
+        "/${installTask.destinationDir.name}/bin/${project.applicationName}".toString()
     }
 
     private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
@@ -103,11 +116,11 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             dependsOn createDockerfileTask
             conventionMapping.inputDir = { createDockerfileTask.destFile.parentFile }
             conventionMapping.tag = { determineImageTag(project, dockerJavaApplication) }
-        }
+        } as DockerBuildImage
     }
 
     private String determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
-        if(dockerJavaApplication.tag) {
+        if (dockerJavaApplication.tag) {
             return dockerJavaApplication.tag
         }
 

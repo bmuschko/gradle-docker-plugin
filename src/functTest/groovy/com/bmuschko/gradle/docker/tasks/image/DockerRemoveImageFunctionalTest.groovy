@@ -1,14 +1,9 @@
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
-import com.bmuschko.gradle.docker.TestPrecondition
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Requires
 
-import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
-import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
-
-class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
+class DockerRemoveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "can remove image"() {
         buildFile << """
@@ -18,8 +13,8 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine:3.4'
-                maintainer 'Jane Doe <jane.doe@example.com>'
+                from '$TEST_IMAGE_WITH_TAG'
+                label(['maintainer': 'jane.doe@example.com'])
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -36,7 +31,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             task removeImageAndCheckRemoval(type: DockerListImages) {
                 dependsOn removeImage
                 showAll = true
-                filters = '{"dangling":["true"]}'
+                dangling = true
             }
         """
 
@@ -56,8 +51,8 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine:3.4'
-                maintainer 'Jane Doe <jane.doe@example.com>'
+                from '$TEST_IMAGE_WITH_TAG'
+                label(['maintainer': 'jane.doe@example.com'])
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -88,7 +83,7 @@ class DockerRemoveImageFunctionalTest extends AbstractFunctionalTest {
             task removeImageAndCheckRemoval(type: DockerListImages) {
                 dependsOn removeImage
                 showAll = true
-                filters = '{"dangling":["true"]}'
+                dangling = true
             }
         """
 

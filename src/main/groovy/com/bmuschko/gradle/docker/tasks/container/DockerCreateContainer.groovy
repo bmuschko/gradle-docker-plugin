@@ -17,10 +17,12 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.CollectionUtil
+import groovy.transform.CompileStatic
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+
+import java.util.concurrent.Callable
 
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     String imageId
@@ -36,6 +38,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Input
     @Optional
     String hostName
+
+    @Input
+    @Optional
+    String ipv4Address
 
     @Input
     @Optional
@@ -85,9 +91,15 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     Boolean attachStderr
 
+    // use `envVars` instead
+    @Deprecated
     @Input
     @Optional
     String[] env
+
+    @Input
+    @Optional
+    final Map<?, ?> envVars = [:]
 
     @Input
     @Optional
@@ -95,11 +107,19 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String[] entrypoint
+
+    @Input
+    @Optional
     String[] dns
 
     @Input
     @Optional
-    String networkMode
+    String network
+
+    @Input
+    @Optional
+    String[] networkAliases
 
     @Input
     @Optional
@@ -148,8 +168,25 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     List<String> devices
 
+    /**
+     * Size of <code>/dev/shm</code> in bytes.
+     * The size must be greater than 0.
+     * If omitted the system uses 64MB.
+     */
+    @Input
+    @Optional
+    Long shmSize
+
+    @Input
+    @Optional
+    Map<String, String> labels = [:]
+
     @Internal
     String containerId
+
+    @Input
+    @Optional
+    String macAddress
 
     DockerCreateContainer() {
         ext.getContainerId = { containerId }
@@ -160,7 +197,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         def containerCommand = dockerClient.createContainerCmd(getImageId())
         setContainerCommandConfig(containerCommand)
         def container = containerCommand.exec()
-        logger.quiet "Created container with ID '$container.id'."
+        final String localContainerName = getContainerName() ?: container.id
+        logger.quiet "Created container with ID '$localContainerName'."
         containerId = container.id
         if(onNext) {
             onNext.call(container)
@@ -169,6 +207,11 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     void targetImageId(Closure imageId) {
         conventionMapping.imageId = imageId
+    }
+
+    @CompileStatic
+    void targetImageId(Callable<String> imageId) {
+        targetImageId { imageId.call() }
     }
 
     @Input
@@ -188,6 +231,12 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         restartPolicy = "${name}:${maximumRetryCount}"
     }
 
+    // key or value can be in the form of a Closure or anything else. In the
+    // end, and whatever it resolves to, will be marshaled into a String.
+    void withEnvVar(def key, def value) {
+        this.envVars.put(key, value);
+    }
+
     private void setContainerCommandConfig(containerCommand) {
         if(getContainerName()) {
             containerCommand.withName(getContainerName())
@@ -195,6 +244,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getHostName()) {
             containerCommand.withHostName(getHostName())
+        }
+
+        if(getIpv4Address()){
+            containerCommand.withIpv4Address(getIpv4Address())
         }
 
         if(getPortSpecs()) {
@@ -222,7 +275,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         }
 
         if(getCpuset()) {
-            containerCommand.withCpuset(getCpuset())
+            containerCommand.withCpusetCpus(getCpuset())
         }
 
         if(getAttachStdin()) {
@@ -237,20 +290,42 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.withAttachStderr(getAttachStderr())
         }
 
-        if(getEnv()) {
-            containerCommand.withEnv(getEnv())
+        // marshall deprecated old list onto new map
+        getEnv()?.each { envVar ->
+            def keyValuePair = envVar.split('=', 2)
+            envVars.put(keyValuePair.first(), keyValuePair.last())
+        }
+
+        // marshall map into list
+        if(getEnvVars()) {
+            final List<String> localEnvVars = new ArrayList<>();
+            getEnvVars().each { key, value ->
+                def localKey = key instanceof Closure ? key.call() : key
+                def localValue = value instanceof Closure ? value.call() : value
+
+                localEnvVars.add("${localKey}=${localValue}".toString())
+            }
+            containerCommand.withEnv(localEnvVars)
         }
 
         if(getCmd()) {
             containerCommand.withCmd(getCmd())
         }
 
+        if(getEntrypoint()) {
+            containerCommand.withEntrypoint(getEntrypoint())
+        }
+
         if(getDns()) {
             containerCommand.withDns(getDns())
         }
 
-        if(getNetworkMode()) {
-            containerCommand.withNetworkMode(getNetworkMode())
+        if(getNetwork()) {
+            containerCommand.withNetworkMode(getNetwork())
+        }
+
+        if(getNetworkAliases()) {
+            containerCommand.withAliases(getNetworkAliases())
         }
 
         if(getImage()) {
@@ -318,6 +393,18 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(getTty()) {
             containerCommand.withTty(getTty())
+        }
+
+        if(getShmSize() != null) { // 0 is valid input
+            containerCommand.hostConfig.withShmSize(getShmSize())
+        }
+
+        if(getLabels()) {
+            containerCommand.withLabels(getLabels().collectEntries { [it.key, it.value.toString()] })
+        }
+
+        if(getMacAddress()) {
+            containerCommand.withMacAddress(getMacAddress())
         }
     }
 

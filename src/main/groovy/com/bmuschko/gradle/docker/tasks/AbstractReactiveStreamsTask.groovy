@@ -15,32 +15,28 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
-abstract class AbstractReactiveStreamsTask extends DefaultTask {
+abstract class AbstractReactiveStreamsTask extends ConventionTask {
 
     /**
      * Closure to handle the possibly throw exception
      */
-    @Input
-    @Optional
+    @Internal
     Closure onError
 
     /**
      * Closure to handle results
      */
-    @Input
-    @Optional
+    @Internal
     Closure onNext
 
     /**
      * Closure to handle task completion
      */
-    @Input
-    @Optional
+    @Internal
     Closure onComplete
 
     @TaskAction
