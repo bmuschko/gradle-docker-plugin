@@ -1,7 +1,10 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
+import com.bmuschko.gradle.docker.TestConfiguration
+import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
+import spock.lang.Requires
 import spock.lang.Unroll
 
 class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
@@ -73,6 +76,38 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         then:
         noExceptionThrown()
+    }
+
+    def "can build image using --cache-from with nothing in the cache"() {
+        buildFile << buildImageUsingCacheFromWithNothingInCache()
+
+        when:
+        BuildResult result = build('buildImageWithCacheFrom')
+
+        then:
+        result.output.contains("Successfully built")
+    }
+
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
+    def "cache is not used for build without --cached-from"() {
+        buildFile << buildPushRemovePullBuildImage(false)
+
+        when:
+        BuildResult result = build('buildImageWithCacheFrom')
+
+        then:
+        !result.output.contains("Using cache")
+    }
+
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
+    def "cache is used for build using --cached-from"() {
+        buildFile << buildPushRemovePullBuildImage(true)
+
+        when:
+        BuildResult result = build('buildImageWithCacheFrom')
+
+        then:
+        result.output.contains("Using cache")
     }
 
     private String buildImageWithShmSize() {
@@ -180,6 +215,79 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
                 tag = 'test/image:123'
+            }
+        """
+    }
+
+    private String buildImageUsingCacheFromWithNothingInCache() {
+        def uniqueImageId = createUniqueImageId()
+        def uniqueTag = "${TestConfiguration.dockerPrivateRegistryDomain}/$uniqueImageId"
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            project.version = "123"
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                maintainer '${UUID.randomUUID().toString()}'
+            }
+
+            task buildImageWithCacheFrom(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+                cacheFrom.add('$uniqueTag:latest')
+                tag = '$uniqueTag:latest'
+            }
+        """
+    }
+
+    private String buildPushRemovePullBuildImage(boolean useCacheFrom) {
+        def uniqueImageId = createUniqueImageId()
+        def uniqueTag = "${TestConfiguration.dockerPrivateRegistryDomain}/$uniqueImageId"
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+
+            project.version = "123"
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                maintainer '${UUID.randomUUID().toString()}'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = dockerfile.destFile.parentFile
+                cacheFrom.add('$TEST_IMAGE_WITH_TAG') // no effect
+                tag = '$uniqueTag'
+            }
+
+            task pushImage(type: DockerPushImage) {
+                dependsOn buildImage
+                conventionMapping.imageName = { buildImage.getTag() }
+                tag = 'latest'
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn pushImage
+                force = true
+                targetImageId { buildImage.getImageId() }
+            }
+
+            task pullImage(type: DockerPullImage) {
+                dependsOn removeImage
+                repository = '$uniqueTag'
+                tag = 'latest'
+            }
+
+            task buildImageWithCacheFrom(type: DockerBuildImage) {
+                dependsOn pullImage
+                inputDir = dockerfile.destFile.parentFile
+                ${useCacheFrom ? "cacheFrom.add('$uniqueTag:latest')" : ""}
             }
         """
     }
