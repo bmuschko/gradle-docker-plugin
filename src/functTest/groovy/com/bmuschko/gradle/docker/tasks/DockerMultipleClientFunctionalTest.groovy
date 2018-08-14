@@ -12,8 +12,6 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
                 onNext { client ->
                     if (client != null) {
                         logger.quiet "config: " + client.dockerClientConfig.toString()
-                    } else {
-                        logger.quiet 'Client is NULL'
                     }
                 }
             }
@@ -22,8 +20,6 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
                 onNext { client ->
                     if (client != null) {
                         logger.quiet "config: " + client.dockerClientConfig.toString()
-                    } else {
-                        logger.quiet 'Client is NULL'
                     }
                 }
             }
@@ -33,8 +29,6 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
                 onNext { client ->
                     if (client != null) {
                         logger.quiet "config: " + client.dockerClientConfig.toString()
-                    } else {
-                        logger.quiet 'Client is NULL'
                     }
                 }
             }
@@ -47,7 +41,6 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
         result.output.contains('config: DefaultDockerClientConfig[dockerHost=unix:///var/run/docker.sock')
         result.output.contains('config: DefaultDockerClientConfig[dockerHost=tcp://docker.corp.com')
         result.output.contains('config: DefaultDockerClientConfig[dockerHost=tcp://docker.school.edu')
-        !result.output.contains('Client is NULL')
     }
 
 }
