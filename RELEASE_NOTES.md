@@ -1,4 +1,5 @@
 ### Version 3.6.1 (TBA)
+* Task `DockerClient`, and the passed dockerClient object, is now cached by configuration. - [Pull Request 644](https://github.com/bmuschko/gradle-docker-plugin/pull/644)
 
 ### Version 3.6.0 (August 7, 2018)
 * Use smaller base images for convention plugins - [Pull Request 636](https://github.com/bmuschko/gradle-docker-plugin/pull/636)
