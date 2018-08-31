@@ -166,6 +166,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String pid
+
+    @Input
+    @Optional
     List<String> devices
 
     /**
@@ -229,6 +233,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     void restartPolicy(String name, int maximumRetryCount) {
         restartPolicy = "${name}:${maximumRetryCount}"
+    }
+
+    void pid(String name) {
+        pid = "${name}"
     }
 
     // key or value can be in the form of a Closure or anything else. In the
@@ -384,6 +392,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if (getRestartPolicy()) {
             containerCommand.withRestartPolicy(threadContextClassLoader.createRestartPolicy(getRestartPolicy()))
+        }
+
+        if (getPid()) {
+            containerCommand.withPidMode(getPid())
         }
 
         if (getDevices()) {
