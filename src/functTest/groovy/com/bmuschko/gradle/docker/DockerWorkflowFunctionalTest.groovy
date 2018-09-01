@@ -461,7 +461,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
         File imageDir = temporaryFolder.newFolder('images', 'minimal')
         File dockerFile = createDockerfile(imageDir)
 
-        String uniqueContainerName = "trololo"
+        String uniqueContainerName = createUniqueContainerName()
 
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage

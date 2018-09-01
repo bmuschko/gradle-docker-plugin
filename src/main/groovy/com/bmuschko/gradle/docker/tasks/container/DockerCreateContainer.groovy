@@ -235,10 +235,6 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         restartPolicy = "${name}:${maximumRetryCount}"
     }
 
-    void pid(String name) {
-        pid = "${name}"
-    }
-
     // key or value can be in the form of a Closure or anything else. In the
     // end, and whatever it resolves to, will be marshaled into a String.
     void withEnvVar(def key, def value) {
