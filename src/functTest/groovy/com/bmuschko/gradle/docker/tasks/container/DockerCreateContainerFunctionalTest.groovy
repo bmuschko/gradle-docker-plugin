@@ -75,11 +75,31 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         result.output.contains("nine=ten")
     }
 
+    def "Can build an image, create a container and set pid"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId { pullImage.getImageId() }
+                pid = "host"
+                cmd = ['/bin/sh']
+            }
+        """
+        buildFile << containerUsage(containerCreationTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        result.output.contains("PidMode : host")
+    }
+
     static String containerUsage(String containerCreationTask) {
         """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer            
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
@@ -101,10 +121,15 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 targetContainerId { startContainer.getContainerId() }
             }
 
-            task logContainer(type: DockerLogsContainer) {
+            task inspectContainer(type: DockerInspectContainer) {
                 dependsOn startContainer
-                finalizedBy removeContainer
                 targetContainerId { startContainer.getContainerId() }
+            }
+
+            task logContainer(type: DockerLogsContainer) {
+                dependsOn inspectContainer
+                finalizedBy removeContainer
+                targetContainerId { inspectContainer.getContainerId() }
                 follow = true
                 tailAll = true
             }
