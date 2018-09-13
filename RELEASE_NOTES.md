@@ -1,8 +1,10 @@
 ### Version 3.6.2 (TBA)
 
+* `DockerRegistryCredentials` implements `PasswordCredentials` interface - [Pull Request 655](https://github.com/bmuschko/gradle-docker-plugin/pull/655)
+
 ### Version 3.6.1 (August 21, 2018)
-* Task `DockerClient`, and the passed dockerClient object, is now cached by configuration. - [Pull Request 644](https://github.com/bmuschko/gradle-docker-plugin/pull/644)
-* Task `DockerBuildImage` gained option `cacheFrom`. - [Pull Request 646](https://github.com/bmuschko/gradle-docker-plugin/pull/646)
+* Task `DockerClient`, and the passed dockerClient object, is now cached by configuration - [Pull Request 644](https://github.com/bmuschko/gradle-docker-plugin/pull/644)
+* Task `DockerBuildImage` gained option `cacheFrom` - [Pull Request 646](https://github.com/bmuschko/gradle-docker-plugin/pull/646)
 
 ### Version 3.6.0 (August 7, 2018)
 * Use smaller base images for convention plugins - [Pull Request 636](https://github.com/bmuschko/gradle-docker-plugin/pull/636)
