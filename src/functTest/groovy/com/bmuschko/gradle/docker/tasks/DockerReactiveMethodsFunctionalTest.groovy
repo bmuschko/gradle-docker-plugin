@@ -18,7 +18,6 @@ package com.bmuschko.gradle.docker.tasks
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
-import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
@@ -426,17 +425,13 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
-        File dockerFileLocation = new File(getProjectDir(), 'build/private-reg-reactive/Dockerfile')
-        if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
-            throw new GradleException("Could not successfully create dockerFileLocation @ ${dockerFileLocation.path}")
-
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
             task createDockerfile(type: Dockerfile) {
-                destFile = project.file("${dockerFileLocation.path}")
+                destFile = project.layout.buildDirectory.file('private-reg-reactive/Dockerfile')
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
                 runCommand 'mkdir -p /tmp/${createUniqueImageId()}'
@@ -444,7 +439,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
-                inputDir = createDockerfile.destFile.parentFile
+                inputDir = createDockerfile.destFile.get().asFile.parentFile
                 tag = '${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}'
             }
 

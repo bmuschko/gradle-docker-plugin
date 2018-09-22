@@ -34,7 +34,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
-                inputDir = createDockerfile.destFile.parentFile
+                inputDir = createDockerfile.destFile.get().asFile.parentFile
                 tag = "${createUniqueImageId()}"
             }
 
@@ -235,29 +235,21 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
-        File dockerFileLocation = new File(getProjectDir(), 'build/private-reg/Dockerfile')
-        if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
-            throw new GradleException("Could not successfully create dockerFileLocation @ ${dockerFileLocation.path}")
-
+        given:
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
             task createDockerfile(type: Dockerfile) {
-                destFile = project.file("${dockerFileLocation.path}")
+                destFile = project.layout.buildDirectory.file('private-reg/Dockerfile')
                 from '$TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
-                doLast {
-                    if (new File("${dockerFileLocation.path}").exists()) {
-                        println "Dockerfile does indeed exist."
-                    }
-                }
             }
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
-                inputDir = createDockerfile.destFile.parentFile
+                inputDir = createDockerfile.destFile.get().asFile.parentFile
                 tag = '${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}'
             }
 
@@ -271,9 +263,11 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             }
         """
 
-        expect:
-        BuildResult result = build('workflow')
-        result.output.contains("Dockerfile does indeed exist.")
+        when:
+        build('workflow')
+
+        then:
+        new File(projectDir, 'build/private-reg/Dockerfile').isFile()
     }
 
     def "Can build an image, create a container, and copy file from it"() {

@@ -230,7 +230,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                maintainer '${UUID.randomUUID().toString()}'
+                label(['maintainer': '${UUID.randomUUID().toString()}'])
             }
 
             task buildImageWithCacheFrom(type: DockerBuildImage) {
@@ -256,12 +256,12 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                maintainer '${UUID.randomUUID().toString()}'
+                label(['maintainer': '${UUID.randomUUID().toString()}'])
             }
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = dockerfile.destFile.parentFile
+                inputDir = dockerfile.destFile.get().asFile.parentFile
                 cacheFrom.add('$TEST_IMAGE_WITH_TAG') // no effect
                 tag = '$uniqueTag'
             }
@@ -286,7 +286,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImageWithCacheFrom(type: DockerBuildImage) {
                 dependsOn pullImage
-                inputDir = dockerfile.destFile.parentFile
+                inputDir = dockerfile.destFile.get().asFile.parentFile
                 ${useCacheFrom ? "cacheFrom.add('$uniqueTag:latest')" : ""}
             }
         """

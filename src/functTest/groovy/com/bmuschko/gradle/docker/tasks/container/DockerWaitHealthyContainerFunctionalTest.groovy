@@ -28,7 +28,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
 
@@ -117,7 +117,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
 
@@ -172,7 +172,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
 
@@ -226,7 +226,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 10; touch /tmp/HEALTHY; sleep 60'
             }
 
@@ -277,7 +277,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 5'
             }
 
@@ -328,7 +328,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 10'
             }
 

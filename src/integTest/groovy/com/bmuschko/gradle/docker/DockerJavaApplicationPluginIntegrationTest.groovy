@@ -105,7 +105,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         when:
         ExtensionAware dockerExtension = (ExtensionAware) project.extensions.getByType(DockerExtension)
         DockerJavaApplication dockerJavaApplicationExtension = dockerExtension.extensions.getByType(DockerJavaApplication)
-        dockerJavaApplicationExtension.tag = "some-test-tag"
+        dockerJavaApplicationExtension.tag.set("some-test-tag")
 
         then:
         DockerBuildImage task = project
