@@ -1,6 +1,7 @@
 ### Version 3.6.2 (TBA)
 
 * `DockerRegistryCredentials` implements `PasswordCredentials` interface - [Pull Request 655](https://github.com/bmuschko/gradle-docker-plugin/pull/655)
+* `DockerCreateContainer` gained `pid` option - [Pull Request 652](https://github.com/bmuschko/gradle-docker-plugin/pull/652)
 
 ### Version 3.6.1 (August 21, 2018)
 * Task `DockerClient`, and the passed dockerClient object, is now cached by configuration - [Pull Request 644](https://github.com/bmuschko/gradle-docker-plugin/pull/644)
