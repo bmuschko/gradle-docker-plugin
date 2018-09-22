@@ -93,6 +93,26 @@ FROM \$baseImage
 """)
     }
 
+    def "Can specify comments before FROM instruction as first statement"() {
+        given:
+        buildFile << """
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                instruction '# This is a comment'
+                instruction '# And another one'
+                from '$TEST_IMAGE_WITH_TAG'
+            }
+        """
+
+        when:
+        build(DOCKERFILE_TASK_NAME)
+
+        then:
+        assertDockerfileContent("""# This is a comment
+# And another one
+FROM $TEST_IMAGE_WITH_TAG
+""")
+    }
+
     def "Can create minimal Dockerfile in default location"() {
         given:
         buildFile << """

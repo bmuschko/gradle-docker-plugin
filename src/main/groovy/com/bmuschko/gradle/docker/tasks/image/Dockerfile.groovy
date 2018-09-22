@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
@@ -59,12 +58,18 @@ class Dockerfile extends DefaultTask {
     }
 
     private void verifyValidInstructions() {
-        if (instructions.get().empty) {
+        List<Instruction> allInstructions = instructions.get().collect()
+
+        // Comments are not relevant for validating instruction order
+        allInstructions.removeAll { it.text?.startsWith('#') }
+
+        if (allInstructions.empty) {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
-        def fromPos = instructions.get().findIndexOf { it.keyword == 'FROM' }
-        def othersPos = instructions.get().findIndexOf { it.keyword != 'ARG' && it.keyword != 'FROM' }
+        def fromPos = allInstructions.findIndexOf { it.keyword == 'FROM' }
+        def othersPos = allInstructions.findIndexOf { it.keyword != 'ARG' && it.keyword != 'FROM' }
+
         if (fromPos < 0 || (othersPos >= 0 && fromPos > othersPos)) {
             throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
         }
@@ -762,7 +767,7 @@ class Dockerfile extends DefaultTask {
          */
         @Input
         @Optional
-        String getText()
+        @Nullable String getText()
     }
 
     static class GenericInstruction implements Instruction {
