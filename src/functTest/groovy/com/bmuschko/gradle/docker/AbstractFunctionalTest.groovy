@@ -38,7 +38,6 @@ abstract class AbstractFunctionalTest extends Specification {
             .withProjectDir(projectDir)
             .withArguments(arguments + '-s' as List<String>)
             .withPluginClasspath()
-        .forwardOutput()
     }
 
     abstract String getBuildFileName()
