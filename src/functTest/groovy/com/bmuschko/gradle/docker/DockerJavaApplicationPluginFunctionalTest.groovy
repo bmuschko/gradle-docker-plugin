@@ -1,6 +1,5 @@
 package com.bmuschko.gradle.docker
 
-
 import spock.lang.Requires
 
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.*
