@@ -43,12 +43,17 @@ class Dockerfile extends DefaultTask {
     }
 
     private void verifyValidInstructions() {
-        if (getInstructions().empty) {
+        List<Instruction> allInstructions = getInstructions().clone()
+
+        // Comments are not relevant for validating instruction order
+        allInstructions.removeAll { it.text.startsWith('#') }
+
+        if (allInstructions.empty) {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
-        def fromPos = getInstructions().findIndexOf { it.keyword == 'FROM' }
-        def othersPos = getInstructions().findIndexOf { it.keyword != 'ARG' && it.keyword != 'FROM' }
+        def fromPos = allInstructions.findIndexOf { it.keyword == 'FROM' }
+        def othersPos = allInstructions.findIndexOf { it.keyword != 'ARG' && it.keyword != 'FROM' }
         if (fromPos < 0 || (othersPos >= 0 && fromPos > othersPos)) {
             throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
         }
