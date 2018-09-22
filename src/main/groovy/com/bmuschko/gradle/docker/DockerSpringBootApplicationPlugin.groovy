@@ -3,8 +3,7 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.bmuschko.gradle.docker.tasks.image.data.File
-import com.bmuschko.gradle.docker.tasks.image.data.From
+
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -73,16 +72,16 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
             void execute(Dockerfile dockerfile) {
                 dockerfile.description = 'Creates the Docker image for the Spring Boot application.'
                 dockerfile.dependsOn archiveTask
-                dockerfile.from(project.provider(new Callable<From>() {
+                dockerfile.from(project.provider(new Callable<Dockerfile.From>() {
                     @Override
-                    From call() throws Exception {
-                        new From(dockerSpringBootApplication.baseImage.get())
+                    Dockerfile.From call() throws Exception {
+                        new Dockerfile.From(dockerSpringBootApplication.baseImage.get())
                     }
                 }))
-                dockerfile.copyFile(project.provider(new Callable<File>() {
+                dockerfile.copyFile(project.provider(new Callable<Dockerfile.File>() {
                     @Override
-                    File call() throws Exception {
-                        new File(archiveTask.archiveName, "/app/${archiveTask.archiveName}".toString())
+                    Dockerfile.File call() throws Exception {
+                        new Dockerfile.File(archiveTask.archiveName, "/app/${archiveTask.archiveName}".toString())
                     }
                 }))
                 dockerfile.entryPoint('java')

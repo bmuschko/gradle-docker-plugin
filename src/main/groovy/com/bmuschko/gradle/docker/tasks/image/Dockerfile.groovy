@@ -15,13 +15,14 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.tasks.image.data.File
-import com.bmuschko.gradle.docker.tasks.image.data.From
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
+
+import javax.annotation.Nullable
 
 @CacheableTask
 class Dockerfile extends DefaultTask {
@@ -151,13 +152,11 @@ class Dockerfile extends DefaultTask {
      * Example in Groovy DSL:
      *
      * <pre>
-     * import com.bmuschko.gradle.docker.tasks.image.data.From
-     *
      * task createDockerfile(type: Dockerfile) {
-     *     from(project.provider(new Callable<From>() {
+     *     from(project.provider(new Callable<Dockerfile.From>() {
      *         @Override
-     *         From call() throws Exception {
-     *             new From('ubuntu:14.04')
+     *         Dockerfile.From call() throws Exception {
+     *             new Dockerfile.From('ubuntu:14.04')
      *         }
      *     }))
      * }
@@ -167,7 +166,7 @@ class Dockerfile extends DefaultTask {
      * @see #from(String, String)
      * @since 4.0
      */
-    void from(Provider<From> provider) {
+    void from(Provider<Dockerfile.From> provider) {
         instructions.add(new FromInstruction(provider))
     }
 
@@ -434,13 +433,11 @@ class Dockerfile extends DefaultTask {
      * Example in Groovy DSL:
      *
      * <pre>
-     * import com.bmuschko.gradle.docker.tasks.image.data.File
-     *
      * task createDockerfile(type: Dockerfile) {
-     *     addFile(project.provider(new Callable<File>() {
+     *     addFile(project.provider(new Callable<Dockerfile.File>() {
      *         @Override
-     *         File call() throws Exception {
-     *             new File('test', '/absoluteDir/')
+     *         Dockerfile.File call() throws Exception {
+     *             new Dockerfile.File('test', '/absoluteDir/')
      *         }
      *     }))
      * }
@@ -450,7 +447,7 @@ class Dockerfile extends DefaultTask {
      * @see #addFile(String, String)
      * @since 4.0
      */
-    void addFile(Provider<File> provider) {
+    void addFile(Provider<Dockerfile.File> provider) {
         instructions.add(new AddFileInstruction(provider))
     }
 
@@ -481,13 +478,11 @@ class Dockerfile extends DefaultTask {
      * Example in Groovy DSL:
      *
      * <pre>
-     * import com.bmuschko.gradle.docker.tasks.image.data.File
-     *
      * task createDockerfile(type: Dockerfile) {
-     *     copyFile(project.provider(new Callable<File>() {
+     *     copyFile(project.provider(new Callable<Dockerfile.File>() {
      *         @Override
-     *         File call() throws Exception {
-     *             new File('test', '/absoluteDir/')
+     *         Dockerfile.File call() throws Exception {
+     *             new Dockerfile.File('test', '/absoluteDir/')
      *         }
      *     }))
      * }
@@ -497,7 +492,7 @@ class Dockerfile extends DefaultTask {
      * @see #copyFile(String, String, String)
      * @since 4.0
      */
-    void copyFile(Provider<File> provider) {
+    void copyFile(Provider<Dockerfile.File> provider) {
         instructions.add(new CopyFileInstruction(provider))
     }
 
@@ -1222,6 +1217,47 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             "LABEL"
+        }
+    }
+
+    /**
+     * Input data for a copy or add instruction.
+     *
+     * @since 4.0
+     */
+    static class File {
+        final String src
+        final String dest
+        final @Nullable String flags
+
+        File(String src, String dest) {
+            this.src = src
+            this.dest = dest
+        }
+
+        File(String src, String dest, @Nullable String flags) {
+            this.src = src
+            this.dest = dest
+            this.flags = flags
+        }
+    }
+
+    /**
+     * Input data for a from instruction.
+     *
+     * @since 4.0
+     */
+    static class From {
+        final String image
+        final @Nullable String stageName
+
+        From(String image) {
+            this.image = image
+        }
+
+        From(String image, @Nullable String stageName) {
+            this.image = image
+            this.stageName = stageName
         }
     }
 }

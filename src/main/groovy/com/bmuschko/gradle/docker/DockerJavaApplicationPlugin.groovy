@@ -18,8 +18,6 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.bmuschko.gradle.docker.tasks.image.data.File
-import com.bmuschko.gradle.docker.tasks.image.data.From
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -82,10 +80,10 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
             description = 'Creates the Docker image for the Java application.'
             dependsOn jarTask
-            from(project.provider(new Callable<From>() {
+            from(project.provider(new Callable<Dockerfile.From>() {
                 @Override
-                From call() throws Exception {
-                    new From(dockerJavaApplication.baseImage.get())
+                Dockerfile.From call() throws Exception {
+                    new Dockerfile.From(dockerJavaApplication.baseImage.get())
                 }
             }))
             label(project.provider(new Callable<Map<String, String>>() {
@@ -94,16 +92,16 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     ['maintainer': dockerJavaApplication.maintainer.get()]
                 }
             }))
-            addFile(project.provider(new Callable<File>() {
+            addFile(project.provider(new Callable<Dockerfile.File>() {
                 @Override
-                File call() throws Exception {
-                    new File(installTask.destinationDir.name, "/${installTask.destinationDir.name}".toString())
+                Dockerfile.File call() throws Exception {
+                    new Dockerfile.File(installTask.destinationDir.name, "/${installTask.destinationDir.name}".toString())
                 }
             }))
-            addFile(project.provider(new Callable<File>() {
+            addFile(project.provider(new Callable<Dockerfile.File>() {
                 @Override
-                File call() throws Exception {
-                    new File("app-lib/${jarTask.archiveName}".toString(), "/${installTask.destinationDir.name}/lib/${jarTask.archiveName}".toString())
+                Dockerfile.File call() throws Exception {
+                    new Dockerfile.File("app-lib/${jarTask.archiveName}".toString(), "/${installTask.destinationDir.name}/lib/${jarTask.archiveName}".toString())
                 }
             }))
             instructions.add(dockerJavaApplication.execInstruction)
