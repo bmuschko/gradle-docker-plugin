@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
@@ -28,14 +29,14 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
      * The image repository.
      */
     @Input
-    String repository
+    final Property<String> repository = project.objects.property(String)
 
     /**
      * The image's tag.
      */
     @Input
     @Optional
-    String tag
+    final Property<String> tag = project.objects.property(String)
 
     /**
      * The target Docker registry credentials for pushing image.
@@ -46,11 +47,11 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Pulling repository '${getRepository()}'."
-        def pullImageCmd = dockerClient.pullImageCmd(getRepository())
+        logger.quiet "Pulling repository '${repository.get()}'."
+        def pullImageCmd = dockerClient.pullImageCmd(repository.get())
 
-        if(getTag()) {
-            pullImageCmd.withTag(getTag())
+        if(tag.getOrNull()) {
+            pullImageCmd.withTag(tag.get())
         }
 
         if(getRegistryCredentials()) {
@@ -64,6 +65,6 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Internal
     String getImageId() {
-        tag?.trim() ? "${repository}:${tag}" : repository
+        tag.getOrNull()?.trim() ? "${repository.get()}:${tag.get()}" : repository.get()
     }
 }

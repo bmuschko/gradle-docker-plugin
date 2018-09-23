@@ -445,7 +445,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                conventionMapping.imageName = { buildImage.getTag() }
+                imageName = buildImage.getTag()
                 
                 onNext { p ->
                     logger.quiet p.status + ' ' + (p.progress ?: '')

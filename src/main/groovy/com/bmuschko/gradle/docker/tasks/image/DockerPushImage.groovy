@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
@@ -27,14 +28,14 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
      * The image name e.g. "bmuschko/busybox" or just "busybox" if you want to default.
      */
     @Input
-    String imageName
+    final Property<String> imageName = project.objects.property(String)
 
     /**
      * The image's tag.
      */
     @Input
     @Optional
-    String tag
+    final Property<String> tag = project.objects.property(String)
 
     /**
      * The target Docker registry credentials for pushing image.
@@ -45,13 +46,13 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand(dockerClient) {
-        def pushImageCmd = dockerClient.pushImageCmd(getImageName())
+        def pushImageCmd = dockerClient.pushImageCmd(imageName.get())
 
-        if(getTag()) {
-            pushImageCmd.withTag(getTag())
-            logger.quiet "Pushing image with name '${getImageName()}:${getTag()}'."
+        if(tag.getOrNull()) {
+            pushImageCmd.withTag(tag.get())
+            logger.quiet "Pushing image with name '${imageName.get()}:${tag.get()}'."
         } else {
-            logger.quiet "Pushing image with name '${getImageName()}'."
+            logger.quiet "Pushing image with name '${imageName.get()}'."
         }
 
         if(getRegistryCredentials()) {

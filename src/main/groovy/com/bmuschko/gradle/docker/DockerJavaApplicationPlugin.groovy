@@ -22,6 +22,8 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
@@ -136,26 +138,38 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         project.task(BUILD_IMAGE_TASK_NAME, type: DockerBuildImage) {
             description = 'Builds the Docker image for the Java application.'
             dependsOn createDockerfileTask
-            conventionMapping.inputDir = { createDockerfileTask.destFile.get().asFile.parentFile }
-            conventionMapping.tag = { determineImageTag(project, dockerJavaApplication) }
+            inputDir = project.provider(new Callable<Directory>() {
+                @Override
+                Directory call() throws Exception {
+                    DirectoryProperty inputDirProperty = project.layout.directoryProperty()
+                    inputDirProperty.set(createDockerfileTask.destFile.get().asFile.parentFile)
+                    inputDirProperty.get()
+                }
+            })
+            tag = determineImageTag(project, dockerJavaApplication)
         } as DockerBuildImage
     }
 
-    private String determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
-        if (dockerJavaApplication.tag.getOrNull()) {
-            return dockerJavaApplication.tag.get()
-        }
+    private Provider<String> determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
+        project.provider(new Callable<String>() {
+            @Override
+            String call() throws Exception {
+                if (dockerJavaApplication.tag.getOrNull()) {
+                    return dockerJavaApplication.tag.get()
+                }
 
-        String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-        String artifactAndVersion = "${project.applicationName}:${tagVersion}".toLowerCase().toString()
-        project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+                String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
+                String artifactAndVersion = "${project.applicationName}:${tagVersion}".toLowerCase().toString()
+                project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+            }
+        })
     }
 
     private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
         project.task(PUSH_IMAGE_TASK_NAME, type: DockerPushImage) {
             description = 'Pushes created Docker image to the repository.'
             dependsOn dockerBuildImageTask
-            conventionMapping.imageName = { dockerBuildImageTask.getTag() }
+            imageName = dockerBuildImageTask.getTag()
         }
     }
 }

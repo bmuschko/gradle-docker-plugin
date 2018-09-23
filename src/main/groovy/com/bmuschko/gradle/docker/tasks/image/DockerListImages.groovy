@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -23,19 +24,19 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    Boolean showAll
+    final Property<Boolean> showAll = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean dangling
+    final Property<Boolean> dangling = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Map<String, String> labels
+    final Property<Map<String, String>> labels = project.objects.property(Map)
 
     @Input
     @Optional
-    String imageName
+    final Property<String> imageName = project.objects.property(String)
 
     DockerListImages() {
         defaultResponseHandling()
@@ -45,20 +46,20 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
     void runRemoteCommand(dockerClient) {
         def listImagesCmd = dockerClient.listImagesCmd()
 
-        if (getShowAll()) {
-            listImagesCmd.withShowAll(getShowAll())
+        if (showAll.getOrNull()) {
+            listImagesCmd.withShowAll(showAll.get())
         }
 
-        if (getDangling()) {
-            listImagesCmd.withDanglingFilter(getDangling())
+        if (dangling.getOrNull()) {
+            listImagesCmd.withDanglingFilter(dangling.get())
         }
 
-        if (getLabels()) {
-            listImagesCmd.withLabelFilter(getLabels().collectEntries { [it.key, it.value.toString()] })
+        if (labels.getOrNull()) {
+            listImagesCmd.withLabelFilter(labels.get().collectEntries { [it.key, it.value.toString()] })
         }
 
-        if (getImageName()) {
-            listImagesCmd.withImageNameFilter(getImageName())
+        if (imageName.getOrNull()) {
+            listImagesCmd.withImageNameFilter(imageName.get())
         }
 
         def images = listImagesCmd.exec()

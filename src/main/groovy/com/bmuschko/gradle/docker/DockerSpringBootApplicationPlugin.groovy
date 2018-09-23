@@ -9,9 +9,12 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.WarPlugin
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.bundling.Jar
 
@@ -102,30 +105,32 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
             void execute(DockerBuildImage dockerBuildImage) {
                 dockerBuildImage.description = 'Builds the Docker image for the Spring Boot application.'
                 dockerBuildImage.dependsOn createDockerfileTask
-                dockerBuildImage.conventionMapping.map('inputDir', new Callable<Object>() {
+                dockerBuildImage.inputDir.set(project.provider(new Callable<Directory>() {
                     @Override
-                    Object call() throws Exception {
-                        createDockerfileTask.destFile.get().asFile.parentFile
+                    Directory call() throws Exception {
+                        DirectoryProperty inputDirProperty = project.layout.directoryProperty()
+                        inputDirProperty.set(createDockerfileTask.destFile.get().asFile.parentFile)
+                        inputDirProperty.get()
                     }
-                })
-                dockerBuildImage.conventionMapping.map('tag', new Callable<Object>() {
-                    @Override
-                    Object call() throws Exception {
-                        determineImageTag(project, dockerSpringBootApplication)
-                    }
-                })
+                }))
+                dockerBuildImage.tag.set(determineImageTag(project, dockerSpringBootApplication))
             }
         })
     }
 
-    private String determineImageTag(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
-        if (dockerSpringBootApplication.tag.getOrNull()) {
-            return dockerSpringBootApplication.tag.get()
-        }
+    private Provider<String> determineImageTag(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
+        project.provider(new Callable<String>() {
+            @Override
+            String call() throws Exception {
+                if (dockerSpringBootApplication.tag.getOrNull()) {
+                    return dockerSpringBootApplication.tag.get()
+                }
 
-        String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-        String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
-        project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+                String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
+                String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
+                project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+            }
+        })
     }
 
     private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
@@ -134,12 +139,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
             void execute(DockerPushImage dockerPushImage) {
                 dockerPushImage.description = 'Pushes created Docker image to the repository.'
                 dockerPushImage.dependsOn dockerBuildImageTask
-                dockerPushImage.conventionMapping.map('imageName', new Callable<Object>() {
-                    @Override
-                    Object call() throws Exception {
-                        dockerBuildImageTask.getTag()
-                    }
-                })
+                dockerPushImage.imageName = dockerBuildImageTask.getTag()
             }
         })
     }

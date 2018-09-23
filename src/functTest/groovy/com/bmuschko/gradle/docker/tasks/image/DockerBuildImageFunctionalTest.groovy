@@ -122,7 +122,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildWithShmSize(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
-                shmSize = 128000
+                shmSize = 128000L
             }
         """
     }
@@ -268,7 +268,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                conventionMapping.imageName = { buildImage.getTag() }
+                imageName = buildImage.getTag()
                 tag = 'latest'
             }
 

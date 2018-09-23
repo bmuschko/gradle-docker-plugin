@@ -255,7 +255,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                conventionMapping.imageName = { buildImage.getTag() }
+                imageName = buildImage.getTag()
             }
 
             task workflow {
