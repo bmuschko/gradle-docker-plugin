@@ -29,7 +29,7 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
     @Input
     final Property<String> imageId = project.objects.property(String)
 
-    void targetImageId(Callable imageId) {
+    void targetImageId(Callable<String> imageId) {
         targetImageId(project.provider(imageId))
     }
 
