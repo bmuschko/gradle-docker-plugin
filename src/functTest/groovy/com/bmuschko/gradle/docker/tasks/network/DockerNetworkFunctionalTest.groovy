@@ -17,11 +17,11 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
             }
 
             task removeNetwork(type: DockerRemoveNetwork) {
-                targetNetworkId { createNetwork.getNetworkId() }
+                targetNetworkId createNetwork.getNetworkId()
             }
 
             task inspectNetwork(type: DockerInspectNetwork) {
-                targetNetworkId { createNetwork.getNetworkId() }
+                targetNetworkId createNetwork.getNetworkId()
                 dependsOn createNetwork
 
                 onNext { network ->
@@ -30,7 +30,7 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
             }
 
             task inspectNoNetwork(type: DockerInspectNetwork) {
-                targetNetworkId { createNetwork.getNetworkId() }
+                targetNetworkId createNetwork.getNetworkId()
                 dependsOn removeNetwork
 
                 onError { error ->

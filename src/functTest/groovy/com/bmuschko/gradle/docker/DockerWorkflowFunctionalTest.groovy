@@ -557,7 +557,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             }
 
             task removeNetwork(type: DockerRemoveNetwork) {
-                targetNetworkId { createNetwork.getNetworkId() }
+                targetNetworkId createNetwork.getNetworkId()
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -569,7 +569,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn buildImage, createNetwork
                 targetImageId { buildImage.getImageId() }
                 containerName = "${uniqueContainerName}"
-                network = createNetwork.getNetworkId()
+                network = createNetwork.getNetworkId().get()
                 networkAliases = ["some-alias"]
                 cmd = ['/bin/sh']
             }
@@ -578,7 +578,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer
                 targetContainerId { createContainer.getContainerId() }
                 onNext { container ->
-                    println container.networkSettings.networks[createNetwork.getNetworkId()].aliases
+                    println container.networkSettings.networks[createNetwork.getNetworkId().get()].aliases
                 }
             }
 
