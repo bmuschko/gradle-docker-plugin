@@ -19,6 +19,7 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
+import spock.lang.Ignore
 import spock.lang.Requires
 
 class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTest {
@@ -327,6 +328,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
         result.output.contains("Container should be running!")
     }
 
+    @Ignore
     def "should call onNext when waiting for a container"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer

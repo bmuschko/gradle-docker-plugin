@@ -13,7 +13,6 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.bundling.Jar
@@ -30,6 +29,8 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
     public static final String DOCKERFILE_TASK_NAME = 'dockerCreateDockerfile'
     public static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
     public static final String PUSH_IMAGE_TASK_NAME = 'dockerPushImage'
+    private static final String BOOT_JAR_TASK_NAME = 'bootJar'
+    private static final String BOOT_WAR_TASK_NAME = 'bootWar'
 
     @Override
     void apply(Project project) {
@@ -48,8 +49,9 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
     }
 
     private static Jar determineArchiveTask(Project project) {
-        Task jarTask = project.plugins.hasPlugin(WarPlugin) ? project.tasks.getByName('bootWar') : project.tasks.getByName('bootJar')
-        jarTask as Jar
+        Task bootWarTask = project.tasks.findByName(BOOT_WAR_TASK_NAME)
+        Task archiveTask = bootWarTask ?: project.tasks.getByName(BOOT_JAR_TASK_NAME)
+        archiveTask as Jar
     }
 
     private static DockerSpringBootApplication configureExtension(Project project, DockerExtension dockerExtension) {
