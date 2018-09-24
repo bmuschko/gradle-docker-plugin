@@ -141,9 +141,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             inputDir = project.provider(new Callable<Directory>() {
                 @Override
                 Directory call() throws Exception {
-                    DirectoryProperty inputDirProperty = project.layout.directoryProperty()
-                    inputDirProperty.set(createDockerfileTask.destFile.get().asFile.parentFile)
-                    inputDirProperty.get()
+                    project.layout.projectDirectory.dir(createDockerfileTask.destFile.get().asFile.parentFile.canonicalPath)
                 }
             })
             tag = determineImageTag(project, dockerJavaApplication)
