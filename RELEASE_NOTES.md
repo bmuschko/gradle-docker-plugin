@@ -4,6 +4,7 @@
 * `DockerCreateContainer` gained `pid` option - [Pull Request 652](https://github.com/bmuschko/gradle-docker-plugin/pull/652)
 * `Dockerfile` validation takes into account comments - [Issue 657](https://github.com/bmuschko/gradle-docker-plugin/issues/657)
 * Bump `docker-java-shaded` to `rc-5` - [Issue 660](https://github.com/bmuschko/gradle-docker-plugin/issues/660)
+* `DockerBuildImage` gained `network` option - [Issue 608](https://github.com/bmuschko/gradle-docker-plugin/issues/608)
 
 ### Version 3.6.1 (August 21, 2018)
 * Task `DockerClient`, and the passed dockerClient object, is now cached by configuration - [Pull Request 644](https://github.com/bmuschko/gradle-docker-plugin/pull/644)
