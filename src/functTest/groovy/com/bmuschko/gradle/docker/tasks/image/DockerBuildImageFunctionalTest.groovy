@@ -308,12 +308,12 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
             }
 
             task buildWithHostNetwork(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
+                inputDir = dockerfile.destFile.get().asFile.parentFile
                 network = 'host'
             }
         """
