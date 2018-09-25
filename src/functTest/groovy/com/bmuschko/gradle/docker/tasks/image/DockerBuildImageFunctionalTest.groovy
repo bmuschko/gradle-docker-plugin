@@ -110,6 +110,16 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         result.output.contains("Using cache")
     }
 
+    def "can build image using --network host"() {
+        buildFile << buildImageWithHostNetwork()
+
+        when:
+        build('buildWithHostNetwork')
+
+        then:
+        noExceptionThrown()
+    }
+
     private String buildImageWithShmSize() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -288,6 +298,23 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn pullImage
                 inputDir = dockerfile.destFile.parentFile
                 ${useCacheFrom ? "cacheFrom.add('$uniqueTag:latest')" : ""}
+            }
+        """
+    }
+
+    private String buildImageWithHostNetwork() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            task dockerfile(type: Dockerfile) {
+                from 'alpine'
+            }
+
+            task buildWithHostNetwork(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+                network = 'host'
             }
         """
     }
