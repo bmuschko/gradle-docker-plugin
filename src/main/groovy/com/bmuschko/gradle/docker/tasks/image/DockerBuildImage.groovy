@@ -78,6 +78,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     @Input
     @Optional
+    final Property<String> network = project.objects.property(String)
+
+    @Input
+    @Optional
     final Property<Map<String, String>> buildArgs = project.objects.property(Map)
 
     @Input
@@ -145,6 +149,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         if (pull.getOrNull()) {
             buildImageCmd.withPull(pull.get())
+        }
+
+        if (network.getOrNull()) {
+            buildImageCmd.withNetworkMode(network.get())
         }
 
         if (labels.getOrNull()) {
