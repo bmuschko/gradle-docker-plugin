@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
@@ -86,6 +87,10 @@ class Dockerfile extends DefaultTask {
 
     void instructionsFromTemplate(String templatePath) {
         instructionsFromTemplate(project.file(templatePath))
+    }
+
+    void instructionsFromTemplate(Provider<RegularFile> templateFile) {
+        instruction(templateFile.get().asFile)
     }
 
     /**
