@@ -1,10 +1,11 @@
 package com.bmuschko.gradle.docker.tasks
 
 import groovy.transform.EqualsAndHashCode
+import org.gradle.api.file.Directory
 
 @EqualsAndHashCode
 class DockerClientConfiguration {
     String url
-    File certPath
+    Directory certPath
     String apiVersion
 }

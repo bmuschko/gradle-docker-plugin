@@ -68,8 +68,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         loadClasses(dockerExtension.classpath.files, this.class.classLoader)
 
         String dockerUrl = getDockerHostUrl(dockerClientConfiguration)
-        File dockerCertPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
-        String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion
+        File dockerCertPath = dockerClientConfiguration.certPath?.asFile ?: dockerExtension.certPath.getOrNull()?.asFile
+        String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion.getOrNull()
 
         // Create configuration
         Class dockerClientConfigClass = loadClass("${CORE_PACKAGE}.DockerClientConfig")
@@ -112,7 +112,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @return Docker host URL as string
      */
     private String getDockerHostUrl(DockerClientConfiguration dockerClientConfiguration) {
-        String url = (dockerClientConfiguration.url ?: dockerExtension.url).toLowerCase()
+        String url = (dockerClientConfiguration.url ?: dockerExtension.url.getOrNull()).toLowerCase()
         url.startsWith('http') ? 'tcp' + url.substring(url.indexOf(COLON_CHAR)) : url
     }
 
@@ -153,10 +153,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     def createAuthConfig(DockerRegistryCredentials registryCredentials) {
         Class authConfigClass = loadClass("${MODEL_PACKAGE}.AuthConfig")
         def authConfig = authConfigClass.newInstance()
-        authConfig.registryAddress = registryCredentials.url
-        authConfig.username = registryCredentials.username
-        authConfig.password = registryCredentials.password
-        authConfig.email = registryCredentials.email
+        authConfig.registryAddress = registryCredentials.url.get()
+        authConfig.username = registryCredentials.username.getOrNull()
+        authConfig.password = registryCredentials.password.getOrNull()
+        authConfig.email = registryCredentials.email.getOrNull()
         authConfig
     }
 

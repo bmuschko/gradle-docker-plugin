@@ -16,28 +16,34 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
-import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
 
 @CompileStatic
 class DockerExtension {
     private final Project project
-    FileCollection classpath
-    String url
-    File certPath
-    String apiVersion
-    DockerRegistryCredentials registryCredentials
+
+    final ConfigurableFileCollection classpath
+    final Property<String> url
+    final DirectoryProperty certPath
+    final Property<String> apiVersion
 
     DockerExtension(Project project) {
         this.project = project
-        this.url = getDefaultDockerUrl()
-        this.certPath = getDefaultDockerCert()
-    }
+        classpath = project.layout.configurableFiles()
+        url = project.objects.property(String)
+        url.set(getDefaultDockerUrl())
+        certPath = project.layout.directoryProperty()
 
-    void registryCredentials(Action<DockerRegistryCredentials> action) {
-        registryCredentials = new DockerRegistryCredentials()
-        action.execute(registryCredentials)
+        File defaultDockerCert = getDefaultDockerCert()
+
+        if (defaultDockerCert) {
+            certPath.set(defaultDockerCert)
+        }
+
+        apiVersion = project.objects.property(String)
     }
 
     String getDefaultDockerUrl() {

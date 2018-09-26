@@ -95,7 +95,7 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
         """
             docker {
                 registryCredentials {
-                    url = "http://localhost:5000"
+                    url.set("http://localhost:5000")
                 }
             }
         """

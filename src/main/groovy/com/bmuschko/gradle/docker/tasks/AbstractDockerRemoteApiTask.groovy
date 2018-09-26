@@ -16,6 +16,8 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
@@ -28,21 +30,21 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
      */
     @Input
     @Optional
-    String url
+    final Property<String> url = project.objects.property(String)
 
     /**
      * Path to the <a href="https://docs.docker.com/articles/https/">Docker certificate and key</a>.
      */
     @InputDirectory
     @Optional
-    File certPath
+    final DirectoryProperty certPath = project.layout.directoryProperty()
 
     /**
      * The docker remote api version
      */
     @Input
     @Optional
-    String apiVersion
+    final Property<String> apiVersion = project.objects.property(String)
 
     @Internal
     ThreadContextClassLoader threadContextClassLoader
@@ -60,9 +62,9 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
 
     private DockerClientConfiguration createDockerClientConfig() {
         DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
-        dockerClientConfig.url = getUrl()
-        dockerClientConfig.certPath = getCertPath()
-        dockerClientConfig.apiVersion = getApiVersion()
+        dockerClientConfig.url = url.getOrNull()
+        dockerClientConfig.certPath = certPath.getOrNull()
+        dockerClientConfig.apiVersion = apiVersion.getOrNull()
         dockerClientConfig
     }
 

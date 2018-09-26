@@ -162,8 +162,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withShmsize(shmSize.get())
         }
 
-        if (getRegistryCredentials()) {
-            def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
+        if (registryCredentials) {
+            def authConfig = threadContextClassLoader.createAuthConfig(registryCredentials)
             def authConfigurations = threadContextClassLoader.createAuthConfigurations([authConfig])
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }

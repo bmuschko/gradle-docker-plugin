@@ -16,38 +16,47 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
-import org.gradle.api.credentials.PasswordCredentials
+import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 @CompileStatic
-class DockerRegistryCredentials implements PasswordCredentials {
+class DockerRegistryCredentials {
     public static final String DEFAULT_URL = 'https://index.docker.io/v1/'
 
     /**
      * Registry URL needed to push images. Defaults to "https://index.docker.io/v1/".
      */
     @Input
-    String url = DEFAULT_URL
+    final Property<String> url
 
     /**
      * Registry username needed to push images. Defaults to null.
      */
     @Input
     @Optional
-    String username
+    final Property<String> username
 
     /**
      * Registry password needed to push images. Defaults to null.
      */
     @Input
     @Optional
-    String password
+    final Property<String> password
 
     /**
      * Registry email address needed to push images. Defaults to null.
      */
     @Input
     @Optional
-    String email
+    final Property<String> email
+
+    DockerRegistryCredentials(Project project) {
+        url = project.objects.property(String)
+        url.set(DEFAULT_URL)
+        username = project.objects.property(String)
+        password = project.objects.property(String)
+        email = project.objects.property(String)
+    }
 }

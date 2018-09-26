@@ -55,8 +55,8 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
             logger.quiet "Pushing image with name '${imageName.get()}'."
         }
 
-        if(getRegistryCredentials()) {
-            def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
+        if(registryCredentials) {
+            def authConfig = threadContextClassLoader.createAuthConfig(registryCredentials)
             pushImageCmd.withAuthConfig(authConfig)
         }
 

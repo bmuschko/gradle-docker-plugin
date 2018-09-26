@@ -232,7 +232,7 @@ ADD file2.txt /other/dir/file2.txt
 
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    tag = "\$docker.registryCredentials.username/javaapp".toString() 
+                    tag = "\${docker.registryCredentials.username.get()}/javaapp".toString() 
                 }
             }
         """
