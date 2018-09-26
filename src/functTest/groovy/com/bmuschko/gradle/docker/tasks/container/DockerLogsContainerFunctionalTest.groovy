@@ -25,7 +25,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         given:
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 follow = true
                 tailAll = true
             }
@@ -43,7 +43,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         given:
         String logContainerTask = """
              task logContainer(type: DockerLogsContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 since = new Date()+1
             }
         """
@@ -60,7 +60,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         given:
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 tailAll = true
             }
         """
@@ -77,7 +77,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         given:
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 tailAll = true
                 tailCount = 20
             }
@@ -95,7 +95,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         given:
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 tailCount = 0
             }
         """
@@ -112,7 +112,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         given:
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 tailCount = 1
             }
         """
@@ -129,7 +129,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         given:
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 tailAll = true
                 showTimestamps = true
             }
@@ -147,8 +147,9 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         given:
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
-                targetContainerId { startContainer.getContainerId() }
-                sink = project.file("${projectDir.path}/log-sink.txt").newWriter()
+                targetContainerId startContainer.getContainerId()
+                sink = project.file("log-sink.txt").newWriter()
+                tailAll = true
             }
         """
         buildFile << containerUsage(logContainerTask)
@@ -157,15 +158,16 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         build('logContainer')
 
         then:
-        File outputFile = new File("${projectDir.path}/log-sink.txt")
-        outputFile.exists() && outputFile.text.contains("Hello World")
+        File outputFile = new File(projectDir, "log-sink.txt")
+        outputFile.exists()
+        outputFile.text.contains("Hello World")
     }
 
     def "Prints an error message when obtaining logs fails"() {
         given:
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
-                targetContainerId { "not_existing_container" }
+                targetContainerId "not_existing_container"
             }
         """
         buildFile << containerUsage(logContainerTask)
@@ -193,19 +195,19 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 cmd = ['/bin/sh','-c','echo -e "Hello World\\n  indent"']
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
             
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
 
             ${logContainerTask}

@@ -17,6 +17,8 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.domain.ExecProbe
 import org.gradle.api.GradleException
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
@@ -33,19 +35,19 @@ class DockerExecContainer extends DockerExistingContainer {
     @Input
     @Optional
     @Deprecated // use the _commands_ param instead
-    String[] cmd
+    final ListProperty<String> cmd = project.objects.listProperty(String)
 
     @Input
     @Optional
-    final List<String[]> commands = []
+    final ListProperty<String> commands = project.objects.listProperty(String)
 
     @Input
     @Optional
-    Boolean attachStdout = true
+    final Property<Boolean> attachStdout = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean attachStderr = true
+    final Property<Boolean> attachStderr = project.objects.property(Boolean)
 
     /**
      * Username or UID to execute the command as, with optional colon separated group or gid in format:
@@ -55,13 +57,13 @@ class DockerExecContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    String user
+    final Property<String> user = project.objects.property(String)
 
     // if set will check exit code of exec to ensure it's
     // within this list of allowed values otherwise through exception
     @Input
     @Optional
-    List<Integer> successOnExitCodes
+    final ListProperty<Integer> successOnExitCodes = project.objects.listProperty(Integer)
 
     // if `successOnExitCodes` are defined this livenessProbe will poll the "exec response"
     // until it is in a non-running state.
@@ -71,18 +73,19 @@ class DockerExecContainer extends DockerExistingContainer {
 
     @Internal
     @Deprecated // use the _execIds_ instead.
-    private String execId
+    final Property<String> execId = project.objects.property(String)
 
     @Internal
-    private List<String> execIds = []
+    final ListProperty<String> execIds = project.objects.listProperty(String)
 
     DockerExecContainer() {
-        ext.getExecId = { execId }
+        attachStdout.set(true)
+        attachStderr.set(true)
     }
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Executing on container with ID '${getContainerId()}'."
+        logger.quiet "Executing on container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient)
     }
 
@@ -93,7 +96,7 @@ class DockerExecContainer extends DockerExistingContainer {
         for (int i = 0; i < localCommands.size(); i++) {
 
             String [] singleCommand = localCommands.get(i)
-            def execCmd = dockerClient.execCreateCmd(getContainerId())
+            def execCmd = dockerClient.execCreateCmd(containerId.get())
             setContainerCommandConfig(execCmd, singleCommand)
             String localExecId = execCmd.exec().getId()
             dockerClient.execStartCmd(localExecId).withDetach(false).exec(execCallback).awaitCompletion()
@@ -139,22 +142,22 @@ class DockerExecContainer extends DockerExistingContainer {
             if (isRunning) {
                 throw new GradleException("Exec '${singleCommand}' did not finish in a timely fashion: ${localProbe}")
             } else {
-                if (successOnExitCodes) {
+                if (successOnExitCodes.getOrNull()) {
                     int exitCode = lastExecResponse.exitCode ?: 0
-                    if (!successOnExitCodes.contains(exitCode)) {
+                    if (!successOnExitCodes.get().contains(exitCode)) {
                         throw new GradleException("${exitCode} is not a successful exit code. Valid values are ${successOnExitCodes}, response=${lastExecResponse}")
                     }
                 }
             }
 
-            execIds << localExecId
+            execIds.add(localExecId)
         }
     }
 
     // add multiple commands to be executed
     void withCommand(def commandToExecute) {
         if (commandToExecute) {
-            commands << commandToExecute
+            commands.add(commandToExecute)
         }
     }
 
@@ -163,37 +166,25 @@ class DockerExecContainer extends DockerExistingContainer {
             containerCommand.withCmd(commandToExecute)
         }
 
-        if (getAttachStderr()) {
-            containerCommand.withAttachStderr(getAttachStderr())
+        if (attachStderr.getOrNull()) {
+            containerCommand.withAttachStderr(attachStderr.get())
         }
 
-        if (getAttachStdout()) {
-            containerCommand.withAttachStdout(getAttachStdout())
+        if (attachStdout.getOrNull()) {
+            containerCommand.withAttachStdout(attachStdout.get())
         }
 
-        if (getUser()) {
-            containerCommand.withUser(getUser())
+        if (user.getOrNull()) {
+            containerCommand.withUser(user.get())
         }
     }
 
     protected List<String[]> commands() {
-        final List<String[]> localCommands = new ArrayList<>(commands)
-        if (cmd) {
-            localCommands.add(cmd)
+        final List<String[]> localCommands = new ArrayList<>(commands.get())
+        if (cmd.getOrNull()) {
+            localCommands.add(cmd.get())
         }
         localCommands
-    }
-
-    def getExecId() {
-        if (getExecIds()) {
-            getExecIds().first()
-        } else {
-            null
-        }
-    }
-
-    def getExecIds() {
-        execIds
     }
 
     /**

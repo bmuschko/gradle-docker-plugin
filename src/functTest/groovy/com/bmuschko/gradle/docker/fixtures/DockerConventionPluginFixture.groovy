@@ -20,7 +20,7 @@ final class DockerConventionPluginFixture {
             
             task removeImage(type: DockerRemoveImage) {
                 dependsOn dockerBuildImage
-                targetImageId { dockerBuildImage.getImageId() }
+                targetImageId dockerBuildImage.getImageId()
             }
             
             task buildAndRemoveImage {
@@ -44,22 +44,22 @@ final class DockerConventionPluginFixture {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn dockerBuildImage
-                targetImageId { dockerBuildImage.getImageId() }
+                targetImageId dockerBuildImage.getImageId()
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
             
             task stopContainer(type: DockerStopContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
             
             task removeContainer(type: DockerRemoveContainer) {
                 dependsOn stopContainer
-                targetContainerId { stopContainer.getContainerId() }
+                targetContainerId stopContainer.getContainerId()
             }
             
             task startAndRemoveContainer {

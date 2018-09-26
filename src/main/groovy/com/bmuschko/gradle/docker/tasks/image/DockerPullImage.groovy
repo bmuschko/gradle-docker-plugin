@@ -19,10 +19,13 @@ import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+
+import java.util.concurrent.Callable
 
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
     /**
@@ -64,7 +67,12 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     }
 
     @Internal
-    String getImageId() {
-        tag.getOrNull()?.trim() ? "${repository.get()}:${tag.get()}" : repository.get()
+    Provider<String> getImageId() {
+        project.provider(new Callable<String>() {
+            @Override
+            String call() throws Exception {
+                tag.getOrNull()?.trim() ? "${repository.get()}:${tag.get()}" : repository.get()
+            }
+        })
     }
 }

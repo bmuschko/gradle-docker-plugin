@@ -10,7 +10,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
         String additionalTasks = """
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 livenessProbe(300000, 30000, 'database system is ready to accept connections')
                 onComplete {
                     println 'Container is now live'
@@ -23,7 +23,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task execStopContainer(type: DockerExecStopContainer) {
                 dependsOn livenessProbe
                 finalizedBy removeContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 137]
                 timeout = 60000
@@ -50,7 +50,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
         String additionalTasks = """
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 onComplete {
                     println 'Container is now in a running state'
                 }
@@ -62,7 +62,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task execStopContainer(type: DockerExecStopContainer) {
                 dependsOn livenessProbe
                 finalizedBy removeContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 1, 137]
                 timeout = 60000
@@ -89,7 +89,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn createContainer
                 finalizedBy removeContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 livenessProbe(300000, 30000, 'database system is ready to accept connections')
                 onComplete {
                     println 'Container is now live...'
@@ -123,18 +123,18 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
             
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
             
             ${additionalTasks}

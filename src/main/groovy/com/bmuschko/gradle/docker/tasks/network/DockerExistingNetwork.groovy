@@ -14,6 +14,10 @@ abstract class DockerExistingNetwork extends AbstractDockerRemoteApiTask {
     @Input
     final Property<String> networkId = project.objects.property(String)
 
+    void targetNetworkId(String networkId) {
+        this.networkId.set(networkId)
+    }
+
     void targetNetworkId(Callable<String> networkId) {
         targetNetworkId(project.provider(networkId))
     }

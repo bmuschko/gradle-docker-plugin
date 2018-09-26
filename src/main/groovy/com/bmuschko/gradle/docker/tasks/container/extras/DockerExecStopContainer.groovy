@@ -19,6 +19,7 @@ package com.bmuschko.gradle.docker.tasks.container.extras
 import com.bmuschko.gradle.docker.domain.ExecProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
@@ -44,11 +45,11 @@ class DockerExecStopContainer extends DockerExecContainer {
      */
     @Input
     @Optional
-    Integer timeout
+    final Property<Integer> timeout = project.objects.property(Integer)
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Running exec-stop on container with ID '${getContainerId()}'."
+        logger.quiet "Running exec-stop on container with ID '${containerId.get()}'."
 
         // 1.) we only need to proceed with an exec IF we have something to execute
         // otherwise treat this as a normal stop.
@@ -72,7 +73,7 @@ class DockerExecStopContainer extends DockerExecContainer {
             while (isRunning && localPollTime > 0) {
                 pollTimes += 1
 
-                def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
+                def container = dockerClient.inspectContainerCmd(containerId.get()).exec()
                 isRunning = container.getState().getRunning()
                 if (isRunning) {
 
@@ -95,11 +96,11 @@ class DockerExecStopContainer extends DockerExecContainer {
             // 4.) if container is still in a running state attempt to stop it
             //     the old fashioned way.
             if (isRunning) {
-                logger.quiet "Container with ID '${getContainerId()}' did not gracefully shutdown: issuing stop."
-                DockerStopContainer._runRemoteCommand(dockerClient, getContainerId(), timeout)
+                logger.quiet "Container with ID '${containerId.get()}' did not gracefully shutdown: issuing stop."
+                DockerStopContainer._runRemoteCommand(dockerClient, containerId.get(), timeout.getOrNull())
             }
         } else {
-            DockerStopContainer._runRemoteCommand(dockerClient, getContainerId(), timeout)
+            DockerStopContainer._runRemoteCommand(dockerClient, containerId.get(), timeout.getOrNull())
         }
     }
 

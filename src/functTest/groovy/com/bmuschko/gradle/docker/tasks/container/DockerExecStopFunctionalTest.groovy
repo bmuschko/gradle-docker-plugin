@@ -11,7 +11,7 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task execStopContainer(type: DockerExecStopContainer) {
                 dependsOn livenessProbe
                 finalizedBy removeContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 137]
                 timeout = 60000
@@ -38,7 +38,7 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task execStopContainer(type: DockerExecStopContainer) {
                 dependsOn livenessProbe
                 finalizedBy removeContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 onComplete {
                     println 'Container has been exec-stopped'
                 }
@@ -61,7 +61,7 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task execStopContainer(type: DockerExecStopContainer) {
                 dependsOn createContainer
                 finalizedBy removeContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 onError { exc ->
                     logger.quiet "Found exception: " + exc.class.simpleName
                 }
@@ -92,23 +92,23 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
             
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 livenessProbe(60000, 5000, 'database system is ready to accept connections')
                 onComplete {
                     println 'Container is now live'

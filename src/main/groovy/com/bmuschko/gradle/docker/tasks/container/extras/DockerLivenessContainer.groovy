@@ -44,7 +44,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Starting liveness probe on container with ID '${getContainerId()}'."
+        logger.quiet "Starting liveness probe on container with ID '${containerId.get()}'."
 
         // if livenessProbe was defined proceed as expected otherwise just
         // check if the container is up and running
@@ -61,19 +61,19 @@ class DockerLivenessContainer extends DockerLogsContainer {
             // 1.) Write the content of the logs into a StringWriter which we zero-out
             //     below after each successive log grab.
             setSink(new StringWriter())
-            setTailCount(null)
-            setTailAll(null)
-            setFollow(null)
+            tailCount.set(null)
+            tailAll.set(null)
+            follow.set(null)
 
-            Date lastDate = this.getSince()
+            Date lastDate = since.getOrNull()
 
             while (localPollTime > 0) {
                 pollTimes += 1
 
                 // 2.) check if container is actually running
-                lastInspection = dockerClient.inspectContainerCmd(getContainerId()).exec()
+                lastInspection = dockerClient.inspectContainerCmd(containerId.get()).exec()
                 if (lastInspection.getState().getRunning() == false) {
-                    throw new GradleException("Container with ID '${getContainerId()}' is not running and so can't perform liveness probe.");
+                    throw new GradleException("Container with ID '${containerId.get()}' is not running and so can't perform liveness probe.");
                 }
 
                 if (lastDate) {
@@ -118,9 +118,9 @@ class DockerLivenessContainer extends DockerLogsContainer {
                 throw new GradleException("Liveness probe failed to find a match: ${livenessProbe.toString()}")
             }
         } else {
-            lastInspection = dockerClient.inspectContainerCmd(getContainerId()).exec()
+            lastInspection = dockerClient.inspectContainerCmd(containerId.get()).exec()
             if (lastInspection.getState().getRunning() == false) {
-                throw new GradleException("Container with ID '${getContainerId()}' is not running.");
+                throw new GradleException("Container with ID '${containerId.get()}' is not running.");
             }
         }
     }

@@ -63,11 +63,7 @@ class DockerCommitImage extends DockerExistingContainer {
     final Property<Boolean> attachStdin = project.objects.property(Boolean)
 
     @Internal
-    String imageId
-
-    DockerCommitImage() {
-        ext.getImageId = { imageId }
-    }
+    final Property<String> imageId = project.objects.property(String)
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -102,10 +98,11 @@ class DockerCommitImage extends DockerExistingContainer {
             commitCmd.withAttachStdin(attachStdin.get())
         }
 
-        imageId = commitCmd.exec()
-        logger.quiet "Created image with ID '$imageId'."
+        String createdImageId = commitCmd.exec()
+        imageId.set(createdImageId)
+        logger.quiet "Created image with ID '$createdImageId'."
         if(onNext) {
-            onNext.call(imageId)
+            onNext.call(createdImageId)
         }
     }
 }

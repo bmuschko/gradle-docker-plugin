@@ -176,7 +176,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
         """
     }
@@ -199,7 +199,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
         """
     }
@@ -285,7 +285,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task removeImage(type: DockerRemoveImage) {
                 dependsOn pushImage
                 force = true
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task pullImage(type: DockerPullImage) {

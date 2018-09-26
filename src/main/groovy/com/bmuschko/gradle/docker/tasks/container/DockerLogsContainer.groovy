@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -32,7 +33,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    Boolean follow
+    final Property<Boolean> follow = project.objects.property(Boolean)
 
     /**
      * Set to true to copy all output since the container has started. For long running containers or containers
@@ -42,7 +43,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    Boolean tailAll
+    final Property<Boolean> tailAll = project.objects.property(Boolean)
 
     /**
      * Limit the number of lines of existing output. This cannot be set if #tailAll is also set.
@@ -50,7 +51,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    Integer tailCount
+    final Property<Integer> tailCount = project.objects.property(Integer)
 
     /**
      * Include standard out.
@@ -58,7 +59,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    boolean stdOut = true
+    final Property<Boolean> stdOut = project.objects.property(Boolean)
 
 
     /**
@@ -67,7 +68,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    boolean stdErr = true
+    final Property<Boolean> stdErr = project.objects.property(Boolean)
 
     /**
      * Set to the true to include a timestamp for each line in the output.
@@ -75,7 +76,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    Boolean showTimestamps
+    final Property<Boolean> showTimestamps = project.objects.property(Boolean)
 
     /**
      * Limit the output to lines on or after the specified date.
@@ -83,7 +84,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    Date since
+    final Property<Date> since = project.objects.property(Date)
 
     /**
      * Sink to write log output into
@@ -92,9 +93,14 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Optional
     Writer sink
 
+    DockerLogsContainer() {
+        stdOut.set(true)
+        stdErr.set(true)
+    }
+
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Logs for container with ID '${getContainerId()}'."
+        logger.quiet "Logs for container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient)
     }
 
@@ -102,7 +108,7 @@ class DockerLogsContainer extends DockerExistingContainer {
     // multiple times but don't want the logging message to be
     // printed for every iteration.
     void _runRemoteCommand(dockerClient) {
-        def logCommand = dockerClient.logContainerCmd(getContainerId())
+        def logCommand = dockerClient.logContainerCmd(containerId.get())
         setContainerCommandConfig(logCommand)
         logCommand.exec(createCallback())?.awaitCompletion()
     }
@@ -122,28 +128,28 @@ class DockerLogsContainer extends DockerExistingContainer {
     }
 
     private void setContainerCommandConfig(logsCommand) {
-        if (getFollow() != null) {
-            logsCommand.withFollowStream(getFollow())
+        if (follow.getOrNull() != null) {
+            logsCommand.withFollowStream(follow.get())
         }
 
-        if (getShowTimestamps() != null) {
-            logsCommand.withTimestamps(getShowTimestamps())
+        if (showTimestamps.getOrNull() != null) {
+            logsCommand.withTimestamps(showTimestamps.get())
         }
 
-        logsCommand.withStdOut(getStdOut()).withStdErr(getStdErr())
+        logsCommand.withStdOut(stdOut.get()).withStdErr(stdErr.get())
 
-        if (getTailAll() != null && getTailCount() != null) {
+        if (tailAll.getOrNull() && tailCount.getOrNull()) {
             throw new InvalidUserDataException("Conflicting parameters: only one of tailAll and tailCount can be specified")
         }
 
-        if (getTailAll() != null) {
+        if (tailAll.getOrNull()) {
             logsCommand.withTailAll()
-        } else if (getTailCount() != null) {
-            logsCommand.withTail(getTailCount())
+        } else if (tailCount.getOrNull() != null) {
+            logsCommand.withTail(tailCount.get())
         }
 
-        if (getSince()) {
-            logsCommand.withSince((int) (getSince().time / 1000))
+        if (since.getOrNull()) {
+            logsCommand.withSince((int) (since.get().time / 1000))
         }
     }
 }

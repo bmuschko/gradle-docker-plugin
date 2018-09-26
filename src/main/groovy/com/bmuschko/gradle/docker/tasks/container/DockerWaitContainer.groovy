@@ -15,34 +15,37 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
 
 class DockerWaitContainer extends DockerExistingContainer {
 
-    protected int exitCode
+    private int exitCode
 
     /**
      * Wait timeout in seconds.
      */
     @Input
     @Optional
-    Integer timeout
-
-    DockerWaitContainer() {
-        ext.getExitCode = { exitCode }
-    }
+    final Property<Integer> timeout = project.objects.property(Integer)
 
     @Override
     void runRemoteCommand(dockerClient) {
-        String possibleTimeout = timeout ? " for ${timeout} seconds" : ''
-        logger.quiet "Waiting for container with ID '${getContainerId()}'${possibleTimeout}."
-        def containerCommand = dockerClient.waitContainerCmd(getContainerId())
+        String possibleTimeout = timeout.getOrNull() ? " for ${timeout.get()} seconds" : ''
+        logger.quiet "Waiting for container with ID '${containerId.get()}'${possibleTimeout}."
+        def containerCommand = dockerClient.waitContainerCmd(containerId.get())
         def callback = threadContextClassLoader.createWaitContainerResultCallback(onNext)
         callback = containerCommand.exec(callback)
-        exitCode = timeout ? callback.awaitStatusCode(timeout, TimeUnit.SECONDS) : callback.awaitStatusCode()
+        exitCode = timeout.getOrNull() ? callback.awaitStatusCode(timeout.get(), TimeUnit.SECONDS) : callback.awaitStatusCode()
         logger.quiet "Container exited with code ${exitCode}"
+    }
+
+    @Internal
+    int getExitCode() {
+        exitCode
     }
 }

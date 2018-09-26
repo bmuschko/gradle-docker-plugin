@@ -105,11 +105,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     DockerRegistryCredentials registryCredentials
 
     @Internal
-    String imageId
+    final Property<String> imageId = project.objects.property(String)
 
     DockerBuildImage() {
         inputDir.set(project.file('docker'))
-        ext.getImageId = { imageId }
     }
 
     @Override
@@ -183,7 +182,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         def callback = onNext ? threadContextClassLoader.createBuildImageResultCallback(this.onNext)
                               : threadContextClassLoader.createBuildImageResultCallback(logger)
-        imageId = buildImageCmd.exec(callback).awaitImageId()
-        logger.quiet "Created image with ID '$imageId'."
+        String createdImageId = buildImageCmd.exec(callback).awaitImageId()
+        imageId.set(createdImageId)
+        logger.quiet "Created image with ID '$createdImageId'."
     }
 }

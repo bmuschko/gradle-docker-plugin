@@ -25,7 +25,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 cmd = ['ifconfig']
                 macAddress = '02:03:04:05:06:07'
                 cpuset = '1'
@@ -46,14 +46,14 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 cmd = ['env']
                 
                 // deprecated, use the below examples
                 env = ['HELLO=WORLD']
                 
                 // add by appending new map to current map
-                envVars << ['one' : 'two', 'three' : 'four']
+                envVars.set(['one' : 'two', 'three' : 'four'])
                 
                 // add by calling helper method N number of times
                 withEnvVar('five', 'six')
@@ -80,7 +80,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 pid = "host"
                 cmd = ['/bin/sh']
             }
@@ -99,7 +99,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer            
+            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
@@ -112,24 +112,24 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
             
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
 
             task logContainer(type: DockerLogsContainer) {
                 dependsOn inspectContainer
                 finalizedBy removeContainer
-                targetContainerId { inspectContainer.getContainerId() }
+                targetContainerId inspectContainer.getContainerId()
                 follow = true
                 tailAll = true
             }

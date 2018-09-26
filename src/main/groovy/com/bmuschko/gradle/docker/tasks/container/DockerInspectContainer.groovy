@@ -23,8 +23,8 @@ class DockerInspectContainer extends DockerExistingContainer {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Inspecting container with ID '${getContainerId()}'."
-        def container = dockerClient.inspectContainerCmd(getContainerId()).exec()
+        logger.quiet "Inspecting container with ID '${containerId.get()}'."
+        def container = dockerClient.inspectContainerCmd(containerId.get()).exec()
 
         if (onNext) {
             onNext.call(container)
