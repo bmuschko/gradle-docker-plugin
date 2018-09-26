@@ -68,7 +68,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
                 dependsOn createContainer, createTarFile
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
-                tarFile { new File("$projectDir/HelloWorld.tgz") }
+                tarFile = new File("$projectDir/HelloWorld.tgz")
                 remotePath = "/root"
             }
         """
@@ -106,7 +106,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
                 hostPath = "$projectDir/HelloWorld.txt"
-                tarFile { new File("$projectDir/HelloWorld.txt") }
+                tarFile = new File("$projectDir/HelloWorld.txt")
                 remotePath = "/root"
             }
         """

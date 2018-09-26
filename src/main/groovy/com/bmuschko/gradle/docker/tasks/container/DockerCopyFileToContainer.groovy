@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.domain.CopyFileToContainer
 import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -41,7 +42,7 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    Closure<File> tarFile
+    final RegularFileProperty tarFile = newInputFile()
 
     @Input
     @Optional
@@ -51,13 +52,13 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
     void runRemoteCommand(dockerClient) {
 
         if (remotePath.getOrNull()) {
-            if (hostPath.getOrNull() && getTarFile()) {
+            if (hostPath.getOrNull() && tarFile.getOrNull()) {
                 throw new GradleException("Can specify either hostPath or tarFile not both")
             } else {
                 if (hostPath.getOrNull()) {
                     withFile(hostPath.get(), remotePath.get())
-                } else if (getTarFile()) {
-                    withTarFile(getTarFile(), remotePath.get())
+                } else if (tarFile.getOrNull()) {
+                    withTarFile(tarFile.get(), remotePath.get())
                 }
             }
         }
