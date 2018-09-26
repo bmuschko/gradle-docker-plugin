@@ -15,11 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
-import org.gradle.api.internal.ConventionTask
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
-abstract class AbstractReactiveStreamsTask extends ConventionTask {
+abstract class AbstractReactiveStreamsTask extends DefaultTask {
 
     /**
      * Closure to handle the possibly throw exception
