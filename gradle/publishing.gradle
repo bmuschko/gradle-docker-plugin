@@ -78,7 +78,6 @@ bintray {
         labels = ['gradle', 'docker', 'container', 'image', 'lightweight', 'vm', 'linux']
         publicDownloadNumbers = true
         githubRepo = "bmuschko/${project.name}"
-        githubReleaseNotesFile = 'RELEASE_NOTES.md'
 
         version {
             released  = new Date()
