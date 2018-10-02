@@ -1,10 +1,10 @@
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import spock.lang.Shared
 
-class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractFunctionalTest {
+class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctionalTest {
     public static final String USERNAME_SYSTEM_PROPERTY_KEY = 'registry.username'
 
     @Shared

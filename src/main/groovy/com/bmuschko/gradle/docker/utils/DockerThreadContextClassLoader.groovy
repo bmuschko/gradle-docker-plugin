@@ -19,8 +19,9 @@ import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-import groovy.transform.Synchronized
+import groovy.transform.Memoized
 import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 import java.lang.reflect.Array
 import java.lang.reflect.Constructor
@@ -42,7 +43,6 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     private static final String ON_NEXT_METHOD_NAME = 'onNext'
 
     private final DockerExtension dockerExtension
-    private def dockerClient
 
     DockerThreadContextClassLoader(final DockerExtension dockerExtension) {
         this.dockerExtension = dockerExtension
@@ -64,45 +64,43 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * @param classpathFiles set of files containing DockerClient jars
      * @return DockerClient instance
      */
-    @Synchronized
+    @Memoized
     private def getDockerClient(DockerClientConfiguration dockerClientConfiguration) {
-        if (!dockerClient) {
-            loadClasses(dockerExtension.classpath.files, this.class.classLoader)
+        loadClasses(dockerExtension.classpath.files, this.class.classLoader)
 
-            String dockerUrl = getDockerHostUrl(dockerClientConfiguration)
-            File dockerCertPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
-            String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion
+        String dockerUrl = getDockerHostUrl(dockerClientConfiguration)
+        File dockerCertPath = dockerClientConfiguration.certPath ?: dockerExtension.certPath
+        String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion
 
-            // Create configuration
-            Class dockerClientConfigClass = loadClass("${CORE_PACKAGE}.DockerClientConfig")
-            Class dockerClientConfigClassImpl = loadClass("${CORE_PACKAGE}.DefaultDockerClientConfig")
-            Method dockerClientConfigMethod = dockerClientConfigClassImpl.getMethod('createDefaultConfigBuilder')
-            def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
-            dockerClientConfigBuilder.withDockerHost(dockerUrl)
+        // Create configuration
+        Class dockerClientConfigClass = loadClass("${CORE_PACKAGE}.DockerClientConfig")
+        Class dockerClientConfigClassImpl = loadClass("${CORE_PACKAGE}.DefaultDockerClientConfig")
+        Method dockerClientConfigMethod = dockerClientConfigClassImpl.getMethod('createDefaultConfigBuilder')
+        def dockerClientConfigBuilder = dockerClientConfigMethod.invoke(null)
+        dockerClientConfigBuilder.withDockerHost(dockerUrl)
 
-            if (dockerCertPath) {
-                dockerClientConfigBuilder.withDockerTlsVerify(true)
-                dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
-            } else {
-                dockerClientConfigBuilder.withDockerTlsVerify(false)
-            }
+        if (dockerCertPath) {
+            dockerClientConfigBuilder.withDockerTlsVerify(true)
+            dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
+        } else {
+            dockerClientConfigBuilder.withDockerTlsVerify(false)
+        }
 
-            if (apiVersion) {
-                dockerClientConfigBuilder.withApiVersion(apiVersion)
-            }
+        if (apiVersion) {
+            dockerClientConfigBuilder.withApiVersion(apiVersion)
+        }
 
-            def dockerClientConfig = dockerClientConfigBuilder.build()
+        def dockerClientConfig = dockerClientConfigBuilder.build()
 
-            // Create client
-            Class dockerClientBuilderClass = loadClass("${CORE_PACKAGE}.DockerClientBuilder")
-            Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
-            def dockerClientBuilder = method.invoke(null, dockerClientConfig)
-            dockerClient = dockerClientBuilder.build()
+        // Create client
+        Class dockerClientBuilderClass = loadClass("${CORE_PACKAGE}.DockerClientBuilder")
+        Method method = dockerClientBuilderClass.getMethod('getInstance', dockerClientConfigClass)
+        def dockerClientBuilder = method.invoke(null, dockerClientConfig)
+        def dockerClient = dockerClientBuilder.build()
 
-            // register shutdown-hook to close kubernetes client.
-            addShutdownHook {
-                dockerClient.close()
-            }
+        // register shutdown-hook to close kubernetes client.
+        addShutdownHook {
+            dockerClient.close()
         }
         dockerClient
     }
@@ -551,13 +549,19 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private createOnNextProxyCallback(Closure onNext, defaultHandler) {
+
         Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(defaultHandler.getClass())
         enhancer.setCallback([
             invoke: { Object proxy, Method method, Object[] args ->
-                if (ON_NEXT_METHOD_NAME == method.name) {
-                    onNext.call(args[0])
+                try {
+                    if (ON_NEXT_METHOD_NAME == method.name) {
+                        onNext.call(args[0])
+                    }
+                } catch (Exception e) {
+                    Logging.getLogger(DockerThreadContextClassLoader.getClass()).error('Exception thrown inside enhancer callback', e)
+                    return
                 }
                 try {
                     method.invoke(defaultHandler, args)

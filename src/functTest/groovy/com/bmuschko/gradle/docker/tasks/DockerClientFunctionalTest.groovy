@@ -16,10 +16,10 @@
 
 package com.bmuschko.gradle.docker.tasks
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
-class DockerClientFunctionalTest extends AbstractFunctionalTest {
+class DockerClientFunctionalTest extends AbstractGroovyDslFunctionalTest {
     def "Can get DockerClient with onNext defined"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.DockerClient

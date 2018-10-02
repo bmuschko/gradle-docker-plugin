@@ -19,6 +19,7 @@ import com.bmuschko.gradle.docker.domain.ExecProbe
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
@@ -64,7 +65,7 @@ class DockerExecContainer extends DockerExistingContainer {
 
     // if `successOnExitCodes` are defined this livenessProbe will poll the "exec response"
     // until it is in a non-running state.
-    @Input
+    @Nested
     @Optional
     ExecProbe execProbe
 

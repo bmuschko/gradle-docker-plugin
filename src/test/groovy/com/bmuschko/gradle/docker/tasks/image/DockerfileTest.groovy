@@ -9,12 +9,11 @@ import java.util.logging.Logger
 import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.*
 
 class DockerfileTest extends Specification {
-    private static Logger LOG = Logger.getLogger(DockerfileTest.class.getCanonicalName());
+    private static Logger LOG = Logger.getLogger(DockerfileTest.class.getCanonicalName())
 
     @Unroll
     def "#expectedKeyword instruction String representation is built correctly"() {
-
-        expect:
+        given:
         LOG.fine "testing " + [
             instruction: instructionInstance.class,
             becomes: [
@@ -23,9 +22,10 @@ class DockerfileTest extends Specification {
             ]
         ]
 
+        when:
         def actual
         try {
-            actual = instructionInstance.build()
+            actual = instructionInstance.getText()
         }
         catch(Exception e) {
             LOG.info "Exception caught with message `${e.message}`"
@@ -35,6 +35,7 @@ class DockerfileTest extends Specification {
             actual = e.class
         }
 
+        then:
         instructionInstance.keyword == expectedKeyword
         actual == expectedBuiltInstruction
 

@@ -70,11 +70,19 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     @Input
     @Optional
+    String network
+
+    @Input
+    @Optional
     Map<String, String> labels = [:]
 
     @Input
     @Optional
     Map<String, String> buildArgs = [:]
+
+    @Input
+    @Optional
+    Set<String> cacheFrom = []
 
     /**
      * Size of <code>/dev/shm</code> in bytes.
@@ -138,6 +146,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withPull(getPull())
         }
 
+        if (getNetwork()) {
+            buildImageCmd.withNetworkMode(getNetwork())
+        }
+
         if (getLabels()) {
             buildImageCmd.withLabels(getLabels().collectEntries { [it.key, it.value.toString()] })
         }
@@ -154,6 +166,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         buildArgs.each { arg, value ->
             buildImageCmd = buildImageCmd.withBuildArg(arg, value)
+        }
+
+        if (getCacheFrom()) {
+            // Workaround a bug in dockerjava that double-unmarshalls this argument
+            def doubleMarshalledCacheFrom = ["[\"${getCacheFrom().join('","')}\"]".toString()].toSet()
+            buildImageCmd = buildImageCmd.withCacheFrom(doubleMarshalledCacheFrom)
         }
 
         def callback = onNext ? threadContextClassLoader.createBuildImageResultCallback(this.onNext)

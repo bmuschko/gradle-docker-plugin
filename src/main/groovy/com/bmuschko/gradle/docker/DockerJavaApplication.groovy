@@ -15,11 +15,13 @@
  */
 package com.bmuschko.gradle.docker
 
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile.CompositeExecInstruction
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import org.gradle.api.Action
+import org.gradle.api.tasks.Nested
 
 class DockerJavaApplication {
     String baseImage = 'openjdk:jre-alpine'
-    final CompositeExecInstruction exec = new CompositeExecInstruction()
+    private final CompositeExecInstruction compositeExecInstruction = new CompositeExecInstruction()
 
     /**
      * Deprecated as per https://docs.docker.com/engine/deprecated/#maintainer-in-dockerfile
@@ -44,8 +46,55 @@ class DockerJavaApplication {
         return ports != null ? ports : [port]
     }
 
-    CompositeExecInstruction exec(@DelegatesTo(CompositeExecInstruction) Closure<Void> closure) {
-        exec.clear()
-        exec.apply(closure)
+    CompositeExecInstruction exec(Action<CompositeExecInstruction> action) {
+        compositeExecInstruction.clear()
+        action.execute(compositeExecInstruction)
+    }
+
+    CompositeExecInstruction getExecInstruction() {
+        compositeExecInstruction
+    }
+
+    /**
+     * Helper Instruction to allow customizing generated ENTRYPOINT/CMD.
+     */
+    static class CompositeExecInstruction implements Dockerfile.Instruction {
+        private final List<Dockerfile.Instruction> instructions = new ArrayList<Dockerfile.Instruction>()
+
+        @Nested
+        List<Dockerfile.Instruction> getInstructions() {
+            instructions
+        }
+
+        @Override
+        String getKeyword() { '' }
+
+        @Override
+        String getText() {
+            build()
+        }
+
+        @Override
+        String build() { instructions*.getText().join(System.getProperty('line.separator')) }
+
+        void clear() {
+            instructions.clear()
+        }
+
+        void defaultCommand(String... command) {
+            instructions << new Dockerfile.DefaultCommandInstruction(command)
+        }
+
+        void defaultCommand(Closure command) {
+            instructions << new Dockerfile.DefaultCommandInstruction(command)
+        }
+
+        void entryPoint(String... entryPoint) {
+            instructions << new Dockerfile.EntryPointInstruction(entryPoint)
+        }
+
+        void entryPoint(Closure entryPoint) {
+            instructions << new Dockerfile.EntryPointInstruction(entryPoint)
+        }
     }
 }

@@ -15,11 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class DockerExecContainerFunctionalTest extends AbstractFunctionalTest {
+class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Execute command within running container"() {
         given:

@@ -29,23 +29,13 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
     boolean useCompression
 
     /**
-     * Where to save image. Can't be null.
+     * Where to save image.
      */
     @OutputFile
     File destFile
 
     @Override
     void runRemoteCommand(Object dockerClient) {
-        if (!destFile.exists()) {
-            if(!destFile.createNewFile()) {
-                throw new GradleException("Could not create file @ ${destFile.path}")
-            }
-        }
-
-        if (destFile.isDirectory()) {
-            throw new GradleException("destFile cannot be a directory")
-        }
-
         def saveImageCmd = dockerClient.saveImageCmd(getRepository())
 
         if (getTag()) {
@@ -55,7 +45,7 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
         OutputStream os
         try {
             FileOutputStream fs = new FileOutputStream(destFile)
-            os = fs;
+            os = fs
             if( useCompression ) {
                 os = new GZIPOutputStream(fs)
             }

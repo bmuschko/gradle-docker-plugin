@@ -1,9 +1,9 @@
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
-class DockerListImagesFunctionalTest extends AbstractFunctionalTest {
+class DockerListImagesFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     final String ImageId = createUniqueImageId()
 

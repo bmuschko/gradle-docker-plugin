@@ -3,20 +3,20 @@ package com.bmuschko.gradle.docker
 import spock.lang.Requires
 import spock.lang.Unroll
 
-import static com.bmuschko.gradle.docker.DockerConventionPluginFixture.*
+import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.*
+import static com.bmuschko.gradle.docker.fixtures.DockerSpringBootApplicationPluginFixture.writeSpringBootApplicationClasses
 
-class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctionalTest {
+class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     private static final List<ReactedPlugin> REACTED_PLUGINS = [ReactedPlugin.WAR, ReactedPlugin.JAVA]
 
     def setup() {
         writeSettingsFile()
-        writeSpringBootApplicationClasses()
+        writeSpringBootApplicationClasses(projectDir)
     }
 
     @Override
     protected void setupBuildfile() {
-        buildFile = temporaryFolder.newFile('build.gradle')
     }
 
     @Unroll
@@ -152,65 +152,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractFunctional
     }
 
     private void writeSettingsFile() {
-        temporaryFolder.newFile('settings.gradle') << settingsFile()
-    }
-
-    private void writeSpringBootApplicationClasses() {
-        File packageDir = temporaryFolder.newFolder('src', 'main', 'java', 'com', 'bmuschko', 'gradle', 'docker', 'springboot')
-        new File(packageDir, 'HelloController.java').text = helloWorldControllerClass()
-        new File(packageDir, 'Application.java').text = applicationClass()
-    }
-
-    private static String helloWorldControllerClass() {
-        """
-            package com.bmuschko.gradle.docker.springboot;
-            
-            import org.springframework.web.bind.annotation.RestController;
-            import org.springframework.web.bind.annotation.RequestMapping;
-            
-            @RestController
-            public class HelloController {
-            
-                @RequestMapping("/")
-                public String index() {
-                    return "Greetings from Spring Boot!";
-                }
-            
-            }
-        """
-    }
-
-    private static String applicationClass() {
-        """
-            package com.bmuschko.gradle.docker.springboot;
-            
-            import java.util.Arrays;
-
-            import org.springframework.boot.CommandLineRunner;
-            import org.springframework.boot.SpringApplication;
-            import org.springframework.boot.autoconfigure.SpringBootApplication;
-            import org.springframework.context.ApplicationContext;
-            import org.springframework.context.annotation.Bean;
-            
-            @SpringBootApplication
-            public class Application {
-                public static void main(String[] args) {
-                    SpringApplication.run(Application.class, args);
-                }
-            
-                @Bean
-                public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-                    return args -> {
-                        System.out.println("Let's inspect the beans provided by Spring Boot:");
-                        String[] beanNames = ctx.getBeanDefinitionNames();
-                        Arrays.sort(beanNames);
-                        for (String beanName : beanNames) {
-                            System.out.println(beanName);
-                        }
-                    };
-                }
-            }
-        """
+        settingsFile << groovySettingsFile()
     }
 
     private void setupSpringBootBuild(String reactedPluginIdentifier) {

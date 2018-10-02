@@ -1,4 +1,4 @@
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker.fixtures
 
 final class DockerConventionPluginFixture {
 
@@ -8,7 +8,7 @@ final class DockerConventionPluginFixture {
 
     private DockerConventionPluginFixture() {}
 
-    static String settingsFile() {
+    static String groovySettingsFile() {
         """
             rootProject.name = '$PROJECT_NAME'
         """

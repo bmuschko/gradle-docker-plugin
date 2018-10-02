@@ -44,6 +44,7 @@ class DockerInspectContainer extends DockerExistingContainer {
             logger.quiet "ExposedPorts : $exposedPorts"
             logger.quiet "LogConfig : $container.hostConfig.logConfig.type.type"
             logger.quiet "RestartPolicy : $container.hostConfig.restartPolicy"
+            logger.quiet "PidMode : $container.hostConfig.pidMode"
             def devices = container.hostConfig.@devices ?
                 container.hostConfig.devices.collect {
                     "${it.pathOnHost}:${it.pathInContainer}:${it.cGroupPermissions}"

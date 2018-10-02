@@ -166,6 +166,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
+    String pid
+
+    @Input
+    @Optional
     List<String> devices
 
     /**
@@ -394,6 +398,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if (getRestartPolicy()) {
             containerCommand.withRestartPolicy(threadContextClassLoader.createRestartPolicy(getRestartPolicy()))
+        }
+
+        if (getPid()) {
+            containerCommand.withPidMode(getPid())
         }
 
         if (getDevices()) {

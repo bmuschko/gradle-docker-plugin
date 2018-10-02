@@ -15,10 +15,10 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
-class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
+class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Wait for a container to be healthy"() {
         buildFile << """
@@ -27,7 +27,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
+                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
@@ -77,8 +77,8 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE'
+                tag = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -116,7 +116,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
+                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
@@ -171,7 +171,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
+                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
@@ -225,7 +225,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
+                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 10; touch /tmp/HEALTHY; sleep 60'
             }
@@ -276,7 +276,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
+                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 5'
             }
@@ -327,7 +327,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task dockerfile(type: Dockerfile) {
-                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
+                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
                 instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
                 defaultCommand '/bin/sh', '-c', 'sleep 10'
             }

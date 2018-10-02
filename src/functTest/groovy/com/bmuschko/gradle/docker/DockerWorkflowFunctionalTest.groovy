@@ -19,7 +19,7 @@ import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
-class DockerWorkflowFunctionalTest extends AbstractFunctionalTest {
+class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     def "Can create Dockerfile and build an image from it"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile

@@ -15,10 +15,13 @@
  */
 package com.bmuschko.gradle.docker
 
+import groovy.transform.CompileStatic
+import org.gradle.api.credentials.PasswordCredentials
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-class DockerRegistryCredentials {
+@CompileStatic
+class DockerRegistryCredentials implements PasswordCredentials {
     public static final String DEFAULT_URL = 'https://index.docker.io/v1/'
 
     /**

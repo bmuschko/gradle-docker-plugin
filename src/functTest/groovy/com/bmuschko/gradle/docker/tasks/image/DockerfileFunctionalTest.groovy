@@ -1,17 +1,22 @@
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class DockerfileFunctionalTest extends AbstractFunctionalTest {
+class DockerfileFunctionalTest extends AbstractGroovyDslFunctionalTest {
     private static final String DOCKERFILE_TASK_NAME = 'dockerfile'
+    private static final String DOCKERFILE_TASK_PATH = ":$DOCKERFILE_TASK_NAME".toString()
+
+    def setup() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+        """
+    }
 
     def "Executing a Dockerfile task without specified instructions throws exception"() {
         given:
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+        buildFile << """            
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile)
         """
 
@@ -19,59 +24,98 @@ class DockerfileFunctionalTest extends AbstractFunctionalTest {
         BuildResult buildResult = buildAndFail(DOCKERFILE_TASK_NAME)
 
         then:
+        !defaultDockerfile().exists()
         buildResult.output.contains('Please specify instructions for your Dockerfile')
-        !new File(projectDir, 'build/docker/Dockerfile').exists()
     }
 
-    def "Specifying FROM instruction as first statement is mandatory"() {
+    def "Instruction validation is performed during execution phase"() {
         given:
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                // expected missing from
+                defaultCommand 'foo'
+            }
+
+            task any
+        """
+
+        expect:
+        build('any')
+    }
+
+    def "First instruction has to be FROM or ARG"() {
+        given:
+        buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
             }
-            
-            task ${DOCKERFILE_TASK_NAME}simple(type: Dockerfile) {
+        """
+
+        when:
+        BuildResult result = buildAndFail(DOCKERFILE_TASK_NAME)
+
+        then:
+        !defaultDockerfile().exists()
+        result.output.contains('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
+    }
+
+    def "Can specify FROM instruction as first statement"() {
+        given:
+        buildFile << """
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
             }
-            
-            task ${DOCKERFILE_TASK_NAME}1705(type: Dockerfile) {
-                arg 'from=$TEST_IMAGE_WITH_TAG'
-                from '\$from'
+        """
+
+        when:
+        build(DOCKERFILE_TASK_NAME)
+
+        then:
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
+""")
+    }
+
+    def "Can specify ARG instruction as first statement"() {
+        given:
+        buildFile << """
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                arg 'baseImage=$TEST_IMAGE_WITH_TAG'
+                from '\$baseImage'
             }
         """
-        def outcome = new File(projectDir, 'build/docker/Dockerfile')
 
         when:
-        BuildResult buildResult = buildAndFail(DOCKERFILE_TASK_NAME)
+        build(DOCKERFILE_TASK_NAME)
 
         then:
-        buildResult.output.contains('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
-        !outcome.exists()
+        assertDockerfileContent("""ARG baseImage=$TEST_IMAGE_WITH_TAG
+FROM \$baseImage
+""")
+    }
+
+    def "Can specify comments before FROM instruction as first statement"() {
+        given:
+        buildFile << """
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                instruction '# This is a comment'
+                instruction '# And another one'
+                from '$TEST_IMAGE_WITH_TAG'
+            }
+        """
 
         when:
-        buildResult = build("${DOCKERFILE_TASK_NAME}1705")
+        build(DOCKERFILE_TASK_NAME)
 
         then:
-        TaskOutcome.SUCCESS == buildResult.tasks.first().outcome
-        outcome.exists()
-        outcome.text == "ARG from=$TEST_IMAGE_WITH_TAG\nFROM \$from\n"
-
-        when:
-        buildResult = build("${DOCKERFILE_TASK_NAME}simple")
-
-        then:
-        TaskOutcome.SUCCESS == buildResult.tasks.first().outcome
-        outcome.exists()
-        outcome.text == "FROM $TEST_IMAGE_WITH_TAG\n"
+        assertDockerfileContent("""# This is a comment
+# And another one
+FROM $TEST_IMAGE_WITH_TAG
+""")
     }
 
     def "Can create minimal Dockerfile in default location"() {
         given:
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+        buildFile << """            
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
@@ -82,18 +126,14 @@ class DockerfileFunctionalTest extends AbstractFunctionalTest {
         build(DOCKERFILE_TASK_NAME)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
-"""
+""")
     }
 
     def "Can create Dockerfile using all instruction methods"() {
         given:
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+        buildFile << """            
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
@@ -118,9 +158,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
         build(DOCKERFILE_TASK_NAME)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
 CMD ["echo", "some", "command"]
@@ -136,17 +174,15 @@ USER root
 WORKDIR /tmp
 ONBUILD RUN echo "Hello World"
 LABEL version=1.0
-"""
+""")
     }
 
     def "Can create Dockerfile by adding instances of Instruction"() {
         given:
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+        buildFile << """            
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                instructions = [new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG'),
-                                new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com'])]
+                instructions << new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG')
+                instructions << new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com'])
             }
         """
 
@@ -154,18 +190,14 @@ LABEL version=1.0
         build(DOCKERFILE_TASK_NAME)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
-"""
+""")
     }
 
     def "Can create Dockerfile by adding raw instructions"() {
         given:
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+        buildFile << """            
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 instruction 'FROM $TEST_IMAGE_WITH_TAG'
                 instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
@@ -176,11 +208,9 @@ LABEL maintainer=benjamin.muschko@gmail.com
         build(DOCKERFILE_TASK_NAME)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
-"""
+""")
     }
 
     def "Can create Dockerfile from template file"() {
@@ -188,9 +218,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
         File dockerDir = temporaryFolder.newFolder('src', 'main', 'docker')
         new File(dockerDir, 'Dockerfile.template') << """FROM alpine:3.4
 LABEL maintainer=benjamin.muschko@gmail.com"""
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+        buildFile << """            
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 instructionsFromTemplate 'src/main/docker/Dockerfile.template'
             }
@@ -200,185 +228,45 @@ LABEL maintainer=benjamin.muschko@gmail.com"""
         build(DOCKERFILE_TASK_NAME)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
-"""
+""")
     }
 
     def "Dockerfile task can be up-to-date"() {
         given:
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
-            ext.version = project.properties.getOrDefault('version', '1.0')
+        buildFile << """            
+            ext.labelVersion = project.properties.getOrDefault('labelVersion', '1.0')
             
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 instruction 'FROM $TEST_IMAGE_WITH_TAG'
                 instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
-                label([ver: version])
+                label([ver: labelVersion])
             }
         """
 
         when:
-        def result = build(DOCKERFILE_TASK_NAME)
+        BuildResult result = build(DOCKERFILE_TASK_NAME)
 
         then:
-        TaskOutcome.SUCCESS == result.tasks.first().outcome
+        result.task(DOCKERFILE_TASK_PATH).outcome == TaskOutcome.SUCCESS
 
         when:
         result = build(DOCKERFILE_TASK_NAME)
 
         then:
-        TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
+        result.task(DOCKERFILE_TASK_PATH).outcome == TaskOutcome.UP_TO_DATE
 
         when:
-        result = build(DOCKERFILE_TASK_NAME, "-Pversion=1.1")
+        result = build(DOCKERFILE_TASK_NAME, "-PlabelVersion=1.1")
 
         then:
-        TaskOutcome.SUCCESS == result.tasks.first().outcome
+        result.task(DOCKERFILE_TASK_PATH).outcome == TaskOutcome.SUCCESS
     }
 
-    def "Dockerfile task can be up-to-date false by self defined rule"() {
-
-        given: // … a simple docker file …
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-            task dockerFile(type: Dockerfile) {
-                from "$TEST_IMAGE"
-            }
-        """
-
-        when:
-        def result = build('dockerFile')
-
-        then: // … it is generated the first time
-        TaskOutcome.SUCCESS == result.tasks.first().outcome
-
-        when: // … a upToDate spec returns true …
-        buildFile.delete()
-        super.setupBuildfile()
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-            task dockerFile(type: Dockerfile) {
-                outputs.upToDateWhen { true }
-                from "$TEST_IMAGE"
-            }
-        """
-        result = build('dockerFile')
-
-        then: // … this will have no effect
-        TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
-
-        when: // … we change the definition so output changes …
-        buildFile.delete()
-        super.setupBuildfile()
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-            task dockerFile(type: Dockerfile) {
-                outputs.upToDateWhen { true }
-                from "$TEST_IMAGE"
-                environmentVariable "Foo", "Bar"
-            }
-        """
-        result = build('dockerFile')
-
-        then: // … it is compiled, the additional spec is not relevant …
-        TaskOutcome.SUCCESS == result.tasks.first().outcome
-
-        when: // … just running the same …
-        result = build('dockerFile')
-
-        then: // … we are up to date …
-        TaskOutcome.UP_TO_DATE == result.tasks.first().outcome
-
-        when: // … a user spec return false …
-        buildFile.delete()
-        super.setupBuildfile()
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-            task dockerFile(type: Dockerfile) {
-                outputs.upToDateWhen { false }
-                from "$TEST_IMAGE"
-                environmentVariable "Foo", "Bar"
-            }
-        """
-        result = build('dockerFile')
-
-        then: // … it succeeds …
-        TaskOutcome.SUCCESS == result.tasks.first().outcome
-
-        when: // … always …
-        result = build('dockerFile')
-
-        then: // …
-        TaskOutcome.SUCCESS == result.tasks.first().outcome
-    }
-
-    def "Do not fail on configuration phase"() {
-
-        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
-            it.write('Hello, World!')
-        }
-
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-            task dockerFile(type: Dockerfile) {
-                defaultCommand "foo"
-                // expected missing from
-            }
-
-            task dockerFile2(type: Dockerfile) {
-                from "$TEST_IMAGE"
-                environmentVariable "", "value"
-            }
-
-            task clean {}
-        """
-
-        expect:
-        build('clean')
-    }
-
-    def "Do fail on task execution phase"() {
-
-        new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
-            it.write('Hello, World!')
-        }
-
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
-            task dockerFile(type: Dockerfile) {
-                defaultCommand "foo"
-                // expected missing from
-            }
-
-            task dockerFile2(type: Dockerfile) {
-                from "$TEST_IMAGE"
-                environmentVariable "", "value"
-            }
-
-            task clean {}
-        """
-
-        expect:
-        buildAndFail('dockerFile')
-
-        and:
-        buildAndFail('dockerFile2')
-    }
-
-    def "supports multi-stage builds"() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+    def "can create multi-stage builds"() {
+        given:
+        buildFile << """            
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG', 'builder'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
@@ -392,21 +280,17 @@ LABEL maintainer=benjamin.muschko@gmail.com
         build(DOCKERFILE_TASK_NAME)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG AS builder
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG AS builder
 LABEL maintainer=benjamin.muschko@gmail.com
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 FROM alpine:3.4 AS prod
 COPY --from=builder /opt/h2.jar /opt/h2.jar
-"""
+""")
     }
 
-
-    def "supports multi-stage builds (lazy evaluation)"() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+    def "can create multi-stage builds for lazily evaluated assignments"() {
+        given:
+        buildFile << """            
             ext.buildStageName = ''
             
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
@@ -425,13 +309,21 @@ COPY --from=builder /opt/h2.jar /opt/h2.jar
         build(DOCKERFILE_TASK_NAME)
 
         then:
-        File dockerfile = new File(projectDir, 'build/docker/Dockerfile')
-        dockerfile.exists()
-        dockerfile.text == """FROM $TEST_IMAGE_WITH_TAG AS builder
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG AS builder
 LABEL maintainer=benjamin.muschko@gmail.com
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 FROM alpine:3.4 AS prod
 COPY --from=builder /opt/h2.jar /opt/h2.jar
-"""
+""")
+    }
+
+    private void assertDockerfileContent(String expectedContent) {
+        File dockerfile = defaultDockerfile()
+        assert dockerfile.isFile()
+        assert dockerfile.text == expectedContent
+    }
+
+    private File defaultDockerfile() {
+        new File(projectDir, 'build/docker/Dockerfile')
     }
 }

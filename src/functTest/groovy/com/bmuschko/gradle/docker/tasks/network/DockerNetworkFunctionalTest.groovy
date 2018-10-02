@@ -1,8 +1,8 @@
 package com.bmuschko.gradle.docker.tasks.network
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
+import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 
-class DockerNetworkFunctionalTest extends AbstractFunctionalTest {
+class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
     /**
      * Creation and removal are tested together because leftover networks can be extremely annoying.
      */
