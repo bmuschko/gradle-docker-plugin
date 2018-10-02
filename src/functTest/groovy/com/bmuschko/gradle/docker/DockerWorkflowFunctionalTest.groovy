@@ -239,6 +239,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
         if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
             throw new GradleException("Could not successfully create dockerFileLocation @ ${dockerFileLocation.path}")
 
+        String imageName = "${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}"
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
@@ -258,12 +259,15 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
                 inputDir = createDockerfile.destFile.parentFile
-                tag = '${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}'
+                tags = ['${imageName}:111',
+                        '${imageName}:222',
+                        '${imageName}:333']
             }
 
             task pushImage(type: DockerPushImage) {
-                dependsOn buildImage
-                conventionMapping.imageName = { buildImage.getTag() }
+                dependsOn buildImage2
+                imageName = "${imageName}"
+                tags = ['111', '222', '333']
             }
 
             task workflow {
