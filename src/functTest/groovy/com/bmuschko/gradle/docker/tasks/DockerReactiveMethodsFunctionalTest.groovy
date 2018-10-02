@@ -329,7 +329,6 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
         result.output.contains("Container should be running!")
     }
 
-    @Ignore
     def "should call onNext when waiting for a container"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -464,6 +463,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             }
         """
 
+        expect:
         expect:
         BuildResult result = build('workflow')
         result.output.contains("Pushed")

@@ -21,6 +21,7 @@ import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import groovy.transform.Memoized
 import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 import java.lang.reflect.Array
 import java.lang.reflect.Constructor
@@ -548,13 +549,19 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private createOnNextProxyCallback(Closure onNext, defaultHandler) {
+
         Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(defaultHandler.getClass())
         enhancer.setCallback([
             invoke: { Object proxy, Method method, Object[] args ->
-                if (ON_NEXT_METHOD_NAME == method.name) {
-                    onNext.call(args[0])
+                try {
+                    if (ON_NEXT_METHOD_NAME == method.name) {
+                        onNext.call(args[0])
+                    }
+                } catch (Exception e) {
+                    Logging.getLogger(DockerThreadContextClassLoader.getClass()).error('Exception thrown inside enhancer callback', e)
+                    return
                 }
                 try {
                     method.invoke(defaultHandler, args)
