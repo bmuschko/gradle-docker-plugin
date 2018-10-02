@@ -417,7 +417,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.hostConfig.withShmSize(getShmSize())
         }
 
-        if (getAutoRemove()) {
+        if (getAutoRemove() != null && getAutoRemove()) {
             containerCommand.hostConfig.withAutoRemove(getAutoRemove())
         }
 
