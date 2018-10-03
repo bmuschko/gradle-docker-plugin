@@ -521,7 +521,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Gradle Docker Plugin User Guide &amp; Examples</h1>
 <div class="details">
-<span id="revnumber">version 3.6.1</span>
+<span id="revnumber">version 3.6.2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -568,6 +568,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#release_process">5.4. Release Process</a></li>
 </ul>
 </li>
+<li><a href="#change_log">6. Change Log</a></li>
 </ul>
 </div>
 </div>
@@ -725,7 +726,7 @@ See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle 
         }
     }
     dependencies {
-        classpath <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko:gradle-docker-plugin:3.6.1</span><span class="delimiter">'</span></span>
+        classpath <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko:gradle-docker-plugin:3.6.2</span><span class="delimiter">'</span></span>
     }
 }
 
@@ -739,7 +740,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 <div class="title">build.gradle</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">plugins {
-    id <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span> version <span class="string"><span class="delimiter">'</span><span class="content">3.6.1</span><span class="delimiter">'</span></span>
+    id <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-remote-api</span><span class="delimiter">'</span></span> version <span class="string"><span class="delimiter">'</span><span class="content">3.6.2</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
@@ -759,7 +760,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
         }
     }
     dependencies {
-        classpath <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko:gradle-docker-plugin:3.6.1</span><span class="delimiter">'</span></span>
+        classpath <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko:gradle-docker-plugin:3.6.2</span><span class="delimiter">'</span></span>
     }
 }
 
@@ -795,7 +796,7 @@ You can model any workflow imaginable by creating enhanced task of the custom ta
         }
     }
     dependencies {
-        classpath com.bmuschko:gradle-docker-<span class="key">plugin</span>:3.6.1<span class="string"><span class="delimiter">'</span></span><span class="error">
+        classpath com.bmuschko:gradle-docker-<span class="key">plugin</span>:3.6.2<span class="string"><span class="delimiter">'</span></span><span class="error">
 </span>    }
 }
 
@@ -1484,7 +1485,7 @@ The default configuration is tweakable via an exposed extension.</p>
         }
     }
     dependencies {
-        classpath com.bmuschko:gradle-docker-<span class="key">plugin</span>:3.6.1<span class="string"><span class="delimiter">'</span></span><span class="error">
+        classpath com.bmuschko:gradle-docker-<span class="key">plugin</span>:3.6.2<span class="string"><span class="delimiter">'</span></span><span class="error">
 </span>    }
 }
 
@@ -1733,8 +1734,8 @@ The default configuration is tweakable via an exposed extension. The plugin <a h
         }
     }
     dependencies {
-        classpath com.bmuschko:gradle-docker-<span class="key">plugin</span>:3.6.1<span class="string"><span class="delimiter">'</span></span><span class="error">
-</span>    }
+        classpath <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko:gradle-docker-plugin:3.6.2</span><span class="delimiter">'</span></span>
+    }
 }
 
 apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">com.bmuschko.docker-spring-boot-application</span><span class="delimiter">'</span></span></code></pre>
@@ -2089,11 +2090,1006 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="change_log"><a class="anchor" href="#change_log"></a>6. Change Log</h2>
+<div class="sectionbody">
+<h3 id="v3_6_2_tba" class="discrete">v3.6.2 (TBA)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DockerCreateContainer</code> gained <code>pid</code> option - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/652">Pull Request 652</a></p>
+</li>
+<li>
+<p><code>Dockerfile</code> validation takes into account comments - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/657">Issue 657</a></p>
+</li>
+<li>
+<p>Bump <code>docker-java-shaded</code> to <code>rc-5</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/660">Issue 660</a></p>
+</li>
+<li>
+<p><code>DockerBuildImage</code> gained <code>network</code> option - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/608">Issue 608</a></p>
+</li>
+<li>
+<p><code>DockerCreateContainer</code> gained <code>autoRemove</code> option - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/639">Issue 639</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_6_1_august_21_2018" class="discrete">v3.6.1 (August 21, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerClient</code>, and the passed dockerClient object, is now cached by configuration - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/644">Pull Request 644</a></p>
+</li>
+<li>
+<p>Task <code>DockerBuildImage</code> gained option <code>cacheFrom</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/646">Pull Request 646</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_6_0_august_7_2018" class="discrete">v3.6.0 (August 7, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Use smaller base images for convention plugins - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/636">Pull Request 636</a></p>
+</li>
+<li>
+<p>Fully deprecate MAINTAINER instruction and replace with LABEL - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/635">Pull Request 635</a></p>
+</li>
+<li>
+<p>Make Dockerfile task cacheable via Gradle build cache - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/641">Pull Request 641</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_5_0_july_24_2018" class="discrete">v3.5.0 (July 24, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for dockerizing Spring Boot applications - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/619">Pull Request 619</a></p>
+</li>
+<li>
+<p>Removed deprecated <code>ResponseHandler</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/624">Pull Request 624</a></p>
+</li>
+<li>
+<p>Introduce user guide for more readable, maintainable documentation - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/630">Pull Request 630</a></p>
+</li>
+<li>
+<p>Upgrade to Gradle Wrapper 4.9</p>
+</li>
+</ul>
+</div>
+<h3 id="v3_4_4_july_15_2018" class="discrete">v3.4.4 (July 15, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerLivenessContainer</code> had its polling logic reworked to be more failure proof.</p>
+</li>
+</ul>
+</div>
+<h3 id="v3_4_3_july_8_2018" class="discrete">v3.4.3 (July 8, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerCreateContainer</code> has its method <code>withEnvVars</code> changed to accept a <code>def</code>, which in turn can be anything (String, Integer, Closure, etc) but will eventually have all its keys/values resolved to java strings. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/616">Pull Request 617</a></p>
+</li>
+<li>
+<p>Task <code>DockerLivenessContainer</code> had minor verbiage changes to its output. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/616">Pull Request 617</a></p>
+</li>
+<li>
+<p>Use <code>-all</code> wrapper to better integrate with IDE&#8217;s. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/616">Pull Request 617</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_4_2_july_7_2018" class="discrete">v3.4.2 (July 7, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Shade cglib and its dependencies. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/616">Pull Request 616</a></p>
+</li>
+<li>
+<p>Bump <code>docker-java</code> to <code>3.1.0-rc-3</code>. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/616">Pull Request 616</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_4_1_july_3_2018" class="discrete">v3.4.1 (July 3, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>BUGFIX for task <code>DockerCreateContainer</code> where <code>envs</code> were not being properly honored. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/614">Pull Request 614</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_4_0_july_1_2018" class="discrete">v3.4.0 (July 1, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>Dockerfile</code> now supports multi-stage builds - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/607">Pull Request 607</a></p>
+</li>
+<li>
+<p>When plugin is applied to sub-projects we will additionally search rootProject for repos to use - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/610">Pull Request 610</a></p>
+</li>
+<li>
+<p>Task <code>DockerCreateContainer</code> has deprecated <code>env</code> in favor of <code>envVars</code> which can ONLY be added to with a helper method <code>withEnvVar</code> that can be called <strong>N</strong> times for setting environment variables. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/609">Pull Request 609</a></p>
+</li>
+<li>
+<p>Task <code>DockerLivenessProbeContainer</code> has been renamed to <code>DockerLivenessContainer</code>. It&#8217;s <code>probe</code> method has been renamed to <code>livnessProbe</code>. Task <code>DockerExecStopContainer</code> had its <code>probe</code> method renamed to <code>execStopProbe</code>. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/611">Pull Request 611</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_3_6_june_23_2018" class="discrete">v3.3.6 (June 23, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerCopyFileToContainer</code> can now copy <strong>N</strong> number of files via methods <code>withFile</code> and <code>withTarFile</code>. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/605">Pull request 605</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_3_5_june_17_2018" class="discrete">v3.3.5 (June 17, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix bug within <code>DockerExecContainer</code> when <code>exitCode</code> can be null (default to 0 if so). - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/602">Pull request 602</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_3_4_june_16_2018" class="discrete">v3.3.4 (June 16, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerExecContainer</code> gained ability to specify multiple execution commands to be run. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/600">Pull request 600</a></p>
+</li>
+<li>
+<p>Various tasks had their progress logger output cleaned up. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/601">Pull request 601</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_3_3_june_8_2018" class="discrete">v3.3.3 (June 8, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Explicitly call <code>toString()</code> on values in maps passed to Docker API. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/595">Pull request 595</a></p>
+</li>
+<li>
+<p>Task <code>DockerLivenessProbeContainer</code> gained method <code>lastInspection()</code> which will return the last "docker inspect container" response AFTER execution has completed. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/596">Pull request 596</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_3_2_june_5_2018" class="discrete">v3.3.2 (June 5, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerLivenessProbeContainer</code> now has the <code>probe</code> option set to optional and if NOT defined will fallback to checking if container is in a running state. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/594">Pull request 594</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_3_1_june_2_2018" class="discrete">v3.3.1 (June 2, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Various minor refactorings surrounding new task <code>DockerExecStopContainer</code>. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/592">Pull request 592</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_3_0_june_1_2018" class="discrete">v3.3.0 (June 1, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added task <code>DockerClient</code> to pass the raw <code>docker-java</code> client to the <code>onNext</code> closure if defined. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/589">Pull request 589</a></p>
+</li>
+<li>
+<p>Task <code>DockerCreateContainer</code> will now log the <code>containerName</code> if set, which is the standard within this plugin, otherwise fallback to the just created <code>containerId</code>.</p>
+</li>
+<li>
+<p>Task <code>DockerExecContainer</code> gained option <code>successOnExitCodes</code> to allow user to define a list of successful exit codes the exec is allowed to return and will fail if not in list. Default behavior is to do no check. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/590">Pull request 590</a></p>
+</li>
+<li>
+<p>Added task <code>DockerLivenessProbeContainer</code> which will poll, for some defined amount of time, a running containers logs looking for a given message and fail if not found. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/587">Pull request 587</a></p>
+</li>
+<li>
+<p>Added task <code>DockerExecStopContainer</code> to allow the user to execute an arbitrary cmd against a container, polling for it to enter a non-running state, and if that does not succeed in time issue stop request. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/591">Pull request 591</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_9_may_22_2018" class="discrete">v3.2.9 (May 22, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed a bug in task <code>DockerCreateContainer</code> where option <code>cpuset</code> is now renamed differently in <code>docker-java</code>. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/585">Pull request 585</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_8_april_30_2018" class="discrete">v3.2.8 (April 30, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerExecContainer</code> gained option <code>user</code> to specify a user/group. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/574">Pull request 574</a></p>
+</li>
+<li>
+<p>Task <code>DockerCreateContainer</code> gained option <code>ipV4Address</code> to specify a specific ipv4 address to use. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/449">Pull request 449</a></p>
+</li>
+<li>
+<p>Bump gradle to <code>4.7</code>. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/578">Pull request 578</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_7_april_19_2018" class="discrete">v3.2.7 (April 19, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerSaveImage</code> gained option <code>useCompression</code> to optionally gzip the created tar. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/565">Pull request 565</a></p>
+</li>
+<li>
+<p>Add <code>javax.activation</code> dependency for users who are working with jdk9+. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/572">Pull request 572</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_6_march_31_2018" class="discrete">v3.2.6 (March 31, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Cache <code>docker-java</code> client instead of recreating for every request/task invocation. This is a somewhat big internal change but has a lot of consequences and so it was deserving of its own point release. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/558">Pull request 558</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_5_march_2_2018" class="discrete">v3.2.5 (March 2, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added <code>macAddress</code> option to task <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/538">Pull request 538</a></p>
+</li>
+<li>
+<p>Initial work for <code>codenarc</code> analysis - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/537">Pull request 537</a></p>
+</li>
+<li>
+<p>Use of <code>docker-java-shaded</code> library in favor of <code>docker-java</code> proper to get around class-loading/clobbering issues - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/550">Pull request 550</a></p>
+</li>
+<li>
+<p>Honor DOCKER_CERT_PATH env var if present - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/549">Pull request 549</a></p>
+</li>
+<li>
+<p>Task <code>DockerSaveImage</code> will now create file for you should it not exist - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/552">Pull request 552</a></p>
+</li>
+<li>
+<p>Task <code>DockerPushImage</code> will now include tag info in logging if applicable - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/554">Pull request 554</a></p>
+</li>
+<li>
+<p>!!!!! BREAKING: Property <code>inputStream</code> of task <code>DockerLoadImage</code> has been changed from type <code>InputStream</code> to <code>Closure&lt;InputStream&gt;</code>. This was done to allow scripts/code/pipelines to delay getting the image and side-step this property getting configured during gradles config-phase. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/552">Pull request 552</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_4_february_5_2018" class="discrete">v3.2.4 (February 5, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Use openjdk as a default image in DockerJavaApplicationPlugin - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/528">Pull request 528</a></p>
+</li>
+<li>
+<p>Add <code>skipMaintainer</code> to <code>DockerJavaApplication</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/529">Pull request 529</a></p>
+</li>
+<li>
+<p>Can now define <code>labels</code> in <code>DockerCreateContainer</code> task - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/530">Pull request 530</a></p>
+</li>
+<li>
+<p>Added task <code>DockerRenameContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/533">Pull request 533</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_3_january_26_2018" class="discrete">v3.2.3 (January 26, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>DockerWaitHealthyContainer</code> is run on an image which was not built with <code>HEALTHCHECK</code> than fallback to using generic status - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/520">Pull request 520</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_2_january_17_2018" class="discrete">v3.2.2 (January 17, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Bump gradle to <code>4.3.1</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/500">Pull request 500</a></p>
+</li>
+<li>
+<p>Bug fix for <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/490">Issue 490</a> wherein <code>on*</code> reactive-stream closures are evaluated with null exception when using gradle-4.3 - <a href="https://github.com/bmuschko/gradle-docker-plugin/commit/93b80f2bd18c4f04d0f58443b45c59cb58a54e77">Commit 93b80f</a></p>
+</li>
+<li>
+<p>Support for zero exposed ports in <code>DockerJavaApplication</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/504">Pull request 504</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_1_november_22_2017" class="discrete">v3.2.1 (November 22, 2017)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Bump gradle to <code>4.2</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/471">Pull request 471</a></p>
+</li>
+<li>
+<p>Fix setting <code>shmSize</code> when creating container - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/480">Pull request 480</a></p>
+</li>
+<li>
+<p>Add support for entrypoint on <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/479">Pull request 479</a></p>
+</li>
+<li>
+<p>Bump verison of docker-java to 3.0.14 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/482">Pull request 482</a></p>
+</li>
+<li>
+<p>Added <code>DockerWaitHealthyContainer</code> task - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/485">Pull request 485</a></p>
+</li>
+<li>
+<p>Use groovy join function in favor or jdk8 join function. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/498">Pull request 498</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_2_0_september_29_2017" class="discrete">v3.2.0 (September 29, 2017)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Update <code>createBind</code> to use docker-java <code>parse</code> method - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/452">Pull request 452</a></p>
+</li>
+<li>
+<p>Allow Docker to cache app libraries dir when <code>DockerJavaApplication</code> plugin is used - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/459">Pull request 459</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_1_0_august_21_2017" class="discrete">v3.1.0 (August 21, 2017)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DockerListImages</code> gained better support for filters - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/414">Pull request 414</a></p>
+</li>
+<li>
+<p>Use <code>alpine:3.4</code> image in functional tests - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/416">Pull request 416</a></p>
+</li>
+<li>
+<p><code>DockerBuildImage</code> and <code>DockerCreateContainer</code> gained optional argument <code>shmSize</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/413">Pull request 413</a></p>
+</li>
+<li>
+<p>Added tasks <code>DockerInspectNetwork</code>, <code>DockerCreateNetwork</code>, and <code>DockerRemoveNetwork</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/422">Pull request 422</a></p>
+</li>
+<li>
+<p>Add statically typed methods for configuring plugin with Kotlin - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/426">Pull request 426</a></p>
+</li>
+<li>
+<p>Fix <code>Dockerfile</code> task up-to-date logic - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/433">Pull request 433</a></p>
+</li>
+<li>
+<p>Multiple ENVs are not set the same way as single ENV instructions - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/415">Pull request 415</a></p>
+</li>
+<li>
+<p><code>DockerCreateContainer</code> changed optional input <code>networkMode</code> to <code>network</code> to better align with docker standatds - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/440">Pull request 440</a></p>
+</li>
+<li>
+<p>The first instruction of a Dockerfile has to be FROM except for Docker versions later than 17.05 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/435">Pull request 435</a></p>
+</li>
+<li>
+<p>Bump verison of docker-java to 3.0.13 - <a href="https://github.com/bmuschko/gradle-docker-plugin/commit/b2d93671ed0a0b7177a450d503c28eca6aa6795d">Commit b2d936</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_10_july_7_2017" class="discrete">v3.0.10 (July 7, 2017)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Bump verison of docker-java to 3.0.12 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/408">Pull request 408</a></p>
+</li>
+<li>
+<p>Publish javadocs on new release - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/405">Pull request 405</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_9_july_4_2017" class="discrete">v3.0.9 (July 4, 2017)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Bump verison of docker-java to 3.0.11 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/403">Pull request 403</a></p>
+</li>
+<li>
+<p>New release process - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/402">Pull request 402</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_8_june_16_2017" class="discrete">v3.0.8 (June 16, 2017)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerPullImage</code> gained method <code>getImageId()</code> which returns the fully qualified imageId of the image that was just pulled - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/379">Pull request 379</a></p>
+</li>
+<li>
+<p>Task <code>DockerBuildImage</code> gained property <code>tags</code> which allows for multiple tags to be specified when building an image - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/380">Pull request 380</a></p>
+</li>
+<li>
+<p>Task <code>DockerCreateContainer</code> gained property <code>networkAliases</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/384">Pull request 384</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_7_may_17_2017" class="discrete">v3.0.7 (May 17, 2017)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Invoke onNext closures call() method explicitly - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/368">Pull request 368</a></p>
+</li>
+<li>
+<p>Adds new task DockerInspectExecContainer which allows to inspect exec instance - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/362">Pull request 362</a></p>
+</li>
+<li>
+<p>`functionalTest&#8217;s can now run against a native docker instance - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/369">Pull request 369</a></p>
+</li>
+<li>
+<p><code>DockerLogsContainer</code> now preserves leading space - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/370">Pull request 370</a></p>
+</li>
+<li>
+<p>Allow customization of app plugin entrypoint/cmd instructions - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/359">Pull request 359</a></p>
+</li>
+<li>
+<p>Task <code>Dockerfile</code> will no longer be forced as <code>UP-TO-DATE</code>, instead the onus will be put on developers to code this should they want this functionality. - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/357">Issue 357</a></p>
+</li>
+<li>
+<p>Now that <code>functionalTest&#8217;s work natively, and in CI, add the test `started</code>, <code>passed</code> and <code>failed</code> logging messages so as to make it absolutely clear to users what is being run vs having no output at all. - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/373">Pull request 373</a></p>
+</li>
+<li>
+<p>Bump <code>docker-java</code> to v`3.0.10` - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/378">Pull request 378</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_6_march_2_2017" class="discrete">v3.0.6 (March 2, 2017)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Bump vof docker-java to 3.0.7 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/331">Pull request 331</a></p>
+</li>
+<li>
+<p>Add support for label parameter on docker image creation - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/332">Pull request 332</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_5_december_27_2016" class="discrete">v3.0.5 (December 27, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Support multiple variables per singled ENV cmd - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/311">Pull request 311</a></p>
+</li>
+<li>
+<p>Implement a sane default docker URL based on environment - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/313">Pull request 313</a></p>
+</li>
+<li>
+<p>Implement <a href="https://github.com/reactive-streams/reactive-streams-jvm/#2-subscriber-code">reactive-stream</a> methods <code>onNext</code> and <code>onComplete</code> for all tasks - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/307">Pull request 307</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_4_december_1_2016" class="discrete">v3.0.4 (December 1, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Implement <a href="https://github.com/reactive-streams/reactive-streams-jvm/#2-subscriber-code">reactive-stream</a> method <code>onError</code> for all tasks - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/302">Pull request 302</a></p>
+</li>
+<li>
+<p>Bump docker-java to 3.0.6 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/279">Pull request 279</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_3_september_6_2016" class="discrete">v3.0.3 (September 6, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Print error messages received from docker engine when build fails - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/265">Pull request 265</a></p>
+</li>
+<li>
+<p>Bump docker-java to 3.0.5 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/263">Pull request 263</a></p>
+</li>
+<li>
+<p>Add support for <code>force</code> removal on <code>DockerRemoveImage</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/266">Pull request 266</a></p>
+</li>
+<li>
+<p>Various fixes and cleanups as well default to alpine image for all functional tests - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/269">Pull request 269</a></p>
+</li>
+<li>
+<p>Added <code>editorconfig</code> file with some basic defaults - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/270">Pull request 270</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_2_august_14_2016" class="discrete">v3.0.2 (August 14, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add support for build-time variables in <code>DockerBuildImage</code> task - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/240">Pull request 240</a></p>
+</li>
+<li>
+<p>Fix incorrect docker-java method name in <code>DockerCreateContainer</code> task - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/242">Pull request 242</a></p>
+</li>
+<li>
+<p>Can define devices on <code>DockerCreateContainer</code> task - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/245">Pull request 245</a></p>
+</li>
+<li>
+<p>Can now supply multiple ports when working with <code>docker-java-application</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/254">Pull request 254</a></p>
+</li>
+<li>
+<p>Bump docker-java to 3.0.2 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/259">Pull request 259</a></p>
+</li>
+<li>
+<p>If buildscript repos are required make sure they are added after evaluation - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/260">Pull request 260</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_1_july_6_2016" class="discrete">v3.0.1 (July 6, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Simplify Gradle TestKit usage - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/225">Pull request 225</a></p>
+</li>
+<li>
+<p>Ensure <code>tlsVerify</code> is set in addition to <code>certPath</code> for DockerClientConfig setup - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/230">Pull request 230</a></p>
+</li>
+<li>
+<p>Upgrade to Gradle 2.14.</p>
+</li>
+</ul>
+</div>
+<h3 id="v3_0_0_june_5_2016" class="discrete">v3.0.0 (June 5, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Task <code>DockerLogsContainer</code> gained attribute <code>sink</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/203">Pull request 203</a></p>
+</li>
+<li>
+<p>Task <code>DockerBuildImage</code> will no longer insert extra newline as part of build output - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/206">Pull request 206</a></p>
+</li>
+<li>
+<p>Upgrade to docker-java 3.0.0 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/217">Pull request 217</a></p>
+</li>
+<li>
+<p>Fallback to buildscript.repositories for internal dependency resolution if no repositories were defined - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/218">Pull request 218</a></p>
+</li>
+<li>
+<p>Added task <code>DockerExecContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/221">Pull request 221</a></p>
+</li>
+<li>
+<p>Added task <code>DockerCopyFileToContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/222">Pull request 222</a></p>
+</li>
+<li>
+<p>Task <code>DockerCreateContainer</code> gained attribute <code>restartPolicy</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/224">Pull request 224</a></p>
+</li>
+<li>
+<p>Remove use of Gradle internal methods.</p>
+</li>
+<li>
+<p>Added ISSUES.md file.</p>
+</li>
+<li>
+<p>Upgrade to Gradle 2.13.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_8_april_10_2016" class="discrete">v2.6.8 (April 10, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added task <code>DockerLogsContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/181">Pull request 181</a></p>
+</li>
+<li>
+<p>Bump docker-java to v2.3.3 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/183">Pull request 183</a></p>
+</li>
+<li>
+<p>Bug fix when not checking if parent dir already exists before creating with <code>DockerCopyFileToContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/186">Pull request 186</a></p>
+</li>
+<li>
+<p><code>DockerWaitContainer</code> now produces exitCode - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/189">Pull request 189</a></p>
+</li>
+<li>
+<p><code>apiVersion</code> can now be set on <code>DockerExtension</code> and overriden on all tasks - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/182">Pull request 182</a></p>
+</li>
+<li>
+<p>Internal fix where task variables had to be defined - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/194">Pull request 194</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_7_march_10_2016" class="discrete">v2.6.7 (March 10, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Upgrade to Gradle 2.11.</p>
+</li>
+<li>
+<p>Bug fix when copying single file from container and hostPath is set to directory for <code>DockerCopyFileFromContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/163">Pull request 163</a></p>
+</li>
+<li>
+<p>Step reports are now printed to stdout by default for <code>DockerBuildImage</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/145">Pull request 145</a></p>
+</li>
+<li>
+<p>UP-TO-DATE functionality has been removed from <code>DockerBuildImage</code> as there were too many corner cases to account for - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/172">Pull request 172</a></p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_6_february_27_2016" class="discrete">v2.6.6 (February 27, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added docker step reports for <code>DockerBuildImage</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/145">Pull request 145</a></p>
+</li>
+<li>
+<p>Added <code>onlyIf</code> check for <code>DockerBuildImage</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/139">Pull request 139</a></p>
+</li>
+<li>
+<p>Added method logConfig for <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/157">Pull request 157</a></p>
+</li>
+<li>
+<p>Various commands can now be passed closures for <code>Dockerfile</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/155">Pull request 155</a></p>
+</li>
+<li>
+<p>Fix implementation of exposedPorts for <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/140">Pull request 140</a></p>
+</li>
+<li>
+<p>Upgrade to Docker Java 2.2.2 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/158">Pull request 158</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_5_january_16_2016" class="discrete">v2.6.5 (January 16, 2016)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix implementation of <code>DockerCopyFileFromContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/135">Pull request 135</a>.</p>
+</li>
+<li>
+<p>Add <code>networkMode</code> property to <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/114">Pull request 114</a>.</p>
+</li>
+<li>
+<p>Upgrade to Docker Java 2.1.4 - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/138">Issue 138</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_4_december_24_2015" class="discrete">v2.6.4 (December 24, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Expose privileged property on <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/130">Pull request 130</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_3_december_23_2015" class="discrete">v2.6.3 (December 23, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Expose force and removeVolumes properties on <code>DockerRemoveContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/129">Pull request 129</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_2_december_22_2015" class="discrete">v2.6.2 (December 22, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Expose support for LogDriver on <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/118">Pull request 118</a>.</p>
+</li>
+<li>
+<p>Upgrade to Docker Java 2.1.2.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_1_september_21_2015" class="discrete">v2.6.1 (September 21, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Correct the <code>withVolumesFrom</code> call on <code>DockerCreateContainer</code> task which needs to get a <code>VolumesFrom[]</code> array as the parameter - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/102">Pull request 102</a>.</p>
+</li>
+<li>
+<p>Upgrade to Docker Java 2.1.1 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/109">Pull request 109</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_6_august_30_2015" class="discrete">v2.6 (August 30, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Upgrade to Docker Java 2.1.0 - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/92">Pull request 92</a>.
+<em>Note:</em> The Docker Java API changed vastly with v2.0.0. The tasks <code>DockerBuildImage</code>, <code>DockerPullImage</code> and
+<code>DockerPushImage</code> do not provide a response handler anymore. This is a breaking change. Future versions of the plugin
+might open up the response handling again in some way.</p>
+</li>
+<li>
+<p><code>DockerListImages</code> with <code>filter</code> call a wrong function from <code>ListImagesCmdImpl.java</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/105">Issue 105</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_5_2_august_15_2015" class="discrete">v2.5.2 (August 15, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix listImages task throwing GroovyCastException - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/96">Issue 96</a>.</p>
+</li>
+<li>
+<p>Add support for publishAll in DockerCreateContainer - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/94">Pull request 94</a>.</p>
+</li>
+<li>
+<p>Add optional dockerFile option to the DockerBuildImage task - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/47">Pull request 47</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_5_1_july_29_2015" class="discrete">v2.5.1 (July 29, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Adds Dockerfile support for the LABEL instruction - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/86">Pull request 86</a>.</p>
+</li>
+<li>
+<p>Usage of <a href="https://github.com/docker-java/docker-java">docker-java library</a> v1.4.0. Underlying API does not provide
+setting port bindings for task <code>DockerStartContainer</code> anymore. Needs to be set on <code>DockerCreateContainer</code>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_5_july_18_2015" class="discrete">v2.5 (July 18, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Expose response handler for <code>DockerListImages</code> task - v[Issue 75].</p>
+</li>
+<li>
+<p>Pass in credentials when building an image - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/76">Issue 76</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_4_1_july_4_2015" class="discrete">v2.4.1 (July 4, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add <code>extraHosts</code> property to task <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/79">Pull request 79</a>.</p>
+</li>
+<li>
+<p>Add <code>pull</code> property to task <code>DockerBuildImage</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/78">Pull request 78</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_4_may_16_2015" class="discrete">v2.4 (May 16, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added missing support for properties <code>portBindings</code> and <code>cpuset</code> in <code>CreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/66">Pull request 66</a>.</p>
+</li>
+<li>
+<p>Expose response handlers so users can inject custom handling logic - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/65">Issue 65</a>.</p>
+</li>
+<li>
+<p>Upgrade to Gradle 2.4 including all compatible plugins and libraries.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_3_1_april_25_2015" class="discrete">v2.3.1 (April 25, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added support for <code>Binds</code> when creating containers - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/54">Pull request 54</a>.</p>
+</li>
+<li>
+<p>Added task for copying files from a container to a host - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/57">Pull request 57</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_3_april_18_2015" class="discrete">v2.3 (April 18, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added task <code>DockerInspectContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/44">Pull request 44</a>.</p>
+</li>
+<li>
+<p>Added property <code>containerName</code> to task <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/44">Pull request 44</a>.</p>
+</li>
+<li>
+<p>Allow for linking containers for task <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/53">Pull request 53</a>.</p>
+</li>
+<li>
+<p>Usage of <a href="https://github.com/docker-java/docker-java">docker-java library</a> v1.2.0.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_2_april_12_2015" class="discrete">v2.2 (April 12, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Usage of <a href="https://github.com/docker-java/docker-java">docker-java library</a> v1.1.0.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_1_march_24_2015" class="discrete">v2.1 (March 24, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Renamed property <code>registry</code> to <code>registryCredentials</code> for plugin extension and tasks implementing <code>RegistryCredentialsAware</code> to better indicate its purpose.
+<em>Note:</em> This is a breaking change.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_0_3_march_20_2015" class="discrete">v2.0.3 (March 20, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow for specifying port bindings for container start command. - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/30">Issue 30</a>.</p>
+</li>
+<li>
+<p>Throw an exception if an error response is encountered - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/37">Issue 37</a>.</p>
+</li>
+<li>
+<p>Upgrade to Gradle 2.3.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_0_2_february_19_2015" class="discrete">v2.0.2 (February 19, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Set source and target compatibility to Java 6 - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/32">Issue 32</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_0_1_february_10_2015" class="discrete">v2.0.1 (February 10, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extension configuration method for <code>DockerJavaApplicationPlugin</code> needs to be registered via extension instance - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/28">Issue 28</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v2_0_february_4_2015" class="discrete">v2.0 (February 4, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Upgrade to Gradle 2.2.1 including all compatible plugins and libraries.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_8_3_february_4_2015" class="discrete">v0.8.3 (February 4, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Add project group to default tag built by Docker Java application plugin - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/25">Issue 25</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_8_2_january_30_2015" class="discrete">v0.8.2 (January 30, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Expose method for task <code>Dockerfile</code> for providing vanilla Docker instructions.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_8_1_january_24_2015" class="discrete">v0.8.1 (January 24, 2015)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Usage of <a href="https://github.com/docker-java/docker-java">docker-java library</a> v0.10.5.</p>
+</li>
+<li>
+<p>Correctly create model instances for create container task - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/19">Issue 19</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_8_january_7_2014" class="discrete">v0.8 (January 7, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow for pushing to Docker Hub - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/18">Issue 18</a>.</p>
+</li>
+<li>
+<p>Better handling of API responses.</p>
+</li>
+<li>
+<p>Note: Change to plugin extension. The property <code>docker.serverUrl</code> is now called <code>docker.url</code>. Instead of <code>docker.credentials</code>, you will need to use <code>docker.registry</code>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_7_2_december_23_2014" class="discrete">v0.7.2 (December 23, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Dockerfile</code> task is always marked UP-TO-DATE after first execution - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/13">Issue 13</a>.</p>
+</li>
+<li>
+<p>Improvements to <code>Dockerfile</code> task - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/16">Pull request 16</a>.</p>
+</li>
+<li>
+<p>Fixed wrong assignment of key field in  environment variable instruction.</p>
+</li>
+<li>
+<p>Allow for providing multiple ports to the expose instruction.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_7_1_december_16_2014" class="discrete">v0.7.1 (December 16, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed entry point definition of Dockerfile set by Java application plugin.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_7_december_14_2014" class="discrete">v0.7 (December 14, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow for properly add user-based instructions to Dockfile task with predefined instructions without messing up the order. - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/12">Issue 12</a>.</p>
+</li>
+<li>
+<p>Renamed task <code>dockerCopyDistTar</code> to <code>dockerCopyDistResources</code> to better express intent.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_6_1_december_11_2014" class="discrete">v0.6.1 (December 11, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow for setting path to certificates for communicating with Docker over SSL - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/10">Issue 10</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_6_december_7_2014" class="discrete">v0.6 (December 7, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Usage of <a href="https://github.com/docker-java/docker-java">docker-java library</a> v0.10.4.</p>
+</li>
+<li>
+<p>Added Docker Java application plugin.</p>
+</li>
+<li>
+<p>Better documentation.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_5_december_6_2014" class="discrete">v0.5 (December 6, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed implementations of tasks <code>DockerPushImage</code> and <code>DockerCommitImage</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/11">Issue 11</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_4_november_27_2014" class="discrete">v0.4 (November 27, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added task for creating a Dockerfile.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_3_november_23_2014" class="discrete">v0.3 (November 23, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Usage of <a href="https://github.com/docker-java/docker-java">docker-java library</a> v0.10.3.</p>
+</li>
+<li>
+<p>Changed package name to <code>com.bmuschko.gradle.docker</code>.</p>
+</li>
+<li>
+<p>Changed group ID to <code>com.bmuschko</code>.</p>
+</li>
+<li>
+<p>Adapted plugin IDs to be compatible with Gradle&#8217;s plugin portal.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_2_june_19_2014" class="discrete">v0.2 (June 19, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Usage of <a href="https://github.com/docker-java/docker-java">docker-java library</a> v0.8.2.</p>
+</li>
+<li>
+<p>Provide custom task type for push operation.</p>
+</li>
+<li>
+<p>Support for using remote URLs when building image - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/3">Issue 3</a>.</p>
+</li>
+</ul>
+</div>
+<h3 id="v0_1_may_11_2014" class="discrete">v0.1 (May 11, 2014)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial release.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.6.1<br>
-Last updated 2018-08-21 17:00:08 UTC
+Version 3.6.2<br>
+Last updated 2018-10-03 01:24:18 UTC
 </div>
 </div>
 </body>
