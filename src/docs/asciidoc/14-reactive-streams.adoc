@@ -3,7 +3,7 @@
 As needed, we will implement reactive methods as described in https://github.com/reactive-streams/reactive-streams-jvm[reactive-streams].
 We implement these here as optional closures for all tasks.
 Currently the only supported methods are `onError`, `onNext`, `onComplete`.
-Various examples on how to use these can be found in our https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests]
+Various examples on how to use these can be found in our https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests].
 
 ==== Reacting to an Error
 
@@ -35,7 +35,7 @@ For all other tasks we simply hand you back the object that is given to us by `d
 Thus, and much like the `onError` closure, all delegation is now in your control.
 Any properties/values expected to be set will not be done unless _you_ do them.
 
-Iterative tasks are things like `DockerBuildImage`, `DockerLogsContainer`, `DockerListImages`.
+Iterative tasks implement the trait https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/tasks/ResultCallback.groovy[ResultCallback].
 These tasks have output which can be iterated over.
 The example below demonstrates how we iterate over each log message passing that to the closure for the user to work on.
 

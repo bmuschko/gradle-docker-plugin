@@ -1,13 +1,14 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import org.gradle.api.tasks.Input
 
 /**
  * Inspects task executed inside container
  * with {@link DockerExecContainer} command.
  */
-class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
+class DockerInspectExecContainer extends AbstractDockerRemoteApiTask implements ResultCallback {
 
     /**
      * Exec ID used to perform operation. The exec for the provided

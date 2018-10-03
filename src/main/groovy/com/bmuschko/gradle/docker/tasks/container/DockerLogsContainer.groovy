@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
@@ -24,7 +25,7 @@ import org.gradle.api.tasks.Optional
  * Copies the container logs into standard out/err, the same as the `docker logs` command. The container output
  * to standard out will go to standard out, and standard err to standard err.
  */
-class DockerLogsContainer extends DockerExistingContainer {
+class DockerLogsContainer extends DockerExistingContainer implements ResultCallback {
 
     /**
      * Set to true to follow the output, which will cause this task to block until the container exists.

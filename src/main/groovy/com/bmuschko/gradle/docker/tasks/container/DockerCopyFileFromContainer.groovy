@@ -15,12 +15,13 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import groovy.io.FileType
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-class DockerCopyFileFromContainer extends DockerExistingContainer {
+class DockerCopyFileFromContainer extends DockerExistingContainer implements ResultCallback {
     /**
      * Path inside container
      */

@@ -16,10 +16,11 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-class DockerListImages extends AbstractDockerRemoteApiTask {
+class DockerListImages extends AbstractDockerRemoteApiTask implements ResultCallback {
 
     @Input
     @Optional

@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.domain.ExecProbe
+import com.bmuschko.gradle.docker.tasks.ResultCallback
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit
 
 import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
 
-class DockerExecContainer extends DockerExistingContainer {
+class DockerExecContainer extends DockerExistingContainer implements ResultCallback {
 
     // set as optional for downstream sub-classes who configure
     // things a bit later.

@@ -1,6 +1,8 @@
 package com.bmuschko.gradle.docker.tasks.network
 
-class DockerInspectNetwork extends DockerExistingNetwork {
+import com.bmuschko.gradle.docker.tasks.ResultCallback
+
+class DockerInspectNetwork extends DockerExistingNetwork implements ResultCallback {
     @Override
     void runRemoteCommand(final dockerClient) {
         logger.quiet "Inspecting network '${getNetworkId()}'."
