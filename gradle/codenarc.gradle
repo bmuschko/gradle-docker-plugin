@@ -8,7 +8,7 @@ codenarc {
 
 codenarcMain {
     group = 'verification'
-    ignoreFailures = false
+    ignoreFailures = true
     includes = ["**/utils/*.groovy"]
 }
 

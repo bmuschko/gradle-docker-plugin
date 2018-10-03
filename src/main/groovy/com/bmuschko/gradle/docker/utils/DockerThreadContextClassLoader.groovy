@@ -21,6 +21,7 @@ import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import groovy.transform.Memoized
 import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 import java.lang.reflect.Array
 import java.lang.reflect.Constructor
@@ -29,6 +30,9 @@ import java.lang.reflect.Method
 
 @SuppressWarnings(['FieldTypeRequired', 'UnnecessaryDefInFieldDeclaration'])
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
+
+    private static final Logger logger = Logging.getLogger(DockerThreadContextClassLoader.getClass())
+
     public static final String CORE_PACKAGE = 'com.github.dockerjava.core'
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
     public static final String COMMAND_PACKAGE = 'com.github.dockerjava.core.command'
@@ -438,18 +442,24 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setCallback([
 
             invoke: { Object proxy, Method method, Object[] args ->
-                if (ON_NEXT_METHOD_NAME == method.name && args.length && args[0]) {
-                    def frame = args[0]
-                    switch (frame.streamType as String) {
-                        case 'STDOUT':
-                        case 'RAW':
-                            logger.quiet(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
-                            break
-                        case 'STDERR':
-                            logger.error(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
-                            break
+                try {
+                    if (ON_NEXT_METHOD_NAME == method.name && args.length && args[0]) {
+                        def frame = args[0]
+                        switch (frame.streamType as String) {
+                            case 'STDOUT':
+                            case 'RAW':
+                                logger.quiet(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
+                                break
+                            case 'STDERR':
+                                logger.error(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
+                                break
+                        }
                     }
+                } catch (Exception e) {
+                    logger.error('Exception thrown inside enhancer callback when invoking method createLoggingCallback', e)
+                    return
                 }
+
                 try {
                     method.invoke(delegate, args)
                 } catch (InvocationTargetException e) {
@@ -479,17 +489,23 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setCallback([
 
             invoke: { Object proxy, Method method, Object[] args ->
-                if (ON_NEXT_METHOD_NAME == method.name && args.length && args[0]) {
-                    def frame = args[0]
-                    switch (frame.streamType as String) {
-                        case 'STDOUT':
-                        case 'RAW':
-                        case 'STDERR':
-                            sink.append(new String(frame.payload))
-                            sink.flush()
-                            break
+                try {
+                    if (ON_NEXT_METHOD_NAME == method.name && args.length && args[0]) {
+                        def frame = args[0]
+                        switch (frame.streamType as String) {
+                            case 'STDOUT':
+                            case 'RAW':
+                            case 'STDERR':
+                                sink.append(new String(frame.payload))
+                                sink.flush()
+                                break
+                        }
                     }
+                } catch (Exception e) {
+                    logger.error('Exception thrown inside enhancer callback when invoking method createLoggingCallback', e)
+                    return
                 }
+
                 try {
                     method.invoke(delegate, args)
                 } catch (InvocationTargetException e) {
@@ -520,9 +536,15 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setSuperclass(defaultHandler.getClass())
         enhancer.setCallback([
             invoke: { Object proxy, Method method, Object[] args ->
-                if (ON_NEXT_METHOD_NAME == method.name) {
-                    onNext.call(args[0])
+                try {
+                    if (ON_NEXT_METHOD_NAME == method.name) {
+                        onNext.call(args[0])
+                    }
+                } catch (Exception e) {
+                    logger.error('Exception thrown inside enhancer callback when invoking method createExecCallback', e)
+                    return
                 }
+
                 try {
                     method.invoke(defaultHandler, args)
                 } catch (InvocationTargetException e) {
@@ -548,14 +570,21 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     private createOnNextProxyCallback(Closure onNext, defaultHandler) {
+
         Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(defaultHandler.getClass())
         enhancer.setCallback([
             invoke: { Object proxy, Method method, Object[] args ->
-                if (ON_NEXT_METHOD_NAME == method.name) {
-                    onNext.call(args[0])
+                try {
+                    if (ON_NEXT_METHOD_NAME == method.name) {
+                        onNext.call(args[0])
+                    }
+                } catch (Exception e) {
+                    logger.error('Exception thrown inside enhancer callback when invoking method createOnNextProxyCallback', e)
+                    return
                 }
+
                 try {
                     method.invoke(defaultHandler, args)
                 } catch (InvocationTargetException e) {
@@ -574,12 +603,18 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.setCallback([
 
             invoke: { Object proxy, Method method, Object[] args ->
-                if (ON_NEXT_METHOD_NAME == method.name) {
-                    def possibleStream = args[0].stream
-                    if (possibleStream) {
-                        logger.quiet(possibleStream.trim())
+                try {
+                    if (ON_NEXT_METHOD_NAME == method.name) {
+                        def possibleStream = args[0].stream
+                        if (possibleStream) {
+                            logger.quiet(possibleStream.trim())
+                        }
                     }
+                } catch (Exception e) {
+                    logger.error('Exception thrown inside enhancer callback when invoking method createPrintStreamProxyCallback', e)
+                    return
                 }
+
                 try {
                     method.invoke(delegate, args)
                 } catch (InvocationTargetException e) {

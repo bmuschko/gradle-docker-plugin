@@ -185,6 +185,16 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
     @Optional
     final Property<Long> shmSize = project.objects.property(Long)
 
+    /* 
+     * Automatically remove the container when the container's process exits.
+     *
+     * This has no effect if {@link #restartPolicy} is set.
+     * @since 3.6.2
+     */
+    @Input
+    @Optional
+    final Property<Boolean> autoRemove= project.objects.property(Boolean)
+
     @Input
     @Optional
     final Property<Map<String, String>> labels = project.objects.property(Map)
@@ -408,6 +418,10 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
 
         if(shmSize.getOrNull() != null) { // 0 is valid input
             containerCommand.hostConfig.withShmSize(shmSize.get())
+        }
+
+        if (autoRemove.getOrNull()) {
+            containerCommand.hostConfig.withAutoRemove(autoRemove.get())
         }
 
         if(labels.getOrNull()) {
