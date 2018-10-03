@@ -19,7 +19,6 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Ignore
 import spock.lang.Requires
 
 class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTest {
@@ -336,7 +335,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task createContainer(type: DockerCreateContainer){
                 targetImageId '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                cmd 'sh', '-c', 'exit 1'
+                cmd = ['sh', '-c', 'exit 1']
             }
 
             task startContainer(type: DockerStartContainer){

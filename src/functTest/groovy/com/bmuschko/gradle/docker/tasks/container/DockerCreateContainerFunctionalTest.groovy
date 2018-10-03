@@ -100,7 +100,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         buildFile <<
             containerStart(containerCreationTask) <<
-            containerStop << 
+            containerStop() <<
             containerInspect
 
         when:
