@@ -1,7 +1,10 @@
 == Change Log
 
 [discrete]
-=== v3.6.2 (TBA)
+=== v3.6.3 (TBA)
+
+[discrete]
+=== v3.6.2 (October 2, 2018)
 
 * `DockerCreateContainer` gained `pid` option - https://github.com/bmuschko/gradle-docker-plugin/pull/652[Pull Request 652]
 * `Dockerfile` validation takes into account comments - https://github.com/bmuschko/gradle-docker-plugin/issues/657[Issue 657]
