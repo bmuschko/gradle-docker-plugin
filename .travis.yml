@@ -2,6 +2,11 @@ language: java
 install: true
 sudo: required
 
+addons:
+  apt:
+    packages:
+    - docker-ce
+
 services:
   - docker
 
