@@ -12,8 +12,8 @@ apply plugin: org.ajoberstar.gradle.git.publish.GitPublishPlugin
 
 ext {
     javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
-    groovyApiUrl = 'http://docs.groovy-lang.org/2.4.12/html/gapi/'
-    gradleApiUrl = 'https://docs.gradle.org/4.9/javadoc/'
+    groovyApiUrl = 'http://docs.groovy-lang.org/2.4.15/html/gapi/'
+    gradleApiUrl = 'https://docs.gradle.org/4.10.2/javadoc/'
 }
 
 tasks.withType(Javadoc) {
