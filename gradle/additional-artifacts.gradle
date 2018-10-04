@@ -14,9 +14,3 @@ task javadocJar(type: Jar) {
     classifier 'javadoc'
     from javadoc.destinationDir
 }
-
-artifacts {
-    archives sourcesJar
-    archives groovydocJar
-    archives javadocJar
-}
