@@ -30,6 +30,10 @@ gradlePlugin {
             id = "com.bmuschko.gradle.docker.additional-artifacts"
             implementationClass = "com.bmuschko.gradle.docker.AdditionalArtifactsPlugin"
         }
+        register("static-code-analysis-plugin") {
+            id = "com.bmuschko.gradle.docker.static-code-analysis"
+            implementationClass = "com.bmuschko.gradle.docker.StaticCodeAnalysisPlugin"
+        }
         register("user-guide-plugin") {
             id = "com.bmuschko.gradle.docker.user-guide"
             implementationClass = "com.bmuschko.gradle.docker.UserGuidePlugin"
