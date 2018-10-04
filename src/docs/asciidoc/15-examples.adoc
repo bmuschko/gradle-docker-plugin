@@ -30,6 +30,52 @@ task buildImage(type: DockerBuildImage) {
 }
 ----
 
+==== Interacting With a Container Running in the Background
+
+This code demonstrates managing a container running in the background with this plugin
+which can facilitate locally running a Dockerized application. This can be done by
+creating the container with an explicit `containerName` which is then used as
+the `targetContainerId` for relevant tasks.
+
+.build.gradle
+[source,groovy]
+----
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.container.*
+
+ext {
+  CONTAINER_NAME = 'myapp'
+} 
+
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('docker/myapp')
+    tag = 'test/myapp:latest'
+}
+
+task dockerCreateContainer(type: DockerCreateContainer) {
+    dependsOn buildMyAppImage
+    targetImageId { buildMyAppImage.imageId }
+    containerName = CONTAINER_NAME
+}
+
+task dockerStartContainer(type: DockerStartContainer) {
+    dependsOn dockerCreateContainer
+    targetContainerId { dockerCreateContainer.getContainerName() }
+}
+
+task dockerStopContainer(type: DockerStopContainer) {
+    targetContainerId { dockerCreateContainer.getContainerName() }
+}
+
+task dockerRemoveContainer(type: DockerRemoveContainer) {
+    targetContainerId { dockerCreateContainer.getContainerName() }
+}
+
+// Remove the container to allow reuse of the name.
+dockerStopContainer.finalizedBy dockerRemoveContainer
+----
+
 ==== Executing Functional Tests Against a Running Container
 
 The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this image and exercises functional tests against the running container.
