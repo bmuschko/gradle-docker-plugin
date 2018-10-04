@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("gradle-plugin"))
+    implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.7")
 }
 
 gradlePlugin {
@@ -28,6 +29,10 @@ gradlePlugin {
         register("additional-artifacts-plugin") {
             id = "com.bmuschko.gradle.docker.additional-artifacts"
             implementationClass = "com.bmuschko.gradle.docker.AdditionalArtifactsPlugin"
+        }
+        register("user-guide-plugin") {
+            id = "com.bmuschko.gradle.docker.user-guide"
+            implementationClass = "com.bmuschko.gradle.docker.UserGuidePlugin"
         }
     }
 }
