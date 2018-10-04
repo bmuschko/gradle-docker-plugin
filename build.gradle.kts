@@ -3,6 +3,9 @@ plugins {
     `java-gradle-plugin`
     id("org.ajoberstar.grgit") version "1.7.1"
     id("com.bmuschko.gradle.docker.test-setup")
+    id("com.bmuschko.gradle.docker.integration-test")
+    id("com.bmuschko.gradle.docker.functional-test")
+    id("com.bmuschko.gradle.docker.additional-artifacts")
 }
 //apply(plugin = "groovy")
 //apply(plugin = "java-gradle-plugin")
