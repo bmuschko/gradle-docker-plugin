@@ -17,7 +17,7 @@ class FunctionalTestPlugin : Plugin<Project> {
                 groovy.srcDir("src/functTest/groovy")
             }
             resources.srcDir("src/functTest/resources")
-            compileClasspath += sourceSets["main"]!!.output + testRuntimeClasspath
+            compileClasspath += sourceSets["main"]!!.output + sourceSets["testSetup"]!!.output + testRuntimeClasspath
             runtimeClasspath += output + compileClasspath
         }
 
