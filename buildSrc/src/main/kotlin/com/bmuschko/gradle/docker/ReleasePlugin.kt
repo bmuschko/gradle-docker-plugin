@@ -13,7 +13,17 @@ import org.gradle.kotlin.dsl.delegateClosureOf
 class ReleasePlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
         applyGrgitPlugin()
+        configureReleasePluginExtension()
+    }
 
+    private
+    fun Project.applyGrgitPlugin() {
+        plugins.apply(BaseReleasePlugin::class.java)
+        plugins.apply(GrgitPlugin::class.java)
+    }
+
+    private
+    fun Project.configureReleasePluginExtension() {
         configure<ReleasePluginExtension> {
             versionStrategy(Strategies.getFINAL())
             defaultVersionStrategy = Strategies.getSNAPSHOT()
@@ -23,11 +33,5 @@ class ReleasePlugin : Plugin<Project> {
                 }
             })
         }
-    }
-
-    private
-    fun Project.applyGrgitPlugin() {
-        plugins.apply(BaseReleasePlugin::class.java)
-        plugins.apply(GrgitPlugin::class.java)
     }
 }
