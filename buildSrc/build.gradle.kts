@@ -10,6 +10,7 @@ repositories {
 dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.7")
+    implementation("org.ajoberstar:gradle-git:1.7.1")
 }
 
 kotlinDslPluginOptions {
@@ -41,6 +42,10 @@ gradlePlugin {
         register("user-guide-plugin") {
             id = "com.bmuschko.gradle.docker.user-guide"
             implementationClass = "com.bmuschko.gradle.docker.UserGuidePlugin"
+        }
+        register("release-plugin") {
+            id = "com.bmuschko.gradle.docker.release"
+            implementationClass = "com.bmuschko.gradle.docker.ReleasePlugin"
         }
     }
 }
