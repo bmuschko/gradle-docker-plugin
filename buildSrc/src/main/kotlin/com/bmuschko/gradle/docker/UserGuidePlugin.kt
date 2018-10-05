@@ -11,7 +11,16 @@ import org.gradle.kotlin.dsl.named
 class UserGuidePlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
         applyAsciidocPlugin()
+        configureAsciidoctorTask()
+    }
 
+    private
+    fun Project.applyAsciidocPlugin() {
+        plugins.apply(AsciidoctorPlugin::class.java)
+    }
+
+    private
+    fun Project.configureAsciidoctorTask() {
         tasks.named<AsciidoctorTask>("asciidoctor") {
             sourceDir = file("src/docs/asciidoc")
             sources(delegateClosureOf<PatternSet> {
@@ -20,8 +29,8 @@ class UserGuidePlugin : Plugin<Project> {
 
             attributes(
                 mapOf(
-                   "toc" to "left",
-                   "source-highlighter" to "coderay",
+                    "toc" to "left",
+                    "source-highlighter" to "coderay",
                     "icons" to "font",
                     "numbered" to "",
                     "idprefix" to "",
@@ -30,10 +39,5 @@ class UserGuidePlugin : Plugin<Project> {
                 )
             )
         }
-    }
-
-    private
-    fun Project.applyAsciidocPlugin() {
-        plugins.apply(AsciidoctorPlugin::class.java)
     }
 }

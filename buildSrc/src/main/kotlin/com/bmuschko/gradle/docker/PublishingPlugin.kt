@@ -15,7 +15,18 @@ import java.util.*
 class PublishingPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
         applyPublishingPlugin()
+        configurePublishingExtension()
+        configureBintrayExtension()
+    }
 
+    private
+    fun Project.applyPublishingPlugin() {
+        plugins.apply(MavenPublishPlugin::class)
+        plugins.apply(BintrayPlugin::class)
+    }
+
+    private
+    fun Project.configurePublishingExtension() {
         val sourcesJar: Jar by tasks.getting
         val groovydocJar: Jar by tasks.getting
         val javadocJar: Jar by tasks.getting
@@ -69,7 +80,10 @@ class PublishingPlugin : Plugin<Project> {
                 }
             }
         }
+    }
 
+    private
+    fun Project.configureBintrayExtension() {
         configure<BintrayExtension> {
             user = resolveProperty("BINTRAY_USER", "bintrayUser")
             key = resolveProperty("BINTRAY_KEY", "bintrayKey")
@@ -108,12 +122,6 @@ class PublishingPlugin : Plugin<Project> {
                 })
             })
         }
-    }
-
-    private
-    fun Project.applyPublishingPlugin() {
-        plugins.apply(MavenPublishPlugin::class)
-        plugins.apply(BintrayPlugin::class)
     }
 
     private
