@@ -11,6 +11,7 @@ dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.7")
     implementation("org.ajoberstar:gradle-git:1.7.1")
+    implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
 }
 
 kotlinDslPluginOptions {
@@ -44,8 +45,12 @@ gradlePlugin {
             implementationClass = "com.bmuschko.gradle.docker.UserGuidePlugin"
         }
         register("release-plugin") {
-            id = "com.bmuschko.gradle.docker.release"
-            implementationClass = "com.bmuschko.gradle.docker.ReleasePlugin"
+            id = "com.bmuschko.gradle.docker.publishing"
+            implementationClass = "com.bmuschko.gradle.docker.PublishingPlugin"
         }
+//        register("release-plugin") {
+//            id = "com.bmuschko.gradle.docker.release"
+//            implementationClass = "com.bmuschko.gradle.docker.ReleasePlugin"
+//        }
     }
 }
