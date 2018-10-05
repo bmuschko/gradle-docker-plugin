@@ -12,7 +12,7 @@ class FunctionalTestPlugin : Plugin<Project> {
         val sourceSets = project.the<JavaPluginConvention>().sourceSets
         val testRuntimeClasspath by configurations
 
-        val functionalTestSourceSet by sourceSets.creating {
+        val functionalTestSourceSet = sourceSets.create("functionalTest") {
             withConvention(GroovySourceSet::class) {
                 groovy.srcDir("src/functTest/groovy")
             }

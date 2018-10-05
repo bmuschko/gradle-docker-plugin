@@ -12,6 +12,10 @@ dependencies {
     implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.7")
 }
 
+kotlinDslPluginOptions {
+    experimentalWarning.set(false)
+}
+
 gradlePlugin {
     plugins {
         register("test-setup-plugin") {

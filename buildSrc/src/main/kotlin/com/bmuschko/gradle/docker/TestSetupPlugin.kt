@@ -12,7 +12,7 @@ class TestSetupPlugin : Plugin<Project> {
         val sourceSets = project.the<JavaPluginConvention>().sourceSets
         val testRuntimeClasspath by configurations
 
-        val testSetupSourceSet by sourceSets.creating {
+        sourceSets.create("testSetup") {
             withConvention(GroovySourceSet::class) {
                 groovy.srcDir("src/testSetup/groovy")
             }

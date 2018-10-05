@@ -14,18 +14,18 @@ class AdditionalArtifactsPlugin: Plugin<Project> {
         val groovydoc: Groovydoc by tasks.getting
         val javadoc: Javadoc by tasks.getting
 
-        tasks.creating(Jar::class) {
+        tasks.create("sourcesJar", Jar::class) {
             classifier = "sources"
             from(sourceSets["main"].allSource)
         }
 
-        tasks.creating(Jar::class) {
+        tasks.create("groovydocJar", Jar::class) {
             dependsOn(groovydoc)
             classifier = "groovydoc"
             from(groovydoc.destinationDir)
         }
 
-        tasks.creating(Jar::class) {
+        tasks.create("javadocJar", Jar::class) {
             dependsOn(javadoc)
             classifier = "javadoc"
             from(javadoc.destinationDir)

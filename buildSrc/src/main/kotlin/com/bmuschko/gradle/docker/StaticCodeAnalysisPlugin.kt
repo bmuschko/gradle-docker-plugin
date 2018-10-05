@@ -1,15 +1,10 @@
 package com.bmuschko.gradle.docker
 
-import org.asciidoctor.gradle.AsciidoctorPlugin
-import org.asciidoctor.gradle.AsciidoctorTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.quality.CheckstyleExtension
 import org.gradle.api.plugins.quality.CodeNarc
 import org.gradle.api.plugins.quality.CodeNarcExtension
 import org.gradle.api.plugins.quality.CodeNarcPlugin
-import org.gradle.api.tasks.javadoc.Groovydoc
-import org.gradle.api.tasks.util.PatternSet
 import org.gradle.kotlin.dsl.*
 
 class StaticCodeAnalysisPlugin : Plugin<Project> {
