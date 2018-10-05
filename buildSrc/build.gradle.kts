@@ -10,6 +10,9 @@ repositories {
 dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.7")
+    implementation("org.ajoberstar:grgit:1.9.1") {
+        setForce(true)
+    }
     implementation("org.ajoberstar:gradle-git:1.7.1")
     implementation("org.ajoberstar:gradle-git-publish:0.3.3")
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
