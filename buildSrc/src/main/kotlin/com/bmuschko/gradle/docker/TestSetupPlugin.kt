@@ -21,7 +21,7 @@ class TestSetupPlugin : Plugin<Project> {
             runtimeClasspath += output + compileClasspath
         }
 
-        project.tasks.withType<Test>().configureEach {
+        tasks.withType<Test>().configureEach {
             testLogging {
                 events("skipped")
             }
