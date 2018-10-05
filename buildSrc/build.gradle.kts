@@ -11,6 +11,7 @@ dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.7")
     implementation("org.ajoberstar:gradle-git:1.7.1")
+    implementation("org.ajoberstar:gradle-git-publish:0.3.3")
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
 }
 
@@ -43,6 +44,10 @@ gradlePlugin {
         register("user-guide-plugin") {
             id = "com.bmuschko.gradle.docker.user-guide"
             implementationClass = "com.bmuschko.gradle.docker.UserGuidePlugin"
+        }
+        register("documentation-plugin") {
+            id = "com.bmuschko.gradle.docker.documentation"
+            implementationClass = "com.bmuschko.gradle.docker.DocumentationPlugin"
         }
         register("publishing-plugin") {
             id = "com.bmuschko.gradle.docker.publishing"
