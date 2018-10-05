@@ -34,7 +34,7 @@ EXPOSE 8080
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
-                    port = 9090
+                    ports = [9090]
                     tag = 'jettyapp:1.115'
                 }
             }
@@ -117,7 +117,7 @@ ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
-                    port = 9090
+                    ports = [9090]
                     tag = 'jettyapp:1.115'
                     exec {
                         defaultCommand 'arg1'
@@ -150,7 +150,7 @@ EXPOSE 9090
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
-                    port = 9090
+                    ports = [9090]
                     tag = 'jettyapp:1.115'
                     exec {}
                 }
@@ -167,7 +167,6 @@ EXPOSE 9090
 LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${PROJECT_NAME} /${PROJECT_NAME}
 ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
-
 EXPOSE 9090
 """
     }
@@ -192,7 +191,7 @@ EXPOSE 9090
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
-                    port = 9090
+                    ports = [9090]
                     tag = 'jettyapp:1.115'
                 }
             }
@@ -209,9 +208,9 @@ LABEL maintainer=benjamin.muschko@gmail.com
 ADD ${PROJECT_NAME} /${PROJECT_NAME}
 ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
 ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
+EXPOSE 9090
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
-EXPOSE 9090
 """
         new File(projectDir, 'build/docker/file1.txt').exists()
         new File(projectDir, 'build/docker/file2.txt').exists()
@@ -233,7 +232,7 @@ EXPOSE 9090
 
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    tag = "\$docker.registryCredentials.username/javaapp"
+                    tag = "\${docker.registryCredentials.username.get()}/javaapp".toString() 
                 }
             }
         """
@@ -278,31 +277,6 @@ LABEL maintainer=${System.getProperty('user.name')}
 ADD javaapp /javaapp
 ADD app-lib/${PROJECT_NAME}-1.0.jar /javaapp/lib/$PROJECT_NAME-1.0.jar
 ENTRYPOINT ["/javaapp/bin/javaapp"]
-EXPOSE 8080
-"""
-    }
-
-    def "Can create image without MAINTAINER"() {
-        given:
-        buildFile << """
-            docker {
-                javaApplication {
-                    skipMaintainer = true
-                }
-            }
-        """
-
-        when:
-        build('buildAndRemoveImage')
-
-        then:
-        File dockerfile = dockerFile()
-        dockerfile.exists()
-        dockerfile.text == """FROM $DEFAULT_BASE_IMAGE
-LABEL maintainer=${System.getProperty('user.name')}
-ADD ${PROJECT_NAME} /${PROJECT_NAME}
-ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
-ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
 EXPOSE 8080
 """
     }

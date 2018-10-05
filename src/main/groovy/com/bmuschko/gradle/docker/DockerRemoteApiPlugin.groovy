@@ -22,6 +22,7 @@ import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.plugins.ExtensionAware
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
@@ -41,11 +42,12 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
                 .setDescription('The Docker Java libraries to be used for this project.')
         declareDefaultDependencies(project, dockerJavaConfig)
 
-        DockerExtension extension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
-        extension.classpath = dockerJavaConfig
+        DockerExtension dockerExtension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
+        dockerExtension.classpath.setFrom(dockerJavaConfig)
+        DockerRegistryCredentials dockerRegistryCredentials = ((ExtensionAware) dockerExtension).extensions.create('registryCredentials', DockerRegistryCredentials, project)
 
-        configureAbstractDockerTask(project, extension)
-        configureRegistryAwareTasks(project, extension)
+        configureAbstractDockerTask(project, dockerExtension)
+        configureRegistryAwareTasks(project, dockerRegistryCredentials)
     }
 
     private void declareDefaultDependencies(Project project, Configuration configuration) {
@@ -66,9 +68,9 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
         }
     }
 
-    private void configureRegistryAwareTasks(Project project, DockerExtension extension) {
+    private void configureRegistryAwareTasks(Project project, DockerRegistryCredentials dockerRegistryCredentials) {
         project.tasks.withType(RegistryCredentialsAware) {
-            conventionMapping.registryCredentials = { extension.registryCredentials }
+            registryCredentials = dockerRegistryCredentials
         }
     }
 }

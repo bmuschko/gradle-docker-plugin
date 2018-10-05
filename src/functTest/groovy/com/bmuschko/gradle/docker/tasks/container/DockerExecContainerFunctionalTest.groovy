@@ -26,7 +26,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String containerExecutionTask = """
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['echo', 'Hello World']
             }
         """
@@ -44,12 +44,12 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String containerExecutionTask = """
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 withCommand(['echo', 'Hello World One'])
                 withCommand(['echo', 'Hello World Two'])
                 withCommand(['echo', 'Hello World Three'])
                 doLast {
-                    logger.quiet "FOUND EXEC-IDS: " + getExecIds().size()
+                    logger.quiet "FOUND EXEC-IDS: " + execIds.get().size()
                 }
             }
         """
@@ -71,7 +71,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String containerExecutionTask = """
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['echo', 'Hello World']
             }
         """
@@ -90,7 +90,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn createContainer
                 finalizedBy removeContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 cmd = ['echo', 'Hello World']
             }
         """
@@ -110,7 +110,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 finalizedBy removeContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['sh', '-c', 'id -u && id -g']
                 user = '10000:10001'
             }
@@ -130,7 +130,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 finalizedBy removeContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['test', '-e', '/not_existing_file']
                 successOnExitCodes = [0]
             }
@@ -150,7 +150,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String containerExecutionTask = """
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 withCommand(['sleep', '10'])
                 successOnExitCodes = [0]
                 execProbe(15000, 1000)
@@ -184,19 +184,19 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 cmd = ['sleep','$sleep']
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
             
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
 
             ${containerExecutionTask}
@@ -204,7 +204,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task logContainer(type: DockerLogsContainer) {
                 dependsOn execContainer
                 finalizedBy removeContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 follow = true
                 tailAll = true
             }

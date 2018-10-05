@@ -17,33 +17,29 @@ package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import org.gradle.api.Action
+import org.gradle.api.Project
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Nested
 
 class DockerJavaApplication {
-    String baseImage = 'openjdk:jre-alpine'
-    private final CompositeExecInstruction compositeExecInstruction = new CompositeExecInstruction()
+    final Property<String> baseImage
+    final Property<String> maintainer
+    final ListProperty<Integer> ports
+    final Property<String> tag
 
-    /**
-     * Deprecated as per https://docs.docker.com/engine/deprecated/#maintainer-in-dockerfile
-     * Will be removed in 4.x release.
-     */
-    @Deprecated
-    String maintainer = System.getProperty('user.name')
+    private final CompositeExecInstruction compositeExecInstruction
 
-    /**
-     * Temporary solution to be able to create image without
-     * <code>MAINTAINER</code> and preserve backward compatibility.
-     * Will be removed in 4.x release.
-     */
-    boolean skipMaintainer
-
-    @Deprecated
-    Integer port = 8080
-    Set<Integer> ports
-    String tag
-
-    Integer[] getPorts() {
-        return ports != null ? ports : [port]
+    DockerJavaApplication(Project project) {
+        baseImage = project.objects.property(String)
+        baseImage.set('openjdk:jre-alpine')
+        maintainer = project.objects.property(String)
+        maintainer.set(System.getProperty('user.name'))
+        ports = project.objects.listProperty(Integer)
+        ports.add(8080)
+        tag = project.objects.property(String)
+        compositeExecInstruction = new CompositeExecInstruction(project)
     }
 
     CompositeExecInstruction exec(Action<CompositeExecInstruction> action) {
@@ -59,42 +55,48 @@ class DockerJavaApplication {
      * Helper Instruction to allow customizing generated ENTRYPOINT/CMD.
      */
     static class CompositeExecInstruction implements Dockerfile.Instruction {
-        private final List<Dockerfile.Instruction> instructions = new ArrayList<Dockerfile.Instruction>()
+        private final ListProperty<Dockerfile.Instruction> instructions
+
+        CompositeExecInstruction(Project project) {
+            instructions = project.objects.listProperty(Dockerfile.Instruction)
+        }
 
         @Nested
-        List<Dockerfile.Instruction> getInstructions() {
+        ListProperty<Dockerfile.Instruction> getInstructions() {
             instructions
         }
 
         @Override
         String getKeyword() { '' }
 
-        @Override
-        String getText() {
-            build()
+        void clear() {
+            instructions.set([])
         }
 
         @Override
-        String build() { instructions*.getText().join(System.getProperty('line.separator')) }
-
-        void clear() {
-            instructions.clear()
+        String getText() {
+            List<Dockerfile.Instruction> viableInstructions = instructions.get().findAll { it.text }
+            viableInstructions.collect { it.getText() }.join(System.getProperty('line.separator'))
         }
 
         void defaultCommand(String... command) {
-            instructions << new Dockerfile.DefaultCommandInstruction(command)
+            addInstruction(new Dockerfile.DefaultCommandInstruction(command))
         }
 
-        void defaultCommand(Closure command) {
-            instructions << new Dockerfile.DefaultCommandInstruction(command)
+        void defaultCommand(Provider<List<String>> commandProvider) {
+            addInstruction(new Dockerfile.DefaultCommandInstruction(commandProvider))
         }
 
         void entryPoint(String... entryPoint) {
-            instructions << new Dockerfile.EntryPointInstruction(entryPoint)
+            addInstruction(new Dockerfile.EntryPointInstruction(entryPoint))
         }
 
-        void entryPoint(Closure entryPoint) {
-            instructions << new Dockerfile.EntryPointInstruction(entryPoint)
+        void entryPoint(Provider<List<String>> entryPointProvider) {
+            addInstruction(new Dockerfile.EntryPointInstruction(entryPointProvider))
+        }
+
+        private void addInstruction(Dockerfile.Instruction instruction) {
+            instructions.add(instruction)
         }
     }
 }

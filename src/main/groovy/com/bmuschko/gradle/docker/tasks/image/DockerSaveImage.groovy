@@ -3,6 +3,8 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.IOUtils
 import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
@@ -15,38 +17,38 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
      * The image repository.
      */
     @Input
-    String repository
+    final Property<String> repository = project.objects.property(String)
 
     /**
      * The image's tag.
      */
     @Input
     @Optional
-    String tag
+    final Property<String> tag = project.objects.property(String)
 
     @Input
     @Optional
-    boolean useCompression
+    final Property<Boolean> useCompression = project.objects.property(Boolean)
 
     /**
      * Where to save image.
      */
     @OutputFile
-    File destFile
+    final RegularFileProperty destFile = newOutputFile()
 
     @Override
     void runRemoteCommand(Object dockerClient) {
-        def saveImageCmd = dockerClient.saveImageCmd(getRepository())
+        def saveImageCmd = dockerClient.saveImageCmd(repository.get())
 
-        if (getTag()) {
-            saveImageCmd.withTag(getTag())
+        if (tag.getOrNull()) {
+            saveImageCmd.withTag(tag.get())
         }
         InputStream image = saveImageCmd.exec()
         OutputStream os
         try {
-            FileOutputStream fs = new FileOutputStream(destFile)
+            FileOutputStream fs = new FileOutputStream(destFile.get().asFile)
             os = fs
-            if( useCompression ) {
+            if( useCompression.get() ) {
                 os = new GZIPOutputStream(fs)
             }
             try {

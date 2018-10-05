@@ -25,7 +25,7 @@ class DockerRemoveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task removeImage(type: DockerRemoveImage) {
                 dependsOn buildImage
                 force = true
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
             
             task removeImageAndCheckRemoval(type: DockerListImages) {
@@ -64,20 +64,20 @@ class DockerRemoveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn buildImage
                 repository = "repository"
                 tag = "tag2"
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
             
             task tagImageSecondTime(type: DockerTagImage) {
                 dependsOn tagImage
                 repository = "repository"
                 tag = "tag2"
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
             
             task removeImage(type: DockerRemoveImage) {
                 dependsOn tagImageSecondTime
                 force = true
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task removeImageAndCheckRemoval(type: DockerListImages) {

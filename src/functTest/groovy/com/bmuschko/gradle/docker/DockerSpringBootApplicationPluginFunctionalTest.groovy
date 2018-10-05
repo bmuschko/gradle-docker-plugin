@@ -107,7 +107,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
 
                 springBootApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    tag = "\$docker.registryCredentials.username/springbootapp"
+                    tag = "\${docker.registryCredentials.username.get()}/springbootapp".toString()
                 }
             }
         """

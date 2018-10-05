@@ -18,24 +18,28 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+
+import java.util.concurrent.Callable
 
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
     /**
      * The image repository.
      */
     @Input
-    String repository
+    final Property<String> repository = project.objects.property(String)
 
     /**
      * The image's tag.
      */
     @Input
     @Optional
-    String tag
+    final Property<String> tag = project.objects.property(String)
 
     /**
      * The target Docker registry credentials for pushing image.
@@ -46,15 +50,15 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Pulling repository '${getRepository()}'."
-        def pullImageCmd = dockerClient.pullImageCmd(getRepository())
+        logger.quiet "Pulling repository '${repository.get()}'."
+        def pullImageCmd = dockerClient.pullImageCmd(repository.get())
 
-        if(getTag()) {
-            pullImageCmd.withTag(getTag())
+        if(tag.getOrNull()) {
+            pullImageCmd.withTag(tag.get())
         }
 
-        if(getRegistryCredentials()) {
-            def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
+        if(registryCredentials) {
+            def authConfig = threadContextClassLoader.createAuthConfig(registryCredentials)
             pullImageCmd.withAuthConfig(authConfig)
         }
 
@@ -63,7 +67,12 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     }
 
     @Internal
-    String getImageId() {
-        tag?.trim() ? "${repository}:${tag}" : repository
+    Provider<String> getImageId() {
+        project.provider(new Callable<String>() {
+            @Override
+            String call() throws Exception {
+                tag.getOrNull()?.trim() ? "${repository.get()}:${tag.get()}" : repository.get()
+            }
+        })
     }
 }

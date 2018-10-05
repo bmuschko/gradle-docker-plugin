@@ -18,6 +18,9 @@ package com.bmuschko.gradle.docker.tasks.container
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.CollectionUtil
 import groovy.transform.CompileStatic
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -25,152 +28,153 @@ import org.gradle.api.tasks.Optional
 import java.util.concurrent.Callable
 
 class DockerCreateContainer extends AbstractDockerRemoteApiTask {
-    String imageId
+    @Internal
+    final Property<String> imageId = project.objects.property(String)
 
     @Input
     @Optional
-    List<String> links
+    final ListProperty<String> links = project.objects.listProperty(String)
 
     @Input
     @Optional
-    String containerName
+    final Property<String> containerName = project.objects.property(String)
 
     @Input
     @Optional
-    String hostName
+    final Property<String> hostName = project.objects.property(String)
 
     @Input
     @Optional
-    String ipv4Address
+    final Property<String> ipv4Address = project.objects.property(String)
 
     @Input
     @Optional
-    String[] portSpecs
+    final ListProperty<String> portSpecs = project.objects.listProperty(String)
 
     @Input
     @Optional
-    String user
+    final Property<String> user = project.objects.property(String)
 
     @Input
     @Optional
-    Boolean stdinOpen
+    final Property<Boolean> stdinOpen = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean stdinOnce
+    final Property<Boolean> stdinOnce = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Long memory
+    final Property<Long> memory = project.objects.property(Long)
 
     @Input
     @Optional
-    Long memorySwap
+    final Property<Long> memorySwap = project.objects.property(Long)
 
     @Input
     @Optional
-    String cpuset
+    final Property<String> cpuset = project.objects.property(String)
 
     @Input
     @Optional
-    List<String> portBindings
+    final ListProperty<String> portBindings = project.objects.listProperty(String)
 
     @Input
     @Optional
-    Boolean publishAll
+    final Property<Boolean> publishAll = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean attachStdin
+    final Property<Boolean> attachStdin = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean attachStdout
+    final Property<Boolean> attachStdout = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean attachStderr
+    final Property<Boolean> attachStderr = project.objects.property(Boolean)
 
     // use `envVars` instead
     @Deprecated
     @Input
     @Optional
-    String[] env
+    final ListProperty<String> env = project.objects.listProperty(String)
 
     @Input
     @Optional
-    final Map<?, ?> envVars = [:]
+    final Property<Map<?, ?>> envVars = project.objects.property(Map)
 
     @Input
     @Optional
-    String[] cmd
+    final ListProperty<String> cmd = project.objects.listProperty(String)
 
     @Input
     @Optional
-    String[] entrypoint
+    final ListProperty<String> entrypoint = project.objects.listProperty(String)
 
     @Input
     @Optional
-    String[] dns
+    final ListProperty<String> dns = project.objects.listProperty(String)
 
     @Input
     @Optional
-    String network
+    final Property<String> network = project.objects.property(String)
 
     @Input
     @Optional
-    String[] networkAliases
+    final ListProperty<String> networkAliases = project.objects.listProperty(String)
 
     @Input
     @Optional
-    String image
+    final Property<String> image = project.objects.property(String)
 
     @Input
     @Optional
-    String[] volumes
+    final ListProperty<String> volumes = project.objects.listProperty(String)
 
     @Input
     @Optional
-    String[] volumesFrom
+    final ListProperty<String> volumesFrom = project.objects.listProperty(String)
 
     @Input
     @Optional
-    String workingDir
+    final Property<String> workingDir = project.objects.property(String)
 
     @Input
-    List<ExposedPort> exposedPorts = []
-
-    @Input
-    @Optional
-    Map<String,String> binds
+    final ListProperty<ExposedPort> exposedPorts = project.objects.listProperty(ExposedPort)
 
     @Input
     @Optional
-    List<String> extraHosts
+    final Property<Map<String,String>> binds = project.objects.property(Map)
 
     @Input
     @Optional
-    LogConfig logConfig
+    final ListProperty<String> extraHosts = project.objects.listProperty(String)
 
     @Input
     @Optional
-    Boolean privileged
+    final Property<LogConfig> logConfig = project.objects.property(LogConfig)
 
     @Input
     @Optional
-    Boolean tty
+    final Property<Boolean> privileged = project.objects.property(Boolean)
 
     @Input
     @Optional
-    String restartPolicy
+    final Property<Boolean> tty = project.objects.property(Boolean)
 
     @Input
     @Optional
-    String pid
+    final Property<String> restartPolicy = project.objects.property(String)
 
     @Input
     @Optional
-    List<String> devices
+    final Property<String> pid = project.objects.property(String)
+
+    @Input
+    @Optional
+    final ListProperty<String> devices = project.objects.listProperty(String)
 
     /**
      * Size of <code>/dev/shm</code> in bytes.
@@ -179,7 +183,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
      */
     @Input
     @Optional
-    Long shmSize
+    final Property<Long> shmSize = project.objects.property(Long)
 
     /* 
      * Automatically remove the container when the container's process exits.
@@ -189,131 +193,130 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
      */
     @Input
     @Optional
-    Boolean autoRemove
+    final Property<Boolean> autoRemove= project.objects.property(Boolean)
 
     @Input
     @Optional
-    Map<String, String> labels = [:]
+    final Property<Map<String, String>> labels = project.objects.property(Map)
 
     @Internal
-    String containerId
+    final Property<String> containerId = project.objects.property(String)
 
     @Input
     @Optional
-    String macAddress
-
-    DockerCreateContainer() {
-        ext.getContainerId = { containerId }
-    }
+    final Property<String> macAddress = project.objects.property(String)
 
     @Override
     void runRemoteCommand(dockerClient) {
-        def containerCommand = dockerClient.createContainerCmd(getImageId())
+        def containerCommand = dockerClient.createContainerCmd(imageId.get())
         setContainerCommandConfig(containerCommand)
         def container = containerCommand.exec()
-        final String localContainerName = getContainerName() ?: container.id
+        final String localContainerName = containerName.getOrNull() ?: container.id
         logger.quiet "Created container with ID '$localContainerName'."
-        containerId = container.id
+        containerId.set(container.id)
         if(onNext) {
             onNext.call(container)
         }
     }
 
-    void targetImageId(Closure imageId) {
-        conventionMapping.imageId = imageId
+    void targetImageId(String imageId) {
+        this.imageId.set(imageId)
     }
 
     @CompileStatic
     void targetImageId(Callable<String> imageId) {
-        targetImageId { imageId.call() }
+        targetImageId(project.provider(imageId))
     }
 
-    @Input
-    String getImageId() {
-        imageId
+    void targetImageId(Provider<String> imageId) {
+        this.imageId.set(imageId)
     }
 
     void logConfig(String type, Map<String, String> config) {
-        logConfig = new LogConfig(type: type, config: config)
+        this.logConfig.set(new LogConfig(type: type, config: config))
     }
 
     void exposePorts(String internetProtocol, List<Integer> ports) {
-        exposedPorts << new ExposedPort(internetProtocol, ports)
+        exposedPorts.add(new ExposedPort(internetProtocol, ports))
     }
 
     void restartPolicy(String name, int maximumRetryCount) {
-        restartPolicy = "${name}:${maximumRetryCount}"
+        this.restartPolicy.set("${name}:${maximumRetryCount}".toString())
     }
 
     // key or value can be in the form of a Closure or anything else. In the
     // end, and whatever it resolves to, will be marshaled into a String.
     void withEnvVar(def key, def value) {
-        this.envVars.put(key, value);
+        if (envVars.getOrNull()) {
+            envVars.get().put(key, value)
+        } else {
+            envVars.set([(key): value])
+        }
     }
 
     private void setContainerCommandConfig(containerCommand) {
-        if(getContainerName()) {
-            containerCommand.withName(getContainerName())
+        if(containerName.getOrNull()) {
+            containerCommand.withName(containerName.get())
         }
 
-        if(getHostName()) {
-            containerCommand.withHostName(getHostName())
+        if(hostName.getOrNull()) {
+            containerCommand.withHostName(hostName.get())
         }
 
-        if(getIpv4Address()){
-            containerCommand.withIpv4Address(getIpv4Address())
+        if(ipv4Address.getOrNull()){
+            containerCommand.withIpv4Address(ipv4Address.get())
         }
 
-        if(getPortSpecs()) {
-            containerCommand.withPortSpecs(getPortSpecs())
+        if(portSpecs.getOrNull()) {
+            containerCommand.withPortSpecs(portSpecs.get())
         }
 
-        if(getUser()) {
-            containerCommand.withUser(getUser())
+        if(user.getOrNull()) {
+            containerCommand.withUser(user.get())
         }
 
-        if(getStdinOpen()) {
-            containerCommand.withStdinOpen(getStdinOpen())
+        if(stdinOpen.getOrNull()) {
+            containerCommand.withStdinOpen(stdinOpen.get())
         }
 
-        if(getStdinOnce()) {
-            containerCommand.withStdInOnce(getStdinOnce())
+        if(stdinOnce.getOrNull()) {
+            containerCommand.withStdInOnce(stdinOnce.get())
         }
 
-        if(getMemory()) {
-            containerCommand.withMemory(getMemory())
+        if(memory.getOrNull()) {
+            containerCommand.withMemory(memory.get())
         }
 
-        if(getMemorySwap()) {
-            containerCommand.withMemorySwap(getMemorySwap())
+        if(memorySwap.getOrNull()) {
+            containerCommand.withMemorySwap(memorySwap.get())
         }
 
-        if(getCpuset()) {
-            containerCommand.withCpusetCpus(getCpuset())
+        if(cpuset.getOrNull()) {
+            containerCommand.withCpusetCpus(cpuset.get())
         }
 
-        if(getAttachStdin()) {
-            containerCommand.withAttachStdin(getAttachStdin())
+        if(attachStdin.getOrNull()) {
+            containerCommand.withAttachStdin(attachStdin.get())
         }
 
-        if(getAttachStdout()) {
-            containerCommand.withAttachStdout(getAttachStdout())
+        if(attachStdout.getOrNull()) {
+            containerCommand.withAttachStdout(attachStdout.get())
         }
 
-        if(getAttachStderr()) {
-            containerCommand.withAttachStderr(getAttachStderr())
+        if(attachStderr.getOrNull()) {
+            containerCommand.withAttachStderr(attachStderr.get())
         }
 
         // marshall deprecated old list onto new map
-        getEnv()?.each { envVar ->
+        env.getOrNull()?.each { envVar ->
             def keyValuePair = envVar.split('=', 2)
-            envVars.put(keyValuePair.first(), keyValuePair.last())
+            envVars.get().put(keyValuePair.first(), keyValuePair.last())
         }
 
         // marshall map into list
-        if(getEnvVars()) {
+        if(envVars.getOrNull()) {
             final List<String> localEnvVars = new ArrayList<>();
-            getEnvVars().each { key, value ->
+            envVars.get().each { key, value ->
                 def localKey = key instanceof Closure ? key.call() : key
                 def localValue = value instanceof Closure ? value.call() : value
 
@@ -322,111 +325,111 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
             containerCommand.withEnv(localEnvVars)
         }
 
-        if(getCmd()) {
-            containerCommand.withCmd(getCmd())
+        if(cmd.getOrNull()) {
+            containerCommand.withCmd(cmd.get())
         }
 
-        if(getEntrypoint()) {
-            containerCommand.withEntrypoint(getEntrypoint())
+        if(entrypoint.getOrNull()) {
+            containerCommand.withEntrypoint(entrypoint.get())
         }
 
-        if(getDns()) {
-            containerCommand.withDns(getDns())
+        if(dns.getOrNull()) {
+            containerCommand.withDns(dns.get())
         }
 
-        if(getNetwork()) {
-            containerCommand.withNetworkMode(getNetwork())
+        if(network.getOrNull()) {
+            containerCommand.withNetworkMode(network.get())
         }
 
-        if(getNetworkAliases()) {
-            containerCommand.withAliases(getNetworkAliases())
+        if(networkAliases.getOrNull()) {
+            containerCommand.withAliases(networkAliases.get())
         }
 
-        if(getImage()) {
-            containerCommand.withImage(getImage())
+        if(image.getOrNull()) {
+            containerCommand.withImage(image.get())
         }
 
-        if(getVolumes()) {
-            def createdVolumes = getVolumes().collect { threadContextClassLoader.createVolume(it) }
+        if(volumes.getOrNull()) {
+            def createdVolumes = volumes.get().collect { threadContextClassLoader.createVolume(it) }
             containerCommand.volumes = threadContextClassLoader.createVolumes(createdVolumes)
         }
 
-        if (getLinks()) {
-            def createdLinks = getLinks().collect { threadContextClassLoader.createLink(it) }
+        if (links.getOrNull()) {
+            def createdLinks = links.get().collect { threadContextClassLoader.createLink(it) }
             containerCommand.withLinks(CollectionUtil.toArray(createdLinks))
         }
 
-        if(getVolumesFrom()) {
-            def createdVolumes = threadContextClassLoader.createVolumesFrom(getVolumesFrom())
+        if(volumesFrom.getOrNull()) {
+            def createdVolumes = threadContextClassLoader.createVolumesFrom(volumesFrom.get() as String[])
             containerCommand.withVolumesFrom(createdVolumes)
         }
 
-        if(getWorkingDir()) {
-            containerCommand.withWorkingDir(getWorkingDir())
+        if(workingDir.getOrNull()) {
+            containerCommand.withWorkingDir(workingDir.get())
         }
 
-        if(getExposedPorts()) {
-            def ports = threadContextClassLoader.createExposedPortsArray(getExposedPorts())
+        if(exposedPorts.getOrNull()) {
+            def ports = threadContextClassLoader.createExposedPortsArray(exposedPorts.get())
             containerCommand.withExposedPorts(ports)
         }
 
-        if(getPortBindings()) {
-            def createdPortBindings = getPortBindings().collect { threadContextClassLoader.createPortBinding(it) }
+        if(portBindings.getOrNull()) {
+            def createdPortBindings = portBindings.get().collect { threadContextClassLoader.createPortBinding(it) }
             containerCommand.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
         }
 
-        if(getPublishAll()) {
-            containerCommand.withPublishAllPorts(getPublishAll())
+        if(publishAll.getOrNull()) {
+            containerCommand.withPublishAllPorts(publishAll.get())
         }
 
-        if(getBinds()) {
-            def createdBinds = threadContextClassLoader.createBinds(getBinds())
+        if(binds.getOrNull()) {
+            def createdBinds = threadContextClassLoader.createBinds(binds.get())
             containerCommand.withBinds(createdBinds)
         }
 
-        if(getExtraHosts()) {
-            containerCommand.withExtraHosts(getExtraHosts() as String[])
+        if(extraHosts.getOrNull()) {
+            containerCommand.withExtraHosts(extraHosts.get() as String[])
         }
 
-        if(getLogConfig()) {
-            containerCommand.withLogConfig(threadContextClassLoader.createLogConfig(getLogConfig().type, getLogConfig().config))
+        if(logConfig.getOrNull()) {
+            containerCommand.withLogConfig(threadContextClassLoader.createLogConfig(logConfig.get().type, logConfig.get().config))
         }
 
-        if(getPrivileged()) {
-            containerCommand.withPrivileged(getPrivileged())
+        if(privileged.getOrNull()) {
+            containerCommand.withPrivileged(privileged.get())
         }
 
-        if (getRestartPolicy()) {
-            containerCommand.withRestartPolicy(threadContextClassLoader.createRestartPolicy(getRestartPolicy()))
+        if (restartPolicy.getOrNull()) {
+            containerCommand.withRestartPolicy(threadContextClassLoader.createRestartPolicy(restartPolicy.get()))
         }
 
-        if (getPid()) {
-            containerCommand.withPidMode(getPid())
+        if (pid.getOrNull()) {
+            containerCommand.withPidMode(pid.get())
         }
 
-        if (getDevices()) {
-            def createdDevices = getDevices().collect { threadContextClassLoader.createDevice(it) }
+        if (devices.getOrNull()) {
+            def createdDevices = devices.get().collect { threadContextClassLoader.createDevice(it) }
             containerCommand.withDevices(CollectionUtil.toArray(createdDevices))
         }
 
-        if(getTty()) {
-            containerCommand.withTty(getTty())
+        if(tty.getOrNull()) {
+            containerCommand.withTty(tty.get())
         }
 
-        if(getShmSize() != null) { // 0 is valid input
-            containerCommand.hostConfig.withShmSize(getShmSize())
+        if(shmSize.getOrNull() != null) { // 0 is valid input
+            containerCommand.hostConfig.withShmSize(shmSize.get())
         }
 
-        if (getAutoRemove() != null && getAutoRemove()) {
-            containerCommand.hostConfig.withAutoRemove(getAutoRemove())
+        if (autoRemove.getOrNull()) {
+            containerCommand.hostConfig.withAutoRemove(autoRemove.get())
         }
 
-        if(getLabels()) {
-            containerCommand.withLabels(getLabels().collectEntries { [it.key, it.value.toString()] })
+        if(labels.getOrNull()) {
+            containerCommand.withLabels(labels.get().collectEntries { [it.key, it.value.toString()] })
         }
 
-        if(getMacAddress()) {
-            containerCommand.withMacAddress(getMacAddress())
+        if(macAddress.getOrNull()) {
+            containerCommand.withMacAddress(macAddress.get())
         }
     }
 

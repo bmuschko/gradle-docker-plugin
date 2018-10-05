@@ -28,7 +28,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
 
@@ -39,29 +39,29 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 force = true
             }
 
             task removeImage(type: DockerRemoveImage) {
                 dependsOn removeContainer
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 force = true
             }
 
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                timeout 10
+                targetContainerId startContainer.getContainerId()
+                timeout = 10
                 finalizedBy removeImage
             }
         """
@@ -83,24 +83,24 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 cmd = ['sleep','60']
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 force = true
             }
 
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                timeout 10
+                targetContainerId startContainer.getContainerId()
+                timeout = 10
                 finalizedBy removeContainer
             }
         """
@@ -117,7 +117,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
 
@@ -128,22 +128,22 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 force = true
             }
 
             task removeImage(type: DockerRemoveImage) {
                 dependsOn removeContainer
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 force = true
             }
 
@@ -151,8 +151,8 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
             
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                checkInterval 1000
+                targetContainerId startContainer.getContainerId()
+                checkInterval = 1000
                 onNext { project.testOutput++ }
                 onComplete { println "Test output: \${project.testOutput}" }
                 finalizedBy removeImage
@@ -172,7 +172,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
             }
 
@@ -183,22 +183,22 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 force = true
             }
 
             task removeImage(type: DockerRemoveImage) {
                 dependsOn removeContainer
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 force = true
             }
 
@@ -206,7 +206,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
             
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 onNext { project.latestOnNext = it }
                 onComplete { println "Test output: \${project.latestOnNext}" }
                 finalizedBy removeImage
@@ -226,7 +226,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 10; touch /tmp/HEALTHY; sleep 60'
             }
 
@@ -237,29 +237,29 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 force = true
             }
 
             task removeImage(type: DockerRemoveImage) {
                 dependsOn removeContainer
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 force = true
             }
 
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                timeout 5
+                targetContainerId startContainer.getContainerId()
+                timeout = 5
                 finalizedBy removeImage
             }
         """
@@ -277,7 +277,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 5'
             }
 
@@ -288,29 +288,29 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 force = true
             }
 
             task removeImage(type: DockerRemoveImage) {
                 dependsOn removeContainer
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 force = true
             }
 
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
-                timeout 10
+                targetContainerId startContainer.getContainerId()
+                timeout = 10
                 finalizedBy removeImage
             }
         """
@@ -328,7 +328,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task dockerfile(type: Dockerfile) {
                 from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
-                instruction { "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1" }
+                instruction "HEALTHCHECK --interval=1s CMD test -e /tmp/HEALTHY || exit 1"
                 defaultCommand '/bin/sh', '-c', 'sleep 10'
             }
 
@@ -339,24 +339,24 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 force = true
             }
 
             task removeImage(type: DockerRemoveImage) {
                 dependsOn removeContainer
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 force = true
             }
 
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
-                timeout 10
+                targetContainerId createContainer.getContainerId()
+                timeout = 10
                 finalizedBy removeImage
             }
         """

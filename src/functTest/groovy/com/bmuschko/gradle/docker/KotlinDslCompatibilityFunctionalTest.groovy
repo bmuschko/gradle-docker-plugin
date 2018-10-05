@@ -13,7 +13,7 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
         buildFile << """
             docker {
                 javaApplication {
-                    baseImage = "$CUSTOM_BASE_IMAGE"
+                    baseImage.set("$CUSTOM_BASE_IMAGE")
                 }
             }
         """
@@ -33,7 +33,7 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
         buildFile << """
             docker {
                 springBootApplication {
-                    baseImage = "$CUSTOM_BASE_IMAGE"
+                    baseImage.set("$CUSTOM_BASE_IMAGE")
                 }
             }
         """
@@ -95,7 +95,7 @@ class KotlinDslCompatibilityFunctionalTest extends AbstractKotlinDslFunctionalTe
         """
             docker {
                 registryCredentials {
-                    url = "http://localhost:5000"
+                    url.set("http://localhost:5000")
                 }
             }
         """

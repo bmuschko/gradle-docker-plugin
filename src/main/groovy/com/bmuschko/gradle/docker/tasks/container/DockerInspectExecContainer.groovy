@@ -1,7 +1,11 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+
+import java.util.concurrent.Callable
 
 /**
  * Inspects task executed inside container
@@ -14,16 +18,24 @@ class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
      * ID has to be created and started first.
      */
     @Input
-    String execId
+    final Property<String> execId = project.objects.property(String)
 
-    void targetExecId(Closure execId) {
-        conventionMapping.execId = execId
+    void targetExecId(String execId) {
+        this.execId.set(execId)
+    }
+
+    void targetExecId(Callable<String> execId) {
+        targetExecId(project.provider(execId))
+    }
+
+    void targetExecId(Provider<String> execId) {
+        this.execId.set(execId)
     }
 
     @Override
     void runRemoteCommand(Object dockerClient) {
-        logger.quiet "Inspecting exec with ID '${getExecId()}'."
-        def result = _runRemoteCommand(dockerClient, getExecId())
+        logger.quiet "Inspecting exec with ID '${execId.get()}'."
+        def result = _runRemoteCommand(dockerClient, execId.get())
         if (onNext) {
             onNext.call(result)
         } else {

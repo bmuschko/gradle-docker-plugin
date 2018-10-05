@@ -16,20 +16,28 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+
+import java.util.concurrent.Callable
 
 abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
     /**
      * Image ID used to perform operation. The image for the provided ID has to be created first.
      */
-    String imageId
+    @Input
+    final Property<String> imageId = project.objects.property(String)
 
-    void targetImageId(Closure imageId) {
-        conventionMapping.imageId = imageId
+    void targetImageId(String imageId) {
+        this.imageId.set(imageId)
     }
 
-    @Input
-    String getImageId() {
-        imageId
+    void targetImageId(Callable<String> imageId) {
+        targetImageId(project.provider(imageId))
+    }
+
+    void targetImageId(Provider<String> imageId) {
+        this.imageId.set(imageId)
     }
 }

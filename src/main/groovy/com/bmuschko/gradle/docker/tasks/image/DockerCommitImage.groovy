@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -26,85 +27,82 @@ class DockerCommitImage extends DockerExistingContainer {
      */
     @Input
     @Optional
-    String repository
+    final Property<String> repository = project.objects.property(String)
 
     /**
      * Commit tag.
      */
     @Input
     @Optional
-    String tag
+    final Property<String> tag = project.objects.property(String)
 
     /**
      * Commit message.
      */
     @Input
     @Optional
-    String message
+    final Property<String> message = project.objects.property(String)
 
     /**
      * Author of image e.g. Benjamin Muschko.
      */
     @Input
     @Optional
-    String author
+    final Property<String> author = project.objects.property(String)
 
     @Input
     @Optional
-    Boolean pause
+    final Property<Boolean> pause = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean attachStderr
+    final Property<Boolean> attachStderr = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean attachStdin
+    final Property<Boolean> attachStdin = project.objects.property(Boolean)
 
     @Internal
-    String imageId
-
-    DockerCommitImage() {
-        ext.getImageId = { imageId }
-    }
+    final Property<String> imageId = project.objects.property(String)
 
     @Override
     void runRemoteCommand(dockerClient) {
         logger.quiet "Commiting image for container '${getContainerId()}'."
         def commitCmd = dockerClient.commitCmd(getContainerId())
 
-        if(getRepository()) {
-            commitCmd.withRepository(getRepository())
+        if(repository.getOrNull()) {
+            commitCmd.withRepository(repository.get())
         }
 
-        if(getTag()) {
-            commitCmd.withTag(getTag())
+        if(tag.getOrNull()) {
+            commitCmd.withTag(tag.get())
         }
 
-        if(getMessage()) {
-            commitCmd.withMessage(getMessage())
+        if(message.getOrNull()) {
+            commitCmd.withMessage(message.get())
         }
 
-        if(getAuthor()) {
-            commitCmd.withAuthor(getAuthor())
+        if(author.getOrNull()) {
+            commitCmd.withAuthor(author.get())
         }
 
-        if(getPause()) {
-            commitCmd.withPause(getPause())
+        if(pause.getOrNull()) {
+            commitCmd.withPause(pause.get())
         }
 
-        if(getAttachStderr()) {
-            commitCmd.withAttachStderr(getAttachStderr())
+        if(attachStderr.getOrNull()) {
+            commitCmd.withAttachStderr(attachStderr.get())
         }
 
-        if(getAttachStdin()) {
-            commitCmd.withAttachStdin(getAttachStdin())
+        if(attachStdin.getOrNull()) {
+            commitCmd.withAttachStdin(attachStdin.get())
         }
 
-        imageId = commitCmd.exec()
-        logger.quiet "Created image with ID '$imageId'."
+        String createdImageId = commitCmd.exec()
+        imageId.set(createdImageId)
+        logger.quiet "Created image with ID '$createdImageId'."
         if(onNext) {
-            onNext.call(imageId)
+            onNext.call(createdImageId)
         }
     }
 }

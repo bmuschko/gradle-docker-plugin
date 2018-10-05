@@ -17,6 +17,8 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.domain.CopyFileToContainer
 import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -26,21 +28,21 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    String remotePath
+    final Property<String> remotePath = project.objects.property(String)
 
     /**
      * File path on host to copy into container
      */
     @Input
     @Optional
-    String hostPath
+    final Property<String> hostPath = project.objects.property(String)
 
     /**
      * Tar file we will copy into container
      */
     @Input
     @Optional
-    Closure<File> tarFile
+    final RegularFileProperty tarFile = newInputFile()
 
     @Input
     @Optional
@@ -49,22 +51,22 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(dockerClient) {
 
-        if (getRemotePath()) {
-            if (getHostPath() && getTarFile()) {
+        if (remotePath.getOrNull()) {
+            if (hostPath.getOrNull() && tarFile.getOrNull()) {
                 throw new GradleException("Can specify either hostPath or tarFile not both")
             } else {
-                if (getHostPath()) {
-                    withFile(getHostPath(), getRemotePath())
-                } else if (getTarFile()) {
-                    withTarFile(getTarFile(), getRemotePath())
+                if (hostPath.getOrNull()) {
+                    withFile(hostPath.get(), remotePath.get())
+                } else if (tarFile.getOrNull()) {
+                    withTarFile(tarFile.get(), remotePath.get())
                 }
             }
         }
 
         for (int i = 0; i < copyFiles.size(); i++) {
             CopyFileToContainer fileToCopy = copyFiles.get(i)
-            logger.quiet "Copying file to container with ID '${getContainerId()}' at '${fileToCopy.remotePath}'."
-            def containerCommand = dockerClient.copyArchiveToContainerCmd(getContainerId())
+            logger.quiet "Copying file to container with ID '${containerId.get()}' at '${fileToCopy.remotePath}'."
+            def containerCommand = dockerClient.copyArchiveToContainerCmd(containerId.get())
             setContainerCommandConfig(containerCommand, fileToCopy)
             containerCommand.exec()
         }

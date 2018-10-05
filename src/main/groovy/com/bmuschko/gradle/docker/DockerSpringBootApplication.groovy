@@ -1,17 +1,24 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
+import org.gradle.api.Project
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 
 /**
  * @since 3.4.5
  */
 @CompileStatic
 class DockerSpringBootApplication {
-    String baseImage = 'openjdk:jre-alpine'
-    Set<Integer> ports
-    String tag
+    final Property<String> baseImage
+    final ListProperty<Integer> ports
+    final Property<String> tag
 
-    Integer[] getPorts() {
-        return ports != null ? ports as Integer[] : [8080] as Integer[]
+    DockerSpringBootApplication(Project project) {
+        baseImage = project.objects.property(String)
+        baseImage.set('openjdk:jre-alpine')
+        ports = project.objects.listProperty(Integer)
+        ports.add(8080)
+        tag = project.objects.property(String)
     }
 }

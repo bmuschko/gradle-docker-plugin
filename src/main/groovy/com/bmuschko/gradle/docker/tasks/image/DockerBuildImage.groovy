@@ -18,6 +18,10 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
@@ -26,7 +30,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      * Input directory containing the build context. Defaults to "$projectDir/docker".
      */
     @InputDirectory
-    File inputDir = project.file('docker')
+    final DirectoryProperty inputDir = newInputDirectory()
 
     /**
      * The Dockerfile to use to build the image.  If null, will use 'Dockerfile' in the
@@ -34,14 +38,14 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @InputFile
     @Optional
-    File dockerFile
+    final RegularFileProperty dockerFile = newInputFile()
 
     /**
      * Tags for image.
      */
     @Input
     @Optional
-    Set<String> tags = []
+    final SetProperty<String> tags = project.objects.setProperty(String)
 
     /**
      * Tag for image.
@@ -50,39 +54,39 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Input
     @Optional
     @Deprecated
-    String tag
+    final Property<String> tag = project.objects.property(String)
 
     @Input
     @Optional
-    Boolean noCache
+    final Property<Boolean> noCache = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean remove
+    final Property<Boolean> remove = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean quiet
+    final Property<Boolean> quiet = project.objects.property(Boolean)
 
     @Input
     @Optional
-    Boolean pull
+    final Property<Boolean> pull = project.objects.property(Boolean)
 
     @Input
     @Optional
-    String network
+    final Property<Map<String, String>> labels = project.objects.property(Map)
 
     @Input
     @Optional
-    Map<String, String> labels = [:]
+    final Property<String> network = project.objects.property(String)
 
     @Input
     @Optional
-    Map<String, String> buildArgs = [:]
+    final Property<Map<String, String>> buildArgs = project.objects.property(Map)
 
     @Input
     @Optional
-    Set<String> cacheFrom = []
+    final SetProperty<String> cacheFrom = project.objects.setProperty(String)
 
     /**
      * Size of <code>/dev/shm</code> in bytes.
@@ -91,7 +95,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @Input
     @Optional
-    Long shmSize
+    final Property<Long> shmSize = project.objects.property(Long)
 
     /**
      * The target Docker registry credentials for building image.
@@ -101,82 +105,85 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     DockerRegistryCredentials registryCredentials
 
     @Internal
-    String imageId
+    final Property<String> imageId = project.objects.property(String)
 
     DockerBuildImage() {
-        ext.getImageId = { imageId }
+        inputDir.set(project.file('docker'))
     }
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Building image using context '${getInputDir()}'."
+        logger.quiet "Building image using context '${inputDir.get().asFile}'."
         def buildImageCmd
 
-        if (getDockerFile()) {
-            logger.quiet "Using Dockerfile '${getDockerFile()}'"
+        if (dockerFile.getOrNull()) {
+            logger.quiet "Using Dockerfile '${dockerFile.get()}'"
             buildImageCmd = dockerClient.buildImageCmd()
-                    .withBaseDirectory(getInputDir())
-                    .withDockerfile(getDockerFile())
+                    .withBaseDirectory(inputDir.get().asFile)
+                    .withDockerfile(dockerFile.get())
         } else {
-            buildImageCmd = dockerClient.buildImageCmd(getInputDir())
+            buildImageCmd = dockerClient.buildImageCmd(inputDir.get().asFile)
         }
 
-        if(getTag()) {
-            logger.quiet "Using tag '${getTag()}' for image."
-            buildImageCmd.withTag(getTag())
-        } else if (getTags()) {
-            def tagListString = getTags().collect {"'${it}'"}.join(", ")
+        if(tag.getOrNull()) {
+            logger.quiet "Using tag '${tag.get()}' for image."
+            buildImageCmd.withTag(tag.get())
+        } else if (tags.getOrNull()) {
+            def tagListString = tags.get().collect {"'${it}'"}.join(", ")
             logger.quiet "Using tags ${tagListString} for image."
-            buildImageCmd.withTags(getTags().collect { it.toString() }.toSet() )
+            buildImageCmd.withTags(tags.get().collect { it.toString() }.toSet() )
         }
 
-        if (getNoCache()) {
-            buildImageCmd.withNoCache(getNoCache())
+        if (noCache.getOrNull()) {
+            buildImageCmd.withNoCache(noCache.get())
         }
 
-        if (getRemove()) {
-            buildImageCmd.withRemove(getRemove())
+        if (remove.getOrNull()) {
+            buildImageCmd.withRemove(remove.get())
         }
 
-        if (getQuiet()) {
-            buildImageCmd.withQuiet(getQuiet())
+        if (quiet.getOrNull()) {
+            buildImageCmd.withQuiet(quiet.get())
         }
 
-        if (getPull()) {
-            buildImageCmd.withPull(getPull())
+        if (pull.getOrNull()) {
+            buildImageCmd.withPull(pull.get())
         }
 
-        if (getNetwork()) {
-            buildImageCmd.withNetworkMode(getNetwork())
+        if (network.getOrNull()) {
+            buildImageCmd.withNetworkMode(network.get())
         }
 
-        if (getLabels()) {
-            buildImageCmd.withLabels(getLabels().collectEntries { [it.key, it.value.toString()] })
+        if (labels.getOrNull()) {
+            buildImageCmd.withLabels(labels.get().collectEntries { [it.key, it.value.toString()] })
         }
 
-        if(getShmSize() != null) { // 0 is valid input
-            buildImageCmd.withShmsize(getShmSize())
+        if(shmSize.getOrNull() != null) { // 0 is valid input
+            buildImageCmd.withShmsize(shmSize.get())
         }
 
-        if (getRegistryCredentials()) {
-            def authConfig = threadContextClassLoader.createAuthConfig(getRegistryCredentials())
+        if (registryCredentials) {
+            def authConfig = threadContextClassLoader.createAuthConfig(registryCredentials)
             def authConfigurations = threadContextClassLoader.createAuthConfigurations([authConfig])
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }
 
-        buildArgs.each { arg, value ->
-            buildImageCmd = buildImageCmd.withBuildArg(arg, value)
+        if (buildArgs.getOrNull()) {
+            buildArgs.get().each { arg, value ->
+                buildImageCmd = buildImageCmd.withBuildArg(arg, value)
+            }
         }
 
-        if (getCacheFrom()) {
+        if (cacheFrom.getOrNull()) {
             // Workaround a bug in dockerjava that double-unmarshalls this argument
-            def doubleMarshalledCacheFrom = ["[\"${getCacheFrom().join('","')}\"]".toString()].toSet()
+            def doubleMarshalledCacheFrom = ["[\"${cacheFrom.get().join('","')}\"]".toString()].toSet()
             buildImageCmd = buildImageCmd.withCacheFrom(doubleMarshalledCacheFrom)
         }
 
         def callback = onNext ? threadContextClassLoader.createBuildImageResultCallback(this.onNext)
                               : threadContextClassLoader.createBuildImageResultCallback(logger)
-        imageId = buildImageCmd.exec(callback).awaitImageId()
-        logger.quiet "Created image with ID '$imageId'."
+        String createdImageId = buildImageCmd.exec(callback).awaitImageId()
+        imageId.set(createdImageId)
+        logger.quiet "Created image with ID '$createdImageId'."
     }
 }

@@ -16,7 +16,7 @@ class DockerfileFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Executing a Dockerfile task without specified instructions throws exception"() {
         given:
-        buildFile << """            
+        buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile)
         """
 
@@ -115,7 +115,7 @@ FROM $TEST_IMAGE_WITH_TAG
 
     def "Can create minimal Dockerfile in default location"() {
         given:
-        buildFile << """            
+        buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
@@ -133,7 +133,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
 
     def "Can create Dockerfile using all instruction methods"() {
         given:
-        buildFile << """            
+        buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
@@ -179,10 +179,10 @@ LABEL version=1.0
 
     def "Can create Dockerfile by adding instances of Instruction"() {
         given:
-        buildFile << """            
+        buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                instructions << new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG')
-                instructions << new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com'])
+                instructions.add(new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG'))
+                instructions.add(new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com']))
             }
         """
 
@@ -197,10 +197,10 @@ LABEL maintainer=benjamin.muschko@gmail.com
 
     def "Can create Dockerfile by adding raw instructions"() {
         given:
-        buildFile << """            
+        buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                instruction 'FROM $TEST_IMAGE_WITH_TAG'
-                instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
+                instruction('FROM $TEST_IMAGE_WITH_TAG')
+                instruction('LABEL maintainer=benjamin.muschko@gmail.com')
             }
         """
 
@@ -218,9 +218,9 @@ LABEL maintainer=benjamin.muschko@gmail.com
         File dockerDir = temporaryFolder.newFolder('src', 'main', 'docker')
         new File(dockerDir, 'Dockerfile.template') << """FROM alpine:3.4
 LABEL maintainer=benjamin.muschko@gmail.com"""
-        buildFile << """            
+        buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                instructionsFromTemplate 'src/main/docker/Dockerfile.template'
+                instructionsFromTemplate(file('src/main/docker/Dockerfile.template'))
             }
         """
 
@@ -235,12 +235,12 @@ LABEL maintainer=benjamin.muschko@gmail.com
 
     def "Dockerfile task can be up-to-date"() {
         given:
-        buildFile << """            
+        buildFile << """
             ext.labelVersion = project.properties.getOrDefault('labelVersion', '1.0')
             
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                instruction 'FROM $TEST_IMAGE_WITH_TAG'
-                instruction { 'LABEL maintainer=benjamin.muschko@gmail.com' }
+                instruction('FROM $TEST_IMAGE_WITH_TAG')
+                instruction('LABEL maintainer=benjamin.muschko@gmail.com')
                 label([ver: labelVersion])
             }
         """
@@ -266,42 +266,13 @@ LABEL maintainer=benjamin.muschko@gmail.com
 
     def "can create multi-stage builds"() {
         given:
-        buildFile << """            
+        buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG', 'builder'
+                from('$TEST_IMAGE_WITH_TAG', 'builder')
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
-                copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
-                from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
-                copyFile '/opt/h2.jar', '/opt/h2.jar', 'builder'
-            }
-        """
-
-        when:
-        build(DOCKERFILE_TASK_NAME)
-
-        then:
-        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG AS builder
-LABEL maintainer=benjamin.muschko@gmail.com
-COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
-FROM alpine:3.4 AS prod
-COPY --from=builder /opt/h2.jar /opt/h2.jar
-""")
-    }
-
-    def "can create multi-stage builds for lazily evaluated assignments"() {
-        given:
-        buildFile << """            
-            ext.buildStageName = ''
-            
-            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                from({'$TEST_IMAGE_WITH_TAG'}, {buildStageName})
-                label(['maintainer': 'benjamin.muschko@gmail.com'])
-                copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
-                from({'$TEST_IMAGE_WITH_TAG'}, {'prod'})
-                copyFile({'/opt/h2.jar'}, {'/opt/h2.jar'}, {buildStageName})
-                doFirst {
-                    buildStageName = 'builder'
-                }
+                copyFile('http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar')
+                from('$TEST_IMAGE_WITH_TAG', 'prod')
+                copyFile('/opt/h2.jar', '/opt/h2.jar', 'builder')
             }
         """
 

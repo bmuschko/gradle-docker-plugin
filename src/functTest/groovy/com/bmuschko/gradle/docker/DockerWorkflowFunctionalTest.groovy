@@ -34,13 +34,13 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
-                inputDir = createDockerfile.destFile.parentFile
+                inputDir = createDockerfile.destFile.get().asFile.parentFile
                 tag = "${createUniqueImageId()}"
             }
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task workflow {
@@ -71,7 +71,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task workflow {
@@ -106,7 +106,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "$uniqueContainerName"
                 portBindings = ['8080:8080']
                 cmd = ['/bin/sh']
@@ -114,19 +114,19 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
 
             task removeContainer(type: DockerRemoveContainer) {
                 dependsOn inspectContainer
                 removeVolumes = true
                 force = true
-                targetContainerId { "$uniqueContainerName" }
+                targetContainerId "$uniqueContainerName"
             }
 
             task workflow {
@@ -157,14 +157,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer1(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}1"
                 cmd = ['/bin/sh']
             }
 
             task createContainer2(type: DockerCreateContainer) {
                 dependsOn createContainer1
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}2"
                 links = ["${uniqueContainerName}1:container1"]
                 cmd = ['/bin/sh']
@@ -172,7 +172,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer2
-                targetContainerId { createContainer2.getContainerId() }
+                targetContainerId createContainer2.getContainerId()
             }
 
             task workflow {
@@ -205,14 +205,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer1(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}-1"
                 cmd = ['/bin/sh']
             }
 
             task createContainer2(type: DockerCreateContainer) {
                 dependsOn createContainer1
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}-2"
                 volumesFrom = ["${uniqueContainerName}-1"]
                 cmd = ['/bin/sh']
@@ -220,7 +220,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer2
-                targetContainerId { createContainer2.getContainerId() }
+                targetContainerId createContainer2.getContainerId()
             }
 
             task workflow {
@@ -235,35 +235,27 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
     def "Can build an image and push to private registry"() {
-        File dockerFileLocation = new File(getProjectDir(), 'build/private-reg/Dockerfile')
-        if (!dockerFileLocation.parentFile.exists() && !dockerFileLocation.parentFile.mkdirs())
-            throw new GradleException("Could not successfully create dockerFileLocation @ ${dockerFileLocation.path}")
-
+        given:
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
             task createDockerfile(type: Dockerfile) {
-                destFile = project.file("${dockerFileLocation.path}")
+                destFile = project.layout.buildDirectory.file('private-reg/Dockerfile')
                 from '$TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
-                doLast {
-                    if (new File("${dockerFileLocation.path}").exists()) {
-                        println "Dockerfile does indeed exist."
-                    }
-                }
             }
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
-                inputDir = createDockerfile.destFile.parentFile
+                inputDir = createDockerfile.destFile.get().asFile.parentFile
                 tag = '${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}'
             }
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                conventionMapping.imageName = { buildImage.getTag() }
+                imageName = buildImage.getTag()
             }
 
             task workflow {
@@ -271,9 +263,11 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             }
         """
 
-        expect:
-        BuildResult result = build('workflow')
-        result.output.contains("Dockerfile does indeed exist.")
+        when:
+        build('workflow')
+
+        then:
+        new File(projectDir, 'build/private-reg/Dockerfile').isFile()
     }
 
     def "Can build an image, create a container, and copy file from it"() {
@@ -299,14 +293,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "$uniqueContainerName"
                 cmd = ['/bin/sh']
             }
 
             task copyFileFromContainerToHostFile(type: DockerCopyFileFromContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 hostPath = "$projectDir/copy-file-host-file/shebang.tar"
                 remotePath = "/bin/sh"
                 compressed = true
@@ -314,14 +308,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task copyFileFromContainerToHostDir(type: DockerCopyFileFromContainer) {
                 dependsOn copyFileFromContainerToHostFile
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 hostPath = "$projectDir/copy-file-host-dir"
                 remotePath = "/bin/sh"
             }
 
             task copyDirFromContainerToHostDir(type: DockerCopyFileFromContainer) {
                 dependsOn copyFileFromContainerToHostDir
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 hostPath = "$projectDir/copy-dir"
                 remotePath = "/var/spool"
             }
@@ -358,7 +352,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
                 exposePorts("tcp", [9999])
                 cmd = ['/bin/sh']
@@ -366,7 +360,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task workflow {
@@ -397,7 +391,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
                 logConfig("none", [:])
                 cmd = ['/bin/sh']
@@ -405,7 +399,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task workflow {
@@ -436,7 +430,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
                 restartPolicy("on-failure", 999)
                 cmd = ['/bin/sh']
@@ -444,7 +438,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task workflow {
@@ -475,7 +469,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
                 devices = ["/dev/sda:/dev/xvda:rwm"]
                 cmd = ['/bin/sh']
@@ -483,7 +477,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
 
             task workflow {
@@ -514,16 +508,16 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
                 portBindings = ['8080:8080']
-                shmSize = 128000
+                shmSize = 128000L
                 cmd = ['/bin/sh']
             }
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 onNext { c ->
                     if(c.hostConfig.shmSize != 128000) {
                         throw new GradleException("Invalid ShmSize value!")
@@ -563,7 +557,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             }
 
             task removeNetwork(type: DockerRemoveNetwork) {
-                targetNetworkId { createNetwork.getNetworkId() }
+                targetNetworkId createNetwork.getNetworkId()
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -573,7 +567,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage, createNetwork
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
                 network = createNetwork.getNetworkId()
                 networkAliases = ["some-alias"]
@@ -582,9 +576,9 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 onNext { container ->
-                    println container.networkSettings.networks[createNetwork.getNetworkId()].aliases
+                    println container.networkSettings.networks[createNetwork.getNetworkId().get()].aliases
                 }
             }
 
@@ -620,7 +614,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
                 entrypoint = ['env']
                 cmd = ['/bin/sh']
@@ -628,7 +622,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 onNext { container ->
                     println container.config.entrypoint
                     assert container.config.entrypoint == ['env']
@@ -664,14 +658,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
                 labels = ["test.label1":"aaa", "test.label2": "bbb"]
             }
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 onNext { c ->
                     if(c.config.labels.size() != 3) {
                         throw new GradleException("Invalid labels size!")
@@ -717,7 +711,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task removeImage(type: DockerRemoveImage) {
                 dependsOn saveImage
                 force = true
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
             
             task loadImage(type: DockerLoadImage) {
@@ -729,7 +723,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             
             task createContainer(type: DockerCreateContainer) {
                 dependsOn loadImage
-                targetImageId { "${imageName}" }
+                targetImageId "${imageName}"
                 containerName = "${uniqueContainerName}"
             }
 

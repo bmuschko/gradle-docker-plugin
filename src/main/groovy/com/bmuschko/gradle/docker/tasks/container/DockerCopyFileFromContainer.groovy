@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import groovy.io.FileType
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -25,7 +26,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      * Path inside container
      */
     @Input
-    String remotePath
+    final Property<String> remotePath = project.objects.property(String)
 
     /**
      * Path on host to write remotePath to or into.
@@ -35,7 +36,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      * This is consistent with how 'docker cp' behaves.
      */
     @Input
-    String hostPath = project.projectDir.path
+    final Property<String> hostPath = project.objects.property(String)
 
     /**
      * Whether to leave file in its compressed state or not.
@@ -47,13 +48,18 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    Boolean compressed = Boolean.FALSE
+    final Property<Boolean> compressed = project.objects.property(Boolean)
+
+    DockerCopyFileFromContainer() {
+        hostPath.set(project.projectDir.path)
+        compressed.set(false)
+    }
 
     @Override
     void runRemoteCommand(dockerClient) {
 
-        def containerCommand = dockerClient.copyArchiveFromContainerCmd(getContainerId(), getRemotePath())
-        logger.quiet "Copying '${getRemotePath()}' from container with ID '${getContainerId()}' to '${getHostPath()}'."
+        def containerCommand = dockerClient.copyArchiveFromContainerCmd(containerId.get(), remotePath.get())
+        logger.quiet "Copying '${remotePath.get()}' from container with ID '${containerId.get()}' to '${hostPath.get()}'."
 
         def tarStream
         try {
@@ -62,10 +68,10 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
             if(onNext) {
                 onNext.call(tarStream)
             } else {
-                def hostDestination = new File(hostPath)
+                def hostDestination = new File(hostPath.get())
 
                 // if compressed leave file as is otherwise untar
-                if (compressed) {
+                if (compressed.getOrNull()) {
                     copyFileCompressed(tarStream, hostDestination)
                 } else {
                     copyFile(tarStream, hostDestination)
@@ -84,7 +90,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         // If user supplied an existing directory then we are responsible for naming and so
         // will ensure file ends with '.tar'. If user supplied a regular file then use
         // whichever name was passed in.
-        def fileName = new File(getRemotePath()).name
+        def fileName = new File(remotePath.get()).name
         def compressedFileName = (hostDestination.exists() && hostDestination.isDirectory()) ?
                 (fileName.endsWith(".tar") ?: fileName + ".tar") :
                 hostDestination.name

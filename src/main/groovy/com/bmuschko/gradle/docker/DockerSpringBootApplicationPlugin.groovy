@@ -3,13 +3,17 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.bundling.Jar
 
@@ -32,7 +36,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(DockerRemoteApiPlugin)
         DockerExtension dockerExtension = project.extensions.getByType(DockerExtension)
-        DockerSpringBootApplication dockerSpringBootApplication = configureExtension(dockerExtension)
+        DockerSpringBootApplication dockerSpringBootApplication = configureExtension(project, dockerExtension)
 
         project.plugins.withId('org.springframework.boot') {
             Jar archiveTask = determineArchiveTask(project)
@@ -50,8 +54,8 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         archiveTask as Jar
     }
 
-    private static DockerSpringBootApplication configureExtension(DockerExtension dockerExtension) {
-        ((ExtensionAware) dockerExtension).extensions.create(SPRING_BOOT_APPLICATION_EXTENSION_NAME, DockerSpringBootApplication)
+    private static DockerSpringBootApplication configureExtension(Project project, DockerExtension dockerExtension) {
+        ((ExtensionAware) dockerExtension).extensions.create(SPRING_BOOT_APPLICATION_EXTENSION_NAME, DockerSpringBootApplication, project)
     }
 
     private Sync createSyncArchiveTask(Project project, Jar archiveTask, Dockerfile createDockerfileTask) {
@@ -62,7 +66,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                 sync.description = "Copies the distribution resources to a temporary directory for image creation."
                 sync.dependsOn project.tasks.getByName(BasePlugin.ASSEMBLE_TASK_NAME)
                 sync.from { archiveTask.archivePath }
-                sync.into { createDockerfileTask.destFile.parentFile }
+                sync.into { createDockerfileTask.destFile.get().asFile.parentFile }
             }
         })
     }
@@ -73,15 +77,26 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
             void execute(Dockerfile dockerfile) {
                 dockerfile.description = 'Creates the Docker image for the Spring Boot application.'
                 dockerfile.dependsOn archiveTask
-                dockerfile.from { dockerSpringBootApplication.baseImage }
-                dockerfile.copyFile({ archiveTask.archiveName }, { "/app/${archiveTask.archiveName}" }, null)
-                dockerfile.entryPoint 'java'
-                dockerfile.defaultCommand { ['-jar', "/app/${archiveTask.archiveName}"] as String[] }
-                dockerfile.doFirst {
-                    if (dockerSpringBootApplication.getPorts().length > 0) {
-                        dockerfile.exposePort { dockerSpringBootApplication.getPorts() }
+                dockerfile.from(project.provider(new Callable<Dockerfile.From>() {
+                    @Override
+                    Dockerfile.From call() throws Exception {
+                        new Dockerfile.From(dockerSpringBootApplication.baseImage.get())
                     }
-                }
+                }))
+                dockerfile.copyFile(project.provider(new Callable<Dockerfile.File>() {
+                    @Override
+                    Dockerfile.File call() throws Exception {
+                        new Dockerfile.File(archiveTask.archiveName, "/app/${archiveTask.archiveName}".toString())
+                    }
+                }))
+                dockerfile.entryPoint('java')
+                dockerfile.defaultCommand(project.provider(new Callable<List<String>>() {
+                    @Override
+                    List<String> call() throws Exception {
+                        ['-jar', "/app/${archiveTask.archiveName}".toString()] as List<String>
+                    }
+                }))
+                dockerfile.exposePort(dockerSpringBootApplication.ports)
             }
         })
     }
@@ -92,30 +107,30 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
             void execute(DockerBuildImage dockerBuildImage) {
                 dockerBuildImage.description = 'Builds the Docker image for the Spring Boot application.'
                 dockerBuildImage.dependsOn createDockerfileTask
-                dockerBuildImage.conventionMapping.map('inputDir', new Callable<Object>() {
+                dockerBuildImage.inputDir.set(project.provider(new Callable<Directory>() {
                     @Override
-                    Object call() throws Exception {
-                        createDockerfileTask.destFile.parentFile
+                    Directory call() throws Exception {
+                        project.layout.projectDirectory.dir(createDockerfileTask.destFile.get().asFile.parentFile.canonicalPath)
                     }
-                })
-                dockerBuildImage.conventionMapping.map('tag', new Callable<Object>() {
-                    @Override
-                    Object call() throws Exception {
-                        determineImageTag(project, dockerSpringBootApplication)
-                    }
-                })
+                }))
+                dockerBuildImage.tag.set(determineImageTag(project, dockerSpringBootApplication))
             }
         })
     }
 
-    private String determineImageTag(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
-        if (dockerSpringBootApplication.tag) {
-            return dockerSpringBootApplication.tag
-        }
+    private Provider<String> determineImageTag(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
+        project.provider(new Callable<String>() {
+            @Override
+            String call() throws Exception {
+                if (dockerSpringBootApplication.tag.getOrNull()) {
+                    return dockerSpringBootApplication.tag.get()
+                }
 
-        String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-        String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
-        project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+                String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
+                String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
+                project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+            }
+        })
     }
 
     private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
@@ -124,12 +139,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
             void execute(DockerPushImage dockerPushImage) {
                 dockerPushImage.description = 'Pushes created Docker image to the repository.'
                 dockerPushImage.dependsOn dockerBuildImageTask
-                dockerPushImage.conventionMapping.map('imageName', new Callable<Object>() {
-                    @Override
-                    Object call() throws Exception {
-                        dockerBuildImageTask.getTag()
-                    }
-                })
+                dockerPushImage.imageName = dockerBuildImageTask.getTag()
             }
         })
     }

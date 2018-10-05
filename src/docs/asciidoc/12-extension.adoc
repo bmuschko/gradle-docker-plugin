@@ -5,18 +5,18 @@ The following properties can be configured:
 
 [options="header"]
 |=======
-|Property name   |Type        |Default value              |Description
-|`url`           |`String`    |see below                  |The server URL to connect to via Docker's remote API.
-|`certPath`      |`File`      |`null`                     |The path to certificates for communicating with https://docs.docker.com/articles/https/[Docker over SSL].
-|`apiVersion`    |`String`    |`null`                     |The remote API version. For most cases this can be left null.
+|Property name      |Type                |Default value              |Description
+|`url`              |`Property<String>`  |see below                  |The server URL to connect to via Docker's remote API.
+|`certPath`         |`DirectoryProperty` |`null`                     |The path to certificates for communicating with https://docs.docker.com/articles/https/[Docker over SSL].
+|`Property<String>` |`String`            |`null`                     |The remote API version. For most cases this can be left null.
 |=======
 
 The default value is now generated based on a best guess attempt given the https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[operating system and environment]:
 
 [options="header"]
 |=======
-|Operating system   | Value
-|Unix-based machine | `unix:///var/run/docker.sock`
+|Operating system                            | Value
+|Unix-based machine                          | `unix:///var/run/docker.sock`
 |Windows-based machine (and everything else) | `tcp://127.0.0.1:2375`
 |=======
 
@@ -25,11 +25,11 @@ You can provide those credentials in the `registryCredentials` closure:
 
 [options="header"]
 |=======
-|Property name   |Type        |Default value                 |Description
-|`url`           |`String`    |`https://index.docker.io/v1/` |The registry URL.
-|`username`      |`String`    |`null`                        |The registry username.
-|`password`      |`String`    |`null`                        |The registry password.
-|`email`         |`String`    |`null`                        |The registry email address.
+|Property name   |Type                  |Default value                 |Description
+|`url`           |`Property<String>`    |`https://index.docker.io/v1/` |The registry URL.
+|`username`      |`Property<String>`    |`null`                        |The registry username.
+|`password`      |`Property<String>`    |`null`                        |The registry password.
+|`email`         |`Property<String>`    |`null`                        |The registry email address.
 |=======
 
 ==== Working With a TLS-enabled Docker Instance

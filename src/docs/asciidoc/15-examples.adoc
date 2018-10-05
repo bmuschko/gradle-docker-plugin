@@ -50,17 +50,17 @@ task buildMyAppImage(type: DockerBuildImage) {
 
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage
-    targetImageId { buildMyAppImage.getImageId() }
+    targetImageId buildMyAppImage.getImageId()
     portBindings = ['8080:8080']
 }
 
 task startMyAppContainer(type: DockerStartContainer) {
     dependsOn createMyAppContainer
-    targetContainerId { createMyAppContainer.getContainerId() }
+    targetContainerId createMyAppContainer.getContainerId()
 }
 
 task stopMyAppContainer(type: DockerStopContainer) {
-    targetContainerId { createMyAppContainer.getContainerId() }
+    targetContainerId createMyAppContainer.getContainerId()
 }
 
 task functionalTestMyApp(type: Test) {
@@ -88,18 +88,18 @@ task buildMyAppImage(type: DockerBuildImage) {
 }
 
 task createDBContainer(type: DockerCreateContainer) {
-    targetImageId { 'postgres:latest' }
+    targetImageId 'postgres:latest'
     containerName "docker_auto_${buildMyAppImage.buildTagName}"
 }
 
 task createMyAppContainer(type: DockerCreateContainer, dependsOn: [buildMyAppImage, createDBContainer]) {
-    targetImageId { buildMyAppImage.getImageId() }
+    targetImageId buildMyAppImage.getImageId()
     portBindings = ['8080:8080']
 
     // doFirst required! #319
     doFirst{
         // `database` there will be host used by application to DB connect
-        links = [ "${createDBContainer.getContainerId()}:database" ]
+        links = [ "${createDBContainer.getContainerId().get()}:database" ]
     }
 
     // If you use Systemd in containers you should also add lines. #320
@@ -108,11 +108,11 @@ task createMyAppContainer(type: DockerCreateContainer, dependsOn: [buildMyAppIma
 }
 
 task startMyAppContainer(type: DockerStartContainer, dependsOn: createMyAppContainer) {
-    targetContainerId { createMyAppContainer.getContainerId() }
+    targetContainerId createMyAppContainer.getContainerId()
 }
 
 task stopMyAppContainer(type: DockerStopContainer) {
-    targetContainerId { createMyAppContainer.getContainerId() }
+    targetContainerId createMyAppContainer.getContainerId()
 }
 
 task functionalTestMyApp(type: Test, dependsOn: startMyAppContainer) {

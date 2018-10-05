@@ -132,7 +132,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildWithShmSize(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
-                shmSize = 128000
+                shmSize = 128000L
             }
         """
     }
@@ -176,7 +176,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
         """
     }
@@ -199,7 +199,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
         """
     }
@@ -240,7 +240,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                maintainer '${UUID.randomUUID().toString()}'
+                label(['maintainer': '${UUID.randomUUID().toString()}'])
             }
 
             task buildImageWithCacheFrom(type: DockerBuildImage) {
@@ -266,26 +266,26 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                maintainer '${UUID.randomUUID().toString()}'
+                label(['maintainer': '${UUID.randomUUID().toString()}'])
             }
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = dockerfile.destFile.parentFile
+                inputDir = dockerfile.destFile.get().asFile.parentFile
                 cacheFrom.add('$TEST_IMAGE_WITH_TAG') // no effect
                 tag = '$uniqueTag'
             }
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                conventionMapping.imageName = { buildImage.getTag() }
+                imageName = buildImage.getTag()
                 tag = 'latest'
             }
 
             task removeImage(type: DockerRemoveImage) {
                 dependsOn pushImage
                 force = true
-                targetImageId { buildImage.getImageId() }
+                targetImageId buildImage.getImageId()
             }
 
             task pullImage(type: DockerPullImage) {
@@ -296,7 +296,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImageWithCacheFrom(type: DockerBuildImage) {
                 dependsOn pullImage
-                inputDir = dockerfile.destFile.parentFile
+                inputDir = dockerfile.destFile.get().asFile.parentFile
                 ${useCacheFrom ? "cacheFrom.add('$uniqueTag:latest')" : ""}
             }
         """
@@ -308,12 +308,12 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$TEST_IMAGE_WITH_TAG'
             }
 
             task buildWithHostNetwork(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
+                inputDir = dockerfile.destFile.get().asFile.parentFile
                 network = 'host'
             }
         """

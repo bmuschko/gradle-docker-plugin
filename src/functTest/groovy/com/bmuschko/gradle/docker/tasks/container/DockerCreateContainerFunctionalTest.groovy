@@ -25,7 +25,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 cmd = ['ifconfig']
                 macAddress = '02:03:04:05:06:07'
                 cpuset = '1'
@@ -34,7 +34,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         """
         buildFile <<
             containerStart(containerCreationTask) <<
-            containerLogAndRemove
+            containerLogAndRemove()
 
         when:
         BuildResult result = build('logContainer')
@@ -48,14 +48,14 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 cmd = ['env']
                 
                 // deprecated, use the below examples
                 env = ['HELLO=WORLD']
                 
                 // add by appending new map to current map
-                envVars << ['one' : 'two', 'three' : 'four']
+                envVars.set(['one' : 'two', 'three' : 'four'])
                 
                 // add by calling helper method N number of times
                 withEnvVar('five', 'six')
@@ -65,7 +65,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         """
         buildFile << 
             containerStart(containerCreationTask) <<
-            containerLogAndRemove
+            containerLogAndRemove()
 
         when:
         BuildResult result = build('logContainer')
@@ -84,7 +84,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 autoRemove = true
             }
         """
@@ -92,7 +92,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerInspect = """
             task inspectStoppedContainer(type: DockerInspectContainer) {
                 dependsOn stopContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
 
                 onError = { err -> println 'RESULT: ' + err }
             }
@@ -100,7 +100,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         buildFile <<
             containerStart(containerCreationTask) <<
-            containerStop << 
+            containerStop() <<
             containerInspect
 
         when:
@@ -116,24 +116,24 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
             }
         """
 
         String containerInspect = """
             task inspectStoppedContainer(type: DockerInspectContainer) {
                 dependsOn stopContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
         """
 
         buildFile <<
             containerStart(containerCreationTask) <<
-            containerStop << 
+            containerStop() <<
             containerInspect
 
         when:
-        BuildResult result = build('inspectStoppedContainer')
+        build('inspectStoppedContainer')
 
         then:
         notThrown(Exception)
@@ -144,6 +144,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         // Starts with the union of all needed imports.
         """
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
@@ -160,39 +161,40 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
         """
     }
 
-    static String containerLogAndRemove =
+    static String containerLogAndRemove() {
         """
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
 
             task logContainer(type: DockerLogsContainer) {
                 dependsOn inspectContainer
                 finalizedBy removeContainer
-                targetContainerId { inspectContainer.getContainerId() }
+                targetContainerId inspectContainer.getContainerId()
                 follow = true
                 tailAll = true
             }
         """
+    }
 
-    static String containerStop =
+    static String containerStop() {
         """
             task stopContainer(type: DockerStopContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
         """
-    
+    }
 }

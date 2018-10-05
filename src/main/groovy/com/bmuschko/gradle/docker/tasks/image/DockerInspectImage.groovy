@@ -23,8 +23,8 @@ class DockerInspectImage extends DockerExistingImage {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        logger.quiet "Inspecting image for with ID '${getImageId()}'."
-        def image = dockerClient.inspectImageCmd(getImageId()).exec()
+        logger.quiet "Inspecting image for with ID '${imageId.get()}'."
+        def image = dockerClient.inspectImageCmd(imageId.get()).exec()
 
         if (onNext) {
             onNext.call(image)

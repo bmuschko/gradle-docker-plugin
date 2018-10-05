@@ -25,7 +25,7 @@ class DockerWaitContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String containerCmd = "'sh', '-c', 'exit 0'"
         String waitOnContainerTask = """
             task waitOnContainer(type: DockerWaitContainer){
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 doLast{
                     if(getExitCode() != 0) {
                         println "Container failed with exit code \${getExitCode()}"
@@ -49,7 +49,7 @@ class DockerWaitContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String containerCmd = "'sh', '-c', 'exit 1'"
         String waitOnContainerTask = """
             task waitOnContainer(type: DockerWaitContainer){
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 doLast{
                     if(getExitCode() != 0) {
                         println "Container failed with exit code \${getExitCode()}"
@@ -74,7 +74,7 @@ class DockerWaitContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String waitOnContainerTask = """
             task waitOnContainer(type: DockerWaitContainer){
                 timeout = 1
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
         """
         buildFile << containerUsage(containerCmd, waitOnContainerTask)
@@ -101,17 +101,17 @@ class DockerWaitContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
 
             task createContainer(type: DockerCreateContainer){
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
-                cmd $containerCommand
+                targetImageId pullImage.getImageId()
+                cmd.addAll($containerCommand)
             }
 
             task startContainer(type: DockerStartContainer){
                 dependsOn createContainer
-                targetContainerId {createContainer.getContainerId()}
+                targetContainerId createContainer.getContainerId()
             }
             
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 force = true
             }
 

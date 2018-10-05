@@ -13,14 +13,14 @@ class DockerInspectExecContainerFunctionalTest extends AbstractGroovyDslFunction
         String containerInspectExecutionTask = """
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['touch', '/tmp/test.txt']
             }
             
             task inspectExec(type: DockerInspectExecContainer) {
                 dependsOn execContainer
                 finalizedBy removeContainer
-                targetExecId { execContainer.execId }
+                targetExecId { execContainer.execIds.get()[0] }
             }
         """
         buildFile << containerUsage(containerInspectExecutionTask)
@@ -37,14 +37,14 @@ class DockerInspectExecContainerFunctionalTest extends AbstractGroovyDslFunction
         String containerInspectExecutionTask = """
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
                 cmd = ['test', '-e', '/not_existing_file']
             }
 
             task inspectExec(type: DockerInspectExecContainer) {
                 dependsOn execContainer
                 finalizedBy removeContainer
-                targetExecId { execContainer.execId }
+                targetExecId { execContainer.execIds.get()[0] }
                 onNext { r ->
                     if(r.exitCode) {
                         throw new GradleException("Docker container exec failed with exit code: " + r.exitCode)
@@ -77,19 +77,19 @@ class DockerInspectExecContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
                 cmd = ['sleep','10']
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
             }
             
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
-                targetContainerId { startContainer.getContainerId() }
+                targetContainerId startContainer.getContainerId()
             }
 
             ${containerExecInspectExecutionTask}

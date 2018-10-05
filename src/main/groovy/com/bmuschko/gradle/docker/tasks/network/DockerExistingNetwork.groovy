@@ -1,16 +1,28 @@
 package com.bmuschko.gradle.docker.tasks.network
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+
+import java.util.concurrent.Callable
 
 abstract class DockerExistingNetwork extends AbstractDockerRemoteApiTask {
     /**
      * The name of the network to perform the operation on.
      */
     @Input
-    String networkId
+    final Property<String> networkId = project.objects.property(String)
 
-    void targetNetworkId(Closure networkId) {
-        conventionMapping.networkId = networkId
+    void targetNetworkId(String networkId) {
+        this.networkId.set(networkId)
+    }
+
+    void targetNetworkId(Callable<String> networkId) {
+        targetNetworkId(project.provider(networkId))
+    }
+
+    void targetNetworkId(Provider<String> networkId) {
+        this.networkId.set(networkId)
     }
 }

@@ -26,7 +26,7 @@ class DockerRenameContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String uniqueContainerName = createUniqueContainerName()
         String renameContainerTask = """
             task renameContainer(type: DockerRenameContainer) {
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 renameTo = "$uniqueContainerName"
             }
         """
@@ -42,7 +42,7 @@ class DockerRenameContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String uniqueContainerName = createUniqueContainerName()
         String renameContainerTask = """
             task renameContainer(type: DockerRenameContainer) {
-                targetContainerId { "$randomName" }
+                targetContainerId "$randomName"
                 renameTo = "$uniqueContainerName"
             }
         """
@@ -67,11 +67,11 @@ class DockerRenameContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
     
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId { pullImage.getImageId() }
+                targetImageId pullImage.getImageId()
             }
     
             task removeContainer(type: DockerRemoveContainer) {
-                targetContainerId { createContainer.getContainerId() }
+                targetContainerId createContainer.getContainerId()
                 force = true
             }
     
