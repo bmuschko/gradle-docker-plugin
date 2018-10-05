@@ -44,13 +44,13 @@ gradlePlugin {
             id = "com.bmuschko.gradle.docker.user-guide"
             implementationClass = "com.bmuschko.gradle.docker.UserGuidePlugin"
         }
-        register("release-plugin") {
+        register("publishing-plugin") {
             id = "com.bmuschko.gradle.docker.publishing"
             implementationClass = "com.bmuschko.gradle.docker.PublishingPlugin"
         }
-//        register("release-plugin") {
-//            id = "com.bmuschko.gradle.docker.release"
-//            implementationClass = "com.bmuschko.gradle.docker.ReleasePlugin"
-//        }
+        register("release-plugin") {
+            id = "com.bmuschko.gradle.docker.release"
+            implementationClass = "com.bmuschko.gradle.docker.ReleasePlugin"
+        }
     }
 }
