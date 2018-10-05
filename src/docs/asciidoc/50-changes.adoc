@@ -1,7 +1,9 @@
 == Change Log
 
 [discrete]
-=== v3.6.3 (TBA)
+=== v4.0.0 (TBA)
+
+* **Breaking Change!** Use `Provider` concept throughout to support lazy evaluation via public API - https://github.com/bmuschko/gradle-docker-plugin/pull/659[Pull Request 659]
 
 [discrete]
 === v3.6.2 (October 2, 2018)
