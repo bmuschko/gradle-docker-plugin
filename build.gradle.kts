@@ -9,20 +9,8 @@ plugins {
     id("com.bmuschko.gradle.docker.user-guide")
     id("com.bmuschko.gradle.docker.documentation")
     id("com.bmuschko.gradle.docker.publishing")
-    //id("com.bmuschko.gradle.docker.release")
+    id("com.bmuschko.gradle.docker.release")
 }
-//apply(plugin = "groovy")
-//apply(plugin = "java-gradle-plugin")
-//apply(plugin = "org.ajoberstar.release-opinion")
-//apply from: "$rootDir/gradle/test-setup.gradle"
-//apply from: "$rootDir/gradle/integration-test.gradle"
-//apply from: "$rootDir/gradle/functional-test.gradle"
-//apply from: "$rootDir/gradle/additional-artifacts.gradle"
-//apply from: "$rootDir/gradle/release.gradle"
-//apply from: "$rootDir/gradle/publishing.gradle"
-//apply from: "$rootDir/gradle/asciidoc.gradle"
-//apply from: "$rootDir/gradle/documentation.gradle"
-//apply from: "$rootDir/gradle/codenarc.gradle"
 
 group = "com.bmuschko"
 
@@ -31,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    "testImplementation"("org.spockframework:spock-core:1.1-groovy-2.4") {
+    testImplementation("org.spockframework:spock-core:1.1-groovy-2.4") {
         exclude(group = "org.codehaus.groovy")
     }
 }
