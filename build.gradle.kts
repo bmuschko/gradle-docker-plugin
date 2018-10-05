@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     groovy
     `java-gradle-plugin`
@@ -34,7 +37,7 @@ tasks.named<Jar>("jar") {
         attributes["Implementation-Title"] = "Gradle Docker plugin"
         attributes["Implementation-Version"] = project.version
         attributes["Built-By"] = System.getProperty("user.name")
-        attributes["Built-Date"] = ""
+        attributes["Built-Date"] = SimpleDateFormat("MM/dd/yyyy").format(Date())
         attributes["Built-JDK"] = System.getProperty("java.version")
         attributes["Built-Gradle"] = gradle.gradleVersion
     }
