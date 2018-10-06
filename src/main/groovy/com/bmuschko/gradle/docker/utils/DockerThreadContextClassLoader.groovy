@@ -31,7 +31,7 @@ import java.lang.reflect.Method
 @SuppressWarnings(['FieldTypeRequired', 'UnnecessaryDefInFieldDeclaration'])
 class DockerThreadContextClassLoader implements ThreadContextClassLoader {
 
-    private static final Logger logger = Logging.getLogger(DockerThreadContextClassLoader.getClass())
+    private static final Logger LOGGER = Logging.getLogger(DockerThreadContextClassLoader)
 
     public static final String CORE_PACKAGE = 'com.github.dockerjava.core'
     public static final String MODEL_PACKAGE = 'com.github.dockerjava.api.model'
@@ -393,8 +393,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createBuildImageResultCallback(Logger logger) {
-        createPrintStreamProxyCallback(logger, createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
+    def createBuildImageResultCallback() {
+        createPrintStreamProxyCallback(createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
     }
 
     @Override
@@ -432,7 +432,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createLoggingCallback(Logger logger) {
+    def createLoggingCallback() {
         Class callbackClass = loadClass("${COMMAND_PACKAGE}.LogContainerResultCallback")
         def delegate = callbackClass.getConstructor().newInstance()
 
@@ -448,15 +448,15 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                         switch (frame.streamType as String) {
                             case 'STDOUT':
                             case 'RAW':
-                                logger.quiet(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
+                                LOGGER.quiet(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
                                 break
                             case 'STDERR':
-                                logger.error(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
+                                LOGGER.error(new String(frame.payload).replaceFirst(TRAILING_WHIESPACE, ''))
                                 break
                         }
                     }
                 } catch (Exception e) {
-                    logger.error('Exception thrown inside enhancer callback when invoking method createLoggingCallback', e)
+                    LOGGER.error('Exception thrown inside enhancer callback when invoking method createLoggingCallback', e)
                     return
                 }
 
@@ -502,7 +502,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error('Exception thrown inside enhancer callback when invoking method createLoggingCallback', e)
+                    LOGGER.error('Exception thrown inside enhancer callback when invoking method createLoggingCallback', e)
                     return
                 }
 
@@ -541,7 +541,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                         onNext.call(args[0])
                     }
                 } catch (Exception e) {
-                    logger.error('Exception thrown inside enhancer callback when invoking method createExecCallback', e)
+                    LOGGER.error('Exception thrown inside enhancer callback when invoking method createExecCallback', e)
                     return
                 }
 
@@ -581,7 +581,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                         onNext.call(args[0])
                     }
                 } catch (Exception e) {
-                    logger.error('Exception thrown inside enhancer callback when invoking method createOnNextProxyCallback', e)
+                    LOGGER.error('Exception thrown inside enhancer callback when invoking method createOnNextProxyCallback', e)
                     return
                 }
 
@@ -596,7 +596,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
         enhancer.create()
     }
 
-    private createPrintStreamProxyCallback(Logger logger, delegate) {
+    private createPrintStreamProxyCallback(delegate) {
         Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
         enhancer.setSuperclass(delegate.getClass())
@@ -607,11 +607,11 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
                     if (ON_NEXT_METHOD_NAME == method.name) {
                         def possibleStream = args[0].stream
                         if (possibleStream) {
-                            logger.quiet(possibleStream.trim())
+                            LOGGER.quiet(possibleStream.trim())
                         }
                     }
                 } catch (Exception e) {
-                    logger.error('Exception thrown inside enhancer callback when invoking method createPrintStreamProxyCallback', e)
+                    LOGGER.error('Exception thrown inside enhancer callback when invoking method createPrintStreamProxyCallback', e)
                     return
                 }
 

@@ -124,7 +124,7 @@ class DockerLogsContainer extends DockerExistingContainer {
             return threadContextClassLoader.createLoggingCallback(onNext)
         }
 
-        threadContextClassLoader.createLoggingCallback(logger)
+        threadContextClassLoader.createLoggingCallback()
     }
 
     private void setContainerCommandConfig(logsCommand) {
