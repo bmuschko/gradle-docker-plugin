@@ -27,7 +27,7 @@ class DockerRemoveContainer extends DockerExistingContainer {
 
     @Input
     @Optional
-    final Property< Boolean> force = project.objects.property(Boolean)
+    final Property<Boolean> force = project.objects.property(Boolean)
 
     @Override
     void runRemoteCommand(dockerClient) {
