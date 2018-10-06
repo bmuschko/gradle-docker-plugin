@@ -47,7 +47,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 import com.bmuschko.gradle.docker.tasks.container.*
 
 task logContainer(type: DockerLogsContainer) {
-    targetContainerId { 'container-that-does-exist' }
+    targetContainerId 'container-that-does-exist'
     follow = true
     tailAll = true
     onNext { message ->
@@ -72,7 +72,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 import com.bmuschko.gradle.docker.tasks.container.*
 
 task removeContainer(type: DockerRemoveContainer) {
-    targetContainerId { 'container-that-does-exist' }
+    targetContainerId 'container-that-does-exist'
     onComplete {
         println 'Executes first'
     }
