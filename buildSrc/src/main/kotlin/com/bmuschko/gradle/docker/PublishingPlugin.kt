@@ -125,7 +125,7 @@ class PublishingPlugin : Plugin<Project> {
     }
 
     private
-    fun Project.resolveProperty(envVarKey: String, projectPropKey: String): String {
+    fun Project.resolveProperty(envVarKey: String, projectPropKey: String): String? {
         val propValue = System.getenv()[envVarKey]
 
         if(propValue != null) {
