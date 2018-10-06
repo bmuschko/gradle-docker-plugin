@@ -5,12 +5,14 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.quality.CodeNarc
 import org.gradle.api.plugins.quality.CodeNarcExtension
 import org.gradle.api.plugins.quality.CodeNarcPlugin
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.*
 
 class StaticCodeAnalysisPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
         applyCodenarcPlugin()
         configureCodeNarcExtension()
+        configureCodeNarcTasks()
         configureCodeMainTask()
         disableCodeTestTasks()
     }
@@ -30,9 +32,15 @@ class StaticCodeAnalysisPlugin : Plugin<Project> {
     }
 
     private
+    fun Project.configureCodeNarcTasks() {
+        tasks.withType<CodeNarc>().configureEach {
+            group = "verification"
+        }
+    }
+
+    private
     fun Project.configureCodeMainTask() {
         tasks.named<CodeNarc>("codenarcMain") {
-            group = "verification"
             ignoreFailures = true
             include("**/utils/*.groovy")
         }
@@ -46,7 +54,6 @@ class StaticCodeAnalysisPlugin : Plugin<Project> {
         val codenarcFunctionalTest: CodeNarc by tasks.getting
 
         configure(setOf(codenarcTestSetup, codenarcTest, codenarcIntegrationTest, codenarcFunctionalTest)) {
-            group = "verification"
             enabled = false
         }
     }
