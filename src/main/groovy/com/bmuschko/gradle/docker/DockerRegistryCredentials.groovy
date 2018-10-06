@@ -17,9 +17,12 @@ package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
+import org.gradle.api.credentials.PasswordCredentials
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+
+import javax.annotation.Nullable
 
 @CompileStatic
 class DockerRegistryCredentials {
@@ -58,5 +61,34 @@ class DockerRegistryCredentials {
         username = project.objects.property(String)
         password = project.objects.property(String)
         email = project.objects.property(String)
+    }
+
+    /**
+     * Translates the Docker registry credentials into a {@link PasswordCredentials}.
+     *
+     * @since 4.0.0
+     */
+    PasswordCredentials asPasswordCredentials() {
+        new PasswordCredentials() {
+            @Override
+            String getUsername() {
+                DockerRegistryCredentials.this.username.get()
+            }
+
+            @Override
+            void setUsername(@Nullable String userName) {
+                DockerRegistryCredentials.this.username.set(userName)
+            }
+
+            @Override
+            String getPassword() {
+                DockerRegistryCredentials.this.password.get()
+            }
+
+            @Override
+            void setPassword(@Nullable String password) {
+                DockerRegistryCredentials.this.password.set(password)
+            }
+        }
     }
 }
