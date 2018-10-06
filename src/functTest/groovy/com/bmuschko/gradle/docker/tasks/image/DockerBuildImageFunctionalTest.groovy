@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Requires
 import spock.lang.Unroll
 
@@ -118,6 +119,30 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         then:
         noExceptionThrown()
+    }
+
+    def "task can be up-to-date"() {
+        given:
+        buildFile << imageCreation()
+        File imageIdFile = new File(projectDir, 'build/.docker/:buildImage-imageId.txt')
+
+        when:
+        BuildResult result = build('buildImage')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+
+        when:
+        result = build('buildImage')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.UP_TO_DATE
+        !result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
     }
 
     private String buildImageWithShmSize() {

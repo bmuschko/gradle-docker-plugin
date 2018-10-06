@@ -24,12 +24,14 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 
+@CacheableTask
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
      * Input directory containing the build context. Defaults to "$projectDir/docker".
      */
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     final DirectoryProperty inputDir = newInputDirectory()
 
     /**
@@ -37,6 +39,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      * build context, i.e. "$inputDir/Dockerfile".
      */
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     @Optional
     final RegularFileProperty dockerFile = newInputFile()
 
@@ -104,11 +107,21 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     DockerRegistryCredentials registryCredentials
 
+    /**
+     * Output file containing the image ID of the built image. Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
+     *
+     * @since 4.0.0
+     */
+    @OutputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty imageIdFile = newOutputFile()
+
     @Internal
     final Property<String> imageId = project.objects.property(String)
 
     DockerBuildImage() {
         inputDir.set(project.file('docker'))
+        imageIdFile.set(new File(project.buildDir, ".docker/${path}-imageId.txt"))
     }
 
     @Override
@@ -184,6 +197,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
                               : threadContextClassLoader.createBuildImageResultCallback()
         String createdImageId = buildImageCmd.exec(callback).awaitImageId()
         imageId.set(createdImageId)
+        imageIdFile.get().asFile.text = createdImageId
         logger.quiet "Created image with ID '$createdImageId'."
     }
 }
