@@ -5,6 +5,7 @@ import org.asciidoctor.gradle.AsciidoctorTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.util.PatternSet
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.delegateClosureOf
 import org.gradle.kotlin.dsl.named
 
@@ -16,7 +17,7 @@ class UserGuidePlugin : Plugin<Project> {
 
     private
     fun Project.applyAsciidocPlugin() {
-        plugins.apply(AsciidoctorPlugin::class.java)
+        apply<AsciidoctorPlugin>()
     }
 
     private

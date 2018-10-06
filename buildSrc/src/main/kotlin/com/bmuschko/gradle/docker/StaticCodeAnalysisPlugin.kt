@@ -17,7 +17,7 @@ class StaticCodeAnalysisPlugin : Plugin<Project> {
 
     private
     fun Project.applyCodenarcPlugin() {
-        plugins.apply(CodeNarcPlugin::class.java)
+        apply<CodeNarcPlugin>()
     }
 
     private

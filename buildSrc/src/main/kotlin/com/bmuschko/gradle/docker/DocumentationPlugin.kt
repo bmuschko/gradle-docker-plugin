@@ -19,7 +19,7 @@ class DocumentationPlugin : Plugin<Project> {
 
     private
     fun Project.applyGitPublishPlugin() {
-        plugins.apply(GitPublishPlugin::class.java)
+        apply<GitPublishPlugin>()
     }
 
     private

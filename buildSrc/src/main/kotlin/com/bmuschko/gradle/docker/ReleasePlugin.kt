@@ -7,6 +7,7 @@ import org.ajoberstar.gradle.git.release.base.TagStrategy
 import org.ajoberstar.gradle.git.release.opinion.Strategies
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.delegateClosureOf
 
@@ -18,8 +19,8 @@ class ReleasePlugin : Plugin<Project> {
 
     private
     fun Project.applyGrgitPlugin() {
-        plugins.apply(BaseReleasePlugin::class.java)
-        plugins.apply(GrgitPlugin::class.java)
+        apply<BaseReleasePlugin>()
+        apply<GrgitPlugin>()
     }
 
     private

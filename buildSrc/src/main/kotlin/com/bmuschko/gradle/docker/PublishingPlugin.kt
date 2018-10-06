@@ -21,8 +21,8 @@ class PublishingPlugin : Plugin<Project> {
 
     private
     fun Project.applyPublishingPlugin() {
-        plugins.apply(MavenPublishPlugin::class)
-        plugins.apply(BintrayPlugin::class)
+        apply<MavenPublishPlugin>()
+        apply<BintrayPlugin>()
     }
 
     private
@@ -33,7 +33,7 @@ class PublishingPlugin : Plugin<Project> {
 
         configure<PublishingExtension> {
             publications {
-                create("mavenJava", MavenPublication::class) {
+                create<MavenPublication>("mavenJava") {
                     from(components["java"])
                     artifact(sourcesJar)
                     artifact(groovydocJar)
