@@ -1,8 +1,10 @@
 package com.bmuschko.gradle.docker
 
+import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+@CompileStatic
 class RepositoriesFallbackPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {

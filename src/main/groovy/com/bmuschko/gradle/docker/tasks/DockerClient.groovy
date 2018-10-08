@@ -16,9 +16,12 @@
 
 package com.bmuschko.gradle.docker.tasks
 
+import groovy.transform.CompileStatic
+
 /**
  *  Passes the underlying `docker-java` client to the defined `onNext` closure if it exists.
  */
+@CompileStatic
 class DockerClient extends AbstractDockerRemoteApiTask {
 
     @Override

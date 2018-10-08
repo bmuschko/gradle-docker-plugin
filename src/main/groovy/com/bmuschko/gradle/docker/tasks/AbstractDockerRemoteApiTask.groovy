@@ -16,6 +16,8 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
+import groovy.transform.CompileStatic
+import groovy.transform.TypeCheckingMode
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -23,6 +25,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
+@CompileStatic
 abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
 
     /**
@@ -56,6 +59,7 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
         }
     }
 
+    @CompileStatic(TypeCheckingMode.SKIP)
     void runInDockerClassPath(Closure closure) {
         threadContextClassLoader.withContext(createDockerClientConfig(), closure)
     }

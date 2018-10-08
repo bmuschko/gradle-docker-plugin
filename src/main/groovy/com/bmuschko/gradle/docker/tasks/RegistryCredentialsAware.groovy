@@ -16,7 +16,9 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
+import groovy.transform.CompileStatic
 
+@CompileStatic
 interface RegistryCredentialsAware {
     void setRegistryCredentials(DockerRegistryCredentials registryCredentials)
     DockerRegistryCredentials getRegistryCredentials()

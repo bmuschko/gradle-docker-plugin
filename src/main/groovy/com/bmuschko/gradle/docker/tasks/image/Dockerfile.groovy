@@ -15,6 +15,8 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import groovy.transform.CompileStatic
+import groovy.transform.TypeCheckingMode
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
@@ -25,6 +27,7 @@ import org.gradle.api.tasks.*
 import javax.annotation.Nullable
 
 @CacheableTask
+@CompileStatic
 class Dockerfile extends DefaultTask {
     private final ListProperty<Instruction> instructions
 
@@ -48,7 +51,7 @@ class Dockerfile extends DefaultTask {
         verifyValidInstructions()
 
         destFile.get().asFile.withWriter { out ->
-            instructions.get().each { instruction ->
+            instructions.get().forEach() { Instruction instruction ->
                 String instructionText = instruction.getText()
 
                 if (instructionText) {
@@ -58,6 +61,7 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    @CompileStatic(TypeCheckingMode.SKIP)
     private void verifyValidInstructions() {
         List<Instruction> allInstructions = instructions.get().collect()
 
@@ -90,7 +94,7 @@ class Dockerfile extends DefaultTask {
     }
 
     void instructionsFromTemplate(Provider<RegularFile> templateFile) {
-        instruction(templateFile.get().asFile)
+        instructionsFromTemplate(templateFile.get().asFile)
     }
 
     /**
@@ -772,7 +776,8 @@ class Dockerfile extends DefaultTask {
          */
         @Input
         @Optional
-        @Nullable String getText()
+        @Nullable
+        String getText()
     }
 
     static class GenericInstruction implements Instruction {
@@ -860,6 +865,7 @@ class Dockerfile extends DefaultTask {
 
     static class MultiItemJoiner implements ItemJoiner {
         @Override
+        @CompileStatic(TypeCheckingMode.SKIP)
         String join(Map<String, String> map) {
             map.inject([]) { result, entry ->
                 def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
@@ -872,6 +878,7 @@ class Dockerfile extends DefaultTask {
 
     static class SingleItemJoiner implements ItemJoiner {
         @Override
+        @CompileStatic(TypeCheckingMode.SKIP)
         String join(Map<String, String> map) {
             map.inject([]) { result, entry ->
                 def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key

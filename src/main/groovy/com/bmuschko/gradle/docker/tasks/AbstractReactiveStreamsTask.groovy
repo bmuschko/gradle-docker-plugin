@@ -15,10 +15,12 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
+import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
+@CompileStatic
 abstract class AbstractReactiveStreamsTask extends DefaultTask {
 
     /**

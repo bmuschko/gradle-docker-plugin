@@ -16,6 +16,8 @@
 package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import groovy.transform.CompileStatic
+import groovy.transform.TypeCheckingMode
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
@@ -23,6 +25,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Nested
 
+@CompileStatic
 class DockerJavaApplication {
     final Property<String> baseImage
     final Property<String> maintainer
@@ -45,6 +48,7 @@ class DockerJavaApplication {
     CompositeExecInstruction exec(Action<CompositeExecInstruction> action) {
         compositeExecInstruction.clear()
         action.execute(compositeExecInstruction)
+        return compositeExecInstruction
     }
 
     CompositeExecInstruction getExecInstruction() {
@@ -74,6 +78,7 @@ class DockerJavaApplication {
         }
 
         @Override
+        @CompileStatic(TypeCheckingMode.SKIP)
         String getText() {
             List<Dockerfile.Instruction> viableInstructions = instructions.get().findAll { it.text }
             viableInstructions.collect { it.getText() }.join(System.getProperty('line.separator'))

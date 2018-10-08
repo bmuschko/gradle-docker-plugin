@@ -16,12 +16,14 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 
 import java.util.concurrent.Callable
 
+@CompileStatic
 abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
     /**
      * Image ID used to perform operation. The image for the provided ID has to be created first.

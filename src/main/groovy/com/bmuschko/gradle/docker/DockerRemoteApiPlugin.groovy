@@ -19,14 +19,19 @@ import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
+import groovy.transform.CompileStatic
+import groovy.transform.TypeCheckingMode
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.plugins.ExtensionAware
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
  */
+@CompileStatic
 class DockerRemoteApiPlugin implements Plugin<Project> {
     public static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
     public static final String DOCKER_JAVA_DEFAULT_VERSION = '3.1.0-rc-5'
@@ -37,9 +42,9 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(RepositoriesFallbackPlugin)
         Configuration dockerJavaConfig = project.configurations.create(DOCKER_JAVA_CONFIGURATION_NAME)
-                .setVisible(false)
-                .setTransitive(true)
-                .setDescription('The Docker Java libraries to be used for this project.')
+            .setVisible(false)
+            .setTransitive(true)
+            .setDescription('The Docker Java libraries to be used for this project.')
         declareDefaultDependencies(project, dockerJavaConfig)
 
         DockerExtension dockerExtension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
@@ -52,9 +57,10 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
 
     private void declareDefaultDependencies(Project project, Configuration configuration) {
         configuration.defaultDependencies { dependencies ->
-            dependencies.add(project.dependencies.create("com.aries:docker-java-shaded:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION:cglib@jar") {
-                transitive = false
-            })
+            ExternalDependency dockerJavaShadedDependency =
+                project.dependencies.create("com.aries:docker-java-shaded:$DockerRemoteApiPlugin.DOCKER_JAVA_DEFAULT_VERSION:cglib@jar") as ExternalDependency
+            dockerJavaShadedDependency.transitive = false
+            dependencies.add(dockerJavaShadedDependency)
             dependencies.add(project.dependencies.create('org.slf4j:slf4j-simple:1.7.5'))
             dependencies.add(project.dependencies.create('javax.activation:activation:1.1.1'))
         }
@@ -62,12 +68,22 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
         ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader(extension)
-        project.tasks.withType(AbstractDockerRemoteApiTask) {
-            group = DEFAULT_TASK_GROUP
-            threadContextClassLoader = dockerClassLoader
-        }
+        project.tasks.withType(AbstractDockerRemoteApiTask, new Action<AbstractDockerRemoteApiTask>() {
+            @Override
+            void execute(AbstractDockerRemoteApiTask apiTask) {
+                apiTask.with {
+                    group = DEFAULT_TASK_GROUP
+                    threadContextClassLoader = dockerClassLoader
+                }
+            }
+        })
     }
 
+    /**
+     * Must be compiled dynamic because {@link RegistryCredentialsAware} does not extend {@link org.gradle.api.Task}.
+     * https://github.com/gradle/gradle/issues/4050
+     */
+    @CompileStatic(TypeCheckingMode.SKIP)
     private void configureRegistryAwareTasks(Project project, DockerRegistryCredentials dockerRegistryCredentials) {
         project.tasks.withType(RegistryCredentialsAware) {
             registryCredentials = dockerRegistryCredentials
