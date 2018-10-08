@@ -18,24 +18,26 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
+import org.gradle.api.file.CopySpec
 import org.gradle.api.file.Directory
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.internal.DefaultJavaApplication
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.jvm.tasks.Jar
 
 import java.util.concurrent.Callable
-
 /**
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
  */
+@CompileStatic
 class DockerJavaApplicationPlugin implements Plugin<Project> {
     public static final String JAVA_APPLICATION_EXTENSION_NAME = "javaApplication"
     public static final String COPY_DIST_RESOURCES_TASK_NAME = 'dockerCopyDistResources'
@@ -51,8 +53,8 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         DockerJavaApplication dockerJavaApplication = configureExtension(project, dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
-            Sync installTask = project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME)
-            Jar jarTask = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
+            Sync installTask = project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME) as Sync
+            Jar jarTask = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME) as Jar
             dockerJavaApplication.exec(new Action<DockerJavaApplication.CompositeExecInstruction>() {
                 @Override
                 void execute(DockerJavaApplication.CompositeExecInstruction compositeExecInstruction) {
@@ -78,77 +80,120 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         ((ExtensionAware) dockerExtension).extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication, project)
     }
 
-    private Dockerfile createDockerfileTask(Project project, Sync installTask, Jar jarTask, DockerJavaApplication dockerJavaApplication) {
-        project.task(DOCKERFILE_TASK_NAME, type: Dockerfile) {
-            description = 'Creates the Docker image for the Java application.'
-            dependsOn jarTask
-            from(project.provider(new Callable<Dockerfile.From>() {
-                @Override
-                Dockerfile.From call() throws Exception {
-                    new Dockerfile.From(dockerJavaApplication.baseImage.get())
+    private static Action<Dockerfile> createDockerfileTaskAction(
+        Project project,
+        Sync installTask,
+        Jar jarTask,
+        DockerJavaApplication dockerJavaApplication) {
+        return new Action<Dockerfile>() {
+            @Override
+            void execute(Dockerfile dockerfile) {
+                dockerfile.with {
+                    description = 'Creates the Docker image for the Java application.'
+                    dependsOn jarTask
+                    from(project.provider(new Callable<Dockerfile.From>() {
+                        @Override
+                        Dockerfile.From call() throws Exception {
+                            new Dockerfile.From(dockerJavaApplication.baseImage.get())
+                        }
+                    }))
+                    label(project.provider(new Callable<Map<String, String>>() {
+                        @Override
+                        Map<String, String> call() throws Exception {
+                            ['maintainer': dockerJavaApplication.maintainer.get()]
+                        }
+                    }))
+                    addFile(project.provider(new Callable<Dockerfile.File>() {
+                        @Override
+                        Dockerfile.File call() throws Exception {
+                            new Dockerfile.File(installTask.destinationDir.name, "/${installTask.destinationDir.name}".toString())
+                        }
+                    }))
+                    addFile(project.provider(new Callable<Dockerfile.File>() {
+                        @Override
+                        Dockerfile.File call() throws Exception {
+                            new Dockerfile.File("app-lib/${jarTask.archiveName}".toString(), "/${installTask.destinationDir.name}/lib/${jarTask.archiveName}".toString())
+                        }
+                    }))
+                    instructions.add(dockerJavaApplication.execInstruction)
+                    exposePort(dockerJavaApplication.ports)
                 }
-            }))
-            label(project.provider(new Callable<Map<String, String>>() {
-                @Override
-                Map<String, String> call() throws Exception {
-                    ['maintainer': dockerJavaApplication.maintainer.get()]
+
+            }
+        }
+    }
+
+    private static Dockerfile createDockerfileTask(
+        Project project,
+        Sync installTask,
+        Jar jarTask,
+        DockerJavaApplication dockerJavaApplication) {
+        project.tasks.create(DOCKERFILE_TASK_NAME, Dockerfile, createDockerfileTaskAction(project, installTask, jarTask, dockerJavaApplication))
+    }
+
+    private static Action<Sync> createDistCopyResourcesTaskAction(
+        Sync installTask,
+        Jar jarTask,
+        Dockerfile createDockerfileTask) {
+        return new Action<Sync>() {
+            @Override
+            void execute(Sync sync) {
+                sync.with {
+                    group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
+                    description = "Copies the distribution resources to a temporary directory for image creation."
+                    dependsOn installTask
+                    from { installTask.destinationDir.parentFile }
+                    into { createDockerfileTask.destFile.get().asFile.parentFile }
+                    exclude "**/lib/${jarTask.archiveName}"
+                    into("app-lib", new Action<CopySpec>() {
+                        @Override
+                        void execute(CopySpec copySpec) {
+                            copySpec.from jarTask
+                        }
+                    })
                 }
-            }))
-            addFile(project.provider(new Callable<Dockerfile.File>() {
-                @Override
-                Dockerfile.File call() throws Exception {
-                    new Dockerfile.File(installTask.destinationDir.name, "/${installTask.destinationDir.name}".toString())
-                }
-            }))
-            addFile(project.provider(new Callable<Dockerfile.File>() {
-                @Override
-                Dockerfile.File call() throws Exception {
-                    new Dockerfile.File("app-lib/${jarTask.archiveName}".toString(), "/${installTask.destinationDir.name}/lib/${jarTask.archiveName}".toString())
-                }
-            }))
-            instructions.add(dockerJavaApplication.execInstruction)
-            exposePort(dockerJavaApplication.ports)
-        } as Dockerfile
+            }
+        }
     }
 
     private Sync createDistCopyResourcesTask(Project project, Sync installTask, Jar jarTask, Dockerfile createDockerfileTask) {
-        project.task(COPY_DIST_RESOURCES_TASK_NAME, type: Sync) {
-            group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-            description = "Copies the distribution resources to a temporary directory for image creation."
-            dependsOn installTask
-            from { installTask.destinationDir.parentFile }
-            into { createDockerfileTask.destFile.get().asFile.parentFile }
-            exclude "**/lib/${jarTask.archiveName}"
-            into("app-lib") {
-                from jarTask
-            }
-        } as Sync
+        project.tasks.create(
+            COPY_DIST_RESOURCES_TASK_NAME,
+            Sync,
+            createDistCopyResourcesTaskAction(installTask, jarTask, createDockerfileTask))
     }
 
     private Provider<List<String>> determineEntryPoint(Project project, Sync installTask) {
         project.provider(new Callable<List<String>>() {
             @Override
             List<String> call() throws Exception {
-                ["/${installTask.destinationDir.name}/bin/${project.applicationName}".toString()]
+                final String applicationName = (project.extensions.getByName("application") as DefaultJavaApplication).applicationName
+                ["/${installTask.destinationDir.name}/bin/${applicationName}".toString()]
             }
         })
     }
 
     private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
-        project.task(BUILD_IMAGE_TASK_NAME, type: DockerBuildImage) {
-            description = 'Builds the Docker image for the Java application.'
-            dependsOn createDockerfileTask
-            inputDir = project.provider(new Callable<Directory>() {
-                @Override
-                Directory call() throws Exception {
-                    project.layout.projectDirectory.dir(createDockerfileTask.destFile.get().asFile.parentFile.canonicalPath)
+        project.tasks.create(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
+            @Override
+            void execute(DockerBuildImage dockerBuildImage) {
+                dockerBuildImage.with {
+                    description = 'Builds the Docker image for the Java application.'
+                    dependsOn createDockerfileTask
+                    inputDir.set(project.provider(new Callable<Directory>() {
+                        @Override
+                        Directory call() throws Exception {
+                            project.layout.projectDirectory.dir(createDockerfileTask.destFile.get().asFile.parentFile.canonicalPath)
+                        }
+                    }))
                 }
-            })
-            tag = determineImageTag(project, dockerJavaApplication)
-        } as DockerBuildImage
+                // Can't be within `with` above because the compiler falls over.
+                dockerBuildImage.tag.set(determineImageTag(project, dockerJavaApplication))
+            }
+        })
     }
 
-    private Provider<String> determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
+    private static Provider<String> determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
         project.provider(new Callable<String>() {
             @Override
             String call() throws Exception {
@@ -157,17 +202,23 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-                String artifactAndVersion = "${project.applicationName}:${tagVersion}".toLowerCase().toString()
+                final String applicationName = (project.extensions.getByName("application") as DefaultJavaApplication).applicationName
+                String artifactAndVersion = "${applicationName}:${tagVersion}".toLowerCase().toString()
                 project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
             }
         })
     }
 
-    private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
-        project.task(PUSH_IMAGE_TASK_NAME, type: DockerPushImage) {
-            description = 'Pushes created Docker image to the repository.'
-            dependsOn dockerBuildImageTask
-            imageName = dockerBuildImageTask.getTag()
-        }
+    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
+        project.tasks.create(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
+            @Override
+            void execute(DockerPushImage pushImage) {
+                pushImage.with {
+                    description = 'Pushes created Docker image to the repository.'
+                    dependsOn dockerBuildImageTask
+                    imageName.set(dockerBuildImageTask.getTag())
+                }
+            }
+        })
     }
 }
