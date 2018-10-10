@@ -134,7 +134,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Instruction as Provider
      * @see #instruction(String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void instruction(Provider<String> provider) {
         instructions.add(new GenericInstruction(provider))
@@ -178,7 +178,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider From information as Provider
      * @see #from(String, String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void from(Provider<Dockerfile.From> provider) {
         instructions.add(new FromInstruction(provider))
@@ -221,7 +221,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Argument to pass as Provider
      * @see #arg(String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void arg(Provider<String> provider) {
         instructions.add(new ArgInstruction(provider))
@@ -264,7 +264,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Command as Provider
      * @see #runCommand(String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void runCommand(Provider<String> provider) {
         instructions.add(new RunCommandInstruction(provider))
@@ -307,7 +307,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Command as Provider
      * @see #defaultCommand(String...)
-     * @since 4.0
+     * @since 4.0.0
      */
     void defaultCommand(Provider<List<String>> provider) {
         instructions.add(new DefaultCommandInstruction(provider))
@@ -350,7 +350,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param ports Ports as Provider
      * @see #exposePort(Integer...)
-     * @since 4.0
+     * @since 4.0.0
      */
     void exposePort(Provider<List<Integer>> provider) {
         instructions.add(new ExposePortInstruction(provider))
@@ -415,7 +415,7 @@ class Dockerfile extends DefaultTask {
      * @param provider Environment variables as Provider
      * @see #environmentVariable(String, String)
      * @see #environmentVariable(Map)
-     * @since 4.0
+     * @since 4.0.0
      */
     void environmentVariable(Provider<Map<String, String>> provider) {
         instructions.add(new EnvironmentVariableInstruction(provider))
@@ -459,7 +459,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Add instruction as Provider
      * @see #addFile(String, String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void addFile(Provider<Dockerfile.File> provider) {
         instructions.add(new AddFileInstruction(provider))
@@ -504,7 +504,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Copy instruction as Provider
      * @see #copyFile(String, String, String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void copyFile(Provider<Dockerfile.File> provider) {
         instructions.add(new CopyFileInstruction(provider))
@@ -547,7 +547,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param entryPoint Entry point
      * @see #entryPoint(String...)
-     * @since 4.0
+     * @since 4.0.0
      */
     void entryPoint(Provider<List<String>> provider) {
         instructions.add(new EntryPointInstruction(provider))
@@ -590,7 +590,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param volume Volume
      * @see #volume(String...)
-     * @since 4.0
+     * @since 4.0.0
      */
     void volume(Provider<List<String>> provider) {
         instructions.add(new VolumeInstruction(provider))
@@ -633,7 +633,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider User as Provider
      * @see #user(String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void user(Provider<String> provider) {
         instructions.add(new UserInstruction(provider))
@@ -676,7 +676,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param dir Directory
      * @see #workingDir(String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void workingDir(Provider<String> provider) {
         instructions.add(new WorkDirInstruction(provider))
@@ -719,7 +719,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param instruction Instruction
      * @see #onBuild(String)
-     * @since 4.0
+     * @since 4.0.0
      */
     void onBuild(Provider<String> provider) {
         instructions.add(new OnBuildInstruction(provider))
@@ -761,7 +761,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Labels as Provider
      * @see #label(Map)
-     * @since 4.0
+     * @since 4.0.0
      */
     void label(Provider<Map<String, String>> provider) {
         instructions.add(new LabelInstruction(provider))
@@ -1240,7 +1240,7 @@ class Dockerfile extends DefaultTask {
     /**
      * Input data for a copy or add instruction.
      *
-     * @since 4.0
+     * @since 4.0.0
      */
     static class File {
         final String src
@@ -1262,7 +1262,7 @@ class Dockerfile extends DefaultTask {
     /**
      * Input data for a from instruction.
      *
-     * @since 4.0
+     * @since 4.0.0
      */
     static class From {
         final String image
