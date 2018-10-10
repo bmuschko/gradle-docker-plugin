@@ -4,16 +4,14 @@ The plugin can be applied with the `buildscript` syntax or the plugin DSL.
 Let's say you'd want to go with the plugin that provides the plain Docker operations for managing Docker images and containers.
 See the https://docs.gradle.org/current/userguide/plugins.html[Gradle user guide] for more information on applying plugins.
 
-==== Aplying the Plugin Using the buildscript Syntax
+==== Applying the Plugin Using the buildscript Syntax
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
 buildscript {
     repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
+        gradlePluginPortal()
     }
     dependencies {
         classpath 'com.bmuschko:gradle-docker-plugin:{project-version}'
@@ -23,13 +21,36 @@ buildscript {
 apply plugin: 'com.bmuschko.docker-remote-api'
 ----
 
-==== Applying the Plugin using the Plugin DSL
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath("com.bmuschko:gradle-docker-plugin:{project-version}")
+    }
+}
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+apply(plugin = "com.bmuschko.docker-remote-api")
+----
+
+==== Applying the Plugin Using the Plugin DSL
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
 plugins {
     id 'com.bmuschko.docker-remote-api' version '{project-version}'
+}
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+plugins {
+    id("com.bmuschko.docker-remote-api") version "{project-version}"
 }
 ----
 

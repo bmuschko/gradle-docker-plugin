@@ -7,6 +7,7 @@ plugins {
     id("com.bmuschko.gradle.docker.test-setup")
     id("com.bmuschko.gradle.docker.integration-test")
     id("com.bmuschko.gradle.docker.functional-test")
+    id("com.bmuschko.gradle.docker.doc-test")
     id("com.bmuschko.gradle.docker.additional-artifacts")
     id("com.bmuschko.gradle.docker.static-code-analysis")
     id("com.bmuschko.gradle.docker.user-guide")

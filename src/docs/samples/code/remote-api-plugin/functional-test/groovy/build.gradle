@@ -1,0 +1,31 @@
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '{project-version}'
+}
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('docker/myapp')
+    tag = 'test/myapp:latest'
+}
+
+task createMyAppContainer(type: DockerCreateContainer) {
+    dependsOn buildMyAppImage
+    targetImageId buildMyAppImage.getImageId()
+    portBindings = ['8080:8080']
+}
+
+task startMyAppContainer(type: DockerStartContainer) {
+    dependsOn createMyAppContainer
+    targetContainerId createMyAppContainer.getContainerId()
+}
+
+task stopMyAppContainer(type: DockerStopContainer) {
+    targetContainerId createMyAppContainer.getContainerId()
+}
+
+task functionalTestMyApp(type: Test) {
+    dependsOn startMyAppContainer
+    finalizedBy stopMyAppContainer
+}

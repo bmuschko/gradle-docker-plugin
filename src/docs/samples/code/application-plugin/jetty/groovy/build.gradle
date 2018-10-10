@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.bmuschko.docker-java-application' version '{project-version}'
+}
+
+version = '1.0'
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
+}
+
+mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
+
+docker {
+    javaApplication {
+        maintainer = 'Jon Doe "jon.doe@gmail.com"'
+    }
+}

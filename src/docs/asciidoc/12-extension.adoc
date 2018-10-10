@@ -38,8 +38,8 @@ Starting with Docker version 1.3, TLS is enabled by default.
 Please consult the Docker documentation https://docs.docker.com/engine/security/https/["Protect the Docker daemon socket"] to set up your certificate. The following example demonstrates how to configure the plugin to use those certificates.
 Additionally, this code snippet shows how to set the user credentials.
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
 docker {
     url = 'https://192.168.59.103:2376'
@@ -54,10 +54,26 @@ docker {
 }
 ----
 
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+docker {
+    url.set("https://192.168.59.103:2376")
+    certPath.set(File(System.properties["user.home"], ".boot2docker/certs/boot2docker-vm"))
+
+    registryCredentials {
+        url.set("https://index.docker.io/v1/")
+        username.set("bmuschko")
+        password.set("pwd")
+        email.set("benjamin.muschko@gmail.com")
+    }
+}
+----
+
 ==== Working With Google Cloud And Using a Key File
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
 docker {
     registryCredentials {
@@ -68,16 +84,36 @@ docker {
 }
 ----
 
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+docker {
+    registryCredentials {
+        url.set("https://gcr.io")
+        username.set("_json_key")
+        password.set(file("keyfile.json").readText())
+    }
+}
+----
+
 ==== Working With a Docker Instance Without TLS
 
 The following example assumes that you disabled TLS on your Docker instance.
 You can do so by setting `DOCKER_TLS=no` in the file `/var/lib/boot2docker/profile`.
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
 docker {
     url = 'tcp://192.168.59.103:2375'
+}
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+docker {
+    url.set("tcp://192.168.59.103:2375")
 }
 ----
 

@@ -11,18 +11,31 @@ The `onError` closure is passed the exception that is thrown for _you_ to handle
 If you silently ignore we will not throw the exception behind the scenes.
 The below example is a common use-case that arises when someone wants to remove a container whether it exists or not but does not want to fail hard.
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-apply plugin: 'com.bmuschko.docker-remote-api'
-
 import com.bmuschko.gradle.docker.tasks.container.*
 
 task removeContainer(type: DockerRemoveContainer) {
-    targetContainerId { 'container-that-does-not-exist' }
+    targetContainerId 'container-that-does-not-exist'
     onError { exception ->
         // Ignore exception if container does not exist otherwise throw it
         if (!exception.message.contains('No such container'))
+            throw exception
+    }
+}
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+import com.bmuschko.gradle.docker.tasks.container.*
+
+tasks.create("removeContainer", DockerRemoveContainer::class) {
+    targetContainerId("container-that-does-not-exist")
+    onError { exception ->
+        // Ignore exception if container does not exist otherwise throw it
+        if (!exception.message.contains("No such container"))
             throw exception
     }
 }
@@ -39,11 +52,9 @@ Iterative tasks are things like `DockerBuildImage`, `DockerLogsContainer`, `Dock
 These tasks have output which can be iterated over.
 The example below demonstrates how we iterate over each log message passing that to the closure for the user to work on.
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-apply plugin: 'com.bmuschko.docker-remote-api'
-
 import com.bmuschko.gradle.docker.tasks.container.*
 
 task logContainer(type: DockerLogsContainer) {
@@ -57,6 +68,20 @@ task logContainer(type: DockerLogsContainer) {
 }
 ----
 
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+tasks.create("logContainer", DockerLogsContainer::class) {
+    targetContainerId("container-that-does-exist")
+    follow = true
+    tailAll = true
+    onNext { message ->
+        // Each log message from the container will be passed as it's made available
+        logger.quiet(message.toString())
+    }
+}
+----
+
 ==== Reacting to the Completion of an Operation
 
 The `onComplete` closure is not passed anything upon execution.
@@ -64,11 +89,9 @@ It works in the same fashion that `doLast` does but is instead part of this task
 This closure executes _only_ upon success.
 The below example demonstrates how this works.
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-apply plugin: 'com.bmuschko.docker-remote-api'
-
 import com.bmuschko.gradle.docker.tasks.container.*
 
 task removeContainer(type: DockerRemoveContainer) {
@@ -78,6 +101,20 @@ task removeContainer(type: DockerRemoveContainer) {
     }
     doLast {
         println 'Executes second'
+    }
+}
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+tasks.create("removeContainer", DockerRemoveContainer::class) {
+    targetContainerId("container-that-does-exist")
+    onComplete {
+        println("Executes first")
+    }
+    doLast {
+        println("Executes second")
     }
 }
 ----

@@ -1,0 +1,18 @@
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '{project-version}'
+}
+
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+task createDockerfile(type: Dockerfile) {
+    destFile = project.file('build/mydockerfile/Dockerfile')
+    from 'ubuntu:12.04'
+    label(['maintainer': 'Benjamin Muschko "benjamin.muschko@gmail.com"'])
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.get().asFile.parentFile
+    tag = 'bmuschko/myimage:latest'
+}
