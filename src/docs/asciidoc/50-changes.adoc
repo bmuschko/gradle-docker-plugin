@@ -5,6 +5,7 @@
 
 * **Breaking Change!** Use `Provider` concept throughout to support lazy evaluation via public API - https://github.com/bmuschko/gradle-docker-plugin/pull/659[Pull Request 659]
 * **Breaking Change!** Consumers of this plugin will have to use Java 8 or higher - https://github.com/bmuschko/gradle-docker-plugin/pull/676[Pull Request 676]
+* **Breaking Change!** Removal of `AbstractReactiveStreamsTask` from inherited custom task hierarchy
 * Introduce method for translating username/password into a PasswordCredentials - https://github.com/bmuschko/gradle-docker-plugin/pull/668[Pull Request 668]
 * Add `@CompileStatic` to much of the code base that can support it - https://github.com/bmuschko/gradle-docker-plugin/pull/676[Pull Request 676]
 
@@ -17,7 +18,7 @@
 * `DockerBuildImage` gained `network` option - https://github.com/bmuschko/gradle-docker-plugin/issues/608[Issue 608]
 * `DockerCreateContainer` gained `autoRemove` option - https://github.com/bmuschko/gradle-docker-plugin/issues/639[Issue 639]
 
-[discrete]
+[discrete]DockerBuildImage
 === v3.6.1 (August 21, 2018)
 
 * Task `DockerClient`, and the passed dockerClient object, is now cached by configuration - https://github.com/bmuschko/gradle-docker-plugin/pull/644[Pull Request 644]
