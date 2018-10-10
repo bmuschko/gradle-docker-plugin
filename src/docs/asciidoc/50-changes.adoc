@@ -18,7 +18,7 @@
 * `DockerBuildImage` gained `network` option - https://github.com/bmuschko/gradle-docker-plugin/issues/608[Issue 608]
 * `DockerCreateContainer` gained `autoRemove` option - https://github.com/bmuschko/gradle-docker-plugin/issues/639[Issue 639]
 
-[discrete]DockerBuildImage
+[discrete]
 === v3.6.1 (August 21, 2018)
 
 * Task `DockerClient`, and the passed dockerClient object, is now cached by configuration - https://github.com/bmuschko/gradle-docker-plugin/pull/644[Pull Request 644]
