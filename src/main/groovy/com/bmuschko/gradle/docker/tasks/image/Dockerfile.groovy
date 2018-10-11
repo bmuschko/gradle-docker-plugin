@@ -80,6 +80,13 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * Adds instructions to the Dockerfile from a template file. The template file can have any name.
+     *
+     * @param template The template file
+     * @see #instructionsFromTemplate(String)
+     * @see #instructionsFromTemplate(Provider)
+     */
     void instructionsFromTemplate(java.io.File template) {
         if (!template.exists()) {
             throw new FileNotFoundException("docker template file not found at location : ${template.getAbsolutePath()}")
@@ -89,12 +96,28 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * Adds instructions to the Dockerfile from a template file. The path can be relative to the project root directory or absolute.
+     *
+     * @param templatePath The path to the template file
+     * @see #instructionsFromTemplate(java.io.File)
+     * @see #instructionsFromTemplate(Provider)
+     */
     void instructionsFromTemplate(String templatePath) {
         instructionsFromTemplate(project.file(templatePath))
     }
 
-    void instructionsFromTemplate(Provider<RegularFile> templateFile) {
-        instructionsFromTemplate(templateFile.get().asFile)
+    /**
+     * Adds instructions to the Dockerfile from a template file. Currently, the provider is evaluated as soon as the method is called
+     * which means that the provider is not evaluated lazily. This behavior might change in the future.
+     *
+     * @param provider The provider of the template file
+     * @see #instructionsFromTemplate(java.io.File)
+     * @see #instructionsFromTemplate(String)
+     * @since 4.0.0
+     */
+    void instructionsFromTemplate(Provider<RegularFile> provider) {
+        instructionsFromTemplate(provider.get().asFile)
     }
 
     /**
@@ -968,8 +991,8 @@ class Dockerfile extends DefaultTask {
             String keyword = getKeyword()
             File file
 
-            if (provider) {
-                file = provider.get()
+            if (this.provider) {
+                file = this.provider.get()
             } else {
                 file = new File(src, dest, flags)
             }
@@ -1004,8 +1027,8 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getText() {
-            if (provider) {
-                return buildTextInstruction(provider.get())
+            if (this.provider) {
+                return buildTextInstruction(this.provider.get())
             }
 
             buildTextInstruction(new From(image, stageName))
@@ -1086,8 +1109,8 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getText() {
-            if (provider) {
-                List<Integer> evaluatedPorts = provider.get()
+            if (this.provider) {
+                List<Integer> evaluatedPorts = this.provider.get()
 
                 if (!evaluatedPorts.empty) {
                     "$keyword ${evaluatedPorts.join(' ')}"
