@@ -5,22 +5,19 @@ We implement these here as optional closures for all tasks.
 Currently the only supported methods are `onError`, `onNext`, `onComplete`.
 Various examples on how to use these can be found in our https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests]
 
+[IMPORTANT]
+The callbacks currently only work with Groovy DSL.
+
 ==== Reacting to an Error
 
 The `onError` closure is passed the exception that is thrown for _you_ to handle.
 If you silently ignore we will not throw the exception behind the scenes.
 The below example is a common use-case that arises when someone wants to remove a container whether it exists or not but does not want to fail hard.
 
-[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
-.Groovy
+.build.gradle
+[source,groovy,subs="+attributes"]
 ----
 include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-error]
-----
-
-[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
-.Kotlin
-----
-include::{samplesCodeDir}/remote-api-plugin/reactive-streams/kotlin/build.gradle.kts[tags=on-error]
 ----
 
 ==== Reacting to Data Returned by an Operation
@@ -34,16 +31,10 @@ Iterative tasks are things like `DockerBuildImage`, `DockerLogsContainer`, `Dock
 These tasks have output which can be iterated over.
 The example below demonstrates how we iterate over each log message passing that to the closure for the user to work on.
 
-[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
-.Groovy
+.build.gradle
+[source,groovy,subs="+attributes"]
 ----
 include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-next]
-----
-
-[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
-.Kotlin
-----
-include::{samplesCodeDir}/remote-api-plugin/reactive-streams/kotlin/build.gradle.kts[tags=on-next]
 ----
 
 ==== Reacting to the Completion of an Operation
@@ -53,14 +44,8 @@ It works in the same fashion that `doLast` does but is instead part of this task
 This closure executes _only_ upon success.
 The below example demonstrates how this works.
 
-[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
-.Groovy
+.build.gradle
+[source,groovy,subs="+attributes"]
 ----
 include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-complete]
-----
-
-[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
-.Kotlin
-----
-include::{samplesCodeDir}/remote-api-plugin/reactive-streams/kotlin/build.gradle.kts[tags=on-complete]
 ----

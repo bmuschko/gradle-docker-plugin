@@ -22,17 +22,22 @@ include::{samplesCodeDir}/remote-api-plugin/apply-plugin-buildscript/kotlin/buil
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
+----
 include::{samplesCodeDir}/remote-api-plugin/apply-plugin-dsl/groovy/build.gradle[]
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
+----
 include::{samplesCodeDir}/remote-api-plugin/apply-plugin-dsl/kotlin/build.gradle.kts[]
 ----
 
 ==== Applying the Plugin From a Script Plugin
 
 Applying the plugin from a script plugin requires the use of the fully-qualified class name due to a https://github.com/gradle/gradle/issues/1262[bug in Gradle core]. Be aware that the plugin DSL cannot be used to apply a binary plugin from a script plugin.
+
+[NOTE]
+When used with the Kotlin DSL, it is recommended to move your implementation into the `buildSrc` project.
 
 .gradle/docker.gradle
 [source,groovy,subs="+attributes"]
@@ -42,5 +47,6 @@ include::{samplesCodeDir}/remote-api-plugin/apply-plugin-from-script-plugin/groo
 
 .build.gradle
 [source,groovy,subs="+attributes"]
+----
 include::{samplesCodeDir}/remote-api-plugin/apply-plugin-from-script-plugin/groovy/build.gradle[]
 ----
