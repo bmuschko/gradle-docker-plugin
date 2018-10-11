@@ -5,50 +5,38 @@ More scenarios can be found in the https://github.com/bmuschko/gradle-docker-plu
 
 ==== Using the Plugin for an Application Run on Jetty
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: 'com.bmuschko.docker-java-application'
+include::{samplesCodeDir}/application-plugin/jetty/groovy/build.gradle[]
+----
 
-version = '1.0'
-sourceCompatibility = 1.7
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
-}
-
-mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
-
-docker {
-    javaApplication {
-        maintainer = 'Jon Doe "jon.doe@gmail.com"'
-    }
-}
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/application-plugin/jetty/kotlin/build.gradle.kts[]
 ----
 
 ==== Additional Instructions in Dockerfile
 
 You can add additional instructions to the dockerfile using `dockerDistTar` and http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task] DSL:
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-dockerDistTar {
-    instruction {'RUN ls -la'}
-    environmentVariable('JAVA_OPTS', '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap')
-}
+include::{samplesCodeDir}/application-plugin/basic/groovy/build.gradle[tags=dockerfile-addition-instructions]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/application-plugin/basic/kotlin/build.gradle.kts[tags=dockerfile-addition-instructions]
 ----
 
 will result in
 
 ----
-FROM java
+FROM openjdk:jre-alpine
 LABEL maintainer=user
 ADD javaapp-1.0.0-SNAPSHOT.tar /
 ENTRYPOINT ["/javaapp-1.0.0-SNAPSHOT/bin/javaapp"]
@@ -58,8 +46,14 @@ RUN ls -la
 
 Or you can use form
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-dockerDistTar.instructionsFromTemplate file('Dockerfile.tmpl')
+include::{samplesCodeDir}/application-plugin/basic/groovy/build.gradle[tags=instruction-template]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/application-plugin/basic/kotlin/build.gradle.kts[tags=instruction-template]
 ----

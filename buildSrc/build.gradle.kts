@@ -9,7 +9,8 @@ repositories {
 
 dependencies {
     implementation(kotlin("gradle-plugin"))
-    implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.7")
+    implementation("org.asciidoctor:asciidoctorj:1.6.0-alpha.7")
+    implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.3")
     implementation("org.ajoberstar:grgit:1.9.1") {
         setForce(true)
     }
@@ -35,6 +36,10 @@ gradlePlugin {
         register("functional-test-plugin") {
             id = "com.bmuschko.gradle.docker.functional-test"
             implementationClass = "com.bmuschko.gradle.docker.FunctionalTestPlugin"
+        }
+        register("doc-test-plugin") {
+            id = "com.bmuschko.gradle.docker.doc-test"
+            implementationClass = "com.bmuschko.gradle.docker.DocumentationTestPlugin"
         }
         register("additional-artifacts-plugin") {
             id = "com.bmuschko.gradle.docker.additional-artifacts"

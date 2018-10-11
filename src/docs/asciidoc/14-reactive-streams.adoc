@@ -5,6 +5,9 @@ We implement these here as optional closures for all tasks.
 Currently the only supported methods are `onError`, `onNext`, `onComplete`.
 Various examples on how to use these can be found in our https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests]
 
+[IMPORTANT]
+The callbacks currently only work with Groovy DSL.
+
 ==== Reacting to an Error
 
 The `onError` closure is passed the exception that is thrown for _you_ to handle.
@@ -14,18 +17,7 @@ The below example is a common use-case that arises when someone wants to remove 
 .build.gradle
 [source,groovy,subs="+attributes"]
 ----
-apply plugin: 'com.bmuschko.docker-remote-api'
-
-import com.bmuschko.gradle.docker.tasks.container.*
-
-task removeContainer(type: DockerRemoveContainer) {
-    targetContainerId { 'container-that-does-not-exist' }
-    onError { exception ->
-        // Ignore exception if container does not exist otherwise throw it
-        if (!exception.message.contains('No such container'))
-            throw exception
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-error]
 ----
 
 ==== Reacting to Data Returned by an Operation
@@ -42,19 +34,7 @@ The example below demonstrates how we iterate over each log message passing that
 .build.gradle
 [source,groovy,subs="+attributes"]
 ----
-apply plugin: 'com.bmuschko.docker-remote-api'
-
-import com.bmuschko.gradle.docker.tasks.container.*
-
-task logContainer(type: DockerLogsContainer) {
-    targetContainerId 'container-that-does-exist'
-    follow = true
-    tailAll = true
-    onNext { message ->
-        // Each log message from the container will be passed as it's made available
-        logger.quiet message.toString()
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-next]
 ----
 
 ==== Reacting to the Completion of an Operation
@@ -67,17 +47,5 @@ The below example demonstrates how this works.
 .build.gradle
 [source,groovy,subs="+attributes"]
 ----
-apply plugin: 'com.bmuschko.docker-remote-api'
-
-import com.bmuschko.gradle.docker.tasks.container.*
-
-task removeContainer(type: DockerRemoveContainer) {
-    targetContainerId 'container-that-does-exist'
-    onComplete {
-        println 'Executes first'
-    }
-    doLast {
-        println 'Executes second'
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-complete]
 ----

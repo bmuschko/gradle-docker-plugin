@@ -1,18 +1,13 @@
 === Usage
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath com.bmuschko:gradle-docker-plugin:{project-version}'
-    }
-}
+include::{samplesCodeDir}/application-plugin/basic/groovy/build.gradle[tags=plugins]
+----
 
-apply plugin: 'com.bmuschko.docker-java-application'
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/application-plugin/basic/kotlin/build.gradle.kts[tags=plugins]
 ----

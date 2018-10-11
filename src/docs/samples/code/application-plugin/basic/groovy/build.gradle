@@ -1,0 +1,41 @@
+// tag::plugins[]
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.bmuschko.docker-java-application' version '{project-version}'
+}
+// end::plugins[]
+
+// tag::extension[]
+docker {
+    javaApplication {
+        baseImage = 'dockerfile/java:openjdk-7-jre'
+        maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+        ports = [9090, 5701]
+        tag = 'jettyapp:1.115'
+    }
+}
+// end::extension[]
+
+// tag::exec[]
+docker {
+    javaApplication {
+        exec {
+            defaultCommand 'server'
+            entryPoint 'myApp/bin/containerLaunch.sh'
+        }
+    }
+}
+// end::exec[]
+
+// tag::dockerfile-addition-instructions[]
+dockerDistTar {
+    instruction 'RUN ls -la'
+    environmentVariable 'JAVA_OPTS', '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap'
+}
+// end::dockerfile-addition-instructions[]
+
+// tag::instruction-template[]
+dockerDistTar.instructionsFromTemplate file('Dockerfile.tmpl')
+// end::instruction-template[]
+

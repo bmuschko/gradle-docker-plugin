@@ -1,39 +1,29 @@
 === Usage
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath com.bmuschko:gradle-docker-plugin:{project-version}'
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/basic/groovy/build.gradle[tags=create-task]
+----
 
-apply plugin: 'com.bmuschko.docker-remote-api'
-
-// Import task types
-import com.bmuschko.gradle.docker.tasks.image.*
-
-// Use task types
-task buildMyAppImage(type: DockerBuildImage) {
-    inputDir = file('docker/myapp')
-    tag = 'test/myapp:latest'
-}
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/remote-api-plugin/basic/kotlin/build.gradle.kts[tags=create-task]
 ----
 
 The plugin automatically resolves the Docker Java library with the pre-configured version under the covers.
 The only configuration you will have to provide in your build script is the repository hosting the library and its transitive dependencies.
 One repository that hosts them all is Maven Central.
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-repositories {
-    mavenCentral()
-}
+include::{samplesCodeDir}/remote-api-plugin/basic/groovy/build.gradle[tags=repositories]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/remote-api-plugin/basic/kotlin/build.gradle.kts[tags=repositories]
 ----

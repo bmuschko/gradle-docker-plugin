@@ -51,8 +51,9 @@ class StaticCodeAnalysisPlugin : Plugin<Project> {
         val codenarcTest: CodeNarc by tasks.getting
         val codenarcIntegrationTest: CodeNarc by tasks.getting
         val codenarcFunctionalTest: CodeNarc by tasks.getting
+        val codenarcDocTest: CodeNarc by tasks.getting
 
-        configure(setOf(codenarcTestSetup, codenarcTest, codenarcIntegrationTest, codenarcFunctionalTest)) {
+        configure(setOf(codenarcTestSetup, codenarcTest, codenarcIntegrationTest, codenarcFunctionalTest, codenarcDocTest)) {
             enabled = false
         }
     }

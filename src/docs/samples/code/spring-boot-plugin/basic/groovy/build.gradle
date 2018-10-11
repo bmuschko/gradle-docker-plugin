@@ -1,0 +1,17 @@
+// tag::plugins[]
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.0.3.RELEASE'
+    id 'com.bmuschko.docker-spring-boot-application' version '{project-version}'
+}
+// end::plugins[]
+
+// tag::extension[]
+docker {
+    springBootApplication {
+        baseImage = 'openjdk:8-alpine'
+        ports = [9090, 8080]
+        tag = 'awesome-spring-boot:1.115'
+    }
+}
+// end::extension[]

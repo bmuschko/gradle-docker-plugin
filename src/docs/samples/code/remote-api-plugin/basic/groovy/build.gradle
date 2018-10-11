@@ -1,0 +1,50 @@
+// tag::create-task[]
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '{project-version}'
+}
+
+// Import task types
+import com.bmuschko.gradle.docker.tasks.image.*
+
+// Use task types
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('docker/myapp')
+    tag = 'test/myapp:latest'
+}
+// end::create-task[]
+
+// tag::repositories[]
+repositories {
+    mavenCentral()
+}
+// end::repositories[]
+
+// tag::extension-tls[]
+docker {
+    url = 'https://192.168.59.103:2376'
+    certPath = new File(System.properties['user.home'], '.boot2docker/certs/boot2docker-vm')
+
+    registryCredentials {
+        url = 'https://index.docker.io/v1/'
+        username = 'bmuschko'
+        password = 'pwd'
+        email = 'benjamin.muschko@gmail.com'
+    }
+}
+// end::extension-tls[]
+
+// tag::extension-google-cloud[]
+docker {
+    registryCredentials {
+        url = 'https://gcr.io'
+        username = '_json_key'
+        password = file('keyfile.json').text
+    }
+}
+// end::extension-google-cloud[]
+
+// tag::extension-without-tls[]
+docker {
+    url = 'tcp://192.168.59.103:2375'
+}
+// end::extension-without-tls[]

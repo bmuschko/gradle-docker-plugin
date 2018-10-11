@@ -11,14 +11,14 @@ The following properties can be configured:
 |`tag`           |`String`    |`<project.group>/<project.name>:<project.version>`       |The tag used for the Docker image.
 |=======
 
-.build.gradle
-[source,groovy,subs="+attributes"]
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
-docker {
-    springBootApplication {
-        baseImage = 'openjdk:8-alpine'
-        ports = [9090, 8080]
-        tag = 'awesome-spring-boot:1.115'
-    }
-}
+include::{samplesCodeDir}/spring-boot-plugin/basic/groovy/build.gradle[tags=extension]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/spring-boot-plugin/basic/kotlin/build.gradle.kts[tags=extension]
 ----
