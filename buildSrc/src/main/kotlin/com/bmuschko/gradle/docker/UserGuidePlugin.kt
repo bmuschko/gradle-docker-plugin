@@ -31,7 +31,7 @@ class UserGuidePlugin : Plugin<Project> {
             attributes(
                 mapOf(
                     "toc" to "left",
-                    "source-highlighter" to "coderay",
+                    "source-highlighter" to "prettify",
                     "icons" to "font",
                     "numbered" to "",
                     "idprefix" to "",
