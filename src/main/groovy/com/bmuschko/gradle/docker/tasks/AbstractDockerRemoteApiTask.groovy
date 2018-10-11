@@ -18,15 +18,13 @@ package com.bmuschko.gradle.docker.tasks
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.*
 
 @CompileStatic
-abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
+abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
     /**
      * Docker remote API server URL. Defaults to "http://localhost:2375".
@@ -36,14 +34,15 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
     final Property<String> url = project.objects.property(String)
 
     /**
-     * Path to the <a href="https://docs.docker.com/articles/https/">Docker certificate and key</a>.
+     * Path to the <a href="https://docs.docker.com/engine/security/https/">Docker certificate and key</a>.
      */
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     @Optional
     final DirectoryProperty certPath = project.layout.directoryProperty()
 
     /**
-     * The docker remote api version
+     * The Docker remote API version.
      */
     @Input
     @Optional
@@ -52,10 +51,41 @@ abstract class AbstractDockerRemoteApiTask extends AbstractReactiveStreamsTask {
     @Internal
     ThreadContextClassLoader threadContextClassLoader
 
-    @Override
-    void runReactiveStream() {
-        runInDockerClassPath { dockerClient ->
-            runRemoteCommand(dockerClient)
+    /**
+     * Closure to handle the possibly throw exception
+     */
+    @Internal
+    Closure onError
+
+    /**
+     * Closure to handle results
+     */
+    @Internal
+    Closure onNext
+
+    /**
+     * Closure to handle task completion
+     */
+    @Internal
+    Closure onComplete
+
+    @TaskAction
+    void start() {
+        boolean commandFailed = false
+        try {
+            runInDockerClassPath { dockerClient ->
+                runRemoteCommand(dockerClient)
+            }
+        } catch (Exception possibleException) {
+            commandFailed = true
+            if (onError) {
+                onError(possibleException)
+            } else {
+                throw possibleException
+            }
+        }
+        if(!commandFailed && onComplete) {
+            onComplete()
         }
     }
 
