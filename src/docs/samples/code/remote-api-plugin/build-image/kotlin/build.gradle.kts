@@ -5,17 +5,14 @@ plugins {
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
-val createDockerfile = tasks.creating(Dockerfile::class) {
+val createDockerfile by tasks.creating(Dockerfile::class) {
     destFile.set(file("build/mydockerfile/Dockerfile"))
     from("ubuntu:12.04")
     label(mapOf("maintainer" to "Benjamin Muschko 'benjamin.muschko@gmail.com'"))
 }
 
-val destFile = createDockerfile.getDestFile()
-val dockerfileDir = destFile.get().asFile.parentFile
-
 tasks.create("buildImage", DockerBuildImage::class) {
     dependsOn(createDockerfile)
-    inputDir.set(dockerfileDir)
+    inputDir.set(createDockerfile.getDestFile().get().asFile.parentFile)
     tag.set("bmuschko/myimage:latest")
 }

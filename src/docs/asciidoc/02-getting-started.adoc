@@ -9,49 +9,25 @@ See the https://docs.gradle.org/current/userguide/plugins.html[Gradle user guide
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:{project-version}'
-    }
-}
-
-apply plugin: 'com.bmuschko.docker-remote-api'
+include::{samplesCodeDir}/remote-api-plugin/apply-plugin-buildscript/groovy/build.gradle[]
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath("com.bmuschko:gradle-docker-plugin:{project-version}")
-    }
-}
-
-apply(plugin = "com.bmuschko.docker-remote-api")
+include::{samplesCodeDir}/remote-api-plugin/apply-plugin-buildscript/kotlin/build.gradle.kts[]
 ----
 
 ==== Applying the Plugin Using the Plugin DSL
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
-----
-plugins {
-    id 'com.bmuschko.docker-remote-api' version '{project-version}'
-}
+include::{samplesCodeDir}/remote-api-plugin/apply-plugin-dsl/groovy/build.gradle[]
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
-----
-plugins {
-    id("com.bmuschko.docker-remote-api") version "{project-version}"
-}
+include::{samplesCodeDir}/remote-api-plugin/apply-plugin-dsl/kotlin/build.gradle.kts[]
 ----
 
 ==== Applying the Plugin From a Script Plugin
@@ -61,22 +37,10 @@ Applying the plugin from a script plugin requires the use of the fully-qualified
 .gradle/docker.gradle
 [source,groovy,subs="+attributes"]
 ----
-buildscript {
-    repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:{project-version}'
-    }
-}
-
-apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+include::{samplesCodeDir}/remote-api-plugin/apply-plugin-from-script-plugin/groovy/gradle/docker.gradle[]
 ----
 
 .build.gradle
 [source,groovy,subs="+attributes"]
-----
-apply from: 'gradle/docker.gradle'
+include::{samplesCodeDir}/remote-api-plugin/apply-plugin-from-script-plugin/groovy/build.gradle[]
 ----

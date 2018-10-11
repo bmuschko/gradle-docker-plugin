@@ -14,31 +14,13 @@ The below example is a common use-case that arises when someone wants to remove 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-import com.bmuschko.gradle.docker.tasks.container.*
-
-task removeContainer(type: DockerRemoveContainer) {
-    targetContainerId 'container-that-does-not-exist'
-    onError { exception ->
-        // Ignore exception if container does not exist otherwise throw it
-        if (!exception.message.contains('No such container'))
-            throw exception
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-error]
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-import com.bmuschko.gradle.docker.tasks.container.*
-
-tasks.create("removeContainer", DockerRemoveContainer::class) {
-    targetContainerId("container-that-does-not-exist")
-    onError { exception ->
-        // Ignore exception if container does not exist otherwise throw it
-        if (!exception.message.contains("No such container"))
-            throw exception
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/kotlin/build.gradle.kts[tags=on-error]
 ----
 
 ==== Reacting to Data Returned by an Operation
@@ -55,31 +37,13 @@ The example below demonstrates how we iterate over each log message passing that
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-import com.bmuschko.gradle.docker.tasks.container.*
-
-task logContainer(type: DockerLogsContainer) {
-    targetContainerId 'container-that-does-exist'
-    follow = true
-    tailAll = true
-    onNext { message ->
-        // Each log message from the container will be passed as it's made available
-        logger.quiet message.toString()
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-next]
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-tasks.create("logContainer", DockerLogsContainer::class) {
-    targetContainerId("container-that-does-exist")
-    follow = true
-    tailAll = true
-    onNext { message ->
-        // Each log message from the container will be passed as it's made available
-        logger.quiet(message.toString())
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/kotlin/build.gradle.kts[tags=on-next]
 ----
 
 ==== Reacting to the Completion of an Operation
@@ -92,29 +56,11 @@ The below example demonstrates how this works.
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-import com.bmuschko.gradle.docker.tasks.container.*
-
-task removeContainer(type: DockerRemoveContainer) {
-    targetContainerId 'container-that-does-exist'
-    onComplete {
-        println 'Executes first'
-    }
-    doLast {
-        println 'Executes second'
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/groovy/build.gradle[tags=on-complete]
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-tasks.create("removeContainer", DockerRemoveContainer::class) {
-    targetContainerId("container-that-does-exist")
-    onComplete {
-        println("Executes first")
-    }
-    doLast {
-        println("Executes second")
-    }
-}
+include::{samplesCodeDir}/remote-api-plugin/reactive-streams/kotlin/build.gradle.kts[tags=on-complete]
 ----
