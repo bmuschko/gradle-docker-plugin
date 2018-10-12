@@ -5,10 +5,10 @@ The following properties can be configured:
 
 [options="header"]
 |=======
-|Property name   |Type        |Default value                                            |Description
-|`baseImage`     |`String`    |`openjdk:jre-alpine`                                     |The Docker base image used for the Spring Boot application.
-|`ports`         |`Integer[]` |`[8080]`                                                 |The Docker image exposed ports.
-|`tag`           |`String`    |`<project.group>/<project.name>:<project.version>`       |The tag used for the Docker image.
+|Property name   |Type                    |Default value                                      |Description
+|`baseImage`     |`Property<String>`      |`openjdk:jre-alpine`                               |The Docker base image used for the Spring Boot application.
+|`ports`         |`ListProperty<Integer>` |`[8080]`                                           |The Docker image exposed ports.
+|`tag`           |`Property<String>`      |`<project.group>/<project.name>:<project.version>` |The tag used for the Docker image.
 |=======
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
