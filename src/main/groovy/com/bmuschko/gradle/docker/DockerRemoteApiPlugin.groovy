@@ -20,7 +20,6 @@ import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.bmuschko.gradle.docker.utils.DockerThreadContextClassLoader
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import groovy.transform.CompileStatic
-import groovy.transform.TypeCheckingMode
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -79,14 +78,12 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
         })
     }
 
-    /**
-     * Must be compiled dynamic because {@link RegistryCredentialsAware} does not extend {@link org.gradle.api.Task}.
-     * https://github.com/gradle/gradle/issues/4050
-     */
-    @CompileStatic(TypeCheckingMode.SKIP)
     private void configureRegistryAwareTasks(Project project, DockerRegistryCredentials dockerRegistryCredentials) {
-        project.tasks.withType(RegistryCredentialsAware) {
-            registryCredentials = dockerRegistryCredentials
-        }
+        project.tasks.withType(RegistryCredentialsAware, new Action<RegistryCredentialsAware>() {
+            @Override
+            void execute(RegistryCredentialsAware registryCredentialsAware) {
+                registryCredentialsAware.setRegistryCredentials(dockerRegistryCredentials)
+            }
+        })
     }
 }
