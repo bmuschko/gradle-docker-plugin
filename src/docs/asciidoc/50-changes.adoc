@@ -9,6 +9,7 @@
 * __NEW__ Add tested, multi-lingual user guide - https://github.com/bmuschko/gradle-docker-plugin/pull/677[Pull Request 677]
 * Introduce method for translating username/password into a PasswordCredentials - https://github.com/bmuschko/gradle-docker-plugin/pull/668[Pull Request 668]
 * Add `@CompileStatic` to much of the code base that can support it - https://github.com/bmuschko/gradle-docker-plugin/pull/676[Pull Request 676]
+* Use appropriate types for Groovy/Kotlin DSL interoperability for reactive streams functionality - https://github.com/bmuschko/gradle-docker-plugin/pull/678[Pull Request 678]
 
 [discrete]
 === v3.6.2 (October 2, 2018)
