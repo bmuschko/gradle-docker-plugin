@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 
 class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -93,22 +94,24 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             task inspectStoppedContainer(type: DockerInspectContainer) {
                 dependsOn stopContainer
                 targetContainerId startContainer.getContainerId()
-
-                onError { err -> println 'RESULT: ' + err }
+                onError { err -> throw err }
+                doFirst {
+                    // Presumably removing a stopped container doesn't happen immediately  
+                    Thread.sleep(2000)
+                }
             }
         """
 
-        buildFile <<
-            containerStart(containerCreationTask) <<
-            containerStop() <<
-            containerInspect
+        buildFile << containerStart(containerCreationTask)
+        buildFile << containerStop()
+        buildFile << containerInspect
 
         when:
-        BuildResult result = build('inspectStoppedContainer')
+        BuildResult result = buildAndFail('inspectStoppedContainer')
 
         then:
-        result.output.contains(
-            'RESULT: com.github.dockerjava.api.exception.NotFoundException')
+        result.task(':inspectStoppedContainer').outcome == TaskOutcome.FAILED
+        result.output.contains('com.github.dockerjava.api.exception.NotFoundException')
     }
 
     def "without autoRemove set, the container still exists after stopping"() {
@@ -123,22 +126,19 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerInspect = """
             task inspectStoppedContainer(type: DockerInspectContainer) {
                 dependsOn stopContainer
+                finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
             }
         """
 
-        buildFile <<
-            containerStart(containerCreationTask) <<
-            containerStop() <<
-            containerInspect
+        buildFile << containerStart(containerCreationTask)
+        buildFile << containerStop()
+        buildFile << containerRemove()
+        buildFile << containerInspect
 
-        when:
+        expect:
         build('inspectStoppedContainer')
-
-        then:
-        notThrown(Exception)
     }
-
 
     static String containerStart(String containerCreationTask) {
         // Starts with the union of all needed imports.
@@ -168,11 +168,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
     static String containerLogAndRemove() {
         """
-            task removeContainer(type: DockerRemoveContainer) {
-                removeVolumes = true
-                force = true
-                targetContainerId startContainer.getContainerId()
-            }
+            ${containerRemove()}
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn startContainer
@@ -193,6 +189,16 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         """
             task stopContainer(type: DockerStopContainer) {
                 dependsOn startContainer
+                targetContainerId startContainer.getContainerId()
+            }
+        """
+    }
+
+    static String containerRemove() {
+        """
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
                 targetContainerId startContainer.getContainerId()
             }
         """
