@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.spockframework:spock-core:1.1-groovy-2.4") {
+    testImplementation("org.spockframework:spock-core:1.2-groovy-2.4") {
         exclude(group = "org.codehaus.groovy")
     }
 }
