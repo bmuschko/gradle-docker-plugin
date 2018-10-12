@@ -193,7 +193,7 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
      */
     @Input
     @Optional
-    final Property<Boolean> autoRemove= project.objects.property(Boolean)
+    final Property<Boolean> autoRemove = project.objects.property(Boolean)
 
     @Input
     @Optional
