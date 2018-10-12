@@ -13,12 +13,14 @@ task buildMyAppImage(type: DockerBuildImage) {
 task createDBContainer(type: DockerCreateContainer) {
     targetImageId 'postgres:latest'
     containerName = 'docker_auto'
+    autoRemove = true
 }
 
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage, createDBContainer
     targetImageId buildMyAppImage.getImageId()
     portBindings = ['8080:8080']
+    autoRemove = true
 
     // doFirst required! #319
     doFirst{
