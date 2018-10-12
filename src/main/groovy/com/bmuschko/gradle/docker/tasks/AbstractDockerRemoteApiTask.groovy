@@ -49,8 +49,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     final Property<String> apiVersion = project.objects.property(String)
 
-    @Internal
-    ThreadContextClassLoader threadContextClassLoader
+    protected ThreadContextClassLoader threadContextClassLoader
 
     private Action<? super Throwable> errorHandler
     protected Action<? super Object> nextHandler
@@ -74,11 +73,6 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         if(!commandFailed && completeHandler) {
             completeHandler.run()
         }
-    }
-
-    @CompileStatic(TypeCheckingMode.SKIP)
-    void runInDockerClassPath(Closure closure) {
-        threadContextClassLoader.withContext(createDockerClientConfig(), closure)
     }
 
     /**
@@ -109,6 +103,11 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      */
     void onComplete(Runnable callback) {
         completeHandler = callback
+    }
+
+    @CompileStatic(TypeCheckingMode.SKIP)
+    private void runInDockerClassPath(Closure closure) {
+        threadContextClassLoader.withContext(createDockerClientConfig(), closure)
     }
 
     private DockerClientConfiguration createDockerClientConfig() {
