@@ -90,7 +90,7 @@ class DockerExecContainer extends DockerExistingContainer {
     }
 
     void _runRemoteCommand(dockerClient) {
-        def execCallback = onNext ? threadContextClassLoader.createExecCallback(onNext) : threadContextClassLoader.createExecCallback(System.out, System.err)
+        def execCallback = nextHandler ? threadContextClassLoader.createExecCallback(nextHandler) : threadContextClassLoader.createExecCallback(System.out, System.err)
 
         List<String[]> localCommands = commands()
         for (int i = 0; i < localCommands.size(); i++) {

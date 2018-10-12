@@ -6,8 +6,8 @@ class DockerInspectNetwork extends DockerExistingNetwork {
         logger.quiet "Inspecting network '${networkId.get()}'."
         final network = dockerClient.inspectNetworkCmd().withNetworkId(networkId.get()).exec()
 
-        if (onNext) {
-            onNext.call(network)
+        if (nextHandler) {
+            nextHandler.execute(network)
         }
     }
 }

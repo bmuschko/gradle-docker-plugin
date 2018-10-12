@@ -60,7 +60,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
             pushImageCmd.withAuthConfig(authConfig)
         }
 
-        def response = pushImageCmd.exec(threadContextClassLoader.createPushImageResultCallback(onNext))
+        def response = pushImageCmd.exec(threadContextClassLoader.createPushImageResultCallback(nextHandler))
         response.awaitSuccess()
     }
 }

@@ -214,8 +214,8 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         final String localContainerName = containerName.getOrNull() ?: container.id
         logger.quiet "Created container with ID '$localContainerName'."
         containerId.set(container.id)
-        if(onNext) {
-            onNext.call(container)
+        if(nextHandler) {
+            nextHandler.execute(container)
         }
     }
 

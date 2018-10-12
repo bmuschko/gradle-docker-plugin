@@ -26,8 +26,8 @@ class DockerInspectImage extends DockerExistingImage {
         logger.quiet "Inspecting image for with ID '${imageId.get()}'."
         def image = dockerClient.inspectImageCmd(imageId.get()).exec()
 
-        if (onNext) {
-            onNext.call(image)
+        if (nextHandler) {
+            nextHandler.execute(image)
         }
     }
 
@@ -45,6 +45,6 @@ class DockerInspectImage extends DockerExistingImage {
             logger.quiet "Labels           : $image.config.labels"
         }
 
-        onNext = c
+        nextHandler = c
     }
 }

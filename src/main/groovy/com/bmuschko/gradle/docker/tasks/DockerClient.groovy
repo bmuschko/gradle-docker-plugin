@@ -22,8 +22,8 @@ class DockerClient extends AbstractDockerRemoteApiTask {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        if (onNext) {
-            onNext.call(dockerClient)
+        if (nextHandler) {
+            nextHandler.execute(dockerClient)
         } else {
             logger.quiet 'Execution amounts to a no-op if the onNext closure/reactive-stream is not defined.'
         }

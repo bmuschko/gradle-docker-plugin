@@ -49,9 +49,9 @@ class RemoteApiPluginDocumentationTest  extends AbstractDocumentationTest {
     }
 
     @Unroll
-    def "can react to events"() {
+    def "can react to events [#dsl.language]"() {
         given:
-        copySampleCode("remote-api-plugin/reactive-streams/groovy")
+        copySampleCode("remote-api-plugin/reactive-streams/$dsl.language")
 
         when:
         BuildResult result = build('tasks', '--all')
@@ -60,6 +60,9 @@ class RemoteApiPluginDocumentationTest  extends AbstractDocumentationTest {
         result.output.contains('removeContainer1')
         result.output.contains('removeContainer2')
         result.output.contains('logContainer')
+
+        where:
+        dsl << ALL_DSLS
     }
 
     @Unroll

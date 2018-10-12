@@ -94,7 +94,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn stopContainer
                 targetContainerId startContainer.getContainerId()
 
-                onError = { err -> println 'RESULT: ' + err }
+                onError { err -> println 'RESULT: ' + err }
             }
         """
 

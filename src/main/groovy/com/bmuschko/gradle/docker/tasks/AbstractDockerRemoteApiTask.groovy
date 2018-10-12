@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks
 import com.bmuschko.gradle.docker.utils.ThreadContextClassLoader
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -51,23 +52,9 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Internal
     ThreadContextClassLoader threadContextClassLoader
 
-    /**
-     * Closure to handle the possibly throw exception
-     */
-    @Internal
-    Closure onError
-
-    /**
-     * Closure to handle results
-     */
-    @Internal
-    Closure onNext
-
-    /**
-     * Closure to handle task completion
-     */
-    @Internal
-    Closure onComplete
+    private Action<? super Throwable> errorHandler
+    protected Action<? super Object> nextHandler
+    private Runnable completeHandler
 
     @TaskAction
     void start() {
@@ -78,20 +65,50 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
             }
         } catch (Exception possibleException) {
             commandFailed = true
-            if (onError) {
-                onError(possibleException)
+            if (errorHandler) {
+                errorHandler.execute(possibleException)
             } else {
                 throw possibleException
             }
         }
-        if(!commandFailed && onComplete) {
-            onComplete()
+        if(!commandFailed && completeHandler) {
+            completeHandler.run()
         }
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
     void runInDockerClassPath(Closure closure) {
         threadContextClassLoader.withContext(createDockerClientConfig(), closure)
+    }
+
+    /**
+     * Reacts to a potential error occurring during the operation.
+     *
+     * @param action The action handling the error
+     * @since 4.0.0
+     */
+    void onError(Action<? super Throwable> action) {
+        errorHandler = action
+    }
+
+    /**
+     * Reacts to data returned by an operation.
+     *
+     * @param action The action handling the data
+     * @since 4.0.0
+     */
+    void onNext(Action<? super Object> action) {
+        nextHandler = action
+    }
+
+    /**
+     * Reacts to the completion of the operation.
+     *
+     * @param callback The callback to be executed
+     * @since 4.0.0
+     */
+    void onComplete(Runnable callback) {
+        completeHandler = callback
     }
 
     private DockerClientConfiguration createDockerClientConfig() {

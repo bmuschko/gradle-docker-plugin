@@ -26,8 +26,8 @@ class DockerInspectContainer extends DockerExistingContainer {
         logger.quiet "Inspecting container with ID '${containerId.get()}'."
         def container = dockerClient.inspectContainerCmd(containerId.get()).exec()
 
-        if (onNext) {
-            onNext.call(container)
+        if (nextHandler) {
+            nextHandler.execute(container)
         }
     }
 
@@ -52,6 +52,6 @@ class DockerInspectContainer extends DockerExistingContainer {
             logger.quiet "Devices : $devices"
         }
 
-        onNext = c
+        nextHandler = c
     }
 }
