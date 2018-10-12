@@ -65,8 +65,8 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         try {
             tarStream = containerCommand.exec()
 
-            if(onNext) {
-                onNext.call(tarStream)
+            if(nextHandler) {
+                nextHandler.execute(tarStream)
             } else {
                 def hostDestination = new File(hostPath.get())
 

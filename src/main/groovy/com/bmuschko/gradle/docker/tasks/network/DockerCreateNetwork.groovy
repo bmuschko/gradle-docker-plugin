@@ -12,8 +12,8 @@ class DockerCreateNetwork extends AbstractDockerRemoteApiTask {
         logger.quiet "Creating network '${networkId.get()}'."
         final network = dockerClient.createNetworkCmd().withName(networkId.get()).exec()
 
-        if (onNext) {
-            onNext.call(network)
+        if (nextHandler) {
+            nextHandler.execute(network)
         }
     }
 }

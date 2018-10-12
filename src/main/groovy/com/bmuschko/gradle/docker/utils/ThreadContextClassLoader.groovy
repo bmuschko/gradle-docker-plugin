@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import org.gradle.api.Action
 
 interface ThreadContextClassLoader {
 
@@ -207,7 +208,7 @@ interface ThreadContextClassLoader {
      */
     def createBuildImageResultCallback()
 
-    def createBuildImageResultCallback(Closure onNext)
+    def createBuildImageResultCallback(Action<Object> nextHandler)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/PushImageResultCallback.java">PushImageResultCallback</a>
@@ -215,7 +216,7 @@ interface ThreadContextClassLoader {
      *
      * @return Callback instance
      */
-    def createPushImageResultCallback(Closure onNext)
+    def createPushImageResultCallback(Action<Object> nextHandler)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/PullImageResultCallback.java">PullImageResultCallback</a>
@@ -223,7 +224,7 @@ interface ThreadContextClassLoader {
      *
      * @return Callback instance
      */
-    def createPullImageResultCallback(Closure onNext)
+    def createPullImageResultCallback(Action<Object> nextHandler)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/LogContainerResultCallback.java">LogContainerResultCallback</a>
@@ -233,7 +234,7 @@ interface ThreadContextClassLoader {
      */
     def createLoggingCallback()
 
-    def createLoggingCallback(Closure onNext)
+    def createLoggingCallback(Action<Object> nextHandler)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/ExecStartResultCallback.java">ExecStartResultCallback</a>
@@ -245,7 +246,7 @@ interface ThreadContextClassLoader {
      */
     def createExecCallback(OutputStream out, OutputStream err)
 
-    def createExecCallback(Closure onNext)
+    def createExecCallback(Action<Object> nextHandler)
 
     /**
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/LogContainerResultCallback.java">LogContainerResultCallback</a>
@@ -260,5 +261,5 @@ interface ThreadContextClassLoader {
      * Creates the callback instance of <a href="https://github.com/docker-java/docker-java/blob/master/src/main/java/com/github/dockerjava/core/command/WaitContainerResultCallback.java">WaitContainerResultCallback</a> from thread context classloader.
      * @return Callback instance
      */
-    def createWaitContainerResultCallback(Closure onNext)
+    def createWaitContainerResultCallback(Action<Object> nextHandler)
 }

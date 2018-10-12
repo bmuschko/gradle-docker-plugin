@@ -22,8 +22,8 @@ class DockerInfo extends AbstractDockerRemoteApiTask {
         logger.quiet "Retrieving Docker info."
         def info = dockerClient.infoCmd().exec()
 
-        if (onNext) {
-            onNext.call(info)
+        if (nextHandler) {
+            nextHandler.execute(info)
         } else {
             logger.quiet "Debug                : $info.debug"
             logger.quiet "Containers           : $info.containers"

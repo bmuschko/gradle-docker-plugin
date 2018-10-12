@@ -64,8 +64,8 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
 
         def images = listImagesCmd.exec()
 
-        if (onNext) {
-            onNext.call(images)
+        if (nextHandler) {
+            nextHandler.execute(images)
         }
     }
 
@@ -80,6 +80,6 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
             }
         }
 
-        onNext = c
+        nextHandler = c
     }
 }

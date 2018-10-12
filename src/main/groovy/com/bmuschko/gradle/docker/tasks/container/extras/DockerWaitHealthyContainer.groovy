@@ -69,8 +69,8 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
             healthStatus = state.status
         }
 
-        if (onNext) {
-            onNext(healthStatus)
+        if (nextHandler) {
+            nextHandler.execute(healthStatus)
         }
         return healthStatus ==~ /(healthy|running)/
     }

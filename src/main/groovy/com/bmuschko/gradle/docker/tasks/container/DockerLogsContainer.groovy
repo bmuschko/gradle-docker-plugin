@@ -114,14 +114,14 @@ class DockerLogsContainer extends DockerExistingContainer {
     }
 
     private Object createCallback() {
-        if(sink && onNext) {
+        if(sink && nextHandler) {
             throw new GradleException("Define either sink or onNext")
         }
         if(sink) {
             return threadContextClassLoader.createLoggingCallback(sink)
         }
-        if(onNext) {
-            return threadContextClassLoader.createLoggingCallback(onNext)
+        if(nextHandler) {
+            return threadContextClassLoader.createLoggingCallback(nextHandler)
         }
 
         threadContextClassLoader.createLoggingCallback()

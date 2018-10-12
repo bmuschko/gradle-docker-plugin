@@ -193,7 +193,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd = buildImageCmd.withCacheFrom(doubleMarshalledCacheFrom)
         }
 
-        def callback = onNext ? threadContextClassLoader.createBuildImageResultCallback(this.onNext)
+        def callback = nextHandler ? threadContextClassLoader.createBuildImageResultCallback(nextHandler)
                               : threadContextClassLoader.createBuildImageResultCallback()
         String createdImageId = buildImageCmd.exec(callback).awaitImageId()
         imageId.set(createdImageId)

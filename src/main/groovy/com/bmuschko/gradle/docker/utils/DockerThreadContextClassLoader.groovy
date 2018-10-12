@@ -20,6 +20,7 @@ import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import groovy.transform.Memoized
+import org.gradle.api.Action
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -398,18 +399,18 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     @Override
-    def createBuildImageResultCallback(Closure onNext) {
-        createOnNextProxyCallback(onNext, createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
+    def createBuildImageResultCallback(Action<Object> nextHandler) {
+        createOnNextProxyCallback(nextHandler, createCallback("${COMMAND_PACKAGE}.BuildImageResultCallback"))
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    def createPushImageResultCallback(Closure onNext) {
+    def createPushImageResultCallback(Action<Object> nextHandler) {
         def defaultHandler = createCallback("${COMMAND_PACKAGE}.PushImageResultCallback")
-        if (onNext) {
-            return createOnNextProxyCallback(onNext, defaultHandler)
+        if (nextHandler) {
+            return createOnNextProxyCallback(nextHandler, defaultHandler)
         }
 
         defaultHandler
@@ -419,10 +420,10 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createPullImageResultCallback(Closure onNext) {
+    def createPullImageResultCallback(Action<Object> nextHandler) {
         def defaultHandler = createCallback("${COMMAND_PACKAGE}.PullImageResultCallback")
-        if (onNext) {
-            return createOnNextProxyCallback(onNext, defaultHandler)
+        if (nextHandler) {
+            return createOnNextProxyCallback(nextHandler, defaultHandler)
         }
 
         defaultHandler
@@ -472,8 +473,8 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     @Override
-    def createLoggingCallback(Closure onNext) {
-        createOnNextProxyCallback(onNext, createCallback("${COMMAND_PACKAGE}.LogContainerResultCallback"))
+    def createLoggingCallback(Action<Object> nextHandler) {
+        createOnNextProxyCallback(nextHandler, createCallback("${COMMAND_PACKAGE}.LogContainerResultCallback"))
     }
 /**
  * {@inheritDoc}
@@ -528,7 +529,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
     }
 
     @Override
-    def createExecCallback(Closure onNext) {
+    def createExecCallback(Action<Object> nextHandler) {
         def defaultHandler = createExecCallback(null, null)
 
         Class enhancerClass = loadClass(ENHANCER_CLASS)
@@ -538,7 +539,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             invoke: { Object proxy, Method method, Object[] args ->
                 try {
                     if (ON_NEXT_METHOD_NAME == method.name) {
-                        onNext.call(args[0])
+                        nextHandler.execute(args[0])
                     }
                 } catch (Exception e) {
                     LOGGER.error('Exception thrown inside enhancer callback when invoking method createExecCallback', e)
@@ -560,16 +561,16 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
      * {@inheritDoc}
      */
     @Override
-    def createWaitContainerResultCallback(Closure onNext) {
+    def createWaitContainerResultCallback(Action<Object> nextHandler) {
         def defaultHandler = createCallback("${COMMAND_PACKAGE}.WaitContainerResultCallback")
-        if (onNext) {
-            return createOnNextProxyCallback(onNext, defaultHandler)
+        if (nextHandler) {
+            return createOnNextProxyCallback(nextHandler, defaultHandler)
         }
 
         defaultHandler
     }
 
-    private createOnNextProxyCallback(Closure onNext, defaultHandler) {
+    private createOnNextProxyCallback(Action<Object> nextHandler, defaultHandler) {
 
         Class enhancerClass = loadClass(ENHANCER_CLASS)
         def enhancer = enhancerClass.getConstructor().newInstance()
@@ -578,7 +579,7 @@ class DockerThreadContextClassLoader implements ThreadContextClassLoader {
             invoke: { Object proxy, Method method, Object[] args ->
                 try {
                     if (ON_NEXT_METHOD_NAME == method.name) {
-                        onNext.call(args[0])
+                        nextHandler.execute(args[0])
                     }
                 } catch (Exception e) {
                     LOGGER.error('Exception thrown inside enhancer callback when invoking method createOnNextProxyCallback', e)
