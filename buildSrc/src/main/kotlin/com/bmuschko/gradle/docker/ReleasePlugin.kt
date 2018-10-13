@@ -3,6 +3,7 @@ package com.bmuschko.gradle.docker
 import org.ajoberstar.gradle.git.base.GrgitPlugin
 import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
+import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.base.TagStrategy
 import org.ajoberstar.gradle.git.release.opinion.Strategies
 import org.gradle.api.Plugin
@@ -30,7 +31,7 @@ class ReleasePlugin : Plugin<Project> {
             versionStrategy(Strategies.getFINAL())
             defaultVersionStrategy = Strategies.getSNAPSHOT()
             tagStrategy(delegateClosureOf<TagStrategy> {
-                generateMessage = closureOf<String> {
+                generateMessage = closureOf<ReleaseVersion> {
                     "Version ${project.version}"
                 }
             })
