@@ -50,8 +50,8 @@ class DocumentationPlugin : Plugin<Project> {
             branch = "gh-pages"
 
             contents {
-                into("api") {
-                    from(groovydoc.outputs.files)
+                from(groovydoc) {
+                    into("api")
                 }
                 from("${asciidoctor.outputDir}/html5")
             }
@@ -62,6 +62,6 @@ class DocumentationPlugin : Plugin<Project> {
     fun Project.configureTaskDependencies() {
         val groovydoc: Groovydoc by tasks.getting
         val asciidoctor: AsciidoctorTask by tasks.getting
-        tasks["gitPublishPush"].dependsOn(groovydoc, asciidoctor)
+        tasks["gitPublishCopy"].dependsOn(groovydoc, asciidoctor)
     }
 }
