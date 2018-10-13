@@ -1,7 +1,7 @@
 package com.bmuschko.gradle.docker
 
 import org.ajoberstar.gradle.git.base.GrgitPlugin
-import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
+import org.ajoberstar.gradle.git.release.opinion.OpinionReleasePlugin
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.gradle.git.release.base.TagStrategy
@@ -21,7 +21,7 @@ class ReleasePlugin : Plugin<Project> {
 
     private
     fun Project.applyGrgitPlugin() {
-        apply<BaseReleasePlugin>()
+        apply<OpinionReleasePlugin>()
         apply<GrgitPlugin>()
     }
 
