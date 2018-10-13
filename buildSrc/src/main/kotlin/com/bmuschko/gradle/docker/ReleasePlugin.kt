@@ -8,6 +8,7 @@ import org.ajoberstar.gradle.git.release.opinion.Strategies
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.delegateClosureOf
 
@@ -29,7 +30,7 @@ class ReleasePlugin : Plugin<Project> {
             versionStrategy(Strategies.getFINAL())
             defaultVersionStrategy = Strategies.getSNAPSHOT()
             tagStrategy(delegateClosureOf<TagStrategy> {
-                generateMessage = delegateClosureOf<String> {
+                generateMessage = closureOf<String> {
                     "Version ${project.version}"
                 }
             })
