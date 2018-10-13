@@ -103,7 +103,7 @@ class PublishingPlugin : Plugin<Project> {
                 githubRepo = "bmuschko/${project.name}"
 
                 version(closureOf<BintrayExtension.VersionConfig> {
-                    released = SimpleDateFormat("MM/dd/yyyy").format(Date())
+                    released = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(Date())
                     vcsTag = "v$project.version"
                     setAttributes(mapOf("gradle-plugin" to listOf("com.bmuschko.docker-remote-api:${project.group}:${project.name}",
                             "com.bmuschko.docker-java-application:${project.group}:${project.name}",
