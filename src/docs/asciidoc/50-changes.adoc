@@ -1,7 +1,10 @@
 == Change Log
 
 [discrete]
-=== v4.0.0 (TBA)
+=== v4.0.1 (TBA)
+
+[discrete]
+=== v4.0.0 (October 12, 2018)
 
 * **Breaking Change!** Use `Provider` concept throughout to support lazy evaluation via public API - https://github.com/bmuschko/gradle-docker-plugin/pull/659[Pull Request 659]
 * **Breaking Change!** Consumers of this plugin will have to use Java 8 or higher - https://github.com/bmuschko/gradle-docker-plugin/pull/676[Pull Request 676]
