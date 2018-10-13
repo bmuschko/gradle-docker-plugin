@@ -15,6 +15,7 @@ class DocumentationPlugin : Plugin<Project> {
         applyGitPublishPlugin()
         addLinks()
         configureGitPublishExtension()
+        configureTaskDependencies()
     }
 
     private
@@ -55,5 +56,12 @@ class DocumentationPlugin : Plugin<Project> {
                 from("${asciidoctor.outputDir}/html5")
             }
         }
+    }
+
+    private
+    fun Project.configureTaskDependencies() {
+        val groovydoc: Groovydoc by tasks.getting
+        val asciidoctor: AsciidoctorTask by tasks.getting
+        tasks["gitPublishPush"].dependsOn(groovydoc, asciidoctor)
     }
 }
