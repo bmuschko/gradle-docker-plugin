@@ -8,11 +8,11 @@ The release process uses some external libraries and services described in detai
 
 ===== gradle-git
 
-The https://github.com/ajoberstar/gradle-git[gradle-git] plugin is used to automatically determine the project version. `org.ajoberstar.release-opinion` is applied in the main https://github.com/bmuschko/gradle-docker-plugin/blob/master/build.gradle#L14[build.gradle] and configured in https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/release.gradle#L15[gradle/release.gradle]. Please refer to the plugin https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins#how-do-i-use-the-opinion-plugin[documentation] for more details.
+The https://github.com/ajoberstar/gradle-git[gradle-git] plugin is used to automatically determine the project version. `org.ajoberstar.release-opinion` is applied in the main https://github.com/bmuschko/gradle-docker-plugin/blob/master/build.gradle#L14[build.gradle] and configured in https://github.com/bmuschko/gradle-docker-plugin/blob/master/buildSrc/src/main/kotlin/com/bmuschko/gradle/docker/ReleasePlugin.kt[ReleasePlugin.kt]. Please refer to the plugin https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins#how-do-i-use-the-opinion-plugin[documentation] for more details.
 
 ===== gradle-git-publish
 
-The https://github.com/ajoberstar/gradle-git-publish[gradle-git-publish] Gradle plugin is used to publish the documentation to `gh-pages` branch. It is applied and configured in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/documentation.gradle[gradle/documentation.gradle] file.
+The https://github.com/ajoberstar/gradle-git-publish[gradle-git-publish] Gradle plugin is used to publish the documentation to `gh-pages` branch. It is applied and configured in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/buildSrc/src/main/kotlin/com/bmuschko/gradle/docker/DocumentationPlugin.kt[DocumentationPlugin.kt] file.
 
 ===== Travis CI
 
@@ -20,7 +20,7 @@ https://travis-ci.com[Travis CI] service is used as our current https://en.wikip
 
 ===== Bintray's JCenter
 
-https://bintray.com[Bintray's JCenter] service is used to publish plugin versions. The https://github.com/bintray/gradle-bintray-plugin[Bintray plugin] uploads artifacts to a remote repository. The plugin configuration can be found in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/gradle/publishing.gradle[gradle/publishing.gradle] file.
+https://bintray.com[Bintray's JCenter] service is used to publish plugin versions. The https://github.com/bintray/gradle-bintray-plugin[Bintray plugin] uploads artifacts to a remote repository. The plugin configuration can be found in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/buildSrc/src/main/kotlin/com/bmuschko/gradle/docker/PublishingPlugin.kt[PublishingPlugin.kt] file.
 
 ==== Workflow
 
