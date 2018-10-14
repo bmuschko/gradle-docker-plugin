@@ -2,6 +2,7 @@
 :uri-bmuschko-blog: https://bmuschko.com/blog
 :uri-ghpages: https://bmuschko.github.io/gradle-docker-plugin
 :uri-github: https://github.com/bmuschko/gradle-docker-plugin
+:uri-gradle-docs: https://docs.gradle.org/current
 
 include::00-intro.adoc[]
 
