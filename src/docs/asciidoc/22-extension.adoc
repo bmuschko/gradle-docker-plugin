@@ -25,7 +25,7 @@ include::{samplesCodeDir}/application-plugin/basic/kotlin/build.gradle.kts[tags=
 
 ==== Adding custom instructions to Dockerfile
 
-The `exec` extension property accepts a Closure or Provider which delegates to the http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/DockerJavaApplication.CompositeExecInstruction.html[DockerJavaApplication.CompositeExecInstruction] subset of the http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
+The `exec` extension property accepts a Closure or Provider which delegates to the {uri-ghpages}/api/com/bmuschko/gradle/docker/DockerJavaApplication.CompositeExecInstruction.html[DockerJavaApplication.CompositeExecInstruction] subset of the {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
 It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate location in the Dockerfile.
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]

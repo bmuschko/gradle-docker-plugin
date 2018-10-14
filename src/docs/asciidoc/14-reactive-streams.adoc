@@ -3,7 +3,7 @@
 As needed, we will implement reactive methods as described in https://github.com/reactive-streams/reactive-streams-jvm[reactive-streams].
 We implement these here as optional closures for all tasks.
 Currently the only supported methods are `onError`, `onNext`, `onComplete`.
-Various examples on how to use these can be found in our https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests].
+Various examples on how to use these can be found in our {uri-github}/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerReactiveMethodsFunctionalTest.groovy[reactive tests].
 
 ==== Reacting to an Error
 

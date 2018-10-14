@@ -6,9 +6,9 @@ It contains the following plugins:
 [options="header"]
 |=======
 |Plugin Id                            |Automatically applies          |Type                                                                                                                                                        |Description
-|`com.bmuschko.docker-remote-api`       |-                              |http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/DockerRemoteApiPlugin.html[DockerRemoteApiPlugin]             |Provides custom tasks for interacting with Docker via its remote API.
-|`com.bmuschko.docker-java-application` |`com.bmuschko.docker-remote-api` |http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/DockerJavaApplicationPlugin.html[DockerJavaApplicationPlugin] |Creates and pushes a Docker image for a Java application.
-|`com.bmuschko.docker-spring-boot-application` |`com.bmuschko.docker-remote-api` |http://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/DockerSpringBootApplicationPlugin.html[DockerSpringBootApplicationPlugin] |Creates and pushes a Docker image for a Spring Boot application.
+|`com.bmuschko.docker-remote-api`       |-                              |{uri-ghpages}/api/com/bmuschko/gradle/docker/DockerRemoteApiPlugin.html[DockerRemoteApiPlugin]             |Provides custom tasks for interacting with Docker via its remote API.
+|`com.bmuschko.docker-java-application` |`com.bmuschko.docker-remote-api` |{uri-ghpages}/api/com/bmuschko/gradle/docker/DockerJavaApplicationPlugin.html[DockerJavaApplicationPlugin] |Creates and pushes a Docker image for a Java application.
+|`com.bmuschko.docker-spring-boot-application` |`com.bmuschko.docker-remote-api` |{uri-ghpages}/api/com/bmuschko/gradle/docker/DockerSpringBootApplicationPlugin.html[DockerSpringBootApplicationPlugin] |Creates and pushes a Docker image for a Spring Boot application.
 |=======
 
 Which plugin you chose in your project entirely depends on the use case you want to fulfill. Refer to the relevant portions of the user guide that describe the purpose and usage of each plugin in more detail.

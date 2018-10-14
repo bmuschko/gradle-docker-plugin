@@ -1,5 +1,7 @@
 = Gradle Docker Plugin User Guide & Examples
-:revnumber: {project-version}
+:uri-bmuschko-blog: https://bmuschko.com/blog
+:uri-ghpages: https://bmuschko.github.io/gradle-docker-plugin
+:uri-github: https://github.com/bmuschko/gradle-docker-plugin
 
 include::00-intro.adoc[]
 

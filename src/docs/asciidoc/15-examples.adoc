@@ -1,7 +1,7 @@
 === Examples
 
 The following usage examples demonstrate code for common use cases.
-More scenarios can be found in the https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy[functional tests].
+More scenarios can be found in the {uri-github}/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy[functional tests].
 
 ==== Creating a Dockerfile And Building an Image
 

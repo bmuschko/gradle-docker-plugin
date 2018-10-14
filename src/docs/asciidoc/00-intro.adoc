@@ -33,10 +33,10 @@ The https://github.com/avast/gradle-docker-compose-plugin[Avast Docker Compose p
 
 Want to learn more about using this plugin in different contexts? The following blog posts should get you started.
 
-* https://bmuschko.com/blog/dockerized-spring-boot-app/[Docker with Gradle: Dockerizing a Spring Boot application]
-* https://bmuschko.com/blog/docker-integration-testing/[Docker with Gradle: Integration testing using containers]
-* https://bmuschko.com/blog/gradle-docker-convention-plugin/[Docker with Gradle: Writing a Node.js convention plugin]
-* https://bmuschko.com/blog/gradle-docker-compose/[Docker with Gradle: Getting started with Docker Compose]
+* {uri-bmuschko-blog}/dockerized-spring-boot-app/[Docker with Gradle: Dockerizing a Spring Boot application]
+* {uri-bmuschko-blog}/docker-integration-testing/[Docker with Gradle: Integration testing using containers]
+* {uri-bmuschko-blog}/gradle-docker-convention-plugin/[Docker with Gradle: Writing a Node.js convention plugin]
+* {uri-bmuschko-blog}/gradle-docker-compose/[Docker with Gradle: Getting started with Docker Compose]
 
 include::01-provided-plugins.adoc[]
 

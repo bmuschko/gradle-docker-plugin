@@ -11,7 +11,7 @@ The following properties can be configured:
 |`apiVersion`       |`Property<String>`            |`null`                     |The remote API version. For most cases this can be left null.
 |=======
 
-The default value is now generated based on a best guess attempt given the https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[operating system and environment]:
+The default value is now generated based on a best guess attempt given the {uri-github}/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[operating system and environment]:
 
 [options="header"]
 |=======
