@@ -10,6 +10,7 @@
 * **Breaking Change!** Consumers of this plugin will have to use Java 8 or higher - https://github.com/bmuschko/gradle-docker-plugin/pull/676[Pull Request 676]
 * **Breaking Change!** Removal of `AbstractReactiveStreamsTask` from inherited custom task hierarchy
 * __NEW__ Add tested, multi-lingual user guide - https://github.com/bmuschko/gradle-docker-plugin/pull/677[Pull Request 677]
+* __NEW__ Make `DockerBuildImage` task incremental and cacheable - https://github.com/bmuschko/gradle-docker-plugin/pull/672[Pull Request 672]
 * Introduce method for translating username/password into a PasswordCredentials - https://github.com/bmuschko/gradle-docker-plugin/pull/668[Pull Request 668]
 * Add `@CompileStatic` to much of the code base that can support it - https://github.com/bmuschko/gradle-docker-plugin/pull/676[Pull Request 676]
 * Use appropriate types for Groovy/Kotlin DSL interoperability for reactive streams functionality - https://github.com/bmuschko/gradle-docker-plugin/pull/678[Pull Request 678]
