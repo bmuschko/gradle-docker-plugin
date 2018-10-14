@@ -6,7 +6,7 @@ The plugin provides a set of tasks for your project and preconfigures them with 
 |=======
 |Task name                 |Depends On                |Type                                                                                 |Description
 |`dockerCopyDistResources` |`distTar`                 |http://www.gradle.org/docs/current/javadoc/org/gradle/api/tasks/Sync.html[Sync]      |Copies the resource files (like the Java application's TAR file) to a temporary directory for image creation.
-|`dockerDistTar`           |`dockerCopyDistResources` |Dockerfile                                                                           |Creates the Docker image for the Java application.
-|`dockerBuildImage`        |`dockerDistTar`           |DockerBuildImage                                                                     |Builds the Docker image for the Java application.
-|`dockerPushImage`         |`dockerBuildImage`        |DockerPushImage                                                                      |Pushes created Docker image to the repository.
+|`dockerDistTar`           |`dockerCopyDistResources` |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile] |Creates the Docker image for the Java application.
+|`dockerBuildImage`        |`dockerDistTar`           |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html[DockerBuildImage] |Builds the Docker image for the Java application.
+|`dockerPushImage`         |`dockerBuildImage`        |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/DockerPushImage.html[DockerPushImage] |Pushes created Docker image to the repository.
 |=======
