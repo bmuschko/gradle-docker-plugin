@@ -1,6 +1,9 @@
 == Change Log
 
 [discrete]
+=== v4.0.2 (TBA)
+
+[discrete]
 === v4.0.1 (October 20, 2018)
 
 * Returned image ID for a `DockerBuildImage` task should never be null - {uri-github}/pull/687[Pull Request 687]
