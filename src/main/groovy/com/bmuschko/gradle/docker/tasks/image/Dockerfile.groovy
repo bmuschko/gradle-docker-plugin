@@ -66,17 +66,17 @@ class Dockerfile extends DefaultTask {
         List<Instruction> allInstructions = instructions.get().collect()
 
         // Comments are not relevant for validating instruction order
-        allInstructions.removeAll { it.text?.startsWith('#') }
+        allInstructions.removeAll { it.text?.startsWith(CommentInstruction.KEYWORD) }
 
         if (allInstructions.empty) {
             throw new IllegalStateException('Please specify instructions for your Dockerfile')
         }
 
-        def fromPos = allInstructions.findIndexOf { it.keyword == 'FROM' }
-        def othersPos = allInstructions.findIndexOf { it.keyword != 'ARG' && it.keyword != 'FROM' }
+        def fromPos = allInstructions.findIndexOf { it.keyword == FromInstruction.KEYWORD }
+        def othersPos = allInstructions.findIndexOf { it.keyword != ArgInstruction.KEYWORD && it.keyword != FromInstruction.KEYWORD }
 
         if (fromPos < 0 || (othersPos >= 0 && fromPos > othersPos)) {
-            throw new IllegalStateException('The first instruction of a Dockerfile has to be FROM (or ARG for Docker later than 17.05)')
+            throw new IllegalStateException("The first instruction of a Dockerfile has to be $FromInstruction.KEYWORD (or $ArgInstruction.KEYWORD for Docker later than 17.05)")
         }
     }
 
@@ -1007,6 +1007,7 @@ class Dockerfile extends DefaultTask {
     }
 
     static class FromInstruction implements Instruction {
+        public static final String KEYWORD = 'FROM'
         private final String image
         private final String stageName
         private final Provider<From> provider
@@ -1022,7 +1023,7 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getKeyword() {
-            "FROM"
+            KEYWORD
         }
 
         @Override
@@ -1046,6 +1047,8 @@ class Dockerfile extends DefaultTask {
     }
 
     static class ArgInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = 'ARG'
+
         ArgInstruction(String arg) {
             super(arg)
         }
@@ -1056,7 +1059,7 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getKeyword() {
-            "ARG"
+            KEYWORD
         }
     }
 
@@ -1257,6 +1260,26 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             "LABEL"
+        }
+    }
+
+    /**
+     * @since 4.0.1
+     */
+    static class CommentInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = '#'
+
+        CommentInstruction(String command) {
+            super(command)
+        }
+
+        CommentInstruction(Provider<String> commandProvider) {
+            super(commandProvider)
+        }
+
+        @Override
+        String getKeyword() {
+            KEYWORD
         }
     }
 
