@@ -3,7 +3,7 @@
 [discrete]
 === v4.0.1 (TBA)
 
-* Returned image ID for a DockerBuildImage task should never be null - {uri-github}/pull/687[Pull Request 687]
+* Returned image ID for a `DockerBuildImage` task should never be null - {uri-github}/pull/687[Pull Request 687]
 
 [discrete]
 === v4.0.0 (October 12, 2018)
