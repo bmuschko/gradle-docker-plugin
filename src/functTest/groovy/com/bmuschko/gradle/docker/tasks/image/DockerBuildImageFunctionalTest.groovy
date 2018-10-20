@@ -124,10 +124,18 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
     def "task can be up-to-date"() {
         given:
         buildFile << imageCreation()
+        buildFile << """
+            task verifyImageId {
+                dependsOn buildImage
+                doLast {
+                    assert buildImage.imageId.isPresent()
+                }
+            }
+        """
         File imageIdFile = new File(projectDir, 'build/.docker/:buildImage-imageId.txt')
 
         when:
-        BuildResult result = build('buildImage')
+        BuildResult result = build('verifyImageId')
 
         then:
         result.task(':buildImage').outcome == TaskOutcome.SUCCESS
@@ -136,16 +144,26 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         imageIdFile.text != ""
 
         when:
-        result = build('buildImage')
+        result = build('verifyImageId')
 
         then:
         result.task(':buildImage').outcome == TaskOutcome.UP_TO_DATE
         !result.output.contains("Created image with ID")
         imageIdFile.isFile()
         imageIdFile.text != ""
+
+        when:
+        imageIdFile.delete()
+        result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
     }
 
-    private String buildImageWithShmSize() {
+    private static String buildImageWithShmSize() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
@@ -162,7 +180,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
     }
 
-    private String imageCreation() {
+    private static String imageCreation() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
@@ -178,7 +196,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
     }
 
-    private String imageCreationWithBuildArgs() {
+    private static String imageCreationWithBuildArgs() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
@@ -206,7 +224,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
     }
 
-    private String imageCreationWithLabelParameter() {
+    private static String imageCreationWithLabelParameter() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
@@ -229,7 +247,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
     }
 
-    private String buildImageWithTags() {
+    private static String buildImageWithTags() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
@@ -254,7 +272,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
     }
 
-    private String buildImageUsingCacheFromWithNothingInCache() {
+    private static String buildImageUsingCacheFromWithNothingInCache() {
         def uniqueImageId = createUniqueImageId()
         def uniqueTag = "${TestConfiguration.dockerPrivateRegistryDomain}/$uniqueImageId"
         """
@@ -277,7 +295,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
     }
 
-    private String buildPushRemovePullBuildImage(boolean useCacheFrom) {
+    private static String buildPushRemovePullBuildImage(boolean useCacheFrom) {
         def uniqueImageId = createUniqueImageId()
         def uniqueTag = "${TestConfiguration.dockerPrivateRegistryDomain}/$uniqueImageId"
         """
@@ -327,7 +345,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
     }
 
-    private String buildImageWithHostNetwork() {
+    private static String buildImageWithHostNetwork() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage

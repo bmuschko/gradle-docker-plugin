@@ -121,7 +121,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     DockerBuildImage() {
         inputDir.set(project.file('docker'))
-        imageIdFile.set(new File(project.buildDir, ".docker/${path}-imageId.txt"))
+        File imageIdTextFile = new File(project.buildDir, ".docker/${path}-imageId.txt")
+        imageIdFile.set(imageIdTextFile)
+
+        if (imageIdTextFile.isFile()) {
+            imageId.set(imageIdTextFile.text)
+        }
     }
 
     @Override
