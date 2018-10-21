@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -70,16 +71,19 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
     }
 
     private void defaultResponseHandling() {
-        Closure<List> c = { images ->
-            for(image in images) {
-                logger.quiet "Repository Tags : ${image.repoTags?.join(', ')}"
-                logger.quiet "Image ID        : $image.id"
-                logger.quiet "Created         : ${new Date(image.created * 1000)}"
-                logger.quiet "Virtual Size    : $image.virtualSize"
-                logger.quiet "-----------------------------------------------"
+        Action<List> action = new Action<List>() {
+            @Override
+            void execute(List images) {
+                for(image in images) {
+                    logger.quiet "Repository Tags : ${image.repoTags?.join(', ')}"
+                    logger.quiet "Image ID        : $image.id"
+                    logger.quiet "Created         : ${new Date(image.created * 1000)}"
+                    logger.quiet "Virtual Size    : $image.virtualSize"
+                    logger.quiet "-----------------------------------------------"
+                }
             }
         }
 
-        nextHandler = c
+        nextHandler = action
     }
 }

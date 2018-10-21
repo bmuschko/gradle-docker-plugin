@@ -5,37 +5,24 @@ import org.gradle.testkit.runner.BuildResult
 
 class DockerListImagesFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
-    final String ImageId = createUniqueImageId()
+    private static final String IMAGE_ID = createUniqueImageId()
 
     def setup() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
-            task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
-            }
-
-            task buildImage(type: DockerBuildImage) {
-                dependsOn dockerfile
-                inputDir = file("build/docker")
-                tag = "${ImageId}"
-                labels = ["setup":"${ImageId}"]
-            }
-        """
-
-        when:
-        BuildResult result = build('buildImage')
-
-        then:
-        result.output.contains("Created image with ID")
+        buildFile << listImages()
     }
 
-    def "Can list images with default property values"() {
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerListImages
+    def "can list images with default next handler"() {
+        when:
+        BuildResult result = build('listImages')
 
-            task listImages(type: DockerListImages) {
+        then:
+        result.output.contains("Repository Tags : ${IMAGE_ID}:latest")
+    }
+
+    def "can list images with default property values"() {
+        given:
+        buildFile << """
+            listImages {
                 onNext { images ->
                     if (!images) {
                         throw new GradleException("should find the image from setup")
@@ -44,68 +31,54 @@ class DockerListImagesFunctionalTest extends AbstractGroovyDslFunctionalTest {
             }
         """
 
-        when:
+        expect:
         build('listImages')
-
-        then:
-        noExceptionThrown()
     }
 
-    def "Can list images with labels filter"() {
+    def "can list images with labels filter"() {
+        given:
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerListImages
-
-            String imageId = "${ImageId}"
-
-            task listImages(type: DockerListImages) {
+            listImages {
                 showAll = true
-                labels = ["setup":"\$imageId"]
+                labels = ["setup":"$IMAGE_ID"]
 
                 onNext { images ->
-                    if(!images.every { image -> image.repoTags.contains("${ImageId}:latest") }) {
+                    if(!images.every { image -> image.repoTags.contains("${IMAGE_ID}:latest") }) {
                         throw new GradleException("should only find the image from setup")
                     }
                 }
             }
         """
 
-        when:
+        expect:
         build('listImages')
-
-        then:
-        noExceptionThrown()
     }
 
-    def "Can list images with image name filter"() {
+    def "can list images with image name filter"() {
+        given:
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerListImages
-
-            task listImages(type: DockerListImages) {
+            listImages {
                 showAll = true
-                imageName = "${ImageId}"
+                imageName = "${IMAGE_ID}"
 
                 onNext { images ->
-                    if(!images.every { image -> image.repoTags.contains("${ImageId}:latest") }) {
+                    if(!images.every { image -> image.repoTags.contains("${IMAGE_ID}:latest") }) {
                         throw new GradleException("should only find the image from setup")
                     }
                 }
             }
         """
 
-        when:
+        expect:
         build('listImages')
-
-        then:
-        noExceptionThrown()
     }
 
     def "can list images and handle empty result"() {
+        given:
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.image.DockerListImages
-
-            task listImages(type: DockerListImages) {
+            listImages {
                 showAll = true
-                imageName = "${ImageId}:blah"
+                imageName = "${IMAGE_ID}:blah"
 
                 onNext { images ->
                     if (images) {
@@ -115,10 +88,36 @@ class DockerListImagesFunctionalTest extends AbstractGroovyDslFunctionalTest {
             }
         """
 
-        when:
+        expect:
         build('listImages')
+    }
 
-        then:
-        noExceptionThrown()
+    private static String listImages() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerListImages
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                inputDir = file("build/docker")
+                tag = "${IMAGE_ID}"
+                labels = ["setup":"${IMAGE_ID}"]
+            }
+            
+            task removeImage(type: DockerRemoveImage) {
+                targetImageId buildImage.imageId
+            }
+            
+            task listImages(type: DockerListImages) {
+                dependsOn buildImage
+                finalizedBy removeImage
+            }
+        """
     }
 }
