@@ -132,7 +132,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 }
             }
         """
-        File imageIdFile = new File(projectDir, 'build/.docker/:buildImage-imageId.txt')
+        File imageIdFile = new File(projectDir, 'build/.docker/buildImage-imageId.txt')
 
         when:
         BuildResult result = build('verifyImageId')

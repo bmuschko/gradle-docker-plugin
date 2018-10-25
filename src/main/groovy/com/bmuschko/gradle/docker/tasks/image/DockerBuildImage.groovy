@@ -108,7 +108,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     DockerRegistryCredentials registryCredentials
 
     /**
-     * Output file containing the image ID of the built image. Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
+     * Output file containing the image ID of the built image. Defaults to "$buildDir/.docker/$taskpath-imageId.txt"
+     * with the leading colon of taskpath stripped and remaining colons replaced with underscores.
      *
      * @since 4.0.0
      */
@@ -121,7 +122,9 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     DockerBuildImage() {
         inputDir.set(project.file('docker'))
-        File imageIdTextFile = new File(project.buildDir, ".docker/${path}-imageId.txt")
+
+        String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
+        File imageIdTextFile = new File(project.buildDir, ".docker/${safeTaskPath}-imageId.txt")
         imageIdFile.set(imageIdTextFile)
 
         if (imageIdTextFile.isFile()) {
