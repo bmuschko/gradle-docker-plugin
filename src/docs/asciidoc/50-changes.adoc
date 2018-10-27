@@ -1,7 +1,9 @@
 == Change Log
 
 [discrete]
-=== v4.0.2 (TBA)
+=== v4.0.2 (October 27, 2018)
+
+* Output file name containing the image ID created by `DockerBuildImage` should work on Windows - {uri-github}/pull/690[Pull Request 690]
 
 [discrete]
 === v4.0.1 (October 20, 2018)
