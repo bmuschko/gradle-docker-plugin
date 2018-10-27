@@ -10,7 +10,7 @@ repositories {
 dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation("org.asciidoctor:asciidoctorj:1.6.0-alpha.7")
-    implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.3")
+    implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.1")
     implementation("org.ajoberstar:grgit:1.9.1") {
         setForce(true)
     }
