@@ -138,7 +138,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         def buildImageCmd
 
         if (dockerFile.getOrNull()) {
-            logger.quiet "Using Dockerfile '${dockerFile.get()}'"
+            logger.quiet "Using Dockerfile '${dockerFile.get().asFile}'"
             buildImageCmd = dockerClient.buildImageCmd()
                     .withBaseDirectory(inputDir.get().asFile)
                     .withDockerfile(dockerFile.get().asFile)
