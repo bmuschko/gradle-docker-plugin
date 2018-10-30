@@ -84,6 +84,8 @@ class PublishingPlugin : Plugin<Project> {
 
     private
     fun Project.configureBintrayExtension() {
+        val packageName = "com.bmuschko:gradle-docker-plugin"
+
         configure<BintrayExtension> {
             user = resolveProperty("BINTRAY_USER", "bintrayUser")
             key = resolveProperty("BINTRAY_KEY", "bintrayKey")
@@ -92,7 +94,7 @@ class PublishingPlugin : Plugin<Project> {
 
             pkg(closureOf<BintrayExtension.PackageConfig> {
                 repo = "gradle-plugins"
-                name = "com.bmuschko:gradle-docker-plugin"
+                name = packageName
                 desc = "Gradle plugin for managing Docker images and containers."
                 websiteUrl = "https://github.com/bmuschko/${project.name}"
                 issueTrackerUrl = "https://github.com/bmuschko/${project.name}/issues"
@@ -105,9 +107,9 @@ class PublishingPlugin : Plugin<Project> {
                 version(closureOf<BintrayExtension.VersionConfig> {
                     released = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(Date())
                     vcsTag = "v$project.version"
-                    setAttributes(mapOf("gradle-plugin" to listOf("com.bmuschko.docker-remote-api:${project.group}:${project.name}",
-                            "com.bmuschko.docker-java-application:${project.group}:${project.name}",
-                            "com.bmuschko.docker-spring-boot-application:${project.group}:${project.name}")))
+                    setAttributes(mapOf("gradle-plugin" to listOf("com.bmuschko.docker-remote-api:${packageName}",
+                            "com.bmuschko.docker-java-application:${packageName}",
+                            "com.bmuschko.docker-spring-boot-application:${packageName}")))
 
                     gpg(closureOf<BintrayExtension.GpgConfig> {
                         sign = true
