@@ -43,6 +43,22 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         result.output.contains("Created image with ID")
     }
 
+    def "can build image in a parent context"() {
+        buildFile << imageCreation()
+        buildFile << """
+            buildImage {
+                inputDir = projectDir
+                dockerFile = dockerfile.destFile
+            }
+        """
+
+        when:
+        BuildResult result = build('buildImage')
+
+        then:
+        result.output.contains("Created image with ID")
+    }
+
     @Unroll
     def "can build image with labels"(String gradleTaskDefinition) {
         buildFile << gradleTaskDefinition
