@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v4.0.3 (October 30, 2018)
+
+* Correctly handle the case where `inputDir` is not where `dockerFile` is located - {uri-github}/pull/693[Pull Request 693]
+
+[discrete]
 === v4.0.2 (October 27, 2018)
 
 * Output file name containing the image ID created by `DockerBuildImage` should work on Windows - {uri-github}/pull/690[Pull Request 690]
