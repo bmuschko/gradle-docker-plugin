@@ -1754,7 +1754,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ports</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListProperty&lt;Integer&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[8080]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The Docker image exposed ports (if provided, this values will override <code>port</code> configuration property)</p></td>
 </tr>
 <tr>
@@ -2443,6 +2443,14 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div class="sect1">
 <h2 id="change_log"><a class="anchor" href="#change_log"></a>6. Change Log</h2>
 <div class="sectionbody">
+<h3 id="v4_0_4_november_4_2018" class="discrete">v4.0.4 (November 4, 2018)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Implementation to make <code>DockerBuildImage</code> task incremental and cacheable is not sufficient - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/697">Issue 697</a></p>
+</li>
+</ul>
+</div>
 <h3 id="v4_0_3_october_30_2018" class="discrete">v4.0.3 (October 30, 2018)</h3>
 <div class="ulist">
 <ul>
@@ -3491,7 +3499,7 @@ setting port bindings for task <code>DockerStartContainer</code> anymore. Needs 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-10-30 16:46:48 UTC
+Last updated 2018-11-04 19:09:49 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
