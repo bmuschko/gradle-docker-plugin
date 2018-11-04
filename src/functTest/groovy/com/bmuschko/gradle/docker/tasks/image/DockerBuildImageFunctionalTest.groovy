@@ -5,6 +5,7 @@ import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.PendingFeature
 import spock.lang.Requires
 import spock.lang.Unroll
 
@@ -137,6 +138,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         noExceptionThrown()
     }
 
+    @PendingFeature
     def "task can be up-to-date"() {
         given:
         buildFile << imageCreation()

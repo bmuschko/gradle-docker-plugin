@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v4.0.4 (November 4, 2018)
+
+* Implementation to make `DockerBuildImage` task incremental and cacheable is not sufficient - {uri-github}/issues/697[Issue 697]
+
+[discrete]
 === v4.0.3 (October 30, 2018)
 
 * Correctly handle the case where `inputDir` is not where `dockerFile` is located - {uri-github}/pull/693[Pull Request 693]
