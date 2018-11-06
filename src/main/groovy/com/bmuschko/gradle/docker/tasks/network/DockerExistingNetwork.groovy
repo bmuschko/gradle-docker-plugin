@@ -11,19 +11,40 @@ import java.util.concurrent.Callable
 @CompileStatic
 abstract class DockerExistingNetwork extends AbstractDockerRemoteApiTask {
     /**
-     * The name of the network to perform the operation on.
+     * The ID or name of the network to perform the operation on. The network for the provided ID has to be created first.
      */
     @Input
     final Property<String> networkId = project.objects.property(String)
 
+    /**
+     * Sets the target network ID or name.
+     *
+     * @param networkId Network ID or name
+     * @see #targetNetworkId(Callable)
+     * @see #targetNetworkId(Provider)
+     */
     void targetNetworkId(String networkId) {
         this.networkId.set(networkId)
     }
 
+    /**
+     * Sets the target network ID or name.
+     *
+     * @param networkId Network ID or name as Callable
+     * @see #targetNetworkId(String)
+     * @see #targetNetworkId(Provider)
+     */
     void targetNetworkId(Callable<String> networkId) {
         targetNetworkId(project.provider(networkId))
     }
 
+    /**
+     * Sets the target network ID or name.
+     *
+     * @param networkId Network ID or name as Provider
+     * @see #targetNetworkId(String)
+     * @see #targetNetworkId(Callable)
+     */
     void targetNetworkId(Provider<String> networkId) {
         this.networkId.set(networkId)
     }

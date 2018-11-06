@@ -14,20 +14,41 @@ import java.util.concurrent.Callable
 class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
 
     /**
-     * Exec ID used to perform operation. The exec for the provided
+     * The ID name of exec used to perform operation. The exec for the provided
      * ID has to be created and started first.
      */
     @Input
     final Property<String> execId = project.objects.property(String)
 
+    /**
+     * Sets the target exec ID or name.
+     *
+     * @param execId Exec ID or name
+     * @see #targetExecId(Callable)
+     * @see #targetExecId(Provider)
+     */
     void targetExecId(String execId) {
         this.execId.set(execId)
     }
 
+    /**
+     * Sets the target exec ID or name.
+     *
+     * @param execId Exec ID or name as Callable
+     * @see #targetExecId(String)
+     * @see #targetExecId(Provider)
+     */
     void targetExecId(Callable<String> execId) {
         targetExecId(project.provider(execId))
     }
 
+    /**
+     * Sets the target exec ID or name.
+     *
+     * @param execId Exec ID or name as Provider
+     * @see #targetExecId(String)
+     * @see #targetExecId(Callable)
+     */
     void targetExecId(Provider<String> execId) {
         this.execId.set(execId)
     }
