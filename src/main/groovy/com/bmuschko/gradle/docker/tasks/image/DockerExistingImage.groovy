@@ -26,19 +26,40 @@ import java.util.concurrent.Callable
 @CompileStatic
 abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
     /**
-     * Image ID used to perform operation. The image for the provided ID has to be created first.
+     * The ID or name of image used to perform operation. The image for the provided ID has to be created first.
      */
     @Input
     final Property<String> imageId = project.objects.property(String)
 
+    /**
+     * Sets the target image ID or name.
+     *
+     * @param imageId Image ID or name
+     * @see #targetImageId(Callable)
+     * @see #targetImageId(Provider)
+     */
     void targetImageId(String imageId) {
         this.imageId.set(imageId)
     }
 
+    /**
+     * Sets the target container ID or name.
+     *
+     * @param imageId Image ID or name as Callable
+     * @see #targetImageId(String)
+     * @see #targetImageId(Provider)
+     */
     void targetImageId(Callable<String> imageId) {
         targetImageId(project.provider(imageId))
     }
 
+    /**
+     * Sets the target container ID or name.
+     *
+     * @param imageId Image ID or name as Provider
+     * @see #targetImageId(String)
+     * @see #targetImageId(Callable)
+     */
     void targetImageId(Provider<String> imageId) {
         this.imageId.set(imageId)
     }

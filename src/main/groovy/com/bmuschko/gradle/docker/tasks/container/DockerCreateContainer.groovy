@@ -15,22 +15,15 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
 import com.bmuschko.gradle.docker.utils.CollectionUtil
-import groovy.transform.CompileStatic
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
-import java.util.concurrent.Callable
-
-class DockerCreateContainer extends AbstractDockerRemoteApiTask {
-    @Internal
-    final Property<String> imageId = project.objects.property(String)
-
+class DockerCreateContainer extends DockerExistingImage {
     @Input
     @Optional
     final ListProperty<String> links = project.objects.listProperty(String)
@@ -217,19 +210,6 @@ class DockerCreateContainer extends AbstractDockerRemoteApiTask {
         if(nextHandler) {
             nextHandler.execute(container)
         }
-    }
-
-    void targetImageId(String imageId) {
-        this.imageId.set(imageId)
-    }
-
-    @CompileStatic
-    void targetImageId(Callable<String> imageId) {
-        targetImageId(project.provider(imageId))
-    }
-
-    void targetImageId(Provider<String> imageId) {
-        this.imageId.set(imageId)
     }
 
     void logConfig(String type, Map<String, String> config) {
