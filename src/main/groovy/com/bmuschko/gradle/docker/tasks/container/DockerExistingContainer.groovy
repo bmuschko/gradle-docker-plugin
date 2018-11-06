@@ -24,7 +24,7 @@ import java.util.concurrent.Callable
 
 abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
     /**
-     * ID or name of container used to perform operation. The container for the provided ID has to be created first.
+     * The ID or name of container used to perform operation. The container for the provided ID has to be created first.
      */
     @Input
     final Property<String> containerId = project.objects.property(String)
