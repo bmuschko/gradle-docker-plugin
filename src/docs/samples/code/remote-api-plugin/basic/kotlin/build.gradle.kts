@@ -48,4 +48,3 @@ docker {
     url.set("tcp://192.168.59.103:2375")
 }
 // end::extension-without-tls[]
-// end::extension-without-tls[]

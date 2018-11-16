@@ -39,4 +39,3 @@ tasks.create("removeContainer2", DockerRemoveContainer::class) {
     }
 }
 // end::on-complete[]
-// end::on-complete[]

@@ -3,13 +3,12 @@ package com.bmuschko.gradle.docker
 import org.asciidoctor.gradle.AsciidoctorExtension
 import org.asciidoctor.gradle.AsciidoctorPlugin
 import org.asciidoctor.gradle.AsciidoctorTask
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.util.PatternSet
-import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.delegateClosureOf
-import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.*
 
 class UserGuidePlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
@@ -26,7 +25,7 @@ class UserGuidePlugin : Plugin<Project> {
     private
     fun Project.configureAsciidoctorExtension() {
         configure<AsciidoctorExtension> {
-            setVersion("1.6.0-alpha.7")
+            setVersion("1.6.0-RC.1")
         }
     }
 
@@ -50,6 +49,13 @@ class UserGuidePlugin : Plugin<Project> {
                     "samplesCodeDir" to file("src/docs/samples/code")
                 )
             )
+        }
+
+        // Required as the project version is lazily-calculated by the gradle-git plugin
+        afterEvaluate {
+            tasks.named<AsciidoctorTask>("asciidoctor") {
+                attributes.set("project-version", project.version.toString())
+            }
         }
     }
 }

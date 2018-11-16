@@ -15,4 +15,3 @@ docker {
     }
 }
 // end::extension[]
-// end::extension[]

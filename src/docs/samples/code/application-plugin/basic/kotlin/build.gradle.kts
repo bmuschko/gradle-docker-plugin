@@ -42,4 +42,3 @@ tasks.named<Dockerfile>("dockerDistTar") {
     instructionsFromTemplate(file("Dockerfile.tmpl"))
 }
 // end::instruction-template[]
-// end::instruction-template[]
