@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v4.0.5 (November 22, 2018)
+
+* Avoid the use of application plugin extension to ensure compatibility  - {uri-github}/issues/706[Issue 706]
+
+[discrete]
 === v4.0.4 (November 4, 2018)
 
 * Implementation to make `DockerBuildImage` task incremental and cacheable is not sufficient - {uri-github}/issues/697[Issue 697]

@@ -26,14 +26,15 @@ import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.Directory
 import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.api.plugins.ApplicationPluginConvention
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.internal.DefaultJavaApplication
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.jvm.tasks.Jar
 
 import java.util.concurrent.Callable
+
 /**
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
  */
@@ -167,7 +168,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         project.provider(new Callable<List<String>>() {
             @Override
             List<String> call() throws Exception {
-                final String applicationName = (project.extensions.getByName("application") as DefaultJavaApplication).applicationName
+                final String applicationName = getApplicationName(project)
                 ["/${installTask.destinationDir.name}/bin/${applicationName}".toString()]
             }
         })
@@ -202,7 +203,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-                final String applicationName = (project.extensions.getByName("application") as DefaultJavaApplication).applicationName
+                final String applicationName = getApplicationName(project)
                 String artifactAndVersion = "${applicationName}:${tagVersion}".toLowerCase().toString()
                 project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
             }
@@ -220,5 +221,9 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 }
             }
         })
+    }
+
+    private static String getApplicationName(Project project) {
+        project.convention.getPlugin(ApplicationPluginConvention).applicationName
     }
 }
