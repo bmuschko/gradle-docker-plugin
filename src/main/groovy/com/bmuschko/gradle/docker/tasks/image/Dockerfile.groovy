@@ -37,6 +37,7 @@ class Dockerfile extends DefaultTask {
 
     Dockerfile() {
         instructions = project.objects.listProperty(Instruction)
+        instructions.set([])
         destFile = newOutputFile()
         destFile.set(project.layout.buildDirectory.file('docker/Dockerfile'))
     }
@@ -1112,8 +1113,8 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getText() {
-            if (this.provider) {
-                List<Integer> evaluatedPorts = this.provider.get()
+            if (provider) {
+                List<Integer> evaluatedPorts = provider.get()
 
                 if (!evaluatedPorts.empty) {
                     "$keyword ${evaluatedPorts.join(' ')}"

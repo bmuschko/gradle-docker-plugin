@@ -73,7 +73,7 @@ class DockerWaitContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String containerCmd = "'sh', '-c', 'sleep 15'"
         String waitOnContainerTask = """
             task waitOnContainer(type: DockerWaitContainer){
-                timeout = 1
+                awaitStatusTimeout = 1
                 targetContainerId startContainer.getContainerId()
             }
         """

@@ -27,9 +27,9 @@ class PublishingPlugin : Plugin<Project> {
 
     private
     fun Project.configurePublishingExtension() {
-        val sourcesJar: Jar by tasks.getting
-        val groovydocJar: Jar by tasks.getting
-        val javadocJar: Jar by tasks.getting
+        val sourcesJar: Jar by tasks
+        val groovydocJar: Jar by tasks
+        val javadocJar: Jar by tasks
 
         configure<PublishingExtension> {
             publications {

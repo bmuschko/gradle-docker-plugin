@@ -39,7 +39,7 @@ class DockerExecContainer extends DockerExistingContainer {
 
     @Input
     @Optional
-    final ListProperty<String> commands = project.objects.listProperty(String)
+    final ListProperty<String[]> commands = project.objects.listProperty(String[])
 
     @Input
     @Optional
@@ -79,8 +79,12 @@ class DockerExecContainer extends DockerExistingContainer {
     final ListProperty<String> execIds = project.objects.listProperty(String)
 
     DockerExecContainer() {
+        cmd.set([])
+        commands.set([])
         attachStdout.set(true)
         attachStderr.set(true)
+        successOnExitCodes.set([])
+        execIds.set([])
     }
 
     @Override
@@ -145,7 +149,7 @@ class DockerExecContainer extends DockerExistingContainer {
                 if (successOnExitCodes.getOrNull()) {
                     int exitCode = lastExecResponse.exitCode ?: 0
                     if (!successOnExitCodes.get().contains(exitCode)) {
-                        throw new GradleException("${exitCode} is not a successful exit code. Valid values are ${successOnExitCodes}, response=${lastExecResponse}")
+                        throw new GradleException("${exitCode} is not a successful exit code. Valid values are ${successOnExitCodes.get()}, response=${lastExecResponse}")
                     }
                 }
             }
@@ -155,9 +159,13 @@ class DockerExecContainer extends DockerExistingContainer {
     }
 
     // add multiple commands to be executed
-    void withCommand(def commandToExecute) {
-        if (commandToExecute) {
-            commands.add(commandToExecute)
+    void withCommand(List<String> commandsToExecute) {
+        withCommand(commandsToExecute as String[])
+    }
+
+    void withCommand(String[] commandsToExecute) {
+        if (commandsToExecute) {
+            commands.add(commandsToExecute)
         }
     }
 

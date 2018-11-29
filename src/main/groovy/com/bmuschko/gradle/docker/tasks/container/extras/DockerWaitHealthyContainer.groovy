@@ -28,7 +28,7 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Integer> timeout = project.objects.property(Integer)
+    final Property<Integer> awaitStatusTimeout = project.objects.property(Integer)
 
     /**
      * Interval between each check in milliseconds.
@@ -42,7 +42,7 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
         logger.quiet "Waiting for container with ID '${containerId.get()}' to be healthy."
 
         def command = dockerClient.inspectContainerCmd(containerId.get())
-        Long deadline = timeout.getOrNull() ? System.currentTimeMillis() + timeout.get() * 1000 : null
+        Long deadline = awaitStatusTimeout.getOrNull() ? System.currentTimeMillis() + awaitStatusTimeout.get() * 1000 : null
         long sleepInterval = checkInterval.getOrNull() ?: 500
 
         while(!check(deadline, command)) {

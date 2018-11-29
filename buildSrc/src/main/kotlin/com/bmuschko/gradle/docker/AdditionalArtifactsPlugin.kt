@@ -12,8 +12,8 @@ import org.gradle.kotlin.dsl.*
 class AdditionalArtifactsPlugin: Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
         val sourceSets = the<SourceSetContainer>()
-        val groovydoc: Groovydoc by tasks.getting
-        val javadoc: Javadoc by tasks.getting
+        val groovydoc: Groovydoc by tasks
+        val javadoc: Javadoc by tasks
 
         tasks.create("sourcesJar", Jar::class) {
             classifier = "sources"

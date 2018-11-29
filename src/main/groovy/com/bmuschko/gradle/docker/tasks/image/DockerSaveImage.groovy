@@ -36,6 +36,10 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
     @OutputFile
     final RegularFileProperty destFile = newOutputFile()
 
+    DockerSaveImage() {
+        useCompression.set(false)
+    }
+
     @Override
     void runRemoteCommand(Object dockerClient) {
         def saveImageCmd = dockerClient.saveImageCmd(repository.get())
