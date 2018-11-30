@@ -18,7 +18,7 @@ class DockerSpringBootApplication {
         baseImage = project.objects.property(String)
         baseImage.set('openjdk:jre-alpine')
         ports = project.objects.listProperty(Integer)
-        ports.add(8080)
+        ports.set([8080])
         tag = project.objects.property(String)
     }
 }

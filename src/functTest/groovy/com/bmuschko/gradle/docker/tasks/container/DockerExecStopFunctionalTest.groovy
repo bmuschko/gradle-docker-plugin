@@ -14,7 +14,7 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 targetContainerId startContainer.getContainerId()
                 cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
                 successOnExitCodes = [0, 137]
-                timeout = 60000
+                awaitStatusTimeout = 60000
                 execStopProbe(60000, 5000)
                 onComplete {
                     println 'Container has been exec-stopped'

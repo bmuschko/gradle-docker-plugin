@@ -42,8 +42,8 @@ class DocumentationPlugin : Plugin<Project> {
 
     private
     fun Project.configureGitPublishExtension() {
-        val groovydoc: Groovydoc by tasks.getting
-        val asciidoctor: AsciidoctorTask by tasks.getting
+        val groovydoc: Groovydoc by tasks
+        val asciidoctor: AsciidoctorTask by tasks
 
         configure<GitPublishExtension> {
             repoUri = "https://github.com/bmuschko/gradle-docker-plugin.git"
@@ -60,8 +60,8 @@ class DocumentationPlugin : Plugin<Project> {
 
     private
     fun Project.configureTaskDependencies() {
-        val groovydoc: Groovydoc by tasks.getting
-        val asciidoctor: AsciidoctorTask by tasks.getting
+        val groovydoc: Groovydoc by tasks
+        val asciidoctor: AsciidoctorTask by tasks
         tasks["gitPublishCopy"].dependsOn(groovydoc, asciidoctor)
     }
 }

@@ -199,6 +199,31 @@ class DockerCreateContainer extends DockerExistingImage {
     @Optional
     final Property<String> macAddress = project.objects.property(String)
 
+    DockerCreateContainer() {
+        links.set([])
+        portSpecs.set([])
+        stdinOpen.set(false)
+        stdinOnce.set(false)
+        portBindings.set([])
+        publishAll.set(false)
+        attachStdin.set(false)
+        attachStdout.set(false)
+        attachStderr.set(false)
+        env.set([])
+        cmd.set([])
+        entrypoint.set([])
+        dns.set([])
+        networkAliases.set([])
+        volumes.set([])
+        volumesFrom.set([])
+        exposedPorts.set([])
+        extraHosts.set([])
+        privileged.set(false)
+        tty.set(false)
+        devices.set([])
+        autoRemove.set(false)
+    }
+
     @Override
     void runRemoteCommand(dockerClient) {
         def containerCommand = dockerClient.createContainerCmd(imageId.get())

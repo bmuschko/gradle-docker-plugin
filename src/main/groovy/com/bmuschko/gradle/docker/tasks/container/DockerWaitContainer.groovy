@@ -31,16 +31,16 @@ class DockerWaitContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Integer> timeout = project.objects.property(Integer)
+    final Property<Integer> awaitStatusTimeout = project.objects.property(Integer)
 
     @Override
     void runRemoteCommand(dockerClient) {
-        String possibleTimeout = timeout.getOrNull() ? " for ${timeout.get()} seconds" : ''
+        String possibleTimeout = awaitStatusTimeout.getOrNull() ? " for ${awaitStatusTimeout.get()} seconds" : ''
         logger.quiet "Waiting for container with ID '${containerId.get()}'${possibleTimeout}."
         def containerCommand = dockerClient.waitContainerCmd(containerId.get())
         def callback = threadContextClassLoader.createWaitContainerResultCallback(nextHandler)
         callback = containerCommand.exec(callback)
-        exitCode = timeout.getOrNull() ? callback.awaitStatusCode(timeout.get(), TimeUnit.SECONDS) : callback.awaitStatusCode()
+        exitCode = awaitStatusTimeout.getOrNull() ? callback.awaitStatusCode(awaitStatusTimeout.get(), TimeUnit.SECONDS) : callback.awaitStatusCode()
         logger.quiet "Container exited with code ${exitCode}"
     }
 

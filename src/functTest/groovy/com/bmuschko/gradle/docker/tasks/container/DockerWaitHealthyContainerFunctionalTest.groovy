@@ -61,7 +61,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                timeout = 10
+                awaitStatusTimeout = 10
                 finalizedBy removeImage
             }
         """
@@ -100,7 +100,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                timeout = 10
+                awaitStatusTimeout = 10
                 finalizedBy removeContainer
             }
         """
@@ -259,7 +259,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                timeout = 5
+                awaitStatusTimeout = 5
                 finalizedBy removeImage
             }
         """
@@ -310,7 +310,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                timeout = 10
+                awaitStatusTimeout = 10
                 finalizedBy removeImage
             }
         """
@@ -356,7 +356,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
             task waitContainer(type: DockerWaitHealthyContainer) {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
-                timeout = 10
+                awaitStatusTimeout = 10
                 finalizedBy removeImage
             }
         """

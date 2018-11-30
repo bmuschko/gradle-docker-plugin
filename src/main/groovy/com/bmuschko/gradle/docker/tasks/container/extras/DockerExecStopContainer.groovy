@@ -45,7 +45,7 @@ class DockerExecStopContainer extends DockerExecContainer {
      */
     @Input
     @Optional
-    final Property<Integer> timeout = project.objects.property(Integer)
+    final Property<Integer> awaitStatusTimeout = project.objects.property(Integer)
 
     @Override
     void runRemoteCommand(dockerClient) {
@@ -97,10 +97,10 @@ class DockerExecStopContainer extends DockerExecContainer {
             //     the old fashioned way.
             if (isRunning) {
                 logger.quiet "Container with ID '${containerId.get()}' did not gracefully shutdown: issuing stop."
-                DockerStopContainer._runRemoteCommand(dockerClient, containerId.get(), timeout.getOrNull())
+                DockerStopContainer._runRemoteCommand(dockerClient, containerId.get(), awaitStatusTimeout.getOrNull())
             }
         } else {
-            DockerStopContainer._runRemoteCommand(dockerClient, containerId.get(), timeout.getOrNull())
+            DockerStopContainer._runRemoteCommand(dockerClient, containerId.get(), awaitStatusTimeout.getOrNull())
         }
     }
 
