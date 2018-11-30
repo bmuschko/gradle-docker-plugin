@@ -1,6 +1,12 @@
 == Change Log
 
 [discrete]
+=== v4.1.0 (November 29, 2018)
+
+* Ensure compatibility with Gradle 5.0 - {uri-github}/pull/693[Pull Request 709]
+* **Breaking Change!** The existing field `timeout` in custom tasks had to be renamed due to https://docs.gradle.org/5.0/userguide/more_about_tasks.html#sec:task_timeouts[Gradle's 5.0 built-in timeout feature]
+
+[discrete]
 === v4.0.5 (November 22, 2018)
 
 * Avoid the use of application plugin extension to ensure compatibility  - {uri-github}/issues/706[Issue 706]
