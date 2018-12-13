@@ -189,23 +189,26 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     }))
                 }
                 // Can't be within `with` above because the compiler falls over.
-                dockerBuildImage.tag.set(determineImageTag(project, dockerJavaApplication))
+                dockerBuildImage.tags.set(determineImageTags(project, dockerJavaApplication))
             }
         })
     }
 
-    private static Provider<String> determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
-        project.provider(new Callable<String>() {
+    private static Provider<Set<String>> determineImageTags(Project project, DockerJavaApplication dockerJavaApplication) {
+        project.provider(new Callable<Set<String>>() {
             @Override
-            String call() throws Exception {
+            Set<String> call() throws Exception {
                 if (dockerJavaApplication.tag.getOrNull()) {
-                    return dockerJavaApplication.tag.get()
+                    return [dockerJavaApplication.tag.get()].toSet();
+                }
+                if (dockerJavaApplication.tags.getOrNull()) {
+                    return dockerJavaApplication.tags.get()
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
                 final String applicationName = getApplicationName(project)
                 String artifactAndVersion = "${applicationName}:${tagVersion}".toLowerCase().toString()
-                project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+                [project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion].toSet()
             }
         })
     }

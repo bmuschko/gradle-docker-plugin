@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker
 
 import spock.lang.Requires
+import org.gradle.testkit.runner.BuildResult
 
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.*
 import static com.bmuschko.gradle.docker.fixtures.DockerJavaApplicationPluginFixture.writeJettyMainClass
@@ -81,6 +82,25 @@ ADD app-lib/${PROJECT_NAME}-1.0.jar /$PROJECT_NAME/lib/$PROJECT_NAME-1.0.jar
 ENTRYPOINT ["/${PROJECT_NAME}/bin/${PROJECT_NAME}"]
 EXPOSE 9090 8080
 """
+    }
+
+    def "Can create image for Java application with multiple tags"() {
+        given:
+        buildFile << """
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'benjamin.muschko@gmail.com'
+                    tags = ['jettyapp/test:1.115', 'jettyapp/test:latest']
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('dockerBuildImage')
+
+        then:
+        result.output.contains("Using tags 'jettyapp/test:1.115', 'jettyapp/test:latest' for image.")
     }
 
     def "Can create image for Java application with user-driven configuration without exposed ports"() {

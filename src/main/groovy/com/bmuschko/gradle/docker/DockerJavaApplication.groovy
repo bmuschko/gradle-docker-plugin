@@ -18,8 +18,10 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
+import javafx.beans.property.ListProperty
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -31,6 +33,7 @@ class DockerJavaApplication {
     final Property<String> maintainer
     final ListProperty<Integer> ports
     final Property<String> tag
+    final SetProperty<String> tags
 
     private final CompositeExecInstruction compositeExecInstruction
 
@@ -42,6 +45,7 @@ class DockerJavaApplication {
         ports = project.objects.listProperty(Integer)
         ports.set([8080])
         tag = project.objects.property(String)
+        tags = project.objects.setProperty(String)
         compositeExecInstruction = new CompositeExecInstruction(project)
     }
 
