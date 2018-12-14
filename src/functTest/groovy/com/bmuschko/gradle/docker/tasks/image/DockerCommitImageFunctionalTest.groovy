@@ -28,7 +28,9 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
             import com.bmuschko.gradle.docker.tasks.image.DockerCommitImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
             task pullImage(type: DockerPullImage) {
@@ -48,7 +50,21 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 targetContainerId createContainer.getContainerId()
             }
             
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId startContainer.getContainerId()
+            }
+
             ${containerCommitImageExecutionTask}
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn removeContainer
+                force = true
+                targetImageId commitImage.getImageId()
+            }
+
+            commitImage.finalizedBy removeImage
         """
     }
 }
