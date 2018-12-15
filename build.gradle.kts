@@ -4,6 +4,7 @@ import java.util.Date
 plugins {
     groovy
     `java-gradle-plugin`
+    `build-scan`
     id("com.bmuschko.gradle.docker.test-setup")
     id("com.bmuschko.gradle.docker.integration-test")
     id("com.bmuschko.gradle.docker.functional-test")
@@ -40,5 +41,15 @@ tasks.named<Jar>("jar") {
         attributes["Built-Date"] = SimpleDateFormat("MM/dd/yyyy").format(Date())
         attributes["Built-JDK"] = System.getProperty("java.version")
         attributes["Built-Gradle"] = gradle.gradleVersion
+    }
+}
+
+buildScan {
+    termsOfServiceUrl = "https://gradle.com/terms-of-service"
+    termsOfServiceAgree = "yes"
+
+    if (!System.getenv("CI").isNullOrEmpty()) {
+        publishAlways()
+        tag("CI")
     }
 }
