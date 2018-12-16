@@ -5,10 +5,10 @@
 
 * Applying the Docker Spring Boot application plugin with the plugins DSL should not fail - {uri-github}/issues/702[Issue 702]
 * **Breaking Change!** Remove all deprecations - {uri-github}/issues/675[Issue 675]
-    * Removed `DockerCreateContainer.env`
-    * Removed `DockerBuildImage.tag`
-    * Removed `DockerExecContainer.cmd`
-    * Removed `DockerExecContainer.execId`
+    * Removed `DockerCreateContainer.env`, replaced by `DockerCreateContainer.envVars`
+    * Removed `DockerBuildImage.tag`, replaced by `DockerBuildImage.tags`
+    * Removed `DockerExecContainer.cmd`, replaced by `DockerExecContainer.commands`
+    * Removed `DockerExecContainer.execId`, replaced by `DockerExecContainer.execIds`
 * `DockerBuildImage.tags.add/addAll` only work after using `tags.set` - {uri-github}/issues/712[Issue 712]
 * User guide sample on Docker `links` should not use `doFirst` - {uri-github}/issues/715[Issue 715]
 
