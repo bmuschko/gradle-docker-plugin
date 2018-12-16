@@ -67,10 +67,8 @@ class DockerCommitImage extends DockerExistingContainer {
 
     @Override
     void runRemoteCommand(dockerClient) {
-        def localId = Objects.requireNonNull(getContainerId().getOrNull(), 'containerId must be set')
-
-        logger.quiet "Commiting image for container '${localId}'."
-        def commitCmd = dockerClient.commitCmd(localId)
+        logger.quiet "Committing image for container '${getContainerId().get()}'."
+        def commitCmd = dockerClient.commitCmd(getContainerId().get())
 
         if(repository.getOrNull()) {
             commitCmd.withRepository(repository.get())
