@@ -1,6 +1,14 @@
 == Change Log
 
 [discrete]
+=== v4.1.1 (TBA)
+
+* Applying the Docker Spring Boot application plugin with the plugins DSL should not fail - {uri-github}/issues/702[Issue 702]
+* `DockerBuildImage.tags.add/addAll` only work after using `tags.set` - {uri-github}/issues/712[Issue 712]
+* User guide sample on Docker `links` should not use `doFirst` - {uri-github}/issues/715[Issue 715]
+* Remove deprecated property `DockerCreateContainer.env` - {uri-github}/issues/721[Issue 721]
+
+[discrete]
 === v4.1.0 (November 29, 2018)
 
 * Ensure compatibility with Gradle 5.0 - {uri-github}/pull/693[Pull Request 709]
@@ -9,7 +17,7 @@
 [discrete]
 === v4.0.5 (November 22, 2018)
 
-* Avoid the use of application plugin extension to ensure compatibility  - {uri-github}/issues/706[Issue 706]
+* Avoid the use of application plugin extension to ensure compatibility - {uri-github}/issues/706[Issue 706]
 
 [discrete]
 === v4.0.4 (November 4, 2018)
