@@ -44,6 +44,23 @@ tasks.named<Jar>("jar") {
     }
 }
 
+gradlePlugin {
+    plugins {
+        create("docker-remote-api") {
+            id = "com.bmuschko.docker-remote-api"
+            implementationClass = "com.bmuschko.gradle.docker.DockerRemoteApiPlugin"
+        }
+        create("docker-java-application") {
+            id = "com.bmuschko.docker-java-application"
+            implementationClass = "com.bmuschko.gradle.docker.DockerJavaApplicationPlugin"
+        }
+        create("docker-spring-boot-application") {
+            id = "com.bmuschko.docker-spring-boot-application"
+            implementationClass = "com.bmuschko.gradle.docker.DockerSpringBootApplicationPlugin"
+        }
+    }
+}
+
 buildScan {
     termsOfServiceUrl = "https://gradle.com/terms-of-service"
     termsOfServiceAgree = "yes"
