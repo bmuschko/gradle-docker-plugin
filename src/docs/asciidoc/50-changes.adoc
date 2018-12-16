@@ -1,7 +1,7 @@
 == Change Log
 
 [discrete]
-=== v4.2.0 (TBA)
+=== v4.2.0 (December 16, 2018)
 
 * Applying the Docker Spring Boot application plugin with the plugins DSL should not fail - {uri-github}/issues/702[Issue 702]
 * **Breaking Change!** Remove all deprecations - {uri-github}/issues/675[Issue 675]
@@ -11,6 +11,7 @@
     * Removed `DockerExecContainer.execId`, replaced by `DockerExecContainer.execIds`
 * `DockerBuildImage.tags.add/addAll` only work after using `tags.set` - {uri-github}/issues/712[Issue 712]
 * User guide sample on Docker `links` should not use `doFirst` - {uri-github}/issues/715[Issue 715]
+* `DockerCommitImage` task should not fail when accessing container ID property value - {uri-github}/issues/718[Issue 718]
 
 [discrete]
 === v4.1.0 (November 29, 2018)
