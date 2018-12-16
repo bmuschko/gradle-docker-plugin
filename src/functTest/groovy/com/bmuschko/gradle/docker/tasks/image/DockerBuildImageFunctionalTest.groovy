@@ -82,7 +82,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         then:
         result.output.contains("Using tags 'test/image:123', 'registry.com:5000/test/image:123' for image.")
-        result.output.contains("Using tag 'test/image:123' for image.")
+        result.output.contains("Using tags 'test/image:123' for image.")
     }
 
 
@@ -285,7 +285,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildImageWithTag(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
-                tag = 'test/image:123'
+                tags.add('test/image:123')
             }
         """
     }
@@ -308,7 +308,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
                 cacheFrom.add('$uniqueTag:latest')
-                tag = '$uniqueTag:latest'
+                tags.add('$uniqueTag:latest')
             }
         """
     }
@@ -334,12 +334,12 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn dockerfile
                 inputDir = dockerfile.destFile.get().asFile.parentFile
                 cacheFrom.add('$TEST_IMAGE_WITH_TAG') // no effect
-                tag = '$uniqueTag'
+                tags.add('$uniqueTag')
             }
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                imageName = buildImage.getTag()
+                imageName = buildImage.tags.get().first()
                 tag = 'latest'
             }
 

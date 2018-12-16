@@ -49,15 +49,6 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     final SetProperty<String> tags = project.objects.setProperty(String)
 
-    /**
-     * Tag for image.
-     * @deprecated use {@link #tags}
-     */
-    @Input
-    @Optional
-    @Deprecated
-    final Property<String> tag = project.objects.property(String)
-
     @Input
     @Optional
     final Property<Boolean> noCache = project.objects.property(Boolean)
@@ -133,10 +124,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd = dockerClient.buildImageCmd(inputDir.get().asFile)
         }
 
-        if(tag.getOrNull()) {
-            logger.quiet "Using tag '${tag.get()}' for image."
-            buildImageCmd.withTag(tag.get())
-        } else if (tags.getOrNull()) {
+        if (tags.getOrNull()) {
             def tagListString = tags.get().collect {"'${it}'"}.join(", ")
             logger.quiet "Using tags ${tagListString} for image."
             buildImageCmd.withTags(tags.get().collect { it.toString() }.toSet() )

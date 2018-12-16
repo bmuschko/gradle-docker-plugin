@@ -7,7 +7,7 @@ import com.bmuschko.gradle.docker.tasks.image.*
 
 val buildMyAppImage by tasks.creating(DockerBuildImage::class) {
     inputDir.set(file("docker/myapp"))
-    tag.set("test/myapp")
+    tags.add("test/myapp")
 }
 
 val createDBContainer by tasks.creating(DockerCreateContainer::class) {

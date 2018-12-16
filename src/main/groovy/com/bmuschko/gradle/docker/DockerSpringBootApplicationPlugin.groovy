@@ -114,7 +114,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                         project.layout.projectDirectory.dir(createDockerfileTask.destFile.get().asFile.parentFile.canonicalPath)
                     }
                 }))
-                dockerBuildImage.tag.set(determineImageTag(project, dockerSpringBootApplication))
+                dockerBuildImage.tags.add(determineImageTag(project, dockerSpringBootApplication))
             }
         })
     }
@@ -140,7 +140,12 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
             void execute(DockerPushImage dockerPushImage) {
                 dockerPushImage.description = 'Pushes created Docker image to the repository.'
                 dockerPushImage.dependsOn dockerBuildImageTask
-                dockerPushImage.imageName = dockerBuildImageTask.getTag()
+                dockerPushImage.imageName.set(project.provider(new Callable<String>() {
+                    @Override
+                    String call() throws Exception {
+                        dockerBuildImageTask.getTags().get().first() as String
+                    }
+                }))
             }
         })
     }

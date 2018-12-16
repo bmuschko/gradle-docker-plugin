@@ -189,7 +189,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     }))
                 }
                 // Can't be within `with` above because the compiler falls over.
-                dockerBuildImage.tag.set(determineImageTag(project, dockerJavaApplication))
+                dockerBuildImage.tags.add(determineImageTag(project, dockerJavaApplication))
             }
         })
     }
@@ -217,7 +217,12 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 pushImage.with {
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    imageName.set(dockerBuildImageTask.getTag())
+                    imageName.set(project.provider(new Callable<String>() {
+                        @Override
+                        String call() throws Exception {
+                            dockerBuildImageTask.getTags().get().first() as String
+                        }
+                    }))
                 }
             }
         })

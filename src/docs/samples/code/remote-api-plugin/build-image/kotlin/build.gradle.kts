@@ -14,5 +14,5 @@ val createDockerfile by tasks.creating(Dockerfile::class) {
 tasks.create("buildImage", DockerBuildImage::class) {
     dependsOn(createDockerfile)
     inputDir.set(createDockerfile.getDestFile().get().asFile.parentFile)
-    tag.set("bmuschko/myimage:latest")
+    tags.add("bmuschko/myimage:latest")
 }

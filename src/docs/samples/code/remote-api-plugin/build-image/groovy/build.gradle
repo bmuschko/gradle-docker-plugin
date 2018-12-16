@@ -14,5 +14,5 @@ task createDockerfile(type: Dockerfile) {
 task buildImage(type: DockerBuildImage) {
     dependsOn createDockerfile
     inputDir = createDockerfile.destFile.get().asFile.parentFile
-    tag = 'bmuschko/myimage:latest'
+    tags.add('bmuschko/myimage:latest')
 }

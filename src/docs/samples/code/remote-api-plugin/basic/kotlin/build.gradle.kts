@@ -9,7 +9,7 @@ import com.bmuschko.gradle.docker.tasks.image.*
 // Use task types
 tasks.create("buildMyAppImage", DockerBuildImage::class) {
     inputDir.set(file("docker/myapp"))
-    tag.set("test/myapp:latest")
+    tags.add("test/myapp:latest")
 }
 // end::create-task[]
 
