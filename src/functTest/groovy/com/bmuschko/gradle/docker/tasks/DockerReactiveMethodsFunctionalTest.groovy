@@ -264,7 +264,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                cmd = ['echo', 'Hello World']
+                withCommand(['echo', 'Hello World'])
                 
                 onNext { f ->
                     logger.quiet f.toString()

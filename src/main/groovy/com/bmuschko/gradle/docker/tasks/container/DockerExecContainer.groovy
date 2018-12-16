@@ -30,13 +30,6 @@ import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
 
 class DockerExecContainer extends DockerExistingContainer {
 
-    // set as optional for downstream sub-classes who configure
-    // things a bit later.
-    @Input
-    @Optional
-    @Deprecated // use the _commands_ param instead
-    final ListProperty<String> cmd = project.objects.listProperty(String)
-
     @Input
     @Optional
     final ListProperty<String[]> commands = project.objects.listProperty(String[])
@@ -79,7 +72,6 @@ class DockerExecContainer extends DockerExistingContainer {
     final ListProperty<String> execIds = project.objects.listProperty(String)
 
     DockerExecContainer() {
-        cmd.set([])
         commands.set([])
         attachStdout.set(true)
         attachStderr.set(true)
@@ -96,8 +88,8 @@ class DockerExecContainer extends DockerExistingContainer {
     void _runRemoteCommand(dockerClient) {
         def execCallback = nextHandler ? threadContextClassLoader.createExecCallback(nextHandler) : threadContextClassLoader.createExecCallback(System.out, System.err)
 
-        List<String[]> localCommands = commands()
-        for (int i = 0; i < localCommands.size(); i++) {
+        List<String[]> localCommands = commands.get()
+        for (int i = 0; i < commands.get().size(); i++) {
 
             String [] singleCommand = localCommands.get(i)
             def execCmd = dockerClient.execCreateCmd(containerId.get())
@@ -185,14 +177,6 @@ class DockerExecContainer extends DockerExistingContainer {
         if (user.getOrNull()) {
             containerCommand.withUser(user.get())
         }
-    }
-
-    protected List<String[]> commands() {
-        final List<String[]> localCommands = new ArrayList<>(commands.get())
-        if (cmd.getOrNull()) {
-            localCommands.add(cmd.get())
-        }
-        localCommands
     }
 
     /**

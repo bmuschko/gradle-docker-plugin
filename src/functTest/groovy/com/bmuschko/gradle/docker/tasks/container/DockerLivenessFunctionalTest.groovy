@@ -24,7 +24,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn livenessProbe
                 finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
-                cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
+                withCommand(['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"])
                 successOnExitCodes = [0, 137]
                 awaitStatusTimeout = 60000
                 execStopProbe(60000, 10000)
@@ -63,7 +63,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn livenessProbe
                 finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
-                cmd = ['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"]
+                withCommand(['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"])
                 successOnExitCodes = [0, 1, 137]
                 awaitStatusTimeout = 60000
                 execStopProbe(60000, 10000)

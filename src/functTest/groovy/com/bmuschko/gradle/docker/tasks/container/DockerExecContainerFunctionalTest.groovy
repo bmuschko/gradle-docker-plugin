@@ -27,7 +27,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                cmd = ['echo', 'Hello World']
+                withCommand(['echo', 'Hello World'])
             }
         """
         buildFile << containerUsage(containerExecutionTask)
@@ -72,7 +72,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                cmd = ['echo', 'Hello World']
+                withCommand(['echo', 'Hello World'])
             }
         """
         buildFile << containerUsage(containerExecutionTask)
@@ -91,7 +91,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn createContainer
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
-                cmd = ['echo', 'Hello World']
+                withCommand(['echo', 'Hello World'])
             }
         """
         buildFile << containerUsage(containerExecutionTask)
@@ -111,7 +111,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn startContainer
                 finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
-                cmd = ['sh', '-c', 'id -u && id -g']
+                withCommand(['sh', '-c', 'id -u && id -g'])
                 user = '10000:10001'
             }
         """
@@ -131,7 +131,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn startContainer
                 finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
-                cmd = ['test', '-e', '/not_existing_file']
+                withCommand(['test', '-e', '/not_existing_file'])
                 successOnExitCodes = [0]
             }
         """

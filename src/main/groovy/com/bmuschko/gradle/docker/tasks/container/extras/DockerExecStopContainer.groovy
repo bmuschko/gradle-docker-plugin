@@ -53,7 +53,7 @@ class DockerExecStopContainer extends DockerExecContainer {
 
         // 1.) we only need to proceed with an exec IF we have something to execute
         // otherwise treat this as a normal stop.
-        if (this.commands()) {
+        if (commands.get()) {
 
             // 2.) kick the exec command
             _runRemoteCommand(dockerClient)
