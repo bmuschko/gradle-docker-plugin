@@ -1,7 +1,7 @@
 == Change Log
 
 [discrete]
-=== v4.1.1 (TBA)
+=== v4.2.0 (TBA)
 
 * Applying the Docker Spring Boot application plugin with the plugins DSL should not fail - {uri-github}/issues/702[Issue 702]
 * **Breaking Change!** Remove all deprecations - {uri-github}/issues/675[Issue 675]
