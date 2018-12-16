@@ -21,12 +21,7 @@ val createMyAppContainer by tasks.creating(DockerCreateContainer::class) {
     targetImageId(buildMyAppImage.getImageId())
     portBindings.set(listOf("8080:8080"))
     autoRemove.set(true)
-
-    // doFirst required! #319
-    doFirst {
-        // `database` there will be host used by application to DB connect
-        links.set(listOf("${createDBContainer.getContainerId().get()}:database"))
-    }
+    links.set(listOf("docker_auto:database"))
 
     // If you use Systemd in containers you should also add lines. #320
     binds.set(mapOf("/sys/fs/cgroup" to "/sys/fs/cgroup"))

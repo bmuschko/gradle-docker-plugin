@@ -21,15 +21,10 @@ task createMyAppContainer(type: DockerCreateContainer) {
     targetImageId buildMyAppImage.getImageId()
     portBindings = ['8080:8080']
     autoRemove = true
-
-    // doFirst required! #319
-    doFirst{
-        // `database` there will be host used by application to DB connect
-        links = [ "${createDBContainer.getContainerId().get()}:database" ]
-    }
+    links = ["docker_auto:database"]
 
     // If you use Systemd in containers you should also add lines. #320
-    binds = [ '/sys/fs/cgroup': '/sys/fs/cgroup' ]
+    binds = ['/sys/fs/cgroup': '/sys/fs/cgroup']
     tty = true
 }
 
