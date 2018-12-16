@@ -52,9 +52,6 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 targetImageId pullImage.getImageId()
                 cmd = ['env']
                 
-                // deprecated, use the below examples
-                env = ['HELLO=WORLD']
-                
                 // add by appending new map to current map
                 envVars.set(['one' : 'two', 'three' : 'four'])
                 
@@ -72,7 +69,6 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         BuildResult result = build('logContainer')
 
         then:
-        result.output.contains("HELLO=WORLD")
         result.output.contains("one=two")
         result.output.contains("three=four")
         result.output.contains("five=six")

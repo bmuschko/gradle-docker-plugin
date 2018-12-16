@@ -88,12 +88,6 @@ class DockerCreateContainer extends DockerExistingImage {
     @Optional
     final Property<Boolean> attachStderr = project.objects.property(Boolean)
 
-    // use `envVars` instead
-    @Deprecated
-    @Input
-    @Optional
-    final ListProperty<String> env = project.objects.listProperty(String)
-
     @Input
     @Optional
     final Property<Map<?, ?>> envVars = project.objects.property(Map)
@@ -209,7 +203,6 @@ class DockerCreateContainer extends DockerExistingImage {
         attachStdin.set(false)
         attachStdout.set(false)
         attachStderr.set(false)
-        env.set([])
         cmd.set([])
         entrypoint.set([])
         dns.set([])
@@ -249,8 +242,6 @@ class DockerCreateContainer extends DockerExistingImage {
         this.restartPolicy.set("${name}:${maximumRetryCount}".toString())
     }
 
-    // key or value can be in the form of a Closure or anything else. In the
-    // end, and whatever it resolves to, will be marshaled into a String.
     void withEnvVar(def key, def value) {
         if (envVars.getOrNull()) {
             envVars.get().put(key, value)
@@ -310,12 +301,6 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if(attachStderr.getOrNull()) {
             containerCommand.withAttachStderr(attachStderr.get())
-        }
-
-        // marshall deprecated old list onto new map
-        env.getOrNull()?.each { envVar ->
-            def keyValuePair = envVar.split('=', 2)
-            envVars.get().put(keyValuePair.first(), keyValuePair.last())
         }
 
         // marshall map into list
