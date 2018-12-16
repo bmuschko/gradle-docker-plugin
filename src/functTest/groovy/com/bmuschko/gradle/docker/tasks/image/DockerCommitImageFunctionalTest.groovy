@@ -2,14 +2,15 @@ package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.UnexpectedBuildFailure
 
 class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
+
+    private static final String COMMIT_TASK_NAME = 'commitImage'
 
     def "can commit image"() {
         given:
         String commitImage = """
-            task commitImage(type: DockerCommitImage) {
+            task $COMMIT_TASK_NAME(type: DockerCommitImage) {
                 dependsOn startContainer
                 targetContainerId createContainer.getContainerId()
                 author = "john doe"
@@ -19,39 +20,22 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
 
         buildFile << containerStart(commitImage)
-
-        when:
-        BuildResult result = build('commitImage')
-
-        then:
-        result.output.contains("Commiting image for container")
-    }
-
-    def "cannot commit image without container"() {
-        given:
-        String commitImage = """
-            task commitImage(type: DockerCommitImage) {
-                dependsOn startContainer
-                finalizedBy removeContainer
-            }
+        buildFile << """
+            commitImage.finalizedBy removeImage
         """
 
-        buildFile << containerStart(commitImage)
-
         when:
-        BuildResult result = build('commitImage')
+        BuildResult result = build(COMMIT_TASK_NAME)
 
         then:
-        def e = thrown(UnexpectedBuildFailure)
-        e.message.contains('No value has been specified for property \'containerId\'.')
+        result.output.contains("Committing image for container")
     }
 
     def "cannot commit image with invalid container"() {
         given:
         String commitImage = """
-            task commitImage(type: DockerCommitImage) {
+            task $COMMIT_TASK_NAME(type: DockerCommitImage) {
                 dependsOn startContainer
-                finalizedBy removeContainer
                 targetContainerId "idonotexist"
             }
         """
@@ -59,13 +43,11 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         buildFile << containerStart(commitImage)
 
         when:
-        BuildResult result = build('commitImage')
+        BuildResult result = buildAndFail(COMMIT_TASK_NAME)
 
         then:
-        def e = thrown(UnexpectedBuildFailure)
-        e.message.contains('{"message":"No such container: idonotexist"}')
+        result.output.contains('{"message":"No such container: idonotexist"}')
     }
-
 
     static String containerStart(containerCommitImageExecutionTask) {
         """
@@ -93,21 +75,20 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 targetContainerId createContainer.getContainerId()
             }
             
+            ${containerCommitImageExecutionTask}
+            
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
                 targetContainerId startContainer.getContainerId()
             }
 
-            ${containerCommitImageExecutionTask}
-
             task removeImage(type: DockerRemoveImage) {
-                dependsOn removeContainer
                 force = true
                 targetImageId commitImage.getImageId()
             }
 
-            commitImage.finalizedBy removeImage
+            commitImage.finalizedBy removeContainer
         """
     }
 }
