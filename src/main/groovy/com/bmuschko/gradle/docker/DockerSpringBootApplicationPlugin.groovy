@@ -11,6 +11,7 @@ import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.bundling.Jar
@@ -36,13 +37,15 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         DockerExtension dockerExtension = project.extensions.getByType(DockerExtension)
         DockerSpringBootApplication dockerSpringBootApplication = configureExtension(project, dockerExtension)
 
-        project.plugins.withId('org.springframework.boot') {
-            Jar archiveTask = determineArchiveTask(project)
-            Dockerfile createDockerfileTask = createDockerfileTask(project, archiveTask, dockerSpringBootApplication)
-            Sync syncWarTask = createSyncArchiveTask(project, archiveTask, createDockerfileTask)
-            createDockerfileTask.dependsOn syncWarTask
-            DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerSpringBootApplication)
-            createPushImageTask(project, dockerBuildImageTask)
+        project.plugins.withType(JavaPlugin) {
+            project.plugins.withId('org.springframework.boot') {
+                Jar archiveTask = determineArchiveTask(project)
+                Dockerfile createDockerfileTask = createDockerfileTask(project, archiveTask, dockerSpringBootApplication)
+                Sync syncWarTask = createSyncArchiveTask(project, archiveTask, createDockerfileTask)
+                createDockerfileTask.dependsOn syncWarTask
+                DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerSpringBootApplication)
+                createPushImageTask(project, dockerBuildImageTask)
+            }
         }
     }
 
