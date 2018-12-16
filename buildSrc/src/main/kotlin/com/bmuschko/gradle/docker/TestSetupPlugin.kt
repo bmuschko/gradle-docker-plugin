@@ -25,6 +25,7 @@ class TestSetupPlugin : Plugin<Project> {
             testLogging {
                 events("skipped")
             }
+            failFast = true
         }
     }
 }
