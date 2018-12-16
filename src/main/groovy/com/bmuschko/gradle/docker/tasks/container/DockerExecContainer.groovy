@@ -65,10 +65,6 @@ class DockerExecContainer extends DockerExistingContainer {
     ExecProbe execProbe
 
     @Internal
-    @Deprecated // use the _execIds_ instead.
-    final Property<String> execId = project.objects.property(String)
-
-    @Internal
     final ListProperty<String> execIds = project.objects.listProperty(String)
 
     DockerExecContainer() {
