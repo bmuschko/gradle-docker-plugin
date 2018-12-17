@@ -67,7 +67,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
 
     private void configureAbstractDockerTask(Project project, DockerExtension extension) {
         ThreadContextClassLoader dockerClassLoader = new DockerThreadContextClassLoader(extension)
-        project.tasks.withType(AbstractDockerRemoteApiTask, new Action<AbstractDockerRemoteApiTask>() {
+        project.tasks.withType(AbstractDockerRemoteApiTask).configureEach(new Action<AbstractDockerRemoteApiTask>() {
             @Override
             void execute(AbstractDockerRemoteApiTask apiTask) {
                 apiTask.with {
@@ -79,7 +79,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureRegistryAwareTasks(Project project, DockerRegistryCredentials dockerRegistryCredentials) {
-        project.tasks.withType(RegistryCredentialsAware, new Action<RegistryCredentialsAware>() {
+        project.tasks.withType(RegistryCredentialsAware).configureEach(new Action<RegistryCredentialsAware>() {
             @Override
             void execute(RegistryCredentialsAware registryCredentialsAware) {
                 registryCredentialsAware.setRegistryCredentials(dockerRegistryCredentials)
