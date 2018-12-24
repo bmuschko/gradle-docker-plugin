@@ -25,7 +25,14 @@ class TestSetupPlugin : Plugin<Project> {
             testLogging {
                 events("skipped")
             }
+
+            maxParallelForks = determineMaxParallelForks()
             failFast = true
         }
+    }
+
+    private
+    fun determineMaxParallelForks(): Int {
+        return if ((Runtime.getRuntime().availableProcessors() / 2) < 1) 1 else (Runtime.getRuntime().availableProcessors() / 2)
     }
 }
