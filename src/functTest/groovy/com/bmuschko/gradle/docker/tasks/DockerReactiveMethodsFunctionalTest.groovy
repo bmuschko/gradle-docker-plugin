@@ -16,10 +16,11 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
-import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
+
+import static com.bmuschko.gradle.docker.TestConfiguration.getDockerPrivateRegistryDomain
 
 class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -37,14 +38,10 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                     } 
                 }
             }
-
-            task workflow {
-                dependsOn removeNonExistentContainer
-            }
         """
 
         when:
-        BuildResult result = build('workflow')
+        BuildResult result = build('removeNonExistentContainer')
 
         then:
         result.output.contains('Caught Exception onError')
@@ -64,34 +61,43 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                     } 
                 }
             }
-
-            task workflow {
-                dependsOn removeNonExistentContainer
-            }
         """
 
-        expect:
-        buildAndFail('workflow')
+        when:
+        BuildResult result = buildAndFail('removeNonExistentContainer')
+
+        then:
+        result.output.contains('No such container')
     }
 
     def "should call onNext during build image"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
-                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
+                from '$TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'john.doe@example.com'])
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                force = true
             }
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                finalizedBy removeImage
                 inputDir = file("build/docker")
                 onNext {
                     if (it.stream) {
                         logger.quiet "docker: " + it.stream.trim()
                     }
                 }
+            }
+            
+            removeImage {
+                targetImageId buildImage.imageId
             }
         """
 
@@ -111,8 +117,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -125,9 +131,16 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId startContainer.getContainerId()
+            }
  
             task logContainer(type: DockerLogsContainer) {
                 dependsOn startContainer
+                finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
                 follow = true
                 tailAll = true
@@ -136,22 +149,12 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                     logger.quiet l.toString()
                 }
             }
-            
-            task removeContainer(type: DockerRemoveContainer) {
-                dependsOn logContainer
-                removeVolumes = true
-                force = true
-                targetContainerId startContainer.getContainerId()
-            }
-
-            task workflow {
-                dependsOn removeContainer
-            }
-           
         """
 
-        expect:
-        BuildResult result = build('workflow')
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
         result.output.contains("STDOUT: Hello World")
     }
 
@@ -161,8 +164,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
     
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task listImages(type: DockerListImages) {
@@ -178,28 +181,36 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
         """
 
         when:
-        def result = build('listImages')
+        BuildResult result = build('listImages')
 
         then:
         result.output.contains("MB")
     }
 
-    def "should call onNext when coping file from container"() {
+    def "should call onNext when copying file from container"() {
         String uniqueContainerName = createUniqueContainerName()
 
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG' }
+                targetImageId '$TEST_IMAGE_WITH_TAG'
                 containerName = "$uniqueContainerName"
                 cmd = ['/bin/sh']
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId createContainer.getContainerId()
             }
 
             task printOsRelease(type: DockerCopyFileFromContainer) {
                 dependsOn createContainer
+                finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
                 remotePath = "/etc/os-release"
                 
@@ -210,7 +221,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
         """
 
         when:
-        def result = build('printOsRelease')
+        BuildResult result = build('printOsRelease')
 
         then:
         result.output.contains('PRETTY_NAME="Alpine Linux v3.4"')
@@ -223,11 +234,19 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+            }
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
+                finalizedBy removeContainer
+                targetImageId '$TEST_IMAGE_WITH_TAG'
                 containerName = "$uniqueContainerName"
                 cmd = ['/bin/sh']
+                autoRemove = true
                 
                 onNext { c ->
                     if(c.warnings) {
@@ -235,16 +254,17 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                     }
                 }
             }
+            
+            removeContainer {
+                targetContainerId createContainer.containerId
+            }
             """
 
-        when:
+        expect:
         build('createContainer')
-
-        then:
-        noExceptionThrown()
     }
 
-    def "should call onNext when executing command in container "() {
+    def "should call onNext when executing command in container"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
@@ -252,7 +272,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
+                targetImageId '$TEST_IMAGE_WITH_TAG'
                 cmd = ['sleep','10']
             }
 
@@ -260,9 +280,16 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId startContainer.getContainerId()
+            }
 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
+                finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
                 withCommand(['echo', 'Hello World'])
                 
@@ -270,21 +297,12 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                     logger.quiet f.toString()
                 }
             }
-            
-            task removeContainer(type: DockerRemoveContainer) {
-                dependsOn execContainer
-                removeVolumes = true
-                force = true
-                targetContainerId startContainer.getContainerId()
-            }
-
-            task workflow {
-                dependsOn removeContainer
-            }
         """
 
-        expect:
-        BuildResult result = build('workflow')
+        when:
+        BuildResult result = build('execContainer')
+
+        then:
         result.output.contains("STDOUT: Hello World")
     }
 
@@ -295,12 +313,19 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task createContainer(type: DockerCreateContainer) {
-                targetImageId { '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG' }
+                targetImageId { '$TEST_IMAGE_WITH_TAG' }
                 cmd = ['sleep','10']
+            }
+            
+            task removeContainer(type: DockerRemoveContainer) {
+                removeVolumes = true
+                force = true
+                targetContainerId createContainer.getContainerId()
             }
 
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
+                finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
                 
                 onNext { c ->
@@ -309,21 +334,12 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                     }
                 }
             }
-            
-            task removeContainer(type: DockerRemoveContainer) {
-                dependsOn inspectContainer
-                removeVolumes = true
-                force = true
-                targetContainerId createContainer.getContainerId()
-            }
-
-            task workflow {
-                dependsOn removeContainer
-            }
         """
 
-        expect:
-        def result = build('workflow')
+        when:
+        def result = build('inspectContainer')
+
+        then:
         result.output.contains("Container should be running!")
     }
 
@@ -332,19 +348,26 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 
-            task createContainer(type: DockerCreateContainer){
-                targetImageId '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
+            task createContainer(type: DockerCreateContainer) {
+                targetImageId '$TEST_IMAGE_WITH_TAG'
                 cmd = ['sh', '-c', 'exit 1']
+                autoRemove = true
             }
 
-            task startContainer(type: DockerStartContainer){
+            task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
+            
+            task stopContainer(type: DockerStartContainer) {
+                targetContainerId createContainer.getContainerId()
+            }
 
-            task runContainers(type: DockerWaitContainer){
+            task runContainers(type: DockerWaitContainer) {
                 dependsOn startContainer
+                finalizedBy stopContainer
                 targetContainerId startContainer.getContainerId()
                 onNext { r ->
                     if(r.statusCode) {
@@ -354,8 +377,10 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             }
         """
 
-        expect:
+        when:
         BuildResult result = buildAndFail('runContainers')
+
+        then:
         result.output.contains("Container failed!")
     }
 
@@ -365,8 +390,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
+                repository = '$TEST_IMAGE'
+                tag = '$TEST_IMAGE_TAG'
             }
 
             task inspectImage(type: DockerInspectImage) {
@@ -378,14 +403,10 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                     logger.quiet 'Entrypoint: ' + image.config.entrypoint
                 }
             }
-
-            task workflow {
-                dependsOn inspectImage
-            }
         """
 
         when:
-        BuildResult result = build('workflow')
+        BuildResult result = build('inspectImage')
 
         then:
         result.output.contains('Entrypoint: null')
@@ -429,10 +450,11 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task createDockerfile(type: Dockerfile) {
                 destFile = project.layout.buildDirectory.file('private-reg-reactive/Dockerfile')
-                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
+                from '$TEST_IMAGE_WITH_TAG'
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
                 runCommand 'mkdir -p /tmp/${createUniqueImageId()}'
             }
@@ -440,26 +462,29 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
                 inputDir = createDockerfile.destFile.get().asFile.parentFile
-                tags.add('${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}')
+                tags.add('${dockerPrivateRegistryDomain}/${createUniqueImageId()}')
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                targetImageId buildImage.imageId
             }
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
+                finalizedBy removeImage
                 imageName = buildImage.tags.get().first()
                 
                 onNext { p ->
                     logger.quiet p.status + ' ' + (p.progress ?: '')
                 }
             }
-
-            task workflow {
-                dependsOn pushImage
-            }
         """
 
-        expect:
-        expect:
-        BuildResult result = build('workflow')
+        when:
+        BuildResult result = build('pushImage')
+
+        then:
         result.output.contains("Pushed")
     }
 
@@ -475,11 +500,10 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
         """
 
         when:
-        def result = build('listImages')
+        BuildResult result = build('listImages')
 
         then:
         result.output.contains("-- END OF IMAGES --")
-
     }
 
     def "should not call onComplete when task finished with error and onError is defined"() {
@@ -498,11 +522,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             }
         """
 
-        when:
+        expect:
         build('removeImage')
-
-        then:
-        noExceptionThrown()
     }
 
     def "should not call onComplete when task finished with error"() {
@@ -519,7 +540,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
         """
 
         when:
-        def result = buildAndFail('removeImage')
+        BuildResult result = buildAndFail('removeImage')
 
         then:
         !result.output.contains("Should never go here!")
