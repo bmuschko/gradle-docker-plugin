@@ -40,6 +40,12 @@ abstract class AbstractFunctionalTest extends Specification {
             .withPluginClasspath()
     }
 
+    protected File file(String relativePath) {
+        File file = new File(projectDir, relativePath)
+        assert file.exists()
+        file
+    }
+
     abstract String getBuildFileName()
     abstract String getSettingsFileName()
 }
