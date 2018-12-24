@@ -23,7 +23,6 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
             }
         """
 
@@ -192,7 +191,6 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildWithShmSize(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
                 shmSize = 128000L
             }
         """
@@ -209,7 +207,6 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
             }
         """
     }
@@ -231,7 +228,6 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
                 buildArgs = ['arg1':'test1', 'arg2':'test2', 'arg3': "\$project.name"]
             }
 
@@ -254,7 +250,6 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
                 labels = ['label1':'test1', 'label2':'test2', 'label3':"\$project.name"]
             }
 
@@ -278,13 +273,11 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImageWithTags(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
                 tags = ['test/image:123', "registry.com:5000/test/image:\$project.version"]
             }
             
             task buildImageWithTag(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
                 tags.add('test/image:123')
             }
         """
@@ -306,7 +299,6 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImageWithCacheFrom(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
                 cacheFrom.add('$uniqueTag:latest')
                 tags.add('$uniqueTag:latest')
             }
@@ -332,7 +324,6 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = dockerfile.destFile.get().asFile.parentFile
                 cacheFrom.add('$TEST_IMAGE_WITH_TAG') // no effect
                 tags.add('$uniqueTag')
             }
@@ -374,7 +365,6 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildWithHostNetwork(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = dockerfile.destFile.get().asFile.parentFile
                 network = 'host'
             }
         """

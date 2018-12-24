@@ -34,7 +34,6 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -123,7 +122,6 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -178,7 +176,6 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -232,7 +229,6 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -283,7 +279,6 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -334,7 +329,6 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
             }
 
             task createContainer(type: DockerCreateContainer) {

@@ -88,7 +88,6 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 finalizedBy removeImage
-                inputDir = file("build/docker")
                 onNext {
                     if (it.stream) {
                         logger.quiet "docker: " + it.stream.trim()

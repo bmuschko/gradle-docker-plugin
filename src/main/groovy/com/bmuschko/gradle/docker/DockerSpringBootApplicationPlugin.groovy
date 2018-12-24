@@ -8,7 +8,6 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.file.Directory
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
@@ -108,12 +107,6 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
             void execute(DockerBuildImage dockerBuildImage) {
                 dockerBuildImage.description = 'Builds the Docker image for the Spring Boot application.'
                 dockerBuildImage.dependsOn createDockerfileTask
-                dockerBuildImage.inputDir.set(project.provider(new Callable<Directory>() {
-                    @Override
-                    Directory call() throws Exception {
-                        project.layout.projectDirectory.dir(createDockerfileTask.destFile.get().asFile.parentFile.canonicalPath)
-                    }
-                }))
                 dockerBuildImage.tags.add(determineImageTag(project, dockerSpringBootApplication))
             }
         })

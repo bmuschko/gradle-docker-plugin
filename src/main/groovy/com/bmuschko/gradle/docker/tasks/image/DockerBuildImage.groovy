@@ -27,7 +27,7 @@ import org.gradle.api.tasks.*
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
-     * Input directory containing the build context. Defaults to "$projectDir/docker".
+     * Input directory containing the build context. Defaults to "$buildDir/docker".
      */
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
@@ -101,7 +101,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final Property<String> imageId = project.objects.property(String)
 
     DockerBuildImage() {
-        inputDir.set(project.file('docker'))
+        inputDir.set(project.layout.buildDirectory.dir('docker'))
         tags.set([])
         noCache.set(false)
         remove.set(false)

@@ -24,7 +24,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.file.CopySpec
-import org.gradle.api.file.Directory
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.ApplicationPluginConvention
 import org.gradle.api.plugins.ExtensionAware
@@ -181,12 +180,6 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 dockerBuildImage.with {
                     description = 'Builds the Docker image for the Java application.'
                     dependsOn createDockerfileTask
-                    inputDir.set(project.provider(new Callable<Directory>() {
-                        @Override
-                        Directory call() throws Exception {
-                            project.layout.projectDirectory.dir(createDockerfileTask.destFile.get().asFile.parentFile.canonicalPath)
-                        }
-                    }))
                 }
                 // Can't be within `with` above because the compiler falls over.
                 dockerBuildImage.tags.add(determineImageTag(project, dockerJavaApplication))
