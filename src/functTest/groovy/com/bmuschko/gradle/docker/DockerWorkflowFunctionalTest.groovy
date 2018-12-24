@@ -651,9 +651,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             
             task loadImage(type: DockerLoadImage) {
                 dependsOn removeImage
-                imageStream {
-                    new File("${savedImagePath}").newInputStream()
-                }
+                imageFile = saveImage.destFile
             }
             
             task createContainer(type: DockerCreateContainer) {

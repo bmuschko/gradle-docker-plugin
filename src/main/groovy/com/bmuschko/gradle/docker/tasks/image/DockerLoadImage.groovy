@@ -1,15 +1,16 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Input
 
 class DockerLoadImage extends AbstractDockerRemoteApiTask {
 
     @Input
-    Closure<InputStream> imageStream
+    final RegularFileProperty imageFile = newOutputFile()
 
     @Override
-    void runRemoteCommand(Object dockerClient) {
-        dockerClient.loadImageCmd(imageStream()).exec()
+    void runRemoteCommand(dockerClient) {
+        dockerClient.loadImageCmd(new FileInputStream(imageFile.get().asFile)).exec()
     }
 }
