@@ -177,12 +177,12 @@ EXPOSE 9090
         temporaryFolder.newFile('file2.txt')
 
         buildFile << """
-            dockerCopyDistResources {
+            dockerSyncArchive {
                 from file('file1.txt')
                 from file('file2.txt')
             }
 
-            dockerDistTar {
+            dockerCreateDockerfile {
                 addFile 'file1.txt', '/some/dir/file1.txt'
                 addFile 'file2.txt', '/other/dir/file2.txt'
             }

@@ -31,14 +31,14 @@ docker {
 // end::exec[]
 
 // tag::dockerfile-addition-instructions[]
-tasks.named<Dockerfile>("dockerDistTar") {
+tasks.named<Dockerfile>("dockerCreateDockerfile") {
     instruction("RUN ls -la")
     environmentVariable("JAVA_OPTS", "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap")
 }
 // end::dockerfile-addition-instructions[]
 
 // tag::instruction-template[]
-tasks.named<Dockerfile>("dockerDistTar") {
+tasks.named<Dockerfile>("dockerCreateDockerfile") {
     instructionsFromTemplate(file("Dockerfile.tmpl"))
 }
 // end::instruction-template[]

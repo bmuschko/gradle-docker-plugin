@@ -39,9 +39,9 @@ import java.util.concurrent.Callable
  */
 @CompileStatic
 class DockerJavaApplicationPlugin implements Plugin<Project> {
-    public static final String JAVA_APPLICATION_EXTENSION_NAME = "javaApplication"
-    public static final String COPY_DIST_RESOURCES_TASK_NAME = 'dockerCopyDistResources'
-    public static final String DOCKERFILE_TASK_NAME = 'dockerDistTar'
+    public static final String JAVA_APPLICATION_EXTENSION_NAME = 'javaApplication'
+    public static final String SYNC_ARCHIVE_TASK_NAME = 'dockerSyncArchive'
+    public static final String DOCKERFILE_TASK_NAME = 'dockerCreateDockerfile'
     public static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
     public static final String PUSH_IMAGE_TASK_NAME = 'dockerPushImage'
 
@@ -158,7 +158,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
 
     private Sync createDistCopyResourcesTask(Project project, Sync installTask, Jar jarTask, Dockerfile createDockerfileTask) {
         project.tasks.create(
-            COPY_DIST_RESOURCES_TASK_NAME,
+            SYNC_ARCHIVE_TASK_NAME,
             Sync,
             createDistCopyResourcesTaskAction(installTask, jarTask, createDockerfileTask))
     }

@@ -5,6 +5,7 @@
 
 * **Breaking Change!** The task `DockerLoadImage` should use `Provider` type for image file
 * **Breaking Change!** Use the default value `$buildDir/docker` for `DockerBuildImage.inputDir` to align with the default directory of the `Dockerfile` task
+* **Breaking Change!** Align task names in `DockerJavaApplicationPlugin` with the ones from the `DockerSpringBootApplicationPlugin`
 
 [discrete]
 === v4.2.0 (December 16, 2018)

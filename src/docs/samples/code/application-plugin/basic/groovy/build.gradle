@@ -29,13 +29,13 @@ docker {
 // end::exec[]
 
 // tag::dockerfile-addition-instructions[]
-dockerDistTar {
+dockerCreateDockerfile {
     instruction 'RUN ls -la'
     environmentVariable 'JAVA_OPTS', '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap'
 }
 // end::dockerfile-addition-instructions[]
 
 // tag::instruction-template[]
-dockerDistTar.instructionsFromTemplate file('Dockerfile.tmpl')
+dockerCreateDockerfile.instructionsFromTemplate file('Dockerfile.tmpl')
 // end::instruction-template[]
 

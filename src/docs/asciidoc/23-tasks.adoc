@@ -5,8 +5,8 @@ The plugin provides a set of tasks for your project and preconfigures them with 
 [options="header"]
 |=======
 |Task name                 |Depends On                |Type                                                                                 |Description
-|`dockerCopyDistResources` |`distTar`                 |{uri-gradle-docs}/javadoc/org/gradle/api/tasks/Sync.html[Sync]                       |Copies the resource files (like the Java application's TAR file) to a temporary directory for image creation.
-|`dockerDistTar`           |`dockerCopyDistResources` |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile] |Creates the Docker image for the Java application.
-|`dockerBuildImage`        |`dockerDistTar`           |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html[DockerBuildImage] |Builds the Docker image for the Java application.
+|`dockerSyncArchive`       |`distTar`                 |{uri-gradle-docs}/javadoc/org/gradle/api/tasks/Sync.html[Sync]                       |Copies the resource files (like the Java application's TAR file) to a temporary directory for image creation.
+|`dockerCreateDockerfile`  |`dockerSyncArchive`       |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile] |Creates the Docker image for the Java application.
+|`dockerBuildImage`        |`dockerCreateDockerfile`  |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html[DockerBuildImage] |Builds the Docker image for the Java application.
 |`dockerPushImage`         |`dockerBuildImage`        |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/DockerPushImage.html[DockerPushImage] |Pushes created Docker image to the repository.
 |=======
