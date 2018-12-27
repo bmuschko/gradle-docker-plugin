@@ -1,3 +1,4 @@
+[[java-application-plugin]]
 == Java Application Plugin
 
 The plugin `com.bmuschko.docker-java-application` is a highly opinionated plugin for projects applying the {uri-gradle-docs}/userguide/application_plugin.html[application plugin].

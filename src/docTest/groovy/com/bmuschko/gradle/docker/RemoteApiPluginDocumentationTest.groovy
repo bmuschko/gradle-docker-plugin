@@ -4,7 +4,7 @@ import org.gradle.testkit.runner.BuildResult
 import spock.lang.Ignore
 import spock.lang.Unroll
 
-class RemoteApiPluginDocumentationTest  extends AbstractDocumentationTest {
+class RemoteApiPluginDocumentationTest extends AbstractDocumentationTest {
 
     @Unroll
     def "can apply plugin with plugins DSL [#dsl.language]"() {
@@ -90,6 +90,27 @@ class RemoteApiPluginDocumentationTest  extends AbstractDocumentationTest {
 
         then:
         result.output.contains('functionalTestMyApp')
+
+        where:
+        dsl << ALL_DSLS
+    }
+
+    @Unroll
+    def "can modify and add Dockerfile instructions [#dsl.language]"() {
+        given:
+        copySampleCode("remote-api-plugin/dockerfile-instructions/$dsl.language")
+
+        when:
+        BuildResult result = build('printDockerfileInstructions')
+
+        then:
+        result.output.contains("""FROM openjdk:8-alpine
+COPY my-app-1.0.jar /app/my-app-1.0.jar
+ENTRYPOINT ["java"]
+CMD ["-jar", "/app/my-app-1.0.jar"]
+EXPOSE 8080
+HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+""")
 
         where:
         dsl << ALL_DSLS

@@ -3,6 +3,55 @@
 The following usage examples demonstrate code for common use cases.
 More scenarios can be found in the {uri-github}/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy[functional tests].
 
+==== Modifying Instructions of a Dockerfile Task
+
+Sometimes do you do not have any control over the creation of a `Dockerfile` task.
+For example the Docker <<java-application-plugin,Java Application Plugin>> already adds a `Dockerfile` task with a set of sensible instructions.
+You can still modify {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html#getInstructions()[those instructions] if needed.
+Let's say you are dealing with the following `Dockerfile` definition.
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::{samplesCodeDir}/remote-api-plugin/dockerfile-instructions/groovy/build.gradle[tag=existing-instructions]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/remote-api-plugin/dockerfile-instructions/kotlin/build.gradle.kts[tag=existing-instructions]
+----
+
+Now, you may prefer a different base image than the one added by default.
+The listing below demonstrates how to find it the `FROM` instruction and replace it with a different one.
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::{samplesCodeDir}/remote-api-plugin/dockerfile-instructions/groovy/build.gradle[tag=modify-instruction]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/remote-api-plugin/dockerfile-instructions/kotlin/build.gradle.kts[tag=modify-instruction]
+----
+
+You can also add new instructions at a specific position in the existing list of instructions.
+For example you may want to add a `HEALTHCHECK` to the end of the list.
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::{samplesCodeDir}/remote-api-plugin/dockerfile-instructions/groovy/build.gradle[tag=add-instruction]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/remote-api-plugin/dockerfile-instructions/kotlin/build.gradle.kts[tag=add-instruction]
+----
+
 ==== Creating a Dockerfile And Building an Image
 
 A Dockerfile can be created by the `Dockerfile` custom tasks.
