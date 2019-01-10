@@ -11,7 +11,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                livenessProbe(300000, 30000, 'database system is ready to accept connections')
+                livenessProbe(300000, 1000, 'database system is ready to accept connections')
                 onComplete {
                     println 'Container is now live'
                 }
