@@ -346,7 +346,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if (links.getOrNull()) {
             def createdLinks = links.get().collect { threadContextClassLoader.createLink(it) }
-            containerCommand.withLinks(CollectionUtil.toArray(createdLinks))
+            containerCommand.hostConfig.withLinks(CollectionUtil.toArray(createdLinks))
         }
 
         if(volumesFrom.getOrNull()) {

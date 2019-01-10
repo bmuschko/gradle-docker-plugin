@@ -36,6 +36,7 @@ class FunctionalTestPlugin : Plugin<Project> {
                 events("started", "passed", "failed")
             }
         }
+        functionalTest.include("**/DockerCreateContainer*")
 
         tasks["check"].dependsOn(functionalTest)
     }
