@@ -351,7 +351,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if(volumesFrom.getOrNull()) {
             def createdVolumes = threadContextClassLoader.createVolumesFrom(volumesFrom.get() as String[])
-            containerCommand.withVolumesFrom(createdVolumes)
+            containerCommand.hostConfig.withVolumesFrom(createdVolumes)
         }
 
         if(workingDir.getOrNull()) {
