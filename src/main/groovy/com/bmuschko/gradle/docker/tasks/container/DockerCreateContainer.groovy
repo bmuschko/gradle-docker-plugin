@@ -382,7 +382,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(logConfig.getOrNull()) {
-            containerCommand.withLogConfig(threadContextClassLoader.createLogConfig(logConfig.get().type, logConfig.get().config))
+            containerCommand.hostConfig.withLogConfig(threadContextClassLoader.createLogConfig(logConfig.get().type, logConfig.get().config))
         }
 
         if(privileged.getOrNull()) {
