@@ -33,7 +33,7 @@ abstract class AbstractDocumentationTest extends Specification {
         GradleRunner.create()
             .withProjectDir(projectDir)
             .withArguments(arguments + '-s' as List<String>)
-            .withPluginClasspath()
+            .withPluginClasspath().forwardOutput()
     }
 
     protected void copySampleCode(String sourcePath) {

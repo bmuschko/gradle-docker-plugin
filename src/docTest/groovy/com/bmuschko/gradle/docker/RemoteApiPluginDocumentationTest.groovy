@@ -115,4 +115,19 @@ HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:8080/actuator/h
         where:
         dsl << ALL_DSLS
     }
+
+    @Unroll
+    def "can implement custom task type [#dsl.language]"() {
+        given:
+        copySampleCode("remote-api-plugin/custom-task-type/$dsl.language")
+
+        when:
+        BuildResult result = build('printImageId')
+
+        then:
+        result.output.contains('Resolved image ID')
+
+        where:
+        dsl << ALL_DSLS
+    }
 }

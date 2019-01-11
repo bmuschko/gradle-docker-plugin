@@ -103,3 +103,36 @@ include::{samplesCodeDir}/remote-api-plugin/linking-containers/groovy/build.grad
 ----
 include::{samplesCodeDir}/remote-api-plugin/linking-containers/kotlin/build.gradle.kts[]
 ----
+
+==== Implementing Custom Docker Client Handling
+
+The plugin provides an opinionated set of custom tasks for the most common Docker operations.
+Sometime the situation may arise that you want to have full control over what you want to call on the Docker client.
+To do so you can implement your own custom task that extends from {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/AbstractDockerRemoteApiTask.html[AbstractDockerRemoteApiTask].
+The following example shows how to implement such a custom task:
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::{samplesCodeDir}/remote-api-plugin/custom-task-type/groovy/build.gradle[tag=task-type-definition]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/remote-api-plugin/custom-task-type/kotlin/build.gradle.kts[tag=task-type-definition]
+----
+
+To use the custom task, simply create a task by type.
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::{samplesCodeDir}/remote-api-plugin/custom-task-type/groovy/build.gradle[tag=task-type-usage]
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+include::{samplesCodeDir}/remote-api-plugin/custom-task-type/kotlin/build.gradle.kts[tag=task-type-usage]
+----

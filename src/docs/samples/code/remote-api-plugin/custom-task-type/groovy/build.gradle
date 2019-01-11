@@ -1,0 +1,53 @@
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '{project-version}'
+}
+
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+
+// tag::task-type-usage[]
+task imageIdForName(type: DockerImageIdForName) {
+    filteredImageName = 'alpine:3.4'
+}
+
+task printImageId {
+    dependsOn imageIdForName
+    doLast {
+        logger.quiet "Resolved image ID ${imageIdForName.imageId.get()} for name ${imageIdForName.filteredImageName.get()}"
+    }
+}
+// end::task-type-usage[]
+
+task pullImage(type: DockerPullImage) {
+    repository = 'alpine'
+    tag = '3.4'
+}
+
+imageIdForName.dependsOn pullImage
+
+// tag::task-type-definition[]
+class DockerImageIdForName extends AbstractDockerRemoteApiTask {
+    @Input
+    final Property<String> filteredImageName = project.objects.property(String)
+
+    @Internal
+    final Property<String> imageId = project.objects.property(String)
+
+    DockerImageIdForName() {
+        nextHandler = { image ->
+            imageId.set(image.id)
+        }
+    }
+
+    @Override
+    void runRemoteCommand(dockerClient) {
+        def images = dockerClient.listImagesCmd()
+            .withImageNameFilter(filteredImageName.get())
+            .exec()
+
+        for(image in images) {
+            nextHandler.execute(image)
+        }
+    }
+}
+// end::task-type-definition[]
