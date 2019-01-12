@@ -16,19 +16,19 @@ class AdditionalArtifactsPlugin: Plugin<Project> {
         val javadoc: Javadoc by tasks
 
         tasks.create("sourcesJar", Jar::class) {
-            classifier = "sources"
+            archiveClassifier.set("sources")
             from(sourceSets["main"].allSource)
         }
 
         tasks.create("groovydocJar", Jar::class) {
             dependsOn(groovydoc)
-            classifier = "groovydoc"
+            archiveClassifier.set("groovydoc")
             from(groovydoc.destinationDir)
         }
 
         tasks.create("javadocJar", Jar::class) {
             dependsOn(javadoc)
-            classifier = "javadoc"
+            archiveClassifier.set("javadoc")
             from(javadoc.destinationDir)
         }
     }
