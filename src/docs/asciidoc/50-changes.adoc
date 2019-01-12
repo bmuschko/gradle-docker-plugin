@@ -1,6 +1,9 @@
 == Change Log
 
 [discrete]
+=== v4.4.0 (TBA)
+
+[discrete]
 === v4.3.0 (January 12, 2019)
 
 * **Breaking Change!** The task `DockerLoadImage` should use `Provider` type for image file
