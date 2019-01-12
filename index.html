@@ -531,7 +531,7 @@ $(addBlockSwitches);
 <li><a href="#examples">2.5. Examples</a></li>
 </ul>
 </li>
-<li><a href="#java_application_plugin">3. Java Application Plugin</a>
+<li><a href="#java-application-plugin">3. Java Application Plugin</a>
 <ul class="sectlevel2">
 <li><a href="#usage_2">3.1. Usage</a></li>
 <li><a href="#extension_2">3.2. Extension</a></li>
@@ -711,7 +711,7 @@ See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle 
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:4.2.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.3.0'
     }
 }
 
@@ -726,7 +726,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'</code></pre>
         gradlePluginPortal()
     }
     dependencies {
-        classpath("com.bmuschko:gradle-docker-plugin:4.2.0")
+        classpath("com.bmuschko:gradle-docker-plugin:4.3.0")
     }
 }
 
@@ -740,7 +740,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.2.0'
+    id 'com.bmuschko.docker-remote-api' version '4.3.0'
 }</code></pre>
 </div>
 </div>
@@ -748,7 +748,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.2.0"
+    id("com.bmuschko.docker-remote-api") version "4.3.0"
 }</code></pre>
 </div>
 </div>
@@ -778,7 +778,7 @@ When used with the Kotlin DSL, it is recommended to move your implementation int
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:4.2.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.3.0'
     }
 }
 
@@ -808,7 +808,7 @@ You can model any workflow imaginable by creating enhanced task of the custom ta
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.2.0'
+    id 'com.bmuschko.docker-remote-api' version '4.3.0'
 }
 
 // Import task types
@@ -825,7 +825,7 @@ task buildMyAppImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.2.0"
+    id("com.bmuschko.docker-remote-api") version "4.3.0"
 }
 
 // Import task types
@@ -1439,7 +1439,96 @@ The below example demonstrates how this works.</p>
 More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/functTest/groovy/com/bmuschko/gradle/docker/DockerWorkflowFunctionalTest.groovy">functional tests</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="creating_a_dockerfile_and_building_an_image"><a class="anchor" href="#creating_a_dockerfile_and_building_an_image"></a>2.5.1. Creating a Dockerfile And Building an Image</h4>
+<h4 id="modifying_instructions_of_a_dockerfile_task"><a class="anchor" href="#modifying_instructions_of_a_dockerfile_task"></a>2.5.1. Modifying Instructions of a Dockerfile Task</h4>
+<div class="paragraph">
+<p>Sometimes do you do not have any control over the creation of a <code>Dockerfile</code> task.
+For example the Docker <a href="#java-application-plugin">Java Application Plugin</a> already adds a <code>Dockerfile</code> task with a set of sensible instructions.
+You can still modify <a href="https://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html#getInstructions()">those instructions</a> if needed.
+Let&#8217;s say you are dealing with the following <code>Dockerfile</code> definition.</p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">tasks.create('createDockerfile', Dockerfile) {
+    from('openjdk:jre-alpine')
+    copyFile('my-app-1.0.jar', '/app/my-app-1.0.jar')
+    entryPoint('java')
+    defaultCommand('-jar', '/app/my-app-1.0.jar')
+    exposePort(8080)
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks.create("createDockerfile", Dockerfile::class) {
+    from("openjdk:jre-alpine")
+    copyFile("my-app-1.0.jar", "/app/my-app-1.0.jar")
+    entryPoint("java")
+    defaultCommand("-jar", "/app/my-app-1.0.jar")
+    exposePort(8080)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, you may prefer a different base image than the one added by default.
+The listing below demonstrates how to find it the <code>FROM</code> instruction and replace it with a different one.</p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">createDockerfile {
+    List&lt;Instruction&gt; originalInstructions = new ArrayList&lt;Instruction&gt;(instructions.get())
+    int fromInstructionIndex = originalInstructions
+            .findIndexOf { it.keyword == FromInstruction.KEYWORD }
+    originalInstructions.remove(fromInstructionIndex)
+    FromInstruction baseImage = new FromInstruction('openjdk:8-alpine')
+    originalInstructions.add(0, baseImage)
+    instructions.set(originalInstructions)
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks {
+    "createDockerfile"(Dockerfile::class) {
+        val originalInstructions = instructions.get().toMutableList()
+        val fromInstructionIndex = originalInstructions
+                .indexOfFirst { item -&gt; item.keyword == FromInstruction.KEYWORD }
+        originalInstructions.removeAt(fromInstructionIndex)
+        val baseImage = FromInstruction("openjdk:8-alpine")
+        originalInstructions.add(0, baseImage)
+        instructions.set(originalInstructions)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also add new instructions at a specific position in the existing list of instructions.
+For example you may want to add a <code>HEALTHCHECK</code> to the end of the list.</p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">createDockerfile {
+    instruction 'HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1'
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks {
+    "createDockerfile"(Dockerfile::class) {
+        instruction("HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1")
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="creating_a_dockerfile_and_building_an_image"><a class="anchor" href="#creating_a_dockerfile_and_building_an_image"></a>2.5.2. Creating a Dockerfile And Building an Image</h4>
 <div class="paragraph">
 <p>A Dockerfile can be created by the <code>Dockerfile</code> custom tasks.
 The Dockerfile instructions need to be declare in the correct
@@ -1449,21 +1538,19 @@ order.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.2.0'
+    id 'com.bmuschko.docker-remote-api' version '4.3.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
 task createDockerfile(type: Dockerfile) {
-    destFile = project.file('build/mydockerfile/Dockerfile')
     from 'ubuntu:12.04'
     label(['maintainer': 'Benjamin Muschko "benjamin.muschko@gmail.com"'])
 }
 
 task buildImage(type: DockerBuildImage) {
     dependsOn createDockerfile
-    inputDir = createDockerfile.destFile.get().asFile.parentFile
     tags.add('bmuschko/myimage:latest')
 }</code></pre>
 </div>
@@ -1472,28 +1559,26 @@ task buildImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.2.0"
+    id("com.bmuschko.docker-remote-api") version "4.3.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
 val createDockerfile by tasks.creating(Dockerfile::class) {
-    destFile.set(file("build/mydockerfile/Dockerfile"))
     from("ubuntu:12.04")
     label(mapOf("maintainer" to "Benjamin Muschko 'benjamin.muschko@gmail.com'"))
 }
 
 tasks.create("buildImage", DockerBuildImage::class) {
     dependsOn(createDockerfile)
-    inputDir.set(createDockerfile.getDestFile().get().asFile.parentFile)
     tags.add("bmuschko/myimage:latest")
 }</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="executing_functional_tests_against_a_running_container"><a class="anchor" href="#executing_functional_tests_against_a_running_container"></a>2.5.2. Executing Functional Tests Against a Running Container</h4>
+<h4 id="executing_functional_tests_against_a_running_container"><a class="anchor" href="#executing_functional_tests_against_a_running_container"></a>2.5.3. Executing Functional Tests Against a Running Container</h4>
 <div class="paragraph">
 <p>The following example code demonstrates how to build a Docker image from a Dockerfile, starts up a container for this image and exercises functional tests against the running container.
 At the end of this operation, the container is stopped.</p>
@@ -1502,7 +1587,7 @@ At the end of this operation, the container is stopped.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.2.0'
+    id 'com.bmuschko.docker-remote-api' version '4.3.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1539,7 +1624,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.2.0"
+    id("com.bmuschko.docker-remote-api") version "4.3.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1574,7 +1659,7 @@ tasks.create("functionalTestMyApp", Test::class) {
 </div>
 </div>
 <div class="sect3">
-<h4 id="linking_with_other_containers"><a class="anchor" href="#linking_with_other_containers"></a>2.5.3. Linking With Other Containers</h4>
+<h4 id="linking_with_other_containers"><a class="anchor" href="#linking_with_other_containers"></a>2.5.4. Linking With Other Containers</h4>
 <div class="paragraph">
 <p>In many situations your container does not start without dependencies like database.
 In that case you may wish using traditional linking:</p>
@@ -1583,7 +1668,7 @@ In that case you may wish using traditional linking:</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.2.0'
+    id 'com.bmuschko.docker-remote-api' version '4.3.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1631,7 +1716,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.2.0"
+    id("com.bmuschko.docker-remote-api") version "4.3.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1676,11 +1761,116 @@ tasks.create("functionalTestMyApp", Test::class) {
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="implementing_custom_docker_client_handling"><a class="anchor" href="#implementing_custom_docker_client_handling"></a>2.5.5. Implementing Custom Docker Client Handling</h4>
+<div class="paragraph">
+<p>The plugin provides an opinionated set of custom tasks for the most common Docker operations.
+Sometime the situation may arise that you want to have full control over what you want to call on the Docker client.
+To do so you can implement your own custom task that extends from <a href="https://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/AbstractDockerRemoteApiTask.html">AbstractDockerRemoteApiTask</a>.
+The following example shows how to implement such a custom task:</p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">class DockerImageIdForName extends AbstractDockerRemoteApiTask {
+    @Input
+    final Property&lt;String&gt; filteredImageName = project.objects.property(String)
+
+    @Internal
+    final Property&lt;String&gt; imageId = project.objects.property(String)
+
+    DockerImageIdForName() {
+        nextHandler = { image -&gt;
+            imageId.set(image.id)
+        }
+    }
+
+    @Override
+    void runRemoteCommand(dockerClient) {
+        def images = dockerClient.listImagesCmd()
+            .withImageNameFilter(filteredImageName.get())
+            .exec()
+
+        for(image in images) {
+            nextHandler.execute(image)
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">open class DockerImageIdForName : AbstractDockerRemoteApiTask {
+    @Input
+    val filteredImageName : Property&lt;String&gt; = project.objects.property(String::class)
+
+    @Internal
+    val imageId : Property&lt;String&gt; = project.objects.property(String::class)
+
+    constructor() {
+        onNext(Action {
+            this.withGroovyBuilder {
+                imageId.set(getProperty("id") as String)
+            }
+        })
+    }
+
+    override fun runRemoteCommand(dockerClient: Any) {
+        dockerClient.withGroovyBuilder {
+            val listImagesCmd = invokeMethod("listImagesCmd", arrayOf())
+            listImagesCmd.withGroovyBuilder {
+                invokeMethod("withImageNameFilter", arrayOf(filteredImageName.get()))
+                val images = invokeMethod("exec", arrayOf()) as List&lt;*&gt;
+
+                for(image in images) {
+                    nextHandler.execute(image)
+                }
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To use the custom task, simply create a task by type.</p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">task imageIdForName(type: DockerImageIdForName) {
+    filteredImageName = 'alpine:3.4'
+}
+
+task printImageId {
+    dependsOn imageIdForName
+    doLast {
+        logger.quiet "Resolved image ID ${imageIdForName.imageId.get()} for name ${imageIdForName.filteredImageName.get()}"
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">val imageIdForName by tasks.creating(DockerImageIdForName::class) {
+    filteredImageName.set("alpine:3.4")
+}
+
+val printImageId by tasks.creating {
+    dependsOn(imageIdForName)
+    doLast {
+        logger.quiet("Resolved image ID ${imageIdForName.imageId.get()} for name ${imageIdForName.filteredImageName.get()}")
+    }
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="java_application_plugin"><a class="anchor" href="#java_application_plugin"></a>3. Java Application Plugin</h2>
+<h2 id="java-application-plugin"><a class="anchor" href="#java-application-plugin"></a>3. Java Application Plugin</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The plugin <code>com.bmuschko.docker-java-application</code> is a highly opinionated plugin for projects applying the <a href="https://docs.gradle.org/current/userguide/application_plugin.html">application plugin</a>.
@@ -1695,7 +1885,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'application'
-    id 'com.bmuschko.docker-java-application' version '4.2.0'
+    id 'com.bmuschko.docker-java-application' version '4.3.0'
 }</code></pre>
 </div>
 </div>
@@ -1705,7 +1895,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     application
-    id("com.bmuschko.docker-java-application") version "4.2.0"
+    id("com.bmuschko.docker-java-application") version "4.3.0"
 }</code></pre>
 </div>
 </div>
@@ -1839,20 +2029,20 @@ It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate loc
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCopyDistResources</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncArchive</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>distTar</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/Sync.html">Sync</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Copies the resource files (like the Java application&#8217;s TAR file) to a temporary directory for image creation.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerDistTar</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCopyDistResources</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCreateDockerfile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncArchive</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html">Dockerfile</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Creates the Docker image for the Java application.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerBuildImage</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerDistTar</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCreateDockerfile</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html">DockerBuildImage</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Builds the Docker image for the Java application.</p></td>
 </tr>
@@ -1879,7 +2069,7 @@ More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-d
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'application'
-    id 'com.bmuschko.docker-java-application' version '4.2.0'
+    id 'com.bmuschko.docker-java-application' version '4.3.0'
 }
 
 version = '1.0'
@@ -1908,7 +2098,7 @@ docker {
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     application
-    id("com.bmuschko.docker-java-application") version "4.2.0"
+    id("com.bmuschko.docker-java-application") version "4.3.0"
 }
 
 version = "1.0"
@@ -1946,7 +2136,7 @@ docker {
 <div class="listingblock primary">
 <div class="title">Groovy</div>
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">dockerDistTar {
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">dockerCreateDockerfile {
     instruction 'RUN ls -la'
     environmentVariable 'JAVA_OPTS', '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap'
 }</code></pre>
@@ -1955,7 +2145,7 @@ docker {
 <div class="listingblock secondary">
 <div class="title">Kotlin</div>
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks.named&lt;Dockerfile&gt;("dockerDistTar") {
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks.named&lt;Dockerfile&gt;("dockerCreateDockerfile") {
     instruction("RUN ls -la")
     environmentVariable("JAVA_OPTS", "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap")
 }</code></pre>
@@ -1980,13 +2170,13 @@ RUN ls -la</pre>
 <div class="listingblock primary">
 <div class="title">Groovy</div>
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">dockerDistTar.instructionsFromTemplate file('Dockerfile.tmpl')</code></pre>
+<pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">dockerCreateDockerfile.instructionsFromTemplate file('Dockerfile.tmpl')</code></pre>
 </div>
 </div>
 <div class="listingblock secondary">
 <div class="title">Kotlin</div>
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks.named&lt;Dockerfile&gt;("dockerDistTar") {
+<pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">tasks.named&lt;Dockerfile&gt;("dockerCreateDockerfile") {
     instructionsFromTemplate(file("Dockerfile.tmpl"))
 }</code></pre>
 </div>
@@ -2023,7 +2213,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '4.2.0'
+    id 'com.bmuschko.docker-spring-boot-application' version '4.3.0'
 }</code></pre>
 </div>
 </div>
@@ -2033,7 +2223,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     id("org.springframework.boot") version "2.0.3.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "4.2.0"
+    id("com.bmuschko.docker-spring-boot-application") version "4.3.0"
 }</code></pre>
 </div>
 </div>
@@ -2167,7 +2357,7 @@ The following properties can be configured:</p>
     id 'war'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application'  version '4.2.0'
+    id 'com.bmuschko.docker-spring-boot-application'  version '4.3.0'
 }
 
 version = '1.0'
@@ -2198,7 +2388,7 @@ docker {
     war
     id("org.springframework.boot") version "2.0.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.5.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "4.2.0"
+    id("com.bmuschko.docker-spring-boot-application") version "4.3.0"
 }
 
 version = "1.0"
@@ -2435,6 +2625,23 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div class="sect1">
 <h2 id="change_log"><a class="anchor" href="#change_log"></a>6. Change Log</h2>
 <div class="sectionbody">
+<h3 id="v4_3_0_january_12_2019" class="discrete">v4.3.0 (January 12, 2019)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Breaking Change!</strong> The task <code>DockerLoadImage</code> should use <code>Provider</code> type for image file</p>
+</li>
+<li>
+<p><strong>Breaking Change!</strong> Use the default value <code>$buildDir/docker</code> for <code>DockerBuildImage.inputDir</code> to align with the default directory of the <code>Dockerfile</code> task</p>
+</li>
+<li>
+<p><strong>Breaking Change!</strong> Align task names in <code>DockerJavaApplicationPlugin</code> with the ones from the <code>DockerSpringBootApplicationPlugin</code></p>
+</li>
+<li>
+<p>Examples in user guide that demonstrate the creation of a custom Docker task and the modification of existing <code>Dockerfile</code> instructions</p>
+</li>
+</ul>
+</div>
 <h3 id="v4_2_0_december_16_2018" class="discrete">v4.2.0 (December 16, 2018)</h3>
 <div class="ulist">
 <ul>
@@ -2443,7 +2650,8 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 </li>
 <li>
 <p><strong>Breaking Change!</strong> Remove all deprecations - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/675">Issue 675</a></p>
-</li>
+<div class="ulist">
+<ul>
 <li>
 <p>Removed <code>DockerCreateContainer.env</code>, replaced by <code>DockerCreateContainer.envVars</code></p>
 </li>
@@ -2455,6 +2663,9 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 </li>
 <li>
 <p>Removed <code>DockerExecContainer.execId</code>, replaced by <code>DockerExecContainer.execIds</code></p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p><code>DockerBuildImage.tags.add/addAll</code> only work after using <code>tags.set</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/712">Issue 712</a></p>
@@ -3542,7 +3753,7 @@ setting port bindings for task <code>DockerStartContainer</code> anymore. Needs 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-12-17 00:13:23 UTC
+Last updated 2019-01-12 23:00:43 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
