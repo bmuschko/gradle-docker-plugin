@@ -280,15 +280,15 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(memory.getOrNull()) {
-            containerCommand.withMemory(memory.get())
+            containerCommand.hostConfig.withMemory(memory.get())
         }
 
         if(memorySwap.getOrNull()) {
-            containerCommand.withMemorySwap(memorySwap.get())
+            containerCommand.hostConfig.withMemorySwap(memorySwap.get())
         }
 
         if(cpuset.getOrNull()) {
-            containerCommand.withCpusetCpus(cpuset.get())
+            containerCommand.hostConfig.withCpusetCpus(cpuset.get())
         }
 
         if(attachStdin.getOrNull()) {
@@ -324,11 +324,11 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(dns.getOrNull()) {
-            containerCommand.withDns(dns.get())
+            containerCommand.hostConfig.withDns(dns.get())
         }
 
         if(network.getOrNull()) {
-            containerCommand.withNetworkMode(network.get())
+            containerCommand.hostConfig.withNetworkMode(network.get())
         }
 
         if(networkAliases.getOrNull()) {
@@ -346,12 +346,12 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if (links.getOrNull()) {
             def createdLinks = links.get().collect { threadContextClassLoader.createLink(it) }
-            containerCommand.withLinks(CollectionUtil.toArray(createdLinks))
+            containerCommand.hostConfig.withLinks(CollectionUtil.toArray(createdLinks))
         }
 
         if(volumesFrom.getOrNull()) {
             def createdVolumes = threadContextClassLoader.createVolumesFrom(volumesFrom.get() as String[])
-            containerCommand.withVolumesFrom(createdVolumes)
+            containerCommand.hostConfig.withVolumesFrom(createdVolumes)
         }
 
         if(workingDir.getOrNull()) {
@@ -365,7 +365,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if(portBindings.getOrNull()) {
             def createdPortBindings = portBindings.get().collect { threadContextClassLoader.createPortBinding(it) }
-            containerCommand.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
+            containerCommand.hostConfig.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
         }
 
         if(publishAll.getOrNull()) {
@@ -374,32 +374,32 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if(binds.getOrNull()) {
             def createdBinds = threadContextClassLoader.createBinds(binds.get())
-            containerCommand.withBinds(createdBinds)
+            containerCommand.hostConfig.withBinds(createdBinds)
         }
 
         if(extraHosts.getOrNull()) {
-            containerCommand.withExtraHosts(extraHosts.get() as String[])
+            containerCommand.hostConfig.withExtraHosts(extraHosts.get() as String[])
         }
 
         if(logConfig.getOrNull()) {
-            containerCommand.withLogConfig(threadContextClassLoader.createLogConfig(logConfig.get().type, logConfig.get().config))
+            containerCommand.hostConfig.withLogConfig(threadContextClassLoader.createLogConfig(logConfig.get().type, logConfig.get().config))
         }
 
         if(privileged.getOrNull()) {
-            containerCommand.withPrivileged(privileged.get())
+            containerCommand.hostConfig.withPrivileged(privileged.get())
         }
 
         if (restartPolicy.getOrNull()) {
-            containerCommand.withRestartPolicy(threadContextClassLoader.createRestartPolicy(restartPolicy.get()))
+            containerCommand.hostConfig.withRestartPolicy(threadContextClassLoader.createRestartPolicy(restartPolicy.get()))
         }
 
         if (pid.getOrNull()) {
-            containerCommand.withPidMode(pid.get())
+            containerCommand.getHostConfig().withPidMode(pid.get())
         }
 
         if (devices.getOrNull()) {
             def createdDevices = devices.get().collect { threadContextClassLoader.createDevice(it) }
-            containerCommand.withDevices(CollectionUtil.toArray(createdDevices))
+            containerCommand.hostConfig.withDevices(CollectionUtil.toArray(createdDevices))
         }
 
         if(tty.getOrNull()) {

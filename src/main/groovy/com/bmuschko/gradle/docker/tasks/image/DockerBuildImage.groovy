@@ -171,9 +171,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (cacheFrom.getOrNull()) {
-            // Workaround a bug in dockerjava that double-unmarshalls this argument
-            def doubleMarshalledCacheFrom = ["[\"${cacheFrom.get().join('","')}\"]".toString()].toSet()
-            buildImageCmd = buildImageCmd.withCacheFrom(doubleMarshalledCacheFrom)
+            buildImageCmd = buildImageCmd.withCacheFrom(cacheFrom.get())
         }
 
         def callback = nextHandler ? threadContextClassLoader.createBuildImageResultCallback(nextHandler)

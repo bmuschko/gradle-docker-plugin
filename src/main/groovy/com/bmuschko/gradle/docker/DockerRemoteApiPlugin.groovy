@@ -33,7 +33,7 @@ import org.gradle.api.plugins.ExtensionAware
 @CompileStatic
 class DockerRemoteApiPlugin implements Plugin<Project> {
     public static final String DOCKER_JAVA_CONFIGURATION_NAME = 'dockerJava'
-    public static final String DOCKER_JAVA_DEFAULT_VERSION = '3.1.0-rc-5'
+    public static final String DOCKER_JAVA_DEFAULT_VERSION = '3.1.0-rc-7'
     public static final String EXTENSION_NAME = 'docker'
     public static final String DEFAULT_TASK_GROUP = 'Docker'
 
