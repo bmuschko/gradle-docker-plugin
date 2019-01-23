@@ -33,13 +33,26 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         """
         buildFile <<
             containerStart(containerCreationTask) <<
-            containerLogAndRemove()
+            """
+            ${containerRemove()}
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+                onNext { info ->
+                    if (info.hostConfig.groupAdd != ['postgres']) {
+                        throw new GradleException("Additional group not found!")
+                    } 
+                }
+            }
+        """
 
         when:
-        BuildResult result = build('logContainer')
+        build('inspectContainer')
 
         then:
-        result.output.contains("postgres")
+        noExceptionThrown()
     }
 
     def "can override default MAC address"() {
@@ -82,7 +95,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 withEnvVar('nine', {'ten'})
             }
         """
-        buildFile << 
+        buildFile <<
             containerStart(containerCreationTask) <<
             containerLogAndRemove()
 
