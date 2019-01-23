@@ -50,6 +50,8 @@ class DockerCreateContainer extends DockerExistingImage {
 
     /**
      * A list of additional groups that the container process will run as.
+     *
+     * @since 4.4.0
      */
     @Input
     @Optional
