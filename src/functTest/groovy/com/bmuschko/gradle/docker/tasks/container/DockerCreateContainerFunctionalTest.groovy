@@ -48,11 +48,8 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             }
         """
 
-        when:
+        expect:
         build('inspectContainer')
-
-        then:
-        noExceptionThrown()
     }
 
     def "can override default MAC address"() {
