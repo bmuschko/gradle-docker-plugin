@@ -21,6 +21,37 @@ import org.gradle.testkit.runner.TaskOutcome
 
 class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
+    def "can setup additional user groups"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImageId()
+                cmd = ['groups']
+                groups = ['postgres']
+            }
+        """
+        buildFile <<
+            containerStart(containerCreationTask) <<
+            """
+            ${containerRemove()}
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+                onNext { info ->
+                    if (info.hostConfig.groupAdd != ['postgres']) {
+                        throw new GradleException("Additional group not found!")
+                    } 
+                }
+            }
+        """
+
+        expect:
+        build('inspectContainer')
+    }
+
     def "can override default MAC address"() {
         given:
         String containerCreationTask = """
@@ -61,7 +92,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 withEnvVar('nine', {'ten'})
             }
         """
-        buildFile << 
+        buildFile <<
             containerStart(containerCreationTask) <<
             containerLogAndRemove()
 

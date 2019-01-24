@@ -3,6 +3,7 @@
 [discrete]
 === v4.4.0 (TBA)
 * Bump **docker-java-shaded** to latest and greatest and decrease wait time for **DockerLiveness** test. - {uri-github}/pull/729[PR 729]
+* Task `DockerCreateContainer` gained option `groups` - {uri-github}/pull/731[Pull Request 731]
 
 [discrete]
 === v4.3.0 (January 12, 2019)

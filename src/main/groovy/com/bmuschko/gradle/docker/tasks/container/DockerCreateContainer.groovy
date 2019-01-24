@@ -48,6 +48,15 @@ class DockerCreateContainer extends DockerExistingImage {
     @Optional
     final Property<String> user = project.objects.property(String)
 
+    /**
+     * A list of additional groups that the container process will run as.
+     *
+     * @since 4.4.0
+     */
+    @Input
+    @Optional
+    final ListProperty<String> groups = project.objects.listProperty(String)
+
     @Input
     @Optional
     final Property<Boolean> stdinOpen = project.objects.property(Boolean)
@@ -215,6 +224,7 @@ class DockerCreateContainer extends DockerExistingImage {
         tty.set(false)
         devices.set([])
         autoRemove.set(false)
+        groups.set([])
     }
 
     @Override
@@ -269,6 +279,10 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if(user.getOrNull()) {
             containerCommand.withUser(user.get())
+        }
+
+        if(groups.getOrNull()) {
+            containerCommand.hostConfig.withGroupAdd(groups.get())
         }
 
         if(stdinOpen.getOrNull()) {
