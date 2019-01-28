@@ -6,11 +6,7 @@ final class DockerJavaApplicationPluginFixture {
 
     static void writeJettyMainClass(File projectDir) {
         File packageDir = new File(projectDir, 'src/main/java/com/bmuschko/gradle/docker/application')
-
-        if (!packageDir.mkdirs()) {
-            throw new IOException("Unable to create package directory $packageDir")
-        }
-
+        createDirectory(packageDir)
         File jettyMainClassFile = new File(packageDir, 'JettyMain.java')
         jettyMainClassFile.text = jettyMainClass()
     }
@@ -49,5 +45,17 @@ final class DockerJavaApplicationPluginFixture {
                 }
             }
         """
+    }
+
+    static void writePropertiesFile(File projectDir) {
+        File resourcesDir = new File(projectDir, 'src/main/resources')
+        createDirectory(resourcesDir)
+        new File(resourcesDir, 'my.properties').text = 'hello=world'
+    }
+
+    private static void createDirectory(File dir) {
+        if (!dir.mkdirs()) {
+            throw new IOException("Unable to create directory $dir")
+        }
     }
 }

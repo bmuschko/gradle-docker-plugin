@@ -22,17 +22,16 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.file.CopySpec
 import org.gradle.api.plugins.ApplicationPlugin
-import org.gradle.api.plugins.ApplicationPluginConvention
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
-import org.gradle.jvm.tasks.Jar
 
 import java.util.concurrent.Callable
+
+import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.*
 
 /**
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
@@ -40,57 +39,47 @@ import java.util.concurrent.Callable
 @CompileStatic
 class DockerJavaApplicationPlugin implements Plugin<Project> {
     public static final String JAVA_APPLICATION_EXTENSION_NAME = 'javaApplication'
-    public static final String SYNC_ARCHIVE_TASK_NAME = 'dockerSyncArchive'
+    public static final String SYNC_BUILD_CONTEXT_TASK_NAME = 'dockerSyncBuildContext'
     public static final String DOCKERFILE_TASK_NAME = 'dockerCreateDockerfile'
     public static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
     public static final String PUSH_IMAGE_TASK_NAME = 'dockerPushImage'
 
     @Override
     void apply(Project project) {
-        project.apply(plugin: DockerRemoteApiPlugin)
-
+        project.plugins.apply(DockerRemoteApiPlugin)
         DockerExtension dockerExtension = project.extensions.getByType(DockerExtension)
         DockerJavaApplication dockerJavaApplication = configureExtension(project, dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
-            Sync installTask = project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME) as Sync
-            Jar jarTask = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME) as Jar
             dockerJavaApplication.exec(new Action<DockerJavaApplication.CompositeExecInstruction>() {
                 @Override
                 void execute(DockerJavaApplication.CompositeExecInstruction compositeExecInstruction) {
-                    compositeExecInstruction.entryPoint(determineEntryPoint(project, installTask))
+                    compositeExecInstruction.entryPoint(project.provider(new Callable<List<String>>() {
+                        @Override
+                        List<String> call() throws Exception {
+                            ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationPluginMainClassName(project)]
+                        }
+                    }))
                 }
             })
-            Dockerfile createDockerfileTask = createDockerfileTask(project, installTask, jarTask, dockerJavaApplication)
-            Sync copyTarTask = createDistCopyResourcesTask(project, installTask, jarTask, createDockerfileTask)
-            createDockerfileTask.dependsOn copyTarTask
+            Dockerfile createDockerfileTask = createDockerfileTask(project, dockerJavaApplication)
+            Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
+            createDockerfileTask.dependsOn syncBuildContextTask
             DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerJavaApplication)
             createPushImageTask(project, dockerBuildImageTask)
         }
     }
 
-    /**
-     * Configure existing Docker extension by adding properties for Java-based application.
-     *
-     * @param project Project
-     * @param dockerExtension Docker extension
-     * @return Java application configuration
-     */
     private static DockerJavaApplication configureExtension(Project project, DockerExtension dockerExtension) {
         ((ExtensionAware) dockerExtension).extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication, project)
     }
 
-    private static Action<Dockerfile> createDockerfileTaskAction(
-        Project project,
-        Sync installTask,
-        Jar jarTask,
-        DockerJavaApplication dockerJavaApplication) {
-        return new Action<Dockerfile>() {
+    private static Dockerfile createDockerfileTask(Project project, DockerJavaApplication dockerJavaApplication) {
+        project.tasks.create(DOCKERFILE_TASK_NAME, Dockerfile, new Action<Dockerfile>() {
             @Override
             void execute(Dockerfile dockerfile) {
                 dockerfile.with {
                     description = 'Creates the Docker image for the Java application.'
-                    dependsOn jarTask
                     from(project.provider(new Callable<Dockerfile.From>() {
                         @Override
                         Dockerfile.From call() throws Exception {
@@ -103,86 +92,72 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                             ['maintainer': dockerJavaApplication.maintainer.get()]
                         }
                     }))
-                    addFile(project.provider(new Callable<Dockerfile.File>() {
+                    workingDir('/app')
+                    copyFile(project.provider(new Callable<Dockerfile.File>() {
                         @Override
                         Dockerfile.File call() throws Exception {
-                            new Dockerfile.File(installTask.destinationDir.name, "/${installTask.destinationDir.name}".toString())
+                            if (new File(dockerfile.destDir.get().asFile, 'libs').isDirectory()) {
+                                return new Dockerfile.File('libs', 'libs/')
+                            }
                         }
                     }))
-                    addFile(project.provider(new Callable<Dockerfile.File>() {
+                    copyFile(project.provider(new Callable<Dockerfile.File>() {
                         @Override
                         Dockerfile.File call() throws Exception {
-                            new Dockerfile.File("app-lib/${jarTask.archiveName}".toString(), "/${installTask.destinationDir.name}/lib/${jarTask.archiveName}".toString())
+                            if (getMainJavaSourceSetOutput(project).resourcesDir.isDirectory()) {
+                                return new Dockerfile.File('resources', 'resources/')
+                            }
                         }
                     }))
+                    copyFile('classes', 'classes/')
                     instructions.add(dockerJavaApplication.execInstruction)
                     exposePort(dockerJavaApplication.ports)
                 }
-
             }
-        }
+        })
     }
 
-    private static Dockerfile createDockerfileTask(
-        Project project,
-        Sync installTask,
-        Jar jarTask,
-        DockerJavaApplication dockerJavaApplication) {
-        project.tasks.create(DOCKERFILE_TASK_NAME, Dockerfile, createDockerfileTaskAction(project, installTask, jarTask, dockerJavaApplication))
-    }
-
-    private static Action<Sync> createDistCopyResourcesTaskAction(
-        Sync installTask,
-        Jar jarTask,
-        Dockerfile createDockerfileTask) {
-        return new Action<Sync>() {
+    private static Sync createSyncBuildContextTask(Project project, Dockerfile createDockerfileTask) {
+        project.tasks.create(SYNC_BUILD_CONTEXT_TASK_NAME, Sync, new Action<Sync>() {
             @Override
             void execute(Sync sync) {
                 sync.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = "Copies the distribution resources to a temporary directory for image creation."
-                    dependsOn installTask
-                    from { installTask.destinationDir.parentFile }
-                    into { createDockerfileTask.destFile.get().asFile.parentFile }
-                    exclude "**/lib/${jarTask.archiveName}"
-                    into("app-lib", new Action<CopySpec>() {
+                    dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
+                    into(createDockerfileTask.destDir)
+                    into('libs', new Action<CopySpec>() {
                         @Override
                         void execute(CopySpec copySpec) {
-                            copySpec.from jarTask
+                            copySpec.from(getRuntimeClasspathConfiguration(project))
+                        }
+                    })
+                    into('resources', new Action<CopySpec>() {
+                        @Override
+                        void execute(CopySpec copySpec) {
+                            copySpec.from(getMainJavaSourceSetOutput(project).resourcesDir)
+                        }
+                    })
+                    into('classes', new Action<CopySpec>() {
+                        @Override
+                        void execute(CopySpec copySpec) {
+                            copySpec.from(getMainJavaSourceSetOutput(project).classesDirs)
                         }
                     })
                 }
             }
-        }
-    }
-
-    private Sync createDistCopyResourcesTask(Project project, Sync installTask, Jar jarTask, Dockerfile createDockerfileTask) {
-        project.tasks.create(
-            SYNC_ARCHIVE_TASK_NAME,
-            Sync,
-            createDistCopyResourcesTaskAction(installTask, jarTask, createDockerfileTask))
-    }
-
-    private Provider<List<String>> determineEntryPoint(Project project, Sync installTask) {
-        project.provider(new Callable<List<String>>() {
-            @Override
-            List<String> call() throws Exception {
-                final String applicationName = getApplicationName(project)
-                ["/${installTask.destinationDir.name}/bin/${applicationName}".toString()]
-            }
         })
     }
 
-    private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
+    private static DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
         project.tasks.create(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
             @Override
             void execute(DockerBuildImage dockerBuildImage) {
                 dockerBuildImage.with {
                     description = 'Builds the Docker image for the Java application.'
                     dependsOn createDockerfileTask
+                    tags.add(determineImageTag(project, dockerJavaApplication))
                 }
-                // Can't be within `with` above because the compiler falls over.
-                dockerBuildImage.tags.add(determineImageTag(project, dockerJavaApplication))
             }
         })
     }
@@ -196,7 +171,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-                final String applicationName = getApplicationName(project)
+                final String applicationName = getApplicationPluginName(project)
                 String artifactAndVersion = "${applicationName}:${tagVersion}".toLowerCase().toString()
                 project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
             }
@@ -219,9 +194,5 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 }
             }
         })
-    }
-
-    private static String getApplicationName(Project project) {
-        project.convention.getPlugin(ApplicationPluginConvention).applicationName
     }
 }

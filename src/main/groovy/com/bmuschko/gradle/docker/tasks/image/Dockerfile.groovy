@@ -18,11 +18,22 @@ package com.bmuschko.gradle.docker.tasks.image
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
 import org.gradle.api.DefaultTask
+import org.gradle.api.Transformer
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
 
 import javax.annotation.Nullable
 
@@ -45,6 +56,24 @@ class Dockerfile extends DefaultTask {
     @Nested
     ListProperty<Instruction> getInstructions() {
         instructions
+    }
+
+    /**
+     * Returns a provider representing the destination directory containing the Dockerfile.
+     *
+     * @return The destination directory containing the Dockerfile
+     * @since 4.4.0
+     */
+    @Internal
+    Provider<Directory> getDestDir() {
+        destFile.flatMap(new Transformer<Provider<Directory>, RegularFile>() {
+            @Override
+            Provider<Directory> transform(RegularFile f) {
+                DirectoryProperty destDir = project.objects.directoryProperty()
+                destDir.set(f.asFile.parentFile)
+                destDir
+            }
+        })
     }
 
     @TaskAction
@@ -793,6 +822,7 @@ class Dockerfile extends DefaultTask {
 
     static interface Instruction {
         @Internal
+        @Nullable
         String getKeyword()
 
         /**
@@ -819,20 +849,20 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             if (instructionProvider) {
-                parseKeyword(instructionProvider.get())
+                parseKeyword(instructionProvider.getOrNull())
             } else {
                 parseKeyword(instruction)
             }
         }
 
         private String parseKeyword(String inst) {
-            inst.substring(0, inst.indexOf(' '))
+            inst?.substring(0, inst.indexOf(' '))
         }
 
         @Override
         String getText() {
             if (instructionProvider) {
-                return instructionProvider.get()
+                return instructionProvider.getOrNull()
             }
 
             instruction
@@ -854,9 +884,17 @@ class Dockerfile extends DefaultTask {
         @Override
         String getText() {
             if (commandProvider) {
-                return "$keyword ${commandProvider.get()}"
-            }
+                String command = commandProvider.getOrNull()
 
+                if (command) {
+                    return buildText(command)
+                }
+            } else {
+                return buildText(command)
+            }
+        }
+
+        private String buildText(String command) {
             "$keyword $command"
         }
     }
@@ -876,9 +914,17 @@ class Dockerfile extends DefaultTask {
         @Override
         String getText() {
             if (commandProvider) {
-                return keyword + ' ["' + commandProvider.get().join('", "') + '"]'
-            }
+                List<String> command = commandProvider.getOrNull()
 
+                if (command) {
+                    return buildText(command as String[])
+                }
+            } else {
+                return buildText(command)
+            }
+        }
+
+        private String buildText(String[] command) {
             keyword + ' ["' + command.join('", "') + '"]'
         }
     }
@@ -948,7 +994,7 @@ class Dockerfile extends DefaultTask {
             Map<String, String> commandToJoin = command
 
             if (commandProvider) {
-                def evaluatedCommand = commandProvider.get()
+                def evaluatedCommand = commandProvider.getOrNull()
 
                 if (!(evaluatedCommand instanceof Map<String, String>)) {
                     throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provide a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
@@ -992,17 +1038,19 @@ class Dockerfile extends DefaultTask {
             String keyword = getKeyword()
             File file
 
-            if (this.provider) {
-                file = this.provider.get()
+            if (provider) {
+                file = provider.getOrNull()
             } else {
                 file = new File(src, dest, flags)
             }
 
-            if (file.flags) {
-                keyword += " $flags"
-            }
-            if (file.src && file.dest) {
-                "$keyword $file.src $file.dest"
+            if (file) {
+                if (file.flags) {
+                    keyword += " $flags"
+                }
+                if (file.src && file.dest) {
+                    "$keyword $file.src $file.dest"
+                }
             }
         }
     }
@@ -1029,21 +1077,23 @@ class Dockerfile extends DefaultTask {
 
         @Override
         String getText() {
-            if (this.provider) {
-                return buildTextInstruction(this.provider.get())
+            if (provider) {
+                return buildTextInstruction(provider.getOrNull())
             }
 
             buildTextInstruction(new From(image, stageName))
         }
 
         private String buildTextInstruction(From from) {
-            String result = "$keyword $from.image"
+            if (from) {
+                String result = "$keyword $from.image"
 
-            if (from.stageName) {
-                result += " AS $from.stageName"
+                if (from.stageName) {
+                    result += " AS $from.stageName"
+                }
+
+                result
             }
-
-            result
         }
     }
 
@@ -1114,14 +1164,18 @@ class Dockerfile extends DefaultTask {
         @Override
         String getText() {
             if (provider) {
-                List<Integer> evaluatedPorts = provider.get()
+                List<Integer> evaluatedPorts = provider.getOrNull()
 
-                if (!evaluatedPorts.empty) {
-                    "$keyword ${evaluatedPorts.join(' ')}"
+                if (evaluatedPorts && !evaluatedPorts.isEmpty()) {
+                    return buildText(evaluatedPorts as Integer[])
                 }
             } else {
-                "$keyword ${ports.join(' ')}"
+                return buildText(ports)
             }
+        }
+
+        private String buildText(Integer[] ports) {
+            "$keyword ${ports.join(' ')}"
         }
     }
 

@@ -30,7 +30,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(DEFAULT_BASE_IMAGE, plugin.archiveExtension, [8080])
+        dockerfile.text == expectedDockerFileContent(DEFAULT_BASE_IMAGE, [8080])
 
         where:
         plugin << REACTED_PLUGINS
@@ -57,7 +57,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, plugin.archiveExtension, [9090, 8080])
+        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [9090, 8080])
 
         where:
         plugin << REACTED_PLUGINS
@@ -84,7 +84,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, plugin.archiveExtension, [])
+        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [])
 
         where:
         plugin << REACTED_PLUGINS
@@ -118,7 +118,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, plugin.archiveExtension)
+        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [8080])
 
         where:
         plugin << REACTED_PLUGINS
@@ -145,7 +145,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, plugin.archiveExtension)
+        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [8080])
 
         where:
         plugin << REACTED_PLUGINS
@@ -191,22 +191,16 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
     }
 
     enum ReactedPlugin {
-        WAR('war', 'war'), JAVA('java', 'jar')
+        WAR('war'), JAVA('java')
 
         private final String identifier
-        private final String archiveExtension
 
-        ReactedPlugin(String identifier, String archiveExtension) {
+        ReactedPlugin(String identifier) {
             this.identifier = identifier
-            this.archiveExtension = archiveExtension
         }
 
         String getIdentifier() {
             identifier
-        }
-
-        String getArchiveExtension() {
-            archiveExtension
         }
     }
 
@@ -214,15 +208,12 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         new File(projectDir, 'build/docker/Dockerfile')
     }
 
-    private static String expectedDockerFileContent(String image, String archiveExtension) {
-        expectedDockerFileContent(image, archiveExtension, [8080])
-    }
-
-    private static String expectedDockerFileContent(String image, String archiveExtension, List<String> ports) {
+    private static String expectedDockerFileContent(String image, List<String> ports) {
         String dockerFileContent = """FROM $image
-COPY ${PROJECT_NAME}-1.0.${archiveExtension} /app/$PROJECT_NAME-1.0.${archiveExtension}
-ENTRYPOINT ["java"]
-CMD ["-jar", "/app/${PROJECT_NAME}-1.0.${archiveExtension}"]
+WORKDIR /app
+COPY libs libs/
+COPY classes classes/
+ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.springboot.Application"]
 """
 
         if(!ports.empty) {

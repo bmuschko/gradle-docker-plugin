@@ -5,8 +5,8 @@ The plugin provides a set of tasks for your project and preconfigures them with 
 [options="header"]
 |=======
 |Task name                 |Depends On                |Type                                                                                 |Description
-|`dockerSyncArchive`       |`assemble`                |{uri-gradle-docs}/javadoc/org/gradle/api/tasks/Sync.html[Sync]                       |Copies the Spring Boot archive to a temporary directory for image creation.
-|`dockerCreateDockerfile`  |`bootJar` or `bootWar`    |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile] |Creates the Docker image for the Spring Boot application.
+|`dockerSyncBuildContext`  |`classes`                |{uri-gradle-docs}/javadoc/org/gradle/api/tasks/Sync.html[Sync]                       |Copies the application files to a temporary directory for image creation.
+|`dockerCreateDockerfile`  |`dockerSyncBuildContext`    |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile] |Creates the Docker image for the Spring Boot application.
 |`dockerBuildImage`        |`dockerCreateDockerfile`  |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html[DockerBuildImage] |Builds the Docker image for the Spring Boot application.
 |`dockerPushImage`         |`dockerBuildImage`        |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/DockerPushImage.html[DockerPushImage] |Pushes created Docker image to the repository.
 |=======
