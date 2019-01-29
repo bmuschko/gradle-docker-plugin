@@ -19,7 +19,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         applyDockerJavaApplicationPluginWithoutApplicationPlugin(project)
 
         then:
-        !project.tasks.findByName(DockerJavaApplicationPlugin.SYNC_ARCHIVE_TASK_NAME)
+        !project.tasks.findByName(DockerJavaApplicationPlugin.SYNC_BUILD_CONTEXT_TASK_NAME)
         !project.tasks.findByName(DockerJavaApplicationPlugin.DOCKERFILE_TASK_NAME)
         !project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
         !project.tasks.findByName(DockerJavaApplicationPlugin.PUSH_IMAGE_TASK_NAME)
@@ -30,7 +30,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         applyDockerJavaApplicationPluginAndApplicationPlugin(project)
 
         then:
-        project.tasks.findByName(DockerJavaApplicationPlugin.SYNC_ARCHIVE_TASK_NAME)
+        project.tasks.findByName(DockerJavaApplicationPlugin.SYNC_BUILD_CONTEXT_TASK_NAME)
         project.tasks.findByName(DockerJavaApplicationPlugin.DOCKERFILE_TASK_NAME)
         project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
         project.tasks.findByName(DockerJavaApplicationPlugin.PUSH_IMAGE_TASK_NAME)

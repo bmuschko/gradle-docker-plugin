@@ -7,15 +7,17 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.file.CopySpec
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
-import org.gradle.api.tasks.bundling.Jar
+import org.springframework.boot.loader.tools.MainClassFinder
 
 import java.util.concurrent.Callable
+
+import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getMainJavaSourceSetOutput
+import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getRuntimeClasspathConfiguration
 
 /**
  * @since 3.4.5
@@ -23,12 +25,10 @@ import java.util.concurrent.Callable
 @CompileStatic
 class DockerSpringBootApplicationPlugin implements Plugin<Project> {
     public static final String SPRING_BOOT_APPLICATION_EXTENSION_NAME = 'springBootApplication'
-    public static final String SYNC_ARCHIVE_TASK_NAME = 'dockerSyncArchive'
+    public static final String SYNC_BUILD_CONTEXT_TASK_NAME = 'dockerSyncBuildContext'
     public static final String DOCKERFILE_TASK_NAME = 'dockerCreateDockerfile'
     public static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
     public static final String PUSH_IMAGE_TASK_NAME = 'dockerPushImage'
-    private static final String BOOT_JAR_TASK_NAME = 'bootJar'
-    private static final String BOOT_WAR_TASK_NAME = 'bootWar'
 
     @Override
     void apply(Project project) {
@@ -38,81 +38,107 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
 
         project.plugins.withType(JavaPlugin) {
             project.plugins.withId('org.springframework.boot') {
-                Jar archiveTask = determineArchiveTask(project)
-                Dockerfile createDockerfileTask = createDockerfileTask(project, archiveTask, dockerSpringBootApplication)
-                Sync syncWarTask = createSyncArchiveTask(project, archiveTask, createDockerfileTask)
-                createDockerfileTask.dependsOn syncWarTask
+                Dockerfile createDockerfileTask = createDockerfileTask(project, dockerSpringBootApplication)
+                Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
+                createDockerfileTask.dependsOn syncBuildContextTask
                 DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerSpringBootApplication)
                 createPushImageTask(project, dockerBuildImageTask)
             }
         }
     }
 
-    private static Jar determineArchiveTask(Project project) {
-        Task bootWarTask = project.tasks.findByName(BOOT_WAR_TASK_NAME)
-        Task archiveTask = bootWarTask ?: project.tasks.getByName(BOOT_JAR_TASK_NAME)
-        archiveTask as Jar
-    }
-
     private static DockerSpringBootApplication configureExtension(Project project, DockerExtension dockerExtension) {
         ((ExtensionAware) dockerExtension).extensions.create(SPRING_BOOT_APPLICATION_EXTENSION_NAME, DockerSpringBootApplication, project)
     }
 
-    private Sync createSyncArchiveTask(Project project, Jar archiveTask, Dockerfile createDockerfileTask) {
-        project.tasks.create(SYNC_ARCHIVE_TASK_NAME, Sync, new Action<Sync>() {
+    private static Sync createSyncBuildContextTask(Project project, Dockerfile createDockerfileTask) {
+        project.tasks.create(SYNC_BUILD_CONTEXT_TASK_NAME, Sync, new Action<Sync>() {
             @Override
             void execute(Sync sync) {
-                sync.group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
-                sync.description = "Copies the distribution resources to a temporary directory for image creation."
-                sync.dependsOn project.tasks.getByName(BasePlugin.ASSEMBLE_TASK_NAME)
-                sync.from { archiveTask.archivePath }
-                sync.into { createDockerfileTask.destFile.get().asFile.parentFile }
+                sync.with {
+                    group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
+                    description = "Copies the distribution resources to a temporary directory for image creation."
+                    dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
+                    into(createDockerfileTask.destDir)
+                    into('libs', new Action<CopySpec>() {
+                        @Override
+                        void execute(CopySpec copySpec) {
+                            copySpec.from(getRuntimeClasspathConfiguration(project))
+                        }
+                    })
+                    into('resources', new Action<CopySpec>() {
+                        @Override
+                        void execute(CopySpec copySpec) {
+                            copySpec.from(getMainJavaSourceSetOutput(project).resourcesDir)
+                        }
+                    })
+                    into('classes', new Action<CopySpec>() {
+                        @Override
+                        void execute(CopySpec copySpec) {
+                            copySpec.from(getMainJavaSourceSetOutput(project).classesDirs)
+                        }
+                    })
+                }
             }
         })
     }
 
-    private Dockerfile createDockerfileTask(Project project, Jar archiveTask, DockerSpringBootApplication dockerSpringBootApplication) {
+    private static Dockerfile createDockerfileTask(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
         project.tasks.create(DOCKERFILE_TASK_NAME, Dockerfile, new Action<Dockerfile>() {
             @Override
             void execute(Dockerfile dockerfile) {
-                dockerfile.description = 'Creates the Docker image for the Spring Boot application.'
-                dockerfile.dependsOn archiveTask
-                dockerfile.from(project.provider(new Callable<Dockerfile.From>() {
-                    @Override
-                    Dockerfile.From call() throws Exception {
-                        new Dockerfile.From(dockerSpringBootApplication.baseImage.get())
-                    }
-                }))
-                dockerfile.copyFile(project.provider(new Callable<Dockerfile.File>() {
-                    @Override
-                    Dockerfile.File call() throws Exception {
-                        new Dockerfile.File(archiveTask.archiveName, "/app/${archiveTask.archiveName}".toString())
-                    }
-                }))
-                dockerfile.entryPoint('java')
-                dockerfile.defaultCommand(project.provider(new Callable<List<String>>() {
-                    @Override
-                    List<String> call() throws Exception {
-                        ['-jar', "/app/${archiveTask.archiveName}".toString()] as List<String>
-                    }
-                }))
-                dockerfile.exposePort(dockerSpringBootApplication.ports)
+                dockerfile.with {
+                    description = 'Creates the Docker image for the Spring Boot application.'
+                    from(project.provider(new Callable<Dockerfile.From>() {
+                        @Override
+                        Dockerfile.From call() throws Exception {
+                            new Dockerfile.From(dockerSpringBootApplication.baseImage.get())
+                        }
+                    }))
+                    workingDir('/app')
+                    copyFile(project.provider(new Callable<Dockerfile.File>() {
+                        @Override
+                        Dockerfile.File call() throws Exception {
+                            if (new File(dockerfile.destDir.get().asFile, 'libs').isDirectory()) {
+                                return new Dockerfile.File('libs', 'libs/')
+                            }
+                        }
+                    }))
+                    copyFile(project.provider(new Callable<Dockerfile.File>() {
+                        @Override
+                        Dockerfile.File call() throws Exception {
+                            if (getMainJavaSourceSetOutput(project).resourcesDir.isDirectory()) {
+                                return new Dockerfile.File('resources', 'resources/')
+                            }
+                        }
+                    }))
+                    copyFile('classes', 'classes/')
+                    entryPoint(project.provider(new Callable<List<String>>() {
+                        @Override
+                        List<String> call() throws Exception {
+                            ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", getSpringApplicationMainClassName(project)]
+                        }
+                    }))
+                    exposePort(dockerSpringBootApplication.ports)
+                }
             }
         })
     }
 
-    private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerSpringBootApplication dockerSpringBootApplication) {
+    private static DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerSpringBootApplication dockerSpringBootApplication) {
         project.tasks.create(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
             @Override
             void execute(DockerBuildImage dockerBuildImage) {
-                dockerBuildImage.description = 'Builds the Docker image for the Spring Boot application.'
-                dockerBuildImage.dependsOn createDockerfileTask
-                dockerBuildImage.tags.add(determineImageTag(project, dockerSpringBootApplication))
+                dockerBuildImage.with {
+                    description = 'Builds the Docker image for the Spring Boot application.'
+                    dependsOn createDockerfileTask
+                    tags.add(determineImageTag(project, dockerSpringBootApplication))
+                }
             }
         })
     }
 
-    private Provider<String> determineImageTag(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
+    private static Provider<String> determineImageTag(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
         project.provider(new Callable<String>() {
             @Override
             String call() throws Exception {
@@ -127,19 +153,33 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         })
     }
 
-    private void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
+    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
         project.tasks.create(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
             @Override
             void execute(DockerPushImage dockerPushImage) {
-                dockerPushImage.description = 'Pushes created Docker image to the repository.'
-                dockerPushImage.dependsOn dockerBuildImageTask
-                dockerPushImage.imageName.set(project.provider(new Callable<String>() {
-                    @Override
-                    String call() throws Exception {
-                        dockerBuildImageTask.getTags().get().first() as String
-                    }
-                }))
+                dockerPushImage.with {
+                    description = 'Pushes created Docker image to the repository.'
+                    dependsOn dockerBuildImageTask
+                    imageName.set(project.provider(new Callable<String>() {
+                        @Override
+                        String call() throws Exception {
+                            dockerBuildImageTask.getTags().get().first() as String
+                        }
+                    }))
+                }
             }
         })
+    }
+
+    private static String getSpringApplicationMainClassName(Project project) {
+        for (File classesDir : getMainJavaSourceSetOutput(project).classesDirs) {
+            String mainClassName = MainClassFinder.findSingleMainClass(classesDir, 'org.springframework.boot.autoconfigure.SpringBootApplication')
+
+            if (mainClassName) {
+                return mainClassName
+            }
+        }
+
+        throw new IllegalStateException('Main class name could not be resolved')
     }
 }
