@@ -28,10 +28,6 @@ class DocumentationTestPlugin : Plugin<Project> {
             classpath = docTestSourceSet.runtimeClasspath
             mustRunAfter("test", "integrationTest", "functionalTest")
             systemProperty("samples.code.dir", file("src/docs/samples"))
-            reports {
-                html.destination = file("${html.destination}/doc")
-                junitXml.destination = file("${junitXml.destination}/doc")
-            }
         }
 
         tasks["check"].dependsOn(docTest)

@@ -27,10 +27,6 @@ class FunctionalTestPlugin : Plugin<Project> {
             testClassesDirs = functionalTestSourceSet.output.classesDirs
             classpath = functionalTestSourceSet.runtimeClasspath
             mustRunAfter("test", "integrationTest")
-            reports {
-                html.destination = file("${html.destination}/functional")
-                junitXml.destination = file("${junitXml.destination}/functional")
-            }
             testLogging {
                 showStandardStreams = true
                 events("started", "passed", "failed")

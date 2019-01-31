@@ -28,10 +28,6 @@ class IntegrationTestPlugin : Plugin<Project> {
             testClassesDirs = integrationTestSourceSet.output.classesDirs
             classpath = integrationTestSourceSet.runtimeClasspath
             mustRunAfter("test")
-            reports {
-                html.destination = file("${html.destination}/integration")
-                junitXml.destination = file("${junitXml.destination}/integration")
-            }
         }
 
         tasks["check"].dependsOn(integrationTest)
