@@ -711,7 +711,7 @@ See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle 
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:4.3.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.4.0'
     }
 }
 
@@ -726,7 +726,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'</code></pre>
         gradlePluginPortal()
     }
     dependencies {
-        classpath("com.bmuschko:gradle-docker-plugin:4.3.0")
+        classpath("com.bmuschko:gradle-docker-plugin:4.4.0")
     }
 }
 
@@ -740,7 +740,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.3.0'
+    id 'com.bmuschko.docker-remote-api' version '4.4.0'
 }</code></pre>
 </div>
 </div>
@@ -748,7 +748,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.3.0"
+    id("com.bmuschko.docker-remote-api") version "4.4.0"
 }</code></pre>
 </div>
 </div>
@@ -778,7 +778,7 @@ When used with the Kotlin DSL, it is recommended to move your implementation int
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:4.3.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.4.0'
     }
 }
 
@@ -808,7 +808,7 @@ You can model any workflow imaginable by creating enhanced task of the custom ta
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.3.0'
+    id 'com.bmuschko.docker-remote-api' version '4.4.0'
 }
 
 // Import task types
@@ -825,7 +825,7 @@ task buildMyAppImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.3.0"
+    id("com.bmuschko.docker-remote-api") version "4.4.0"
 }
 
 // Import task types
@@ -1538,7 +1538,7 @@ order.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.3.0'
+    id 'com.bmuschko.docker-remote-api' version '4.4.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1559,7 +1559,7 @@ task buildImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.3.0"
+    id("com.bmuschko.docker-remote-api") version "4.4.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1587,7 +1587,7 @@ At the end of this operation, the container is stopped.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.3.0'
+    id 'com.bmuschko.docker-remote-api' version '4.4.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1624,7 +1624,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.3.0"
+    id("com.bmuschko.docker-remote-api") version "4.4.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1668,7 +1668,7 @@ In that case you may wish using traditional linking:</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.3.0'
+    id 'com.bmuschko.docker-remote-api' version '4.4.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1716,7 +1716,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.3.0"
+    id("com.bmuschko.docker-remote-api") version "4.4.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1885,7 +1885,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'application'
-    id 'com.bmuschko.docker-java-application' version '4.3.0'
+    id 'com.bmuschko.docker-java-application' version '4.4.0'
 }</code></pre>
 </div>
 </div>
@@ -1895,7 +1895,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     application
-    id("com.bmuschko.docker-java-application") version "4.3.0"
+    id("com.bmuschko.docker-java-application") version "4.4.0"
 }</code></pre>
 </div>
 </div>
@@ -2029,14 +2029,14 @@ It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate loc
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncArchive</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>distTar</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncBuildContext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>classes</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/Sync.html">Sync</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Copies the resource files (like the Java application&#8217;s TAR file) to a temporary directory for image creation.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Copies the application files to a temporary directory for image creation.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCreateDockerfile</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncArchive</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncBuildContext</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html">Dockerfile</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Creates the Docker image for the Java application.</p></td>
 </tr>
@@ -2069,7 +2069,7 @@ More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-d
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'application'
-    id 'com.bmuschko.docker-java-application' version '4.3.0'
+    id 'com.bmuschko.docker-java-application' version '4.4.0'
 }
 
 version = '1.0'
@@ -2098,7 +2098,7 @@ docker {
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     application
-    id("com.bmuschko.docker-java-application") version "4.3.0"
+    id("com.bmuschko.docker-java-application") version "4.4.0"
 }
 
 version = "1.0"
@@ -2152,19 +2152,6 @@ docker {
 </div>
 </div>
 <div class="paragraph">
-<p>will result in</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>FROM openjdk:jre-alpine
-LABEL maintainer=user
-ADD javaapp-1.0.0-SNAPSHOT.tar /
-ENTRYPOINT ["/javaapp-1.0.0-SNAPSHOT/bin/javaapp"]
-EXPOSE 8080
-RUN ls -la</pre>
-</div>
-</div>
-<div class="paragraph">
 <p>Or you can use form</p>
 </div>
 <div class="listingblock primary">
@@ -2213,7 +2200,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '4.3.0'
+    id 'com.bmuschko.docker-spring-boot-application' version '4.4.0'
 }</code></pre>
 </div>
 </div>
@@ -2223,7 +2210,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     id("org.springframework.boot") version "2.0.3.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "4.3.0"
+    id("com.bmuschko.docker-spring-boot-application") version "4.4.0"
 }</code></pre>
 </div>
 </div>
@@ -2317,14 +2304,14 @@ The following properties can be configured:</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncArchive</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>assemble</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncBuildContext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>classes</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/Sync.html">Sync</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Copies the Spring Boot archive to a temporary directory for image creation.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Copies the application files to a temporary directory for image creation.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerCreateDockerfile</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bootJar</code> or <code>bootWar</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dockerSyncBuildContext</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html">Dockerfile</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Creates the Docker image for the Spring Boot application.</p></td>
 </tr>
@@ -2357,7 +2344,7 @@ The following properties can be configured:</p>
     id 'war'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application'  version '4.3.0'
+    id 'com.bmuschko.docker-spring-boot-application' version '4.4.0'
 }
 
 version = '1.0'
@@ -2388,7 +2375,7 @@ docker {
     war
     id("org.springframework.boot") version "2.0.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.5.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "4.3.0"
+    id("com.bmuschko.docker-spring-boot-application") version "4.4.0"
 }
 
 version = "1.0"
@@ -2625,6 +2612,20 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div class="sect1">
 <h2 id="change_log"><a class="anchor" href="#change_log"></a>6. Change Log</h2>
 <div class="sectionbody">
+<h3 id="v4_4_0_january_31_2019" class="discrete">v4.4.0 (January 31, 2019)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Breaking Change!</strong> Define image with more fine-grained image layers - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/736">PR 736</a></p>
+</li>
+<li>
+<p>Bump <em>docker-java-shaded</em> to latest version - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/729">PR 729</a></p>
+</li>
+<li>
+<p>Task <code>DockerCreateContainer</code> gained option <code>groups</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/731">Pull Request 731</a></p>
+</li>
+</ul>
+</div>
 <h3 id="v4_3_0_january_12_2019" class="discrete">v4.3.0 (January 12, 2019)</h3>
 <div class="ulist">
 <ul>
@@ -3753,7 +3754,7 @@ setting port bindings for task <code>DockerStartContainer</code> anymore. Needs 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-01-12 23:00:43 UTC
+Last updated 2019-02-01 01:22:00 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
