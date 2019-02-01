@@ -1,8 +1,10 @@
 == Change Log
 
 [discrete]
-=== v4.4.0 (TBA)
-* Bump **docker-java-shaded** to latest and greatest and decrease wait time for **DockerLiveness** test. - {uri-github}/pull/729[PR 729]
+=== v4.4.0 (January 31, 2019)
+
+* **Breaking Change!** Define image with more fine-grained image layers - {uri-github}/pull/736[PR 736]
+* Bump _docker-java-shaded_ to latest version - {uri-github}/pull/729[PR 729]
 * Task `DockerCreateContainer` gained option `groups` - {uri-github}/pull/731[Pull Request 731]
 
 [discrete]
