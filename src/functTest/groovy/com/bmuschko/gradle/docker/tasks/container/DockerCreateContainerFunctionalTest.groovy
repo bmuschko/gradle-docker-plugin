@@ -185,14 +185,15 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerInspect = '''
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn startContainer
+                finalizedBy stopContainer
+
                 targetContainerId startContainer.getContainerId()
                 
                 onNext { container ->
-                  container.networkSettings.ports.bindings.forEach { exposedPort, bindings ->
-                    logger.quiet "$exposedPort.port -> ${bindings.first().hostPortSpec}"
-                  }
+                    container.networkSettings.ports.bindings.forEach { exposedPort, bindings ->
+                        logger.quiet "$exposedPort.port -> ${bindings.first().hostPortSpec}"
+                    }
                 }
-                finalizedBy stopContainer
             }
         '''
 
