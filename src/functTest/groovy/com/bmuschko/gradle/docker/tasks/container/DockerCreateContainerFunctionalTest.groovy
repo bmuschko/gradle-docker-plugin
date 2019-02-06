@@ -167,6 +167,49 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('inspectStoppedContainer')
     }
 
+    def "with publishAll set, all ports get a host binding"() {
+        given:
+        def exposedPorts = [1234, 2345]
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImageId()
+                autoRemove = true
+                
+                cmd = ['sleep', '10']
+                exposePorts 'tcp', $exposedPorts
+                publishAll = true
+            }
+        """
+
+        String containerInspect = '''
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                finalizedBy stopContainer
+
+                targetContainerId startContainer.getContainerId()
+                
+                onNext { container ->
+                    container.networkSettings.ports.bindings.forEach { exposedPort, bindings ->
+                        logger.quiet "$exposedPort.port -> ${bindings.first().hostPortSpec}"
+                    }
+                }
+            }
+        '''
+
+        buildFile << containerStart(containerCreationTask)
+        buildFile << containerStop()
+        buildFile << containerInspect
+
+        when:
+        BuildResult buildResult = build('inspectContainer')
+
+        then:
+        exposedPorts.every {
+            buildResult.output.find(/$it -> \d+/) != null
+        }
+    }
+
     static String containerStart(String containerCreationTask) {
         // Starts with the union of all needed imports.
         """

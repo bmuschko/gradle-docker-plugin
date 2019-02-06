@@ -383,7 +383,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(publishAll.getOrNull()) {
-            containerCommand.withPublishAllPorts(publishAll.get())
+            containerCommand.hostConfig.withPublishAllPorts(publishAll.get())
         }
 
         if(binds.getOrNull()) {
