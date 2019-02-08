@@ -144,6 +144,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
                 environmentVariable ENV_VAR_A: 'val_a'
                 environmentVariable ENV_VAR_B: 'val_b', ENV_VAR_C: 'val_c'
                 addFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
+                addFile project.provider({new Dockerfile.File('localpath/my-file.tar', '/tmp', '--chown=user')})
                 copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
                 entryPoint 'java', '-jar', '/opt/jenkins.war'
                 volume '/jenkins', '/myApp'
@@ -167,6 +168,7 @@ ENV ENV_VAR_KEY envVarVal
 ENV ENV_VAR_A=val_a
 ENV ENV_VAR_B=val_b ENV_VAR_C=val_c
 ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
+ADD --chown=user localpath/my-file.tar /tmp
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
 ENTRYPOINT ["java", "-jar", "/opt/jenkins.war"]
 VOLUME ["/jenkins", "/myApp"]
