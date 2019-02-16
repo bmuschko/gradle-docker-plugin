@@ -117,7 +117,7 @@ class DockerLogsContainer extends DockerExistingContainer {
         logCommand.exec(createCallback())?.awaitCompletion()
     }
 
-    private Object createCallback() {
+    private LogContainerResultCallback createCallback() {
         if(sink && nextHandler) {
             throw new GradleException("Define either sink or onNext")
         }
