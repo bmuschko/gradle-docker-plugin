@@ -10,7 +10,7 @@ class DockerLoadImage extends AbstractDockerRemoteApiTask {
     final RegularFileProperty imageFile = newOutputFile()
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         dockerClient.loadImageCmd(new FileInputStream(imageFile.get().asFile)).exec()
     }
 }

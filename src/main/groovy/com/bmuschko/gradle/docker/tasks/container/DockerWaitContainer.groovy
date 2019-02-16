@@ -15,6 +15,10 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.github.dockerjava.api.async.ResultCallback
+import com.github.dockerjava.api.command.WaitContainerCmd
+import com.github.dockerjava.api.model.WaitResponse
+import com.github.dockerjava.core.command.WaitContainerResultCallback
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -34,12 +38,11 @@ class DockerWaitContainer extends DockerExistingContainer {
     final Property<Integer> awaitStatusTimeout = project.objects.property(Integer)
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         String possibleTimeout = awaitStatusTimeout.getOrNull() ? " for ${awaitStatusTimeout.get()} seconds" : ''
         logger.quiet "Waiting for container with ID '${containerId.get()}'${possibleTimeout}."
-        def containerCommand = dockerClient.waitContainerCmd(containerId.get())
-        def callback = threadContextClassLoader.createWaitContainerResultCallback(nextHandler)
-        callback = containerCommand.exec(callback)
+        WaitContainerCmd containerCommand = dockerClient.waitContainerCmd(containerId.get())
+        ResultCallback<WaitResponse> callback = containerCommand.exec(createCallback())
         exitCode = awaitStatusTimeout.getOrNull() ? callback.awaitStatusCode(awaitStatusTimeout.get(), TimeUnit.SECONDS) : callback.awaitStatusCode()
         logger.quiet "Container exited with code ${exitCode}"
     }
@@ -47,5 +50,22 @@ class DockerWaitContainer extends DockerExistingContainer {
     @Internal
     int getExitCode() {
         exitCode
+    }
+
+    private WaitContainerResultCallback createCallback() {
+        new WaitContainerResultCallback() {
+            @Override
+            void onNext(WaitResponse waitResponse) {
+                if (nextHandler) {
+                    try {
+                        nextHandler.execute(waitResponse)
+                    } catch (Exception e) {
+                        logger.error('Failed to handle wait response', e)
+                        return
+                    }
+                }
+                super.onNext(waitResponse)
+            }
+        }
     }
 }

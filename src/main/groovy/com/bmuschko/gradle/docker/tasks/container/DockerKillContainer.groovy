@@ -17,7 +17,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 class DockerKillContainer extends DockerExistingContainer {
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         logger.quiet "Killing container with ID '${containerId.get()}'."
         dockerClient.killContainerCmd(containerId.get()).exec()
     }

@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.domain.CopyFileToContainer
+import com.github.dockerjava.api.command.CopyArchiveToContainerCmd
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -49,7 +50,7 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
     final List<CopyFileToContainer> copyFiles = []
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
 
         if (remotePath.getOrNull()) {
             if (hostPath.getOrNull() && tarFile.getOrNull()) {
@@ -66,13 +67,13 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
         for (int i = 0; i < copyFiles.size(); i++) {
             CopyFileToContainer fileToCopy = copyFiles.get(i)
             logger.quiet "Copying file to container with ID '${containerId.get()}' at '${fileToCopy.remotePath}'."
-            def containerCommand = dockerClient.copyArchiveToContainerCmd(containerId.get())
+            CopyArchiveToContainerCmd containerCommand = dockerClient.copyArchiveToContainerCmd(containerId.get())
             setContainerCommandConfig(containerCommand, fileToCopy)
             containerCommand.exec()
         }
     }
 
-    private void setContainerCommandConfig(containerCommand, CopyFileToContainer copyFileToContainer) {
+    private void setContainerCommandConfig(CopyArchiveToContainerCmd containerCommand, CopyFileToContainer copyFileToContainer) {
 
         def localHostPath
         if (copyFileToContainer.hostPath instanceof Closure) {

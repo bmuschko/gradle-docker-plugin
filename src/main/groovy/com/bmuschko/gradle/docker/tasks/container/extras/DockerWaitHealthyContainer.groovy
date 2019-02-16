@@ -16,6 +16,8 @@
 package com.bmuschko.gradle.docker.tasks.container.extras
 
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
+import com.github.dockerjava.api.command.InspectContainerCmd
+import com.github.dockerjava.api.command.InspectContainerResponse
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -38,10 +40,10 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
     final Property<Integer> checkInterval = project.objects.property(Integer)
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         logger.quiet "Waiting for container with ID '${containerId.get()}' to be healthy."
 
-        def command = dockerClient.inspectContainerCmd(containerId.get())
+        InspectContainerCmd command = dockerClient.inspectContainerCmd(containerId.get())
         Long deadline = awaitStatusTimeout.getOrNull() ? System.currentTimeMillis() + awaitStatusTimeout.get() * 1000 : null
         long sleepInterval = checkInterval.getOrNull() ?: 500
 
@@ -50,13 +52,13 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
         }
     }
 
-    private boolean check(Long deadline, def command) {
+    private boolean check(Long deadline, InspectContainerCmd command) {
         if (deadline && System.currentTimeMillis() > deadline) {
             throw new GradleException('Health check timeout expired')
         }
 
-        def response = command.exec()
-        def state = response.state
+        InspectContainerResponse response = command.exec()
+        InspectContainerResponse.ContainerState state = response.state
         if (!state.running) {
             throw new GradleException("Container with ID '${getContainerId()}' is not running")
         }

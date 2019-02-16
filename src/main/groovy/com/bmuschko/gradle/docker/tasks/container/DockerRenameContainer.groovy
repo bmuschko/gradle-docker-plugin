@@ -24,7 +24,7 @@ class DockerRenameContainer extends DockerExistingContainer {
     final Property<String> renameTo = project.objects.property(String)
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         logger.quiet "Renaming container with ID '${containerId.get()}' to '${renameTo.get()}'."
         dockerClient.renameContainerCmd(containerId.get()).withName(renameTo.get()).exec()
     }

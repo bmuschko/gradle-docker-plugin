@@ -21,7 +21,7 @@ package com.bmuschko.gradle.docker.tasks
 class DockerClient extends AbstractDockerRemoteApiTask {
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         if (nextHandler) {
             nextHandler.execute(dockerClient)
         } else {

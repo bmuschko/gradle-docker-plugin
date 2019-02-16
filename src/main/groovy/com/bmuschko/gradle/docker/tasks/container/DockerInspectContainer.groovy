@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.github.dockerjava.api.command.InspectContainerResponse
 import org.gradle.api.Action
 
 class DockerInspectContainer extends DockerExistingContainer {
@@ -24,9 +25,9 @@ class DockerInspectContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         logger.quiet "Inspecting container with ID '${containerId.get()}'."
-        def container = dockerClient.inspectContainerCmd(containerId.get()).exec()
+        InspectContainerResponse container = dockerClient.inspectContainerCmd(containerId.get()).exec()
 
         if (nextHandler) {
             nextHandler.execute(container)
@@ -34,9 +35,9 @@ class DockerInspectContainer extends DockerExistingContainer {
     }
 
     private void defaultResponseHandling() {
-        Action<Object> action = new Action<Object>() {
+        Action<InspectContainerResponse> action = new Action<InspectContainerResponse>() {
             @Override
-            void execute(Object container) {
+            void execute(InspectContainerResponse container) {
                 logger.quiet "Image ID    : $container.imageId"
                 logger.quiet "Name        : $container.name"
                 logger.quiet "Links       : $container.hostConfig.links"

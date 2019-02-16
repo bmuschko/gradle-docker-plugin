@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
+import com.github.dockerjava.api.command.CommitCmd
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -66,9 +67,9 @@ class DockerCommitImage extends DockerExistingContainer {
     final Property<String> imageId = project.objects.property(String)
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         logger.quiet "Committing image for container '${getContainerId().get()}'."
-        def commitCmd = dockerClient.commitCmd(getContainerId().get())
+        CommitCmd commitCmd = dockerClient.commitCmd(getContainerId().get())
 
         if(repository.getOrNull()) {
             commitCmd.withRepository(repository.get())

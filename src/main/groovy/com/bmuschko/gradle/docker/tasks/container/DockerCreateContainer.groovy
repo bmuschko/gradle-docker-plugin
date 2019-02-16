@@ -17,6 +17,17 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
 import com.bmuschko.gradle.docker.utils.CollectionUtil
+import com.github.dockerjava.api.command.CreateContainerCmd
+import com.github.dockerjava.api.command.CreateContainerResponse
+import com.github.dockerjava.api.model.Bind
+import com.github.dockerjava.api.model.Device
+import com.github.dockerjava.api.model.InternetProtocol
+import com.github.dockerjava.api.model.Link
+import com.github.dockerjava.api.model.PortBinding
+import com.github.dockerjava.api.model.Ports
+import com.github.dockerjava.api.model.RestartPolicy
+import com.github.dockerjava.api.model.Volume
+import com.github.dockerjava.api.model.VolumesFrom
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -228,10 +239,10 @@ class DockerCreateContainer extends DockerExistingImage {
     }
 
     @Override
-    void runRemoteCommand(dockerClient) {
-        def containerCommand = dockerClient.createContainerCmd(imageId.get())
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+        CreateContainerCmd containerCommand = dockerClient.createContainerCmd(imageId.get())
         setContainerCommandConfig(containerCommand)
-        def container = containerCommand.exec()
+        CreateContainerResponse container = containerCommand.exec()
         final String localContainerName = containerName.getOrNull() ?: container.id
         logger.quiet "Created container with ID '$localContainerName'."
         containerId.set(container.id)
@@ -260,7 +271,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
     }
 
-    private void setContainerCommandConfig(containerCommand) {
+    private void setContainerCommandConfig(CreateContainerCmd containerCommand) {
         if(containerName.getOrNull()) {
             containerCommand.withName(containerName.get())
         }
@@ -354,17 +365,17 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(volumes.getOrNull()) {
-            def createdVolumes = volumes.get().collect { threadContextClassLoader.createVolume(it) }
-            containerCommand.volumes = threadContextClassLoader.createVolumes(createdVolumes)
+            List<Volume> createdVolumes = volumes.get().collect { Volume.parse(it) }
+            containerCommand.withVolumes(createdVolumes)
         }
 
         if (links.getOrNull()) {
-            def createdLinks = links.get().collect { threadContextClassLoader.createLink(it) }
+            List<Link> createdLinks = links.get().collect { Link.parse(it) }
             containerCommand.hostConfig.withLinks(CollectionUtil.toArray(createdLinks))
         }
 
         if(volumesFrom.getOrNull()) {
-            def createdVolumes = threadContextClassLoader.createVolumesFrom(volumesFrom.get() as String[])
+            List<VolumesFrom> createdVolumes = volumesFrom.get().collect { new VolumesFrom(it) }
             containerCommand.hostConfig.withVolumesFrom(createdVolumes)
         }
 
@@ -373,13 +384,13 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(exposedPorts.getOrNull()) {
-            def ports = threadContextClassLoader.createExposedPortsArray(exposedPorts.get())
+            List<com.github.dockerjava.api.model.ExposedPort> ports = exposedPorts.get().collect { it.ports.collect { port -> new com.github.dockerjava.api.model.ExposedPort(port, InternetProtocol.parse(it.internetProtocol.toLowerCase())) } }.flatten()
             containerCommand.withExposedPorts(ports)
         }
 
         if(portBindings.getOrNull()) {
-            def createdPortBindings = portBindings.get().collect { threadContextClassLoader.createPortBinding(it) }
-            containerCommand.hostConfig.withPortBindings(threadContextClassLoader.createPorts(createdPortBindings))
+            List<PortBinding> createdPortBindings = portBindings.get().collect { PortBinding.parse(it) }
+            containerCommand.hostConfig.withPortBindings(new Ports(createdPortBindings as PortBinding[]))
         }
 
         if(publishAll.getOrNull()) {
@@ -387,7 +398,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(binds.getOrNull()) {
-            def createdBinds = threadContextClassLoader.createBinds(binds.get())
+            List<Bind> createdBinds = binds.get().collect { new Bind(it) }
             containerCommand.hostConfig.withBinds(createdBinds)
         }
 
@@ -396,7 +407,9 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(logConfig.getOrNull()) {
-            containerCommand.hostConfig.withLogConfig(threadContextClassLoader.createLogConfig(logConfig.get().type, logConfig.get().config))
+            com.github.dockerjava.api.model.LogConfig.LoggingType type = com.github.dockerjava.api.model.LogConfig.LoggingType.fromValue(logConfig.get().type)
+            com.github.dockerjava.api.model.LogConfig config = new com.github.dockerjava.api.model.LogConfig(type, logConfig.get().config)
+            containerCommand.hostConfig.withLogConfig(config)
         }
 
         if(privileged.getOrNull()) {
@@ -404,7 +417,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if (restartPolicy.getOrNull()) {
-            containerCommand.hostConfig.withRestartPolicy(threadContextClassLoader.createRestartPolicy(restartPolicy.get()))
+            containerCommand.hostConfig.withRestartPolicy(RestartPolicy.parse(restartPolicy.get()))
         }
 
         if (pid.getOrNull()) {
@@ -412,8 +425,8 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if (devices.getOrNull()) {
-            def createdDevices = devices.get().collect { threadContextClassLoader.createDevice(it) }
-            containerCommand.hostConfig.withDevices(CollectionUtil.toArray(createdDevices))
+            List<Device> createdDevices = devices.get().collect { Device.parse(it) }
+            containerCommand.hostConfig.withDevices(createdDevices)
         }
 
         if(tty.getOrNull()) {

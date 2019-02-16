@@ -16,6 +16,8 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.github.dockerjava.api.command.ListImagesCmd
+import com.github.dockerjava.api.model.Image
 import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -44,8 +46,8 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
     }
 
     @Override
-    void runRemoteCommand(dockerClient) {
-        def listImagesCmd = dockerClient.listImagesCmd()
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+        ListImagesCmd listImagesCmd = dockerClient.listImagesCmd()
 
         if (showAll.getOrNull()) {
             listImagesCmd.withShowAll(showAll.get())
@@ -63,7 +65,7 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
             listImagesCmd.withImageNameFilter(imageName.get())
         }
 
-        def images = listImagesCmd.exec()
+        List<Image> images = listImagesCmd.exec()
 
         if (nextHandler) {
             for(image in images) {
@@ -73,9 +75,9 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
     }
 
     private void defaultResponseHandling() {
-        Action<Object> action = new Action<Object>() {
+        Action<Image> action = new Action<Image>() {
             @Override
-            void execute(Object image) {
+            void execute(Image image) {
                 logger.quiet "Repository Tags : ${image.repoTags?.join(', ')}"
                 logger.quiet "Image ID        : $image.id"
                 logger.quiet "Created         : ${new Date(image.created * 1000)}"

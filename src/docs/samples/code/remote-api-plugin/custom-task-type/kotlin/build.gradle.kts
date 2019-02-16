@@ -41,17 +41,13 @@ open class DockerImageIdForName : AbstractDockerRemoteApiTask {
         })
     }
 
-    override fun runRemoteCommand(dockerClient: Any) {
-        dockerClient.withGroovyBuilder {
-            val listImagesCmd = invokeMethod("listImagesCmd", arrayOf())
-            listImagesCmd.withGroovyBuilder {
-                invokeMethod("withImageNameFilter", arrayOf(filteredImageName.get()))
-                val images = invokeMethod("exec", arrayOf()) as List<*>
+    override fun runRemoteCommand(dockerClient: com.github.dockerjava.api.DockerClient) {
+        val images = dockerClient.listImagesCmd()
+            .withImageNameFilter(filteredImageName.get())
+            .exec()
 
-                for(image in images) {
-                    nextHandler.execute(image)
-                }
-            }
+        for(image in images) {
+            nextHandler.execute(image)
         }
     }
 }

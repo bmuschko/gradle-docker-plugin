@@ -18,11 +18,23 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.github.dockerjava.api.command.BuildImageCmd
+import com.github.dockerjava.api.model.AuthConfig
+import com.github.dockerjava.api.model.AuthConfigurations
+import com.github.dockerjava.api.model.BuildResponseItem
+import com.github.dockerjava.core.command.BuildImageResultCallback
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
@@ -111,9 +123,9 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     }
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         logger.quiet "Building image using context '${inputDir.get().asFile}'."
-        def buildImageCmd
+        BuildImageCmd buildImageCmd
 
         if (dockerFile.getOrNull()) {
             logger.quiet "Using Dockerfile '${dockerFile.get().asFile}'"
@@ -159,8 +171,13 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (registryCredentials) {
-            def authConfig = threadContextClassLoader.createAuthConfig(registryCredentials)
-            def authConfigurations = threadContextClassLoader.createAuthConfigurations([authConfig])
+            AuthConfig authConfig = new AuthConfig()
+            authConfig.registryAddress = registryCredentials.url.get()
+            authConfig.username = registryCredentials.username.getOrNull()
+            authConfig.password = registryCredentials.password.getOrNull()
+            authConfig.email = registryCredentials.email.getOrNull()
+            AuthConfigurations authConfigurations = new AuthConfigurations()
+            authConfigurations.addConfig(authConfig)
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
         }
 
@@ -174,10 +191,41 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd = buildImageCmd.withCacheFrom(cacheFrom.get())
         }
 
-        def callback = nextHandler ? threadContextClassLoader.createBuildImageResultCallback(nextHandler)
-                              : threadContextClassLoader.createBuildImageResultCallback()
-        String createdImageId = buildImageCmd.exec(callback).awaitImageId()
+        String createdImageId = buildImageCmd.exec(createCallback()).awaitImageId()
         imageId.set(createdImageId)
         logger.quiet "Created image with ID '$createdImageId'."
+    }
+
+    private BuildImageResultCallback createCallback() {
+        if (nextHandler) {
+            return new BuildImageResultCallback() {
+                @Override
+                void onNext(BuildResponseItem item) {
+                    try {
+                        nextHandler.execute(item)
+                    } catch (Exception e) {
+                        logger.error('Failed to handle build response', e)
+                        return
+                    }
+                    super.onNext(item)
+                }
+            }
+        }
+
+        new BuildImageResultCallback() {
+            @Override
+            void onNext(BuildResponseItem item) {
+                try {
+                    def possibleStream = item.stream
+                    if (possibleStream) {
+                        logger.quiet(possibleStream.trim())
+                    }
+                } catch(Exception e) {
+                    logger.error('Failed to handle build response', e)
+                    return
+                }
+                super.onNext(item)
+            }
+        }
     }
 }

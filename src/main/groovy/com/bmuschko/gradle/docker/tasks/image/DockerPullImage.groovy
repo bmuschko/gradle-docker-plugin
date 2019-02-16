@@ -18,6 +18,10 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.github.dockerjava.api.command.PullImageCmd
+import com.github.dockerjava.api.model.AuthConfig
+import com.github.dockerjava.api.model.PullResponseItem
+import com.github.dockerjava.core.command.PullImageResultCallback
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -49,21 +53,39 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     DockerRegistryCredentials registryCredentials
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
         logger.quiet "Pulling repository '${repository.get()}'."
-        def pullImageCmd = dockerClient.pullImageCmd(repository.get())
+        PullImageCmd pullImageCmd = dockerClient.pullImageCmd(repository.get())
 
         if(tag.getOrNull()) {
             pullImageCmd.withTag(tag.get())
         }
 
         if(registryCredentials) {
-            def authConfig = threadContextClassLoader.createAuthConfig(registryCredentials)
+            AuthConfig authConfig = new AuthConfig()
+            authConfig.registryAddress = registryCredentials.url.get()
+            authConfig.username = registryCredentials.username.getOrNull()
+            authConfig.password = registryCredentials.password.getOrNull()
+            authConfig.email = registryCredentials.email.getOrNull()
             pullImageCmd.withAuthConfig(authConfig)
         }
 
-        def response = pullImageCmd.exec(threadContextClassLoader.createPullImageResultCallback(nextHandler))
-        response.awaitSuccess()
+        PullImageResultCallback callback = new PullImageResultCallback() {
+            @Override
+            void onNext(PullResponseItem item) {
+                if (nextHandler) {
+                    try {
+                        nextHandler.execute(item)
+                    } catch (Exception e) {
+                        logger.error('Failed to handle pull response', e)
+                        return
+                    }
+                }
+                super.onNext(item)
+            }
+        }
+
+        pullImageCmd.exec(callback).awaitSuccess()
     }
 
     @Internal

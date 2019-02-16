@@ -18,6 +18,10 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.github.dockerjava.api.command.PushImageCmd
+import com.github.dockerjava.api.model.AuthConfig
+import com.github.dockerjava.api.model.PushResponseItem
+import com.github.dockerjava.core.command.PushImageResultCallback
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
@@ -45,8 +49,8 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     DockerRegistryCredentials registryCredentials
 
     @Override
-    void runRemoteCommand(dockerClient) {
-        def pushImageCmd = dockerClient.pushImageCmd(imageName.get())
+    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+        PushImageCmd pushImageCmd = dockerClient.pushImageCmd(imageName.get())
 
         if(tag.getOrNull()) {
             pushImageCmd.withTag(tag.get())
@@ -56,11 +60,29 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
         }
 
         if(registryCredentials) {
-            def authConfig = threadContextClassLoader.createAuthConfig(registryCredentials)
+            AuthConfig authConfig = new AuthConfig()
+            authConfig.registryAddress = registryCredentials.url.get()
+            authConfig.username = registryCredentials.username.getOrNull()
+            authConfig.password = registryCredentials.password.getOrNull()
+            authConfig.email = registryCredentials.email.getOrNull()
             pushImageCmd.withAuthConfig(authConfig)
         }
 
-        def response = pushImageCmd.exec(threadContextClassLoader.createPushImageResultCallback(nextHandler))
-        response.awaitSuccess()
+        PushImageResultCallback callback = new PushImageResultCallback() {
+            @Override
+            void onNext(PushResponseItem item) {
+                if (nextHandler) {
+                    try {
+                        nextHandler.execute(item)
+                    } catch (Exception e) {
+                        logger.error('Failed to handle push response', e)
+                        return
+                    }
+                }
+                super.onNext(item)
+            }
+        }
+
+        pushImageCmd.exec(callback).awaitSuccess()
     }
 }

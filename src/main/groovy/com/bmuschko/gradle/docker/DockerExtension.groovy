@@ -17,7 +17,6 @@ package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 
@@ -25,14 +24,12 @@ import org.gradle.api.provider.Property
 class DockerExtension {
     private final Project project
 
-    final ConfigurableFileCollection classpath
     final Property<String> url
     final DirectoryProperty certPath
     final Property<String> apiVersion
 
     DockerExtension(Project project) {
         this.project = project
-        classpath = project.layout.configurableFiles()
         url = project.objects.property(String)
         url.set(getDefaultDockerUrl())
         certPath = project.layout.directoryProperty()
