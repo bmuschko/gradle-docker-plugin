@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.TagImageCmd
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -41,7 +42,7 @@ class DockerTagImage extends DockerExistingImage {
     final Property<Boolean> force = project.objects.property(Boolean)
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Tagging image with ID '${imageId.get()}'."
         TagImageCmd tagImageCmd = dockerClient.tagImageCmd(imageId.get(), repository.get(), tag.get())
 

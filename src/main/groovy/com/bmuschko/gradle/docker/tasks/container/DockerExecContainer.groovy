@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.domain.ExecProbe
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.ExecCreateCmd
 import com.github.dockerjava.api.model.Frame
 import com.github.dockerjava.core.command.ExecStartResultCallback
@@ -79,12 +80,12 @@ class DockerExecContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Executing on container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient)
     }
 
-    void _runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void _runRemoteCommand(DockerClient dockerClient) {
         def execCallback = createCallback()
 
         List<String[]> localCommands = commands.get()

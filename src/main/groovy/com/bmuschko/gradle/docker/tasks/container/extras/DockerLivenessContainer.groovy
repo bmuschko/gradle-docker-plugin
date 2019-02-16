@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.container.extras
 
 import com.bmuschko.gradle.docker.domain.LivenessProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.InspectContainerResponse
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Internal
@@ -44,7 +45,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
     private InspectContainerResponse lastInspection
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Starting liveness probe on container with ID '${containerId.get()}'."
 
         // if livenessProbe was defined proceed as expected otherwise just

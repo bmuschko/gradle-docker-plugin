@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.container.extras
 
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.InspectContainerCmd
 import com.github.dockerjava.api.command.InspectContainerResponse
 import org.gradle.api.GradleException
@@ -40,7 +41,7 @@ class DockerWaitHealthyContainer extends DockerExistingContainer {
     final Property<Integer> checkInterval = project.objects.property(Integer)
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Waiting for container with ID '${containerId.get()}' to be healthy."
 
         InspectContainerCmd command = dockerClient.inspectContainerCmd(containerId.get())

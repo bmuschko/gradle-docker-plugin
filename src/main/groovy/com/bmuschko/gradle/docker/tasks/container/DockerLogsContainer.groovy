@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.LogContainerCmd
 import com.github.dockerjava.api.model.Frame
 import com.github.dockerjava.core.command.LogContainerResultCallback
@@ -102,7 +103,7 @@ class DockerLogsContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Logs for container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient)
     }
@@ -110,7 +111,7 @@ class DockerLogsContainer extends DockerExistingContainer {
     // method used for sub-classes who wish to invoke this task
     // multiple times but don't want the logging message to be
     // printed for every iteration.
-    void _runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void _runRemoteCommand(DockerClient dockerClient) {
         LogContainerCmd logCommand = dockerClient.logContainerCmd(containerId.get())
         setContainerCommandConfig(logCommand)
         logCommand.exec(createCallback())?.awaitCompletion()

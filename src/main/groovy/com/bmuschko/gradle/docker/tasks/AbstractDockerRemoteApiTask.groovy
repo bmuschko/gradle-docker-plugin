@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
 import groovy.transform.CompileStatic
@@ -126,7 +127,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      * @return DockerClient instance
      */
     @Memoized
-    private com.github.dockerjava.api.DockerClient getDockerClient(DockerClientConfiguration dockerClientConfiguration, DockerExtension dockerExtension) {
+    private DockerClient getDockerClient(DockerClientConfiguration dockerClientConfiguration, DockerExtension dockerExtension) {
         String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
         File dockerCertPath = dockerClientConfiguration.certPath?.asFile ?: dockerExtension.certPath.getOrNull()?.asFile
         String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion.getOrNull()
@@ -149,7 +150,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
 
         // Create client
-        com.github.dockerjava.api.DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
+        DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
 
         // register shutdown-hook to close kubernetes client.
         addShutdownHook {
@@ -170,5 +171,5 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         url.startsWith('http') ? 'tcp' + url.substring(url.indexOf(':')) : url
     }
 
-    abstract void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient)
+    abstract void runRemoteCommand(DockerClient dockerClient)
 }

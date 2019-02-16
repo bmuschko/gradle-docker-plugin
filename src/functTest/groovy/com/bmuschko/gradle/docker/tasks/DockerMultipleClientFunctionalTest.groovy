@@ -4,18 +4,18 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
 class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest {
-    def "DockerClient respects task configuration"() {
+    def "DockerOperation respects task configuration"() {
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.DockerClient
+            import com.bmuschko.gradle.docker.tasks.DockerOperation
 
-            task dockerClient1(type: DockerClient) {
+            task dockerClient1(type: DockerOperation) {
                 onNext { client ->
                     if (client != null) {
                         logger.quiet "config: " + client.dockerClientConfig.toString()
                     }
                 }
             }
-            task dockerClient2(type: DockerClient) {
+            task dockerClient2(type: DockerOperation) {
                 url = 'tcp://docker.corp.com'
                 onNext { client ->
                     if (client != null) {
@@ -23,7 +23,7 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
                     }
                 }
             }
-            task dockerClient3(type: DockerClient) {
+            task dockerClient3(type: DockerOperation) {
                 url = 'tcp://docker.school.edu'
                 certPath = new File('/tmp')
                 onNext { client ->

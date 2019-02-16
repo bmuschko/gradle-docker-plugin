@@ -19,6 +19,7 @@ package com.bmuschko.gradle.docker.tasks.container.extras
 import com.bmuschko.gradle.docker.domain.ExecProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.InspectContainerResponse
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -49,7 +50,7 @@ class DockerExecStopContainer extends DockerExecContainer {
     final Property<Integer> awaitStatusTimeout = project.objects.property(Integer)
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Running exec-stop on container with ID '${containerId.get()}'."
 
         // 1.) we only need to proceed with an exec IF we have something to execute

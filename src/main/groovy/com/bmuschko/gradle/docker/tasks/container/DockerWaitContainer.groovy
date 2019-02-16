@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.command.WaitContainerCmd
 import com.github.dockerjava.api.model.WaitResponse
@@ -38,7 +39,7 @@ class DockerWaitContainer extends DockerExistingContainer {
     final Property<Integer> awaitStatusTimeout = project.objects.property(Integer)
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         String possibleTimeout = awaitStatusTimeout.getOrNull() ? " for ${awaitStatusTimeout.get()} seconds" : ''
         logger.quiet "Waiting for container with ID '${containerId.get()}'${possibleTimeout}."
         WaitContainerCmd containerCommand = dockerClient.waitContainerCmd(containerId.get())

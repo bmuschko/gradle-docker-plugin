@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.RemoveContainerCmd
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -31,7 +32,7 @@ class DockerRemoveContainer extends DockerExistingContainer {
     final Property<Boolean> force = project.objects.property(Boolean)
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         RemoveContainerCmd containerCommand = dockerClient.removeContainerCmd(containerId.get())
         configureContainerCommandConfig(containerCommand)
         logger.quiet "Removing container with ID '${containerId.get()}'."
