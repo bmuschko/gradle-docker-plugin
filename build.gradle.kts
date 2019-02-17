@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-loader-tools:2.1.2.RELEASE")
+    implementation("org.ow2.asm:asm:7.0")
     testImplementation("org.spockframework:spock-core:1.2-groovy-2.5") {
         exclude(group = "org.codehaus.groovy")
     }
