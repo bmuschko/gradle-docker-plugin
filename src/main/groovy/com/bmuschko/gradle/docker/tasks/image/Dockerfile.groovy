@@ -823,6 +823,7 @@ class Dockerfile extends DefaultTask {
     static interface Instruction {
         /**
          * Gets the keyword of the instruction as used in the Dockerfile.
+         * <p>
          * For example the keyword of the {@link FromInstruction} is {@code FROM}.
          *
          * @return The instruction keyword
