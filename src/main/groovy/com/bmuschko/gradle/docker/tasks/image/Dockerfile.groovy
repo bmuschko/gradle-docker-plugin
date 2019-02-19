@@ -1056,7 +1056,7 @@ class Dockerfile extends DefaultTask {
 
             if (file) {
                 if (file.flags) {
-                    keyword += " $flags"
+                    keyword += " $file.flags"
                 }
                 if (file.src && file.dest) {
                     "$keyword $file.src $file.dest"
