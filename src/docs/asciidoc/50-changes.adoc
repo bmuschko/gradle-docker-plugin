@@ -1,6 +1,12 @@
 == Change Log
 
 [discrete]
+=== v4.5.0 (February 19, 2019)
+
+* `Dockerfile.FileInstruction` does not use flags if `Dockerfile.File` is passed in using a `Provider` - {uri-github}/pull/753[PR 753]
+* Inline main class finder and avoid explicit dependency on Spring Boot - {uri-github}/pull/752[PR 752]
+
+[discrete]
 === v4.4.1 (February 5, 2019)
 
 * Cannot set publishAll property without error - {uri-github}/pull/742[PR 742]
