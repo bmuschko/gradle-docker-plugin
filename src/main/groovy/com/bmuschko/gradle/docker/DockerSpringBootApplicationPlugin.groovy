@@ -3,6 +3,7 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.utils.MainClassFinder
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -12,7 +13,6 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
-import org.springframework.boot.loader.tools.MainClassFinder
 
 import java.util.concurrent.Callable
 
