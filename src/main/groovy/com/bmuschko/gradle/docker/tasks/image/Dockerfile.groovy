@@ -821,11 +821,21 @@ class Dockerfile extends DefaultTask {
     }
 
     static interface Instruction {
+        /**
+         * Gets the keyword of the instruction as used in the Dockerfile.
+         * <p>
+         * For example the keyword of the {@link FromInstruction} is {@code FROM}.
+         *
+         * @return The instruction keyword
+         */
         @Internal
         @Nullable
         String getKeyword()
 
         /**
+         * Gets the full text of the instruction as used in the Dockerfile.
+         *
+         * @return The instruction
          * @since 3.6.0
          */
         @Input
@@ -1046,7 +1056,7 @@ class Dockerfile extends DefaultTask {
 
             if (file) {
                 if (file.flags) {
-                    keyword += " $flags"
+                    keyword += " $file.flags"
                 }
                 if (file.src && file.dest) {
                     "$keyword $file.src $file.dest"

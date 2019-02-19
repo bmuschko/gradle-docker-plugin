@@ -6,7 +6,7 @@ The plugin defines an extension with the namespace `javaApplication` as a child 
 |=======
 |Property name   |Type                               |Default value                                            |Description
 |`baseImage`     |`Property<String>`                 |`openjdk:jre-alpine`                                     |The Docker base image used for Java application.
-|`exec`          |`Action<CompositeExecInstruction>` |Create ENTRYPOINT using script from Application plugin   |The ENTRYPOINT and/or CMD Dockerfile instructions
+|`exec`          |`Action<CompositeExecInstruction>` |-                                                        |Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions
 |`ports`         |`ListProperty<Integer>`            |`[8080]`                                                     |The Docker image exposed ports (if provided, this values will override `port` configuration property)
 |`tag`           |`Property<String>`                 |`<project.group>/<applicationName>:<project.version>`    |The tag used for the Docker image.
 |=======
@@ -25,7 +25,7 @@ include::{samplesCodeDir}/application-plugin/basic/kotlin/build.gradle.kts[tags=
 
 ==== Adding custom instructions to Dockerfile
 
-The `exec` extension property accepts a Closure or Provider which delegates to the {uri-ghpages}/api/com/bmuschko/gradle/docker/DockerJavaApplication.CompositeExecInstruction.html[DockerJavaApplication.CompositeExecInstruction] subset of the {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
+The `exec` extension property accepts a String array or Provider which delegates to the {uri-ghpages}/api/com/bmuschko/gradle/docker/DockerJavaApplication.CompositeExecInstruction.html[DockerJavaApplication.CompositeExecInstruction] subset of the {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
 It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate location in the Dockerfile.
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
