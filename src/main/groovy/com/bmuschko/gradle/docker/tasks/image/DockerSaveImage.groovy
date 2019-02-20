@@ -2,6 +2,8 @@ package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.IOUtils
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.command.SaveImageCmd
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -41,8 +43,8 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
     }
 
     @Override
-    void runRemoteCommand(Object dockerClient) {
-        def saveImageCmd = dockerClient.saveImageCmd(repository.get())
+    void runRemoteCommand(DockerClient dockerClient) {
+        SaveImageCmd saveImageCmd = dockerClient.saveImageCmd(repository.get())
 
         if (tag.getOrNull()) {
             saveImageCmd.withTag(tag.get())

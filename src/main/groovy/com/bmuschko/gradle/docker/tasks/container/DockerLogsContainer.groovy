@@ -15,6 +15,10 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.command.LogContainerCmd
+import com.github.dockerjava.api.model.Frame
+import com.github.dockerjava.core.command.LogContainerResultCallback
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.provider.Property
@@ -99,7 +103,7 @@ class DockerLogsContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Logs for container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient)
     }
@@ -107,27 +111,75 @@ class DockerLogsContainer extends DockerExistingContainer {
     // method used for sub-classes who wish to invoke this task
     // multiple times but don't want the logging message to be
     // printed for every iteration.
-    void _runRemoteCommand(dockerClient) {
-        def logCommand = dockerClient.logContainerCmd(containerId.get())
+    void _runRemoteCommand(DockerClient dockerClient) {
+        LogContainerCmd logCommand = dockerClient.logContainerCmd(containerId.get())
         setContainerCommandConfig(logCommand)
         logCommand.exec(createCallback())?.awaitCompletion()
     }
 
-    private Object createCallback() {
+    private LogContainerResultCallback createCallback() {
         if(sink && nextHandler) {
             throw new GradleException("Define either sink or onNext")
         }
         if(sink) {
-            return threadContextClassLoader.createLoggingCallback(sink)
+            return new LogContainerResultCallback() {
+                @Override
+                void onNext(Frame frame) {
+                    try {
+                        switch (frame.streamType as String) {
+                            case 'STDOUT':
+                            case 'RAW':
+                            case 'STDERR':
+                                sink.append(new String(frame.payload))
+                                sink.flush()
+                                break
+                        }
+                    } catch (Exception e) {
+                        logger.error('Failed to handle frame', e)
+                        return
+                    }
+                    super.onNext(frame)
+                }
+            }
         }
         if(nextHandler) {
-            return threadContextClassLoader.createLoggingCallback(nextHandler)
+            return new LogContainerResultCallback() {
+                @Override
+                void onNext(Frame frame) {
+                    try {
+                        nextHandler.execute(frame)
+                    } catch (Exception e) {
+                        logger.error('Failed to handle frame', e)
+                        return
+                    }
+                    super.onNext(frame)
+                }
+            }
         }
 
-        threadContextClassLoader.createLoggingCallback()
+        new LogContainerResultCallback() {
+            @Override
+            void onNext(Frame frame) {
+                try {
+                    switch (frame.streamType as String) {
+                        case 'STDOUT':
+                        case 'RAW':
+                            logger.quiet(new String(frame.payload).replaceFirst(/\s+$/, ''))
+                            break
+                        case 'STDERR':
+                            logger.error(new String(frame.payload).replaceFirst(/\s+$/, ''))
+                            break
+                    }
+                } catch(Exception e) {
+                    logger.error('Failed to handle frame', e)
+                    return
+                }
+                super.onNext(frame)
+            }
+        }
     }
 
-    private void setContainerCommandConfig(logsCommand) {
+    private void setContainerCommandConfig(LogContainerCmd logsCommand) {
         if (follow.getOrNull() != null) {
             logsCommand.withFollowStream(follow.get())
         }

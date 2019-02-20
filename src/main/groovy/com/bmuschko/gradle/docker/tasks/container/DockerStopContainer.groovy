@@ -15,6 +15,8 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.command.StopContainerCmd
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -29,14 +31,14 @@ class DockerStopContainer extends DockerExistingContainer {
     final Property<Integer> timeout = project.objects.property(Integer)
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Stopping container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient, containerId.get(), timeout.getOrNull())
     }
 
     // overloaded method used by sub-classes and ad-hoc processes
-    static void _runRemoteCommand(dockerClient, String containerId, Integer optionalTimeout) {
-        def stopContainerCmd = dockerClient.stopContainerCmd(containerId)
+    static void _runRemoteCommand(DockerClient dockerClient, String containerId, Integer optionalTimeout) {
+        StopContainerCmd stopContainerCmd = dockerClient.stopContainerCmd(containerId)
 
         if(optionalTimeout) {
             stopContainerCmd.withTimeout(optionalTimeout)

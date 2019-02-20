@@ -19,12 +19,12 @@ package com.bmuschko.gradle.docker.tasks
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
-class DockerClientFunctionalTest extends AbstractGroovyDslFunctionalTest {
+class DockerOperationFunctionalTest extends AbstractGroovyDslFunctionalTest {
     def "Can get DockerClient with onNext defined"() {
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.DockerClient
+            import com.bmuschko.gradle.docker.tasks.DockerOperation
 
-            task dockerClient(type: DockerClient) {
+            task dockerClient(type: DockerOperation) {
                 onNext { client ->
                     if (client != null) {
                         logger.quiet "Found Version: " + client.versionCmd().exec().version
@@ -45,9 +45,9 @@ class DockerClientFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Print informational message when onNext is NOT defined"() {
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.DockerClient
+            import com.bmuschko.gradle.docker.tasks.DockerOperation
 
-            task dockerClient(type: DockerClient)
+            task dockerClient(type: DockerOperation)
         """
 
         when:

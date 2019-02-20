@@ -15,6 +15,9 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.command.InspectImageResponse
+
 class DockerInspectImage extends DockerExistingImage {
 
     DockerInspectImage() {
@@ -22,9 +25,9 @@ class DockerInspectImage extends DockerExistingImage {
     }
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Inspecting image for with ID '${imageId.get()}'."
-        def image = dockerClient.inspectImageCmd(imageId.get()).exec()
+        InspectImageResponse image = dockerClient.inspectImageCmd(imageId.get()).exec()
 
         if (nextHandler) {
             nextHandler.execute(image)
@@ -32,7 +35,7 @@ class DockerInspectImage extends DockerExistingImage {
     }
 
     private void defaultResponseHandling() {
-        Closure c = { image ->
+        Closure c = { InspectImageResponse image ->
             logger.quiet "ID               : $image.id"
             logger.quiet "Author           : $image.author"
             logger.quiet "Created          : $image.created"

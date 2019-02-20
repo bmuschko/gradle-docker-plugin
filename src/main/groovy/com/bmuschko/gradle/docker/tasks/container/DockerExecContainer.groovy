@@ -16,6 +16,10 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.domain.ExecProbe
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.command.ExecCreateCmd
+import com.github.dockerjava.api.model.Frame
+import com.github.dockerjava.core.command.ExecStartResultCallback
 import org.gradle.api.GradleException
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -76,19 +80,19 @@ class DockerExecContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Executing on container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient)
     }
 
-    void _runRemoteCommand(dockerClient) {
-        def execCallback = nextHandler ? threadContextClassLoader.createExecCallback(nextHandler) : threadContextClassLoader.createExecCallback(System.out, System.err)
+    void _runRemoteCommand(DockerClient dockerClient) {
+        def execCallback = createCallback()
 
         List<String[]> localCommands = commands.get()
         for (int i = 0; i < commands.get().size(); i++) {
 
             String [] singleCommand = localCommands.get(i)
-            def execCmd = dockerClient.execCreateCmd(containerId.get())
+            ExecCreateCmd execCmd = dockerClient.execCreateCmd(containerId.get())
             setContainerCommandConfig(execCmd, singleCommand)
             String localExecId = execCmd.exec().getId()
             dockerClient.execStartCmd(localExecId).withDetach(false).exec(execCallback).awaitCompletion()
@@ -157,7 +161,7 @@ class DockerExecContainer extends DockerExistingContainer {
         }
     }
 
-    private void setContainerCommandConfig(containerCommand, String[] commandToExecute) {
+    private void setContainerCommandConfig(ExecCreateCmd containerCommand, String[] commandToExecute) {
         if (commandToExecute) {
             containerCommand.withCmd(commandToExecute)
         }
@@ -184,5 +188,26 @@ class DockerExecContainer extends DockerExistingContainer {
      */
     def execProbe(final long pollTime, final long pollInterval) {
         this.execProbe = new ExecProbe(pollTime, pollInterval)
+    }
+
+    private ExecStartResultCallback createCallback() {
+        if (nextHandler) {
+            return new ExecStartResultCallback() {
+                @Override
+                void onNext(Frame frame) {
+                    if (nextHandler) {
+                        try {
+                            nextHandler.execute(frame)
+                        } catch (Exception e) {
+                            logger.error('Failed to handle frame', e)
+                            return
+                        }
+                    }
+                    super.onNext(frame)
+                }
+            }
+        }
+
+        new ExecStartResultCallback(System.out, System.err)
     }
 }

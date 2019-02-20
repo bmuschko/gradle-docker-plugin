@@ -15,6 +15,8 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd
 import groovy.io.FileType
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
@@ -56,12 +58,12 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
 
-        def containerCommand = dockerClient.copyArchiveFromContainerCmd(containerId.get(), remotePath.get())
+        CopyArchiveFromContainerCmd containerCommand = dockerClient.copyArchiveFromContainerCmd(containerId.get(), remotePath.get())
         logger.quiet "Copying '${remotePath.get()}' from container with ID '${containerId.get()}' to '${hostPath.get()}'."
 
-        def tarStream
+        InputStream tarStream
         try {
             tarStream = containerCommand.exec()
 

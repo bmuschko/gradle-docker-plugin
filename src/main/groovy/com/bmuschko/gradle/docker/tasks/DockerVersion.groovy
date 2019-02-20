@@ -15,11 +15,14 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
+import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.model.Version
+
 class DockerVersion extends AbstractDockerRemoteApiTask {
     @Override
-    void runRemoteCommand(dockerClient) {
+    void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Retrieving Docker version."
-        def version = dockerClient.versionCmd().exec()
+        Version version = dockerClient.versionCmd().exec()
         logger.quiet "Version          : $version.version"
         logger.quiet "Git Commit       : $version.gitCommit"
         logger.quiet "Go Version       : $version.goVersion"

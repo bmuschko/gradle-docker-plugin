@@ -23,6 +23,11 @@ repositories {
 }
 
 dependencies {
+    implementation("com.aries:docker-java-shaded:3.1.0-rc-7:cglib@jar") {
+        setTransitive(false)
+    }
+    implementation("org.slf4j:slf4j-simple:1.7.5")
+    implementation("javax.activation:activation:1.1.1")
     implementation("org.ow2.asm:asm:7.0")
     testImplementation("org.spockframework:spock-core:1.2-groovy-2.5") {
         exclude(group = "org.codehaus.groovy")

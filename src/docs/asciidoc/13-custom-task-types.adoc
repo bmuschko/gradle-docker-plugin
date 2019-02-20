@@ -7,7 +7,7 @@ The plugin provides the following general-purpose custom task types:
 [options="header"]
 |=======
 |Type                                                                                                                             |Description
-|{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/DockerClient.html[DockerClient]   |Passes the raw docker-java client to the onNext closure if it's defined.
+|{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/DockerOperation.html[DockerOperation]   |Passes the raw docker-java client to the onNext closure if it's defined.
 |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/DockerInfo.html[DockerInfo]       |Displays system-wide information.
 |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/DockerVersion.html[DockerVersion] |Show the docker version information.
 |=======
