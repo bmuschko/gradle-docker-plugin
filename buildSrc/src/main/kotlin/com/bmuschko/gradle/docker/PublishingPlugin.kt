@@ -1,5 +1,6 @@
 package com.bmuschko.gradle.docker
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.jfrog.bintray.gradle.BintrayExtension
 import com.jfrog.bintray.gradle.BintrayPlugin
 import org.gradle.api.Plugin
@@ -27,6 +28,7 @@ class PublishingPlugin : Plugin<Project> {
 
     private
     fun Project.configurePublishingExtension() {
+        val shadowJar: ShadowJar by tasks
         val sourcesJar: Jar by tasks
         val groovydocJar: Jar by tasks
         val javadocJar: Jar by tasks
@@ -34,7 +36,7 @@ class PublishingPlugin : Plugin<Project> {
         configure<PublishingExtension> {
             publications {
                 create<MavenPublication>("mavenJava") {
-                    from(components["java"])
+                    artifact(shadowJar)
                     artifact(sourcesJar)
                     artifact(groovydocJar)
                     artifact(javadocJar)
@@ -107,9 +109,9 @@ class PublishingPlugin : Plugin<Project> {
                 version(closureOf<BintrayExtension.VersionConfig> {
                     released = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(Date())
                     vcsTag = "v${project.version}"
-                    setAttributes(mapOf("gradle-plugin" to listOf("com.bmuschko.docker-remote-api:${packageName}",
+                    attributes = mapOf("gradle-plugin" to listOf("com.bmuschko.docker-remote-api:${packageName}",
                             "com.bmuschko.docker-java-application:${packageName}",
-                            "com.bmuschko.docker-spring-boot-application:${packageName}")))
+                            "com.bmuschko.docker-spring-boot-application:${packageName}"))
 
                     gpg(closureOf<BintrayExtension.GpgConfig> {
                         sign = true

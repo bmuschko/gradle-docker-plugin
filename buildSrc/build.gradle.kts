@@ -17,6 +17,7 @@ dependencies {
     implementation("org.ajoberstar:gradle-git:1.7.1")
     implementation("org.ajoberstar:gradle-git-publish:0.3.3")
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
+    implementation("com.github.jengelman.gradle.plugins:shadow:4.0.4")
 }
 
 kotlinDslPluginOptions {
@@ -44,6 +45,10 @@ gradlePlugin {
         register("additional-artifacts-plugin") {
             id = "com.bmuschko.gradle.docker.additional-artifacts"
             implementationClass = "com.bmuschko.gradle.docker.AdditionalArtifactsPlugin"
+        }
+        register("shaded-artifacts-plugin") {
+            id = "com.bmuschko.gradle.docker.shaded-artifacts"
+            implementationClass = "com.bmuschko.gradle.docker.ShadedArtifactsPlugin"
         }
         register("user-guide-plugin") {
             id = "com.bmuschko.gradle.docker.user-guide"
