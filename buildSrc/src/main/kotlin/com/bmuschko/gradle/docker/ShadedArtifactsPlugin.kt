@@ -32,28 +32,28 @@ class ShadedArtifactsPlugin: Plugin<Project> {
 
     private
     fun Project.configureShadowJarTask(shaded: Configuration): TaskProvider<ShadowJar> {
+        val packagesToRelocate = listOf(
+                "javassist",
+                "org.glassfish",
+                "org.jvnet",
+                "jersey.repackaged",
+                "com.fasterxml",
+                "io.netty",
+                "org.bouncycastle",
+                "org.apache",
+                "org.aopalliance",
+                "org.scijava",
+                "com.google",
+                "javax.annotation",
+                "javax.inject",
+                "javax.ws",
+                "net.sf",
+                "org.objectweb"
+        )
         return tasks.named<ShadowJar>("shadowJar") {
             classifier = null
             configurations = listOf(shaded)
             mergeServiceFiles()
-            val packagesToRelocate = listOf(
-                    "javassist",
-                    "org.glassfish",
-                    "org.jvnet",
-                    "jersey.repackaged",
-                    "com.fasterxml",
-                    "io.netty",
-                    "org.bouncycastle",
-                    "org.apache",
-                    "org.aopalliance",
-                    "org.scijava",
-                    "com.google",
-                    "javax.annotation",
-                    "javax.inject",
-                    "javax.ws",
-                    "net.sf",
-                    "org.objectweb"
-            )
             for (pkg in packagesToRelocate) {
                 relocate(pkg, "com.bmuschko.gradle.docker.shaded.$pkg")
             }
