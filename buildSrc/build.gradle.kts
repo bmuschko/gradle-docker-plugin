@@ -17,7 +17,7 @@ dependencies {
     implementation("org.ajoberstar:gradle-git:1.7.1")
     implementation("org.ajoberstar:gradle-git-publish:0.3.3")
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
-    implementation("com.github.jengelman.gradle.plugins:shadow:4.0.4")
+    implementation("com.github.jengelman.gradle.plugins:shadow:5.0.0")
 }
 
 kotlinDslPluginOptions {
