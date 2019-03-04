@@ -69,6 +69,55 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
         build('waitContainer')
     }
 
+    def "Wait for a container to be healthy with specifying start period"() {
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.*
+            import com.bmuschko.gradle.docker.tasks.container.*
+            import com.bmuschko.gradle.docker.tasks.container.extras.*
+
+            task dockerfile(type: Dockerfile) {
+                from '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_WITH_TAG'
+                instruction "HEALTHCHECK --interval=1s --start-period=5s CMD test -e /tmp/HEALTHY || exit 1"
+                defaultCommand '/bin/sh', '-c', 'sleep 5; touch /tmp/HEALTHY; sleep 60'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+            }
+
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn buildImage
+                targetImageId buildImage.getImageId()
+            }
+
+            task startContainer(type: DockerStartContainer) {
+                dependsOn createContainer
+                targetContainerId createContainer.getContainerId()
+            }
+
+            task removeContainer(type: DockerRemoveContainer) {
+                targetContainerId startContainer.getContainerId()
+                force = true
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn removeContainer
+                targetImageId buildImage.getImageId()
+                force = true
+            }
+
+            task waitContainer(type: DockerWaitHealthyContainer) {
+                dependsOn startContainer
+                targetContainerId startContainer.getContainerId()
+                awaitStatusTimeout = 10
+                finalizedBy removeImage
+            }
+        """
+
+        expect:
+        build('waitContainer')
+    }
+
     def "Wait for a generic container to be healthy"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.*

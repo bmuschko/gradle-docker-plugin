@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    shaded("com.github.docker-java:docker-java:3.1.0-rc-7")
+    shaded("com.github.docker-java:docker-java:3.1.1")
     shaded("org.ow2.asm:asm:7.0")
     testImplementation("org.spockframework:spock-core:1.2-groovy-2.5") {
         exclude(group = "org.codehaus.groovy")
