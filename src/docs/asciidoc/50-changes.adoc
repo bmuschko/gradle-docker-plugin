@@ -1,6 +1,12 @@
 == Change Log
 
 [discrete]
+=== v4.6.0 (March 3, 2019)
+
+* **Breaking Change!** Plugin declares and uses Docker Java as runtime library  - {uri-github}/pull/751[PR 751]
+* Shade plugin dependencies except Docker Java - {uri-github}/pull/755[PR 755]
+
+[discrete]
 === v4.5.0 (February 19, 2019)
 
 * `Dockerfile.FileInstruction` does not use flags if `Dockerfile.File` is passed in using a `Provider` - {uri-github}/pull/753[PR 753]
