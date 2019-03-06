@@ -52,6 +52,36 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('inspectContainer')
     }
 
+    def "can setup binds"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImageId()
+                binds = ['/tmp': '/testdata']
+            }
+        """
+        buildFile <<
+            containerStart(containerCreationTask) <<
+            """
+            ${containerRemove()}
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+                onNext { info ->
+                    if (!info.hostConfig.binds.find { it.path == '/tmp' && it.volume.path == '/testdata' }) {
+                        throw new GradleException("Bind not found")
+                    } 
+                }
+            }
+        """
+
+        expect:
+        build('inspectContainer')
+    }
+
     def "can override default MAC address"() {
         given:
         String containerCreationTask = """
