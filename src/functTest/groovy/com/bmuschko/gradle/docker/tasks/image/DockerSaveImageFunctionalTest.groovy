@@ -21,7 +21,7 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task saveImage(type: DockerSaveImage) {
                 dependsOn buildImage
                 finalizedBy removeImage
-                tag = "${IMAGE_ID}"
+//                tag = "${IMAGE_ID}"
                 repository = "${IMAGE_ID}"
                 destFile = file("${IMAGE_FILE}")
             }
@@ -49,7 +49,7 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn saveImageControl
                 finalizedBy removeImage
                 useCompression = true
-                tag = "${IMAGE_ID}"
+//                tag = "${IMAGE_ID}"
                 repository = "${IMAGE_ID}"
                 destFile = file("${COMPRESSED_IMAGE_FILE}")
             }
@@ -73,7 +73,7 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                inputDir = file("build/docker")
+                inputDir = file("${BUILD_DIR}")
                 tags.add("${IMAGE_ID}")
                 labels = ["setup":"${IMAGE_ID}"]
             }
