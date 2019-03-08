@@ -192,7 +192,7 @@ class DockerCreateContainer extends DockerExistingImage {
     @Optional
     final Property<Long> shmSize = project.objects.property(Long)
 
-    /* 
+    /*
      * Automatically remove the container when the container's process exits.
      *
      * This has no effect if {@link #restartPolicy} is set.
@@ -212,6 +212,10 @@ class DockerCreateContainer extends DockerExistingImage {
     @Input
     @Optional
     final Property<String> macAddress = project.objects.property(String)
+
+    @Input
+    @Optional
+    final ListProperty<String> tmpfs = project.objects.listProperty(String)
 
     DockerCreateContainer() {
         links.set([])
@@ -236,6 +240,7 @@ class DockerCreateContainer extends DockerExistingImage {
         devices.set([])
         autoRemove.set(false)
         groups.set([])
+        tmpfs.set([])
     }
 
     @Override
@@ -451,6 +456,10 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if(macAddress.getOrNull()) {
             containerCommand.withMacAddress(macAddress.get())
+        }
+
+        if(tmpfs.getOrNull()) {
+            containerCommand.hostConfig.withTmpFs(tmpfs.get().collectEntries { [it, ""] })
         }
     }
 

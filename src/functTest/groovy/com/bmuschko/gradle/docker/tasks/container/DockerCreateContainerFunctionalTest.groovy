@@ -105,6 +105,40 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         result.output.contains("HWaddr 02:03:04:05:06:07")
     }
 
+    def "can create tmpfs mounts"() {
+        given:
+        String tmpFsMount = "/test-tmp-fs"
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImageId()
+                cmd = ['grep', 'tmpfs $tmpFsMount', '/proc/mounts']
+                tmpfs = ['$tmpFsMount']
+                cpuset = '1'
+                labels = ["project.name": "\$project.name"]
+            }
+        """
+
+        buildFile <<
+            containerStart(containerCreationTask) <<
+            containerRemove() <<
+            """
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+                onNext { info ->
+                    if (!info.hostConfig.tmpFs.containsKey("$tmpFsMount")) {
+                        throw new GradleException("TmpFs not found")
+                    } 
+                }
+            }
+        """
+
+        expect:
+        build('inspectContainer')
+    }
+
     def "can set multiple environment variables"() {
         given:
         String containerCreationTask = """
