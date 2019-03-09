@@ -48,7 +48,8 @@ class ShadedArtifactsPlugin: Plugin<Project> {
                 "javax.inject",
                 "javax.ws",
                 "net.sf",
-                "org.objectweb"
+                "org.objectweb",
+                "javax.activation"
         )
         return tasks.named<ShadowJar>("shadowJar") {
             classifier = null
