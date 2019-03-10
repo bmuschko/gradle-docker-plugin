@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
-import com.bmuschko.gradle.docker.utils.CollectionUtil
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.CreateContainerCmd
 import com.github.dockerjava.api.command.CreateContainerResponse
@@ -111,7 +110,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final Property<Map<?, ?>> envVars = project.objects.property(Map)
+    final Property<Map> envVars = project.objects.property(Map)
 
     @Input
     @Optional
@@ -154,7 +153,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final Property<Map<String,String>> binds = project.objects.property(Map)
+    final Property<Map> binds = project.objects.property(Map)
 
     @Input
     @Optional
@@ -205,7 +204,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final Property<Map<String, String>> labels = project.objects.property(Map)
+    final Property<Map> labels = project.objects.property(Map)
 
     @Internal
     final Property<String> containerId = project.objects.property(String)
@@ -372,7 +371,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if (links.getOrNull()) {
             List<Link> createdLinks = links.get().collect { Link.parse(it) }
-            containerCommand.hostConfig.withLinks(CollectionUtil.toArray(createdLinks))
+            containerCommand.hostConfig.withLinks(createdLinks as Link[])
         }
 
         if(volumesFrom.getOrNull()) {
@@ -385,8 +384,12 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(exposedPorts.getOrNull()) {
-            List<com.github.dockerjava.api.model.ExposedPort> ports = exposedPorts.get().collect { it.ports.collect { port -> new com.github.dockerjava.api.model.ExposedPort(port, InternetProtocol.parse(it.internetProtocol.toLowerCase())) } }.flatten()
-            containerCommand.withExposedPorts(ports)
+            List<List<com.github.dockerjava.api.model.ExposedPort>> allPorts = exposedPorts.get().collect { exposedPort ->
+                exposedPort.ports.collect {
+                    Integer port -> new com.github.dockerjava.api.model.ExposedPort(port, InternetProtocol.parse(exposedPort.internetProtocol.toLowerCase()))
+                }
+            }
+            containerCommand.withExposedPorts(allPorts.flatten() as List<com.github.dockerjava.api.model.ExposedPort>)
         }
 
         if(portBindings.getOrNull()) {
@@ -399,7 +402,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(binds.getOrNull()) {
-            List<Bind> createdBinds = binds.get().collect { new Bind(it) }
+            List<Bind> createdBinds = binds.get().collect { Bind.parse([it.key, it.value].join(':')) }
             containerCommand.hostConfig.withBinds(createdBinds)
         }
 

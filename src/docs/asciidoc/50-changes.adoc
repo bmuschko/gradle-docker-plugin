@@ -1,9 +1,19 @@
 == Change Log
 
 [discrete]
+=== v4.6.2 (March 9, 2019)
+
+* Add shaded JAF dependency to simplify usage of plugin with Java 11 - {uri-github}/issues/764[Issue 764]
+
+[discrete]
+=== v4.6.1 (March 6, 2019)
+
+* Fix setting binds in `DockerCreateContainer` task - {uri-github}/issues/758[Issue 758]
+
+[discrete]
 === v4.6.0 (March 3, 2019)
 
-* **Breaking Change!** Plugin declares and uses Docker Java as runtime library  - {uri-github}/pull/751[PR 751]
+* **Breaking Change!** Plugin declares and uses Docker Java as runtime library - {uri-github}/pull/751[PR 751]
 * **Breaking Change!** Custom task `DockerClient` has been renamed to `DockerOperation` to avoid conflicting Docker Java class name
 * Shade plugin dependencies except Docker Java - {uri-github}/pull/755[PR 755]
 
