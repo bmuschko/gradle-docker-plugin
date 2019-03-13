@@ -79,6 +79,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             @Override
             void execute(Dockerfile dockerfile) {
                 dockerfile.with {
+                    group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Creates the Docker image for the Java application.'
                     from(project.provider(new Callable<Dockerfile.From>() {
                         @Override
@@ -154,6 +155,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             @Override
             void execute(DockerBuildImage dockerBuildImage) {
                 dockerBuildImage.with {
+                    group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Builds the Docker image for the Java application.'
                     dependsOn createDockerfileTask
                     tags.add(determineImageTag(project, dockerJavaApplication))
@@ -183,6 +185,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             @Override
             void execute(DockerPushImage pushImage) {
                 pushImage.with {
+                    group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
                     imageName.set(project.provider(new Callable<String>() {
