@@ -3,6 +3,10 @@ image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agr
 image:https://img.shields.io/badge/stack%20overflow-gradle%20docker%20plugin-blue.svg["Stackoverflow", link="https://stackoverflow.com/questions/tagged/gradle-docker-plugin"]
 image:https://badges.gitter.im/Join%20Chat.svg["Gitter", link="https://gitter.im/gradle-docker-plugin/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge"]
 
+= Dockercon 2019
+
+We'll be atttending!!! We've created an link:https://github.com/bmuschko/gradle-docker-plugin/issues/774[ISSUE] if you guys want to let us know you're going or you can ping us on link:https://gitter.im/gradle-docker-plugin/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge[gitter].
+
 = Gradle Docker plugin
 
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using the
