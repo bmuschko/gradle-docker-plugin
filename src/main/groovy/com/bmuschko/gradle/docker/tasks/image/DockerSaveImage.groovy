@@ -36,7 +36,7 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
      * Where to save image.
      */
     @OutputFile
-    final RegularFileProperty destFile = newOutputFile()
+    final RegularFileProperty destFile = project.objects.fileProperty()
 
     DockerSaveImage() {
         useCompression.set(false)
