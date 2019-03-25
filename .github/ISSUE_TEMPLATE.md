@@ -16,6 +16,8 @@
 <!--- Providing context helps us come up with a solution that is most useful in the real world -->
 
 ### Steps to Reproduce (for bugs)
+<!--- Please provide one of the below: -->
+<!--- Create a functionalTest within this project which reproduces the problem on a new branch or PR. -->
 <!--- Provide a self-contained example project (as an attached archive or a Github project). -->
 <!--- In the rare cases where this is infeasible, we will also accept a detailed set of instructions. -->
 
