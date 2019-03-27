@@ -123,7 +123,7 @@ class MainClassFinder {
         stack.push(rootFolder)
         while (!stack.isEmpty()) {
             File file = stack.pop()
-            if (file.isFile()) {
+            if (file.isFile() && file.name.endsWith('.class')) {
                 InputStream inputStream = new FileInputStream(file)
                 ClassDescriptor classDescriptor = createClassDescriptor(inputStream)
                 if (classDescriptor != null && classDescriptor.isMainMethodFound()) {

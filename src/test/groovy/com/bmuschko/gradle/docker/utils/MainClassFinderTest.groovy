@@ -63,9 +63,9 @@ class MainClassFinderTest extends Specification {
         new File(testJarFile.jarSource, 'noClass.txt').createNewFile()
 
         when:
-        MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATION_CLASS_NAME)
+        String mainClass = MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATION_CLASS_NAME)
 
         then:
-        noExceptionThrown()
+        mainClass == 'a.b.c.E'
     }
 }
