@@ -138,13 +138,13 @@ class MainClassFinder {
                 pushAllSorted(stack, file.listFiles(new FileFilter() {
                     @Override
                     boolean accept(File pathname) {
-                        file.isDirectory() && !file.getName().startsWith(".")
+                        pathname.isDirectory() && !pathname.getName().startsWith(".")
                     }
                 }))
                 pushAllSorted(stack, file.listFiles(new FileFilter() {
                     @Override
                     boolean accept(File pathname) {
-                        file.isFile() && file.getName().endsWith(DOT_CLASS)
+                        pathname.isFile() && pathname.getName().endsWith(DOT_CLASS)
                     }
                 }))
             }
