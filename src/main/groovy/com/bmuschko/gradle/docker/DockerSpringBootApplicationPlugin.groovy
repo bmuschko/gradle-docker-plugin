@@ -175,14 +175,23 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
     }
 
     private static String getSpringApplicationMainClassName(Project project) {
+        List<String> springMainClasses = new ArrayList<>()
+        
         for (File classesDir : getMainJavaSourceSetOutput(project).classesDirs) {
             String mainClassName = MainClassFinder.findSingleMainClass(classesDir, 'org.springframework.boot.autoconfigure.SpringBootApplication')
 
-            if (mainClassName) {
-                return mainClassName
+            if (!mainClassName) {
+            	springMainClasses.add(mainClassName);
             }
         }
+        
+        if (springMainClasses.size() == 1) {
+        	return springMainClasses[0]
+        } else if (springMainClasses.size() == 0) {
+        	throw new IllegalStateException('No Spring Application class found')
+        } else { // springMainClasses.size() > 1
+        	throw new IllegalStateException("Multiple Spring Application classes found: ${springMainClasses}")
+        }
 
-        throw new IllegalStateException('Main class name could not be resolved')
     }
 }
