@@ -30,6 +30,7 @@ dependencies {
     testImplementation("org.spockframework:spock-core:1.2-groovy-2.5") {
         exclude(group = "org.codehaus.groovy")
     }
+    testImplementation("org.zeroturnaround:zt-zip:1.13")
 }
 
 java {
