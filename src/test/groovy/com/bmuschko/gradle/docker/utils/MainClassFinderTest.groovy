@@ -9,7 +9,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class MainClassFinderTest extends Specification {
-    private static final String ANNOTATED_CLASS_NAME = "com.bmuschko.gradle.docker.utils.fixtures.SomeApplication"
+    private static final String ANNOTATION_CLASS_NAME = "com.bmuschko.gradle.docker.utils.fixtures.SomeApplication"
 
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
@@ -26,7 +26,7 @@ class MainClassFinderTest extends Specification {
         testJarFile.addClass('a/b/c/E.class', AnnotatedClassWithMainMethod)
 
         when:
-        String mainClass = MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATED_CLASS_NAME)
+        String mainClass = MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATION_CLASS_NAME)
 
         then:
         mainClass == 'a.b.c.E'
@@ -38,7 +38,7 @@ class MainClassFinderTest extends Specification {
         testJarFile.addClass('a/b/c/E.class', ClassWithMainMethod)
 
         when:
-        MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATED_CLASS_NAME)
+        MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATION_CLASS_NAME)
 
         then:
         def e = thrown(IllegalStateException)
@@ -51,7 +51,7 @@ class MainClassFinderTest extends Specification {
         testJarFile.addClass('a/b/c/E.class', ClassWithoutMainMethod)
 
         when:
-        String mainClass = MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATED_CLASS_NAME)
+        String mainClass = MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATION_CLASS_NAME)
 
         then:
         !mainClass
