@@ -59,8 +59,11 @@ class MainClassFinderTest extends Specification {
 
     def "only consider .class files"() {
         given:
+        String textFileName = 'noClass.txt'
+        File textFile = temporaryFolder.newFile(textFileName)
+        textFile << "Hello World!"
         testJarFile.addClass('a/b/c/E.class', AnnotatedClassWithMainMethod)
-        new File(testJarFile.jarSource, 'noClass.txt').createNewFile()
+        testJarFile.addFile(textFileName, textFile)
 
         when:
         String mainClass = MainClassFinder.findSingleMainClass(testJarFile.getJarSource(), ANNOTATION_CLASS_NAME)

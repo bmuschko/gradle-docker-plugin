@@ -5,6 +5,7 @@ import org.zeroturnaround.zip.FileSource;
 import org.zeroturnaround.zip.ZipEntrySource;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,15 @@ public class TestJarFile {
             file.setLastModified(time);
         }
         entries.add(new FileSource(filename, file));
+    }
+
+    public void addFile(String filename, File fileToCopy) throws IOException {
+        File file = getFilePath(filename);
+        file.getParentFile().mkdirs();
+        try (InputStream inputStream = new FileInputStream(fileToCopy)) {
+            copyToFile(inputStream, file);
+        }
+        this.entries.add(new FileSource(filename, file));
     }
 
     private File getFilePath(String filename) {
