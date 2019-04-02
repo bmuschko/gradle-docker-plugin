@@ -123,7 +123,7 @@ class MainClassFinder {
         stack.push(rootFolder)
         while (!stack.isEmpty()) {
             File file = stack.pop()
-            if (file.isFile()) {
+            if (file.isFile() && file.name.endsWith('.class')) {
                 InputStream inputStream = new FileInputStream(file)
                 ClassDescriptor classDescriptor = createClassDescriptor(inputStream)
                 if (classDescriptor != null && classDescriptor.isMainMethodFound()) {
@@ -138,13 +138,13 @@ class MainClassFinder {
                 pushAllSorted(stack, file.listFiles(new FileFilter() {
                     @Override
                     boolean accept(File pathname) {
-                        file.isDirectory() && !file.getName().startsWith(".")
+                        pathname.isDirectory() && !pathname.getName().startsWith(".")
                     }
                 }))
                 pushAllSorted(stack, file.listFiles(new FileFilter() {
                     @Override
                     boolean accept(File pathname) {
-                        file.isFile() && file.getName().endsWith(DOT_CLASS)
+                        pathname.isFile() && pathname.getName().endsWith(DOT_CLASS)
                     }
                 }))
             }
