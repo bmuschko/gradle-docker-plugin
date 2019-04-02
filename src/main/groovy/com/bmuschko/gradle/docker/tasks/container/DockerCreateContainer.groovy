@@ -29,6 +29,7 @@ import com.github.dockerjava.api.model.RestartPolicy
 import com.github.dockerjava.api.model.Volume
 import com.github.dockerjava.api.model.VolumesFrom
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -110,7 +111,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final Property<Map> envVars = project.objects.property(Map)
+    final MapProperty<String, String> envVars = project.objects.mapProperty(String, String)
 
     @Input
     @Optional
@@ -153,7 +154,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final Property<Map> binds = project.objects.property(Map)
+    final MapProperty<String, String> binds = project.objects.mapProperty(String, String)
 
     @Input
     @Optional
@@ -204,7 +205,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final Property<Map> labels = project.objects.property(Map)
+    final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
     @Internal
     final Property<String> containerId = project.objects.property(String)
@@ -265,7 +266,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
     void withEnvVar(def key, def value) {
         if (envVars.getOrNull()) {
-            envVars.get().put(key, value)
+            envVars.put(key, value)
         } else {
             envVars.set([(key): value])
         }
@@ -330,14 +331,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
         // marshall map into list
         if(envVars.getOrNull()) {
-            final List<String> localEnvVars = new ArrayList<>();
-            envVars.get().each { key, value ->
-                def localKey = key instanceof Closure ? key.call() : key
-                def localValue = value instanceof Closure ? value.call() : value
-
-                localEnvVars.add("${localKey}=${localValue}".toString())
-            }
-            containerCommand.withEnv(localEnvVars)
+            containerCommand.withEnv(envVars.get().collect { key, value -> "${key}=${value}".toString() })
         }
 
         if(cmd.getOrNull()) {

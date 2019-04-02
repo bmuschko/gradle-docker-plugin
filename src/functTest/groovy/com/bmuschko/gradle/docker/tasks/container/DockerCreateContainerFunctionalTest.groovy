@@ -118,8 +118,8 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 
                 // add by calling helper method N number of times
                 withEnvVar('five', 'six')
-                withEnvVar({'seven'}, 'eight')
-                withEnvVar('nine', {'ten'})
+                withEnvVar('seven', 'eight')
+                withEnvVar('nine', 'ten')
             }
         """
         buildFile <<

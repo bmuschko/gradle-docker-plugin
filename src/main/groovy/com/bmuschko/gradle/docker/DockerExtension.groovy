@@ -32,7 +32,7 @@ class DockerExtension {
         this.project = project
         url = project.objects.property(String)
         url.set(getDefaultDockerUrl())
-        certPath = project.layout.directoryProperty()
+        certPath = project.objects.directoryProperty()
 
         File defaultDockerCert = getDefaultDockerCert()
 

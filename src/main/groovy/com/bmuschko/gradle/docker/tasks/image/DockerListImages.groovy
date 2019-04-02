@@ -20,6 +20,7 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.ListImagesCmd
 import com.github.dockerjava.api.model.Image
 import org.gradle.api.Action
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -36,7 +37,7 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    final Property<Map<String, String>> labels = project.objects.property(Map)
+    final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
     @Input
     @Optional
