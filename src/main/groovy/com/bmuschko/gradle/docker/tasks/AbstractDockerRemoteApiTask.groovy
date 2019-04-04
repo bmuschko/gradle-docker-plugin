@@ -49,7 +49,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    final DirectoryProperty certPath = project.layout.directoryProperty()
+    final DirectoryProperty certPath = project.objects.directoryProperty()
 
     /**
      * The Docker remote API version.

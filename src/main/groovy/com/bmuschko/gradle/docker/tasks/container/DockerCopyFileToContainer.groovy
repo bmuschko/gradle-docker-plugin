@@ -44,7 +44,7 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final RegularFileProperty tarFile = newInputFile()
+    final RegularFileProperty tarFile = project.objects.fileProperty()
 
     @Input
     @Optional

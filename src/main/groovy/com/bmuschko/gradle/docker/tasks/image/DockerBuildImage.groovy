@@ -26,6 +26,7 @@ import com.github.dockerjava.api.model.BuildResponseItem
 import com.github.dockerjava.core.command.BuildImageResultCallback
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
@@ -44,7 +45,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
-    final DirectoryProperty inputDir = newInputDirectory()
+    final DirectoryProperty inputDir = project.objects.directoryProperty()
 
     /**
      * The Dockerfile to use to build the image.  If null, will use 'Dockerfile' in the
@@ -53,7 +54,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @InputFile
     @PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    final RegularFileProperty dockerFile = newInputFile()
+    final RegularFileProperty dockerFile = project.objects.fileProperty()
 
     /**
      * Tags for image.
@@ -80,7 +81,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     @Input
     @Optional
-    final Property<Map<String, String>> labels = project.objects.property(Map)
+    final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
     @Input
     @Optional
@@ -88,7 +89,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     @Input
     @Optional
-    final Property<Map<String, String>> buildArgs = project.objects.property(Map)
+    final MapProperty<String, String> buildArgs = project.objects.mapProperty(String, String)
 
     @Input
     @Optional
