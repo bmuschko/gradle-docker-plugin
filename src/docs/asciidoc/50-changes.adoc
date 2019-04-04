@@ -5,7 +5,8 @@
 
 * Tasks created by convention plugins should assign a task group - {uri-github}/issues/768[Issue 768]
 * Bump `docker-java` to `3.1.1` - {uri-github}/issues/773[Issue 773]
-* Main class detection should work with a Kotlin-based application   - {uri-github}/issues/766[Issue 766]
+* Main class detection should work with a Kotlin-based application - {uri-github}/issues/766[Issue 766]
+* Fix gradle `5.x` deprecation warnings - {uri-github}/issues/782[Issue 782]
 
 [discrete]
 === v4.6.2 (March 9, 2019)
