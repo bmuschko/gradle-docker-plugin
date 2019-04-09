@@ -1,7 +1,10 @@
 == Change Log
 
 [discrete]
-=== v4.7.0 (TBA)
+=== v4.7.1 (TBA)
+
+[discrete]
+=== v4.7.0 (April 9, 2019)
 
 * Tasks created by convention plugins should assign a task group - {uri-github}/issues/768[Issue 768]
 * Main class detection should work with a Kotlin-based application - {uri-github}/issues/766[Issue 766]
