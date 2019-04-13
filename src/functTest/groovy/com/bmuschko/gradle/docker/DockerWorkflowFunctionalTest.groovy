@@ -21,7 +21,7 @@ import spock.lang.Requires
 
 class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
-    def "Can build an image, create and start a container"() {
+    def "Can build an image, create, start, stop, and restart container"() {
         File imageDir = temporaryFolder.newFolder('images', 'minimal')
         createDockerfile(imageDir)
 
@@ -33,6 +33,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRestartContainer
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
@@ -51,12 +53,29 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
-
-            task inspectContainer(type: DockerInspectContainer) {
+            
+            task stopContainer(type: DockerStopContainer) {
                 dependsOn startContainer
+                waitTime = 3000
                 targetContainerId startContainer.getContainerId()
+                onError { exc ->
+                    if (!exc.message.contains('NotModifiedException')) {
+                        throw new RuntimeException(exc)
+                    }
+                }
             }
 
+            task restartContainer(type: DockerRestartContainer) {
+                dependsOn stopContainer
+                waitTime = 3000
+                targetContainerId startContainer.getContainerId()
+            }
+            
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn restartContainer
+                targetContainerId startContainer.getContainerId()
+            }
+            
             task removeContainer(type: DockerRemoveContainer) {
                 dependsOn inspectContainer
                 removeVolumes = true
