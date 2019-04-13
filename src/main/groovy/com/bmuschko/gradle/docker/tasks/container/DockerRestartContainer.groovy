@@ -27,15 +27,15 @@ class DockerRestartContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Integer> timeout = project.objects.property(Integer)
+    final Property<Integer> waitTime = project.objects.property(Integer)
 
     @Override
     void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Restarting container with ID '${containerId.get()}'."
         RestartContainerCmd restartContainerCmd = dockerClient.restartContainerCmd(containerId.get())
 
-        if(timeout.getOrNull()) {
-            restartContainerCmd.withtTimeout(timeout.get())
+        if(waitTime.getOrNull()) {
+            restartContainerCmd.withtTimeout(waitTime.get())
         }
 
         restartContainerCmd.exec()

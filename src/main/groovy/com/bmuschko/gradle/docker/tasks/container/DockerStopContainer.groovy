@@ -28,18 +28,17 @@ class DockerStopContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Integer> timeout = project.objects.property(Integer)
+    final Property<Integer> waitTime = project.objects.property(Integer)
 
     @Override
     void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Stopping container with ID '${containerId.get()}'."
-        _runRemoteCommand(dockerClient, containerId.get(), timeout.getOrNull())
+        _runRemoteCommand(dockerClient, containerId.get(), waitTime.getOrNull())
     }
 
     // overloaded method used by sub-classes and ad-hoc processes
     static void _runRemoteCommand(DockerClient dockerClient, String containerId, Integer optionalTimeout) {
         StopContainerCmd stopContainerCmd = dockerClient.stopContainerCmd(containerId)
-
         if(optionalTimeout) {
             stopContainerCmd.withTimeout(optionalTimeout)
         }
