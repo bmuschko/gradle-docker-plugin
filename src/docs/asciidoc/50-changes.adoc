@@ -1,7 +1,12 @@
 == Change Log
 
 [discrete]
-=== v4.7.1 (TBA)
+=== v4.7.2 (TBA)
+
+[discrete]
+=== v4.7.1 (April 13, 2019)
+
+* **Breaking Change!** The existing field `timeout` in custom tasks had to be renamed due to https://docs.gradle.org/5.0/userguide/more_about_tasks.html#sec:task_timeouts[Gradle's 5.0 built-in timeout feature] and has been replaced with `waitTime`.
 
 [discrete]
 === v4.7.0 (April 9, 2019)
