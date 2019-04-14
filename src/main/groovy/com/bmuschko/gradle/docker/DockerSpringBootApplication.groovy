@@ -1,7 +1,7 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
-import org.gradle.api.Project
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 
@@ -14,11 +14,11 @@ class DockerSpringBootApplication {
     final ListProperty<Integer> ports
     final Property<String> tag
 
-    DockerSpringBootApplication(Project project) {
-        baseImage = project.objects.property(String)
+    DockerSpringBootApplication(ObjectFactory objectFactory) {
+        baseImage = objectFactory.property(String)
         baseImage.set('openjdk:jre-alpine')
-        ports = project.objects.listProperty(Integer)
+        ports = objectFactory.listProperty(Integer)
         ports.set([8080])
-        tag = project.objects.property(String)
+        tag = objectFactory.property(String)
     }
 }

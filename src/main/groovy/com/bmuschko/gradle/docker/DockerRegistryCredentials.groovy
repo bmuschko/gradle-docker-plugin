@@ -16,8 +16,8 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
-import org.gradle.api.Project
 import org.gradle.api.credentials.PasswordCredentials
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -55,12 +55,12 @@ class DockerRegistryCredentials {
     @Optional
     final Property<String> email
 
-    DockerRegistryCredentials(Project project) {
-        url = project.objects.property(String)
+    DockerRegistryCredentials(ObjectFactory objectFactory) {
+        url = objectFactory.property(String)
         url.set(DEFAULT_URL)
-        username = project.objects.property(String)
-        password = project.objects.property(String)
-        email = project.objects.property(String)
+        username = objectFactory.property(String)
+        password = objectFactory.property(String)
+        email = objectFactory.property(String)
     }
 
     /**

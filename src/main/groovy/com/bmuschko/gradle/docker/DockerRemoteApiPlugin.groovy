@@ -34,8 +34,8 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply(RepositoriesFallbackPlugin)
-        DockerExtension dockerExtension = project.extensions.create(EXTENSION_NAME, DockerExtension, project)
-        DockerRegistryCredentials dockerRegistryCredentials = ((ExtensionAware) dockerExtension).extensions.create('registryCredentials', DockerRegistryCredentials, project)
+        DockerExtension dockerExtension = project.extensions.create(EXTENSION_NAME, DockerExtension, project.objects)
+        DockerRegistryCredentials dockerRegistryCredentials = ((ExtensionAware) dockerExtension).extensions.create('registryCredentials', DockerRegistryCredentials, project.objects)
         configureRegistryAwareTasks(project, dockerRegistryCredentials)
     }
 

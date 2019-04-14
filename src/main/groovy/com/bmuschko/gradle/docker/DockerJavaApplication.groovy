@@ -19,7 +19,7 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
 import org.gradle.api.Action
-import org.gradle.api.Project
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -34,15 +34,15 @@ class DockerJavaApplication {
 
     private final CompositeExecInstruction compositeExecInstruction
 
-    DockerJavaApplication(Project project) {
-        baseImage = project.objects.property(String)
+    DockerJavaApplication(ObjectFactory objectFactory) {
+        baseImage = objectFactory.property(String)
         baseImage.set('openjdk:jre-alpine')
-        maintainer = project.objects.property(String)
+        maintainer = objectFactory.property(String)
         maintainer.set(System.getProperty('user.name'))
-        ports = project.objects.listProperty(Integer)
+        ports = objectFactory.listProperty(Integer)
         ports.set([8080])
-        tag = project.objects.property(String)
-        compositeExecInstruction = new CompositeExecInstruction(project)
+        tag = objectFactory.property(String)
+        compositeExecInstruction = new CompositeExecInstruction(objectFactory)
     }
 
     CompositeExecInstruction exec(Action<CompositeExecInstruction> action) {
@@ -61,8 +61,8 @@ class DockerJavaApplication {
     static class CompositeExecInstruction implements Dockerfile.Instruction {
         private final ListProperty<Dockerfile.Instruction> instructions
 
-        CompositeExecInstruction(Project project) {
-            instructions = project.objects.listProperty(Dockerfile.Instruction)
+        CompositeExecInstruction(ObjectFactory objectFactory) {
+            instructions = objectFactory.listProperty(Dockerfile.Instruction)
         }
 
         @Nested

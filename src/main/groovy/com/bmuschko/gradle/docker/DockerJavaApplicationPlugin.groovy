@@ -23,6 +23,7 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
@@ -48,7 +49,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(DockerRemoteApiPlugin)
         DockerExtension dockerExtension = project.extensions.getByType(DockerExtension)
-        DockerJavaApplication dockerJavaApplication = configureExtension(project, dockerExtension)
+        DockerJavaApplication dockerJavaApplication = configureExtension(project.objects, dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
             dockerJavaApplication.exec(new Action<DockerJavaApplication.CompositeExecInstruction>() {
@@ -70,8 +71,8 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private static DockerJavaApplication configureExtension(Project project, DockerExtension dockerExtension) {
-        ((ExtensionAware) dockerExtension).extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication, project)
+    private static DockerJavaApplication configureExtension(ObjectFactory objectFactory, DockerExtension dockerExtension) {
+        ((ExtensionAware) dockerExtension).extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication, objectFactory)
     }
 
     private static Dockerfile createDockerfileTask(Project project, DockerJavaApplication dockerJavaApplication) {

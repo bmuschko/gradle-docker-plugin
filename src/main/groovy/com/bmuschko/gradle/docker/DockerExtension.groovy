@@ -16,23 +16,23 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
-import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 
 @CompileStatic
 class DockerExtension {
-    private final Project project
-
+    private final Logger logger = Logging.getLogger(DockerExtension)
     final Property<String> url
     final DirectoryProperty certPath
     final Property<String> apiVersion
 
-    DockerExtension(Project project) {
-        this.project = project
-        url = project.objects.property(String)
+    DockerExtension(ObjectFactory objectFactory) {
+        url = objectFactory.property(String)
         url.set(getDefaultDockerUrl())
-        certPath = project.objects.directoryProperty()
+        certPath = objectFactory.directoryProperty()
 
         File defaultDockerCert = getDefaultDockerCert()
 
@@ -40,7 +40,7 @@ class DockerExtension {
             certPath.set(defaultDockerCert)
         }
 
-        apiVersion = project.objects.property(String)
+        apiVersion = objectFactory.property(String)
     }
 
     String getDefaultDockerUrl() {
@@ -63,7 +63,7 @@ class DockerExtension {
                 }
             }
         }
-        project.logger.info("Default docker.url set to $dockerUrl")
+        logger.info("Default docker.url set to $dockerUrl")
         dockerUrl
     }
 

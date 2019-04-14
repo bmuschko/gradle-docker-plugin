@@ -9,6 +9,7 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
@@ -34,7 +35,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(DockerRemoteApiPlugin)
         DockerExtension dockerExtension = project.extensions.getByType(DockerExtension)
-        DockerSpringBootApplication dockerSpringBootApplication = configureExtension(project, dockerExtension)
+        DockerSpringBootApplication dockerSpringBootApplication = configureExtension(project.objects, dockerExtension)
 
         project.plugins.withType(JavaPlugin) {
             project.plugins.withId('org.springframework.boot') {
@@ -47,8 +48,8 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         }
     }
 
-    private static DockerSpringBootApplication configureExtension(Project project, DockerExtension dockerExtension) {
-        ((ExtensionAware) dockerExtension).extensions.create(SPRING_BOOT_APPLICATION_EXTENSION_NAME, DockerSpringBootApplication, project)
+    private static DockerSpringBootApplication configureExtension(ObjectFactory objectFactory, DockerExtension dockerExtension) {
+        ((ExtensionAware) dockerExtension).extensions.create(SPRING_BOOT_APPLICATION_EXTENSION_NAME, DockerSpringBootApplication, objectFactory)
     }
 
     private static Sync createSyncBuildContextTask(Project project, Dockerfile createDockerfileTask) {
