@@ -6,8 +6,8 @@ The plugin defines an extension with the namespace `javaApplication` as a child 
 |=======
 |Property name   |Type                               |Default value                                            |Description
 |`baseImage`     |`Property<String>`                 |`openjdk:jre-alpine`                                     |The Docker base image used for Java application.
-|`exec`          |`Action<CompositeExecInstruction>` |-                                                        |Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions
-|`ports`         |`ListProperty<Integer>`            |`[8080]`                                                     |The Docker image exposed ports (if provided, this values will override `port` configuration property)
+|`exec`          |`Action<CompositeExecInstruction>` |-                                                        |Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions.
+|`ports`         |`ListProperty<Integer>`            |`[8080]`                                                     |The Docker image exposed ports.
 |`tag`           |`Property<String>`                 |`<project.group>/<applicationName>:<project.version>`    |The tag used for the Docker image.
 |=======
 

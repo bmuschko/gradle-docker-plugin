@@ -30,14 +30,14 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(DEFAULT_BASE_IMAGE, [8080])
+        dockerfile.text == expectedDockerFileContent(DEFAULT_BASE_IMAGE, [8080], [])
 
         where:
         plugin << REACTED_PLUGINS
     }
 
     @Unroll
-    def "Can create image and start container for Spring Boot application with user-provided custom ports [#plugin.identifier plugin]"() {
+    def "Can create image and start container for Spring Boot application with user-provided configuration [#plugin.identifier plugin]"() {
         given:
         setupSpringBootBuild(plugin.identifier)
 
@@ -47,6 +47,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     ports = [9090, 8080]
                     tag = 'awesome-spring-boot:1.115'
+                    jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
                 }
             }
         """
@@ -57,7 +58,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [9090, 8080])
+        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [9090, 8080], ['-Dspring.profiles.active=production', '-Xmx2048m'])
 
         where:
         plugin << REACTED_PLUGINS
@@ -84,7 +85,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [])
+        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [], [])
 
         where:
         plugin << REACTED_PLUGINS
@@ -118,7 +119,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [8080])
+        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [8080], [])
 
         where:
         plugin << REACTED_PLUGINS
@@ -145,7 +146,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [8080])
+        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [8080], [])
 
         where:
         plugin << REACTED_PLUGINS
@@ -208,13 +209,18 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         new File(projectDir, 'build/docker/Dockerfile')
     }
 
-    private static String expectedDockerFileContent(String image, List<String> ports) {
+    private static String expectedDockerFileContent(String image, List<String> ports, List<String> jvmArgs) {
         String dockerFileContent = """FROM $image
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
 ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.springboot.Application"]
 """
+
+        if (!jvmArgs.empty) {
+            dockerFileContent += """CMD ["${jvmArgs.join('", "')}"]
+"""
+        }
 
         if(!ports.empty) {
             dockerFileContent += """EXPOSE ${ports.join(' ')}

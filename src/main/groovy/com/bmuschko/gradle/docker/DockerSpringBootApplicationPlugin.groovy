@@ -121,6 +121,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                             ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", getSpringApplicationMainClassName(project)]
                         }
                     }))
+                    defaultCommand(dockerSpringBootApplication.jvmArgs)
                     exposePort(dockerSpringBootApplication.ports)
                 }
             }

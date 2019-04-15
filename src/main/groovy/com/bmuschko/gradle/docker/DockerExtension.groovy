@@ -25,8 +25,24 @@ import org.gradle.api.provider.Property
 @CompileStatic
 class DockerExtension {
     private final Logger logger = Logging.getLogger(DockerExtension)
+
+    /**
+     * The server URL to connect to via Docker’s remote API.
+     * <p>
+     * Defaults to {@code unix:///var/run/docker.sock} for Unix systems and {@code tcp://127.0.0.1:2375} for Windows systems.
+     */
     final Property<String> url
+
+    /**
+     * The path to certificates for communicating with Docker over SSL.
+     * <p>
+     * Defaults to value of environment variable {@code DOCKER_CERT_PATH} if set.
+     */
     final DirectoryProperty certPath
+
+    /**
+     * The remote API version. For most cases this can be left null.
+     */
     final Property<String> apiVersion
 
     DockerExtension(ObjectFactory objectFactory) {
@@ -43,7 +59,7 @@ class DockerExtension {
         apiVersion = objectFactory.property(String)
     }
 
-    String getDefaultDockerUrl() {
+    private String getDefaultDockerUrl() {
         String dockerUrl = System.getenv("DOCKER_HOST")
         if (!dockerUrl) {
             boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win")
@@ -67,7 +83,7 @@ class DockerExtension {
         dockerUrl
     }
 
-    File getDefaultDockerCert() {
+    private File getDefaultDockerCert() {
         String dockerCertPath = System.getenv("DOCKER_CERT_PATH")
         if(dockerCertPath) {
             File certFile = new File(dockerCertPath)

@@ -113,6 +113,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     }))
                     copyFile('classes', 'classes/')
                     instructions.add(dockerJavaApplication.execInstruction)
+                    defaultCommand(dockerJavaApplication.jvmArgs)
                     exposePort(dockerJavaApplication.ports)
                 }
             }
