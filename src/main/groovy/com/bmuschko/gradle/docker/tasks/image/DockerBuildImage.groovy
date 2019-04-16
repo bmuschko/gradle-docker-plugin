@@ -33,7 +33,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -105,10 +104,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final Property<Long> shmSize = project.objects.property(Long)
 
     /**
-     * The target Docker registry credentials for building image.
+     * {@inheritDoc}
      */
-    @Nested
-    @Optional
     DockerRegistryCredentials registryCredentials
 
     @Internal

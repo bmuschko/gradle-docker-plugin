@@ -27,7 +27,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.Callable
@@ -47,10 +46,8 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     final Property<String> tag = project.objects.property(String)
 
     /**
-     * The target Docker registry credentials for pushing image.
+     * {@inheritDoc}
      */
-    @Nested
-    @Optional
     DockerRegistryCredentials registryCredentials
 
     @Override

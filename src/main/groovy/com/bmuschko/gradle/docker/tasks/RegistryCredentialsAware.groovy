@@ -18,9 +18,20 @@ package com.bmuschko.gradle.docker.tasks
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import groovy.transform.CompileStatic
 import org.gradle.api.Task
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 
 @CompileStatic
 interface RegistryCredentialsAware extends Task {
+    /**
+     * Sets the target Docker registry credentials for usage with a task.
+     */
     void setRegistryCredentials(DockerRegistryCredentials registryCredentials)
+
+    /**
+     * The target Docker registry credentials for usage with a task.
+     */
+    @Nested
+    @Optional
     DockerRegistryCredentials getRegistryCredentials()
 }
