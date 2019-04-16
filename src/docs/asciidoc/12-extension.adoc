@@ -6,18 +6,9 @@ The following properties can be configured:
 [options="header"]
 |=======
 |Property name      |Type                |Default value              |Description
-|`url`              |`Property<String>`  |see below                  |The server URL to connect to via Docker's remote API.
-|`certPath`         |`DirectoryProperty` |`null`                     |The path to certificates for communicating with https://docs.docker.com/articles/https/[Docker over SSL].
-|`apiVersion`       |`Property<String>`            |`null`                     |The remote API version. For most cases this can be left null.
-|=======
-
-The default value is now generated based on a best guess attempt given the {uri-github}/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42[operating system and environment]:
-
-[options="header"]
-|=======
-|Operating system                            | Value
-|Unix-based machine                          | `unix:///var/run/docker.sock`
-|Windows-based machine (and everything else) | `tcp://127.0.0.1:2375`
+|`url`              |`Property<String>`  |`unix:///var/run/docker.sock` (Unix), `tcp://127.0.0.1:2375` (Windows)                  |The server URL to connect to via Docker's remote API.
+|`certPath`         |`DirectoryProperty` |Value of environment variable `DOCKER_CERT_PATH` if set                     |The path to certificates for communicating with https://docs.docker.com/articles/https/[Docker over SSL].
+|`apiVersion`       |`Property<String>`            |`null`                     |The https://docs.docker.com/develop/sdk/#view-the-api-reference[remote API version]. For most cases this can be left null.
 |=======
 
 Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.

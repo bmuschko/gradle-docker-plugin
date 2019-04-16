@@ -13,6 +13,7 @@ docker {
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         ports = [9090, 5701]
         tag = 'jettyapp:1.115'
+        jvmArgs = ['-Xms256m', '-Xmx2048m']
     }
 }
 // end::extension[]

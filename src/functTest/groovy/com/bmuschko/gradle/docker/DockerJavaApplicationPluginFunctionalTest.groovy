@@ -45,6 +45,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
                     maintainer = 'benjamin.muschko@gmail.com'
                     ports = [9090]
                     tag = 'jettyapp:1.115'
+                    jvmArgs = ['-Xms256m', '-Xmx2048m']
                 }
             }
         """
@@ -53,7 +54,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         build('buildAndCleanResources')
 
         then:
-        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090]))
+        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090], jmvArgs: ['-Xms256m', '-Xmx2048m']))
         assertBuildContextLibs()
         assertBuildContextClasses()
     }
@@ -75,7 +76,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         build('buildAndRemoveImage')
 
         then:
-        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080]))
+        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080], jmvArgs: []))
         assertBuildContextLibs()
         assertBuildContextClasses()
     }
@@ -97,7 +98,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         build('buildAndRemoveImage')
 
         then:
-        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: []))
+        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [], jmvArgs: []))
         assertBuildContextLibs()
         assertBuildContextClasses()
     }
@@ -338,7 +339,7 @@ WORKDIR /app
         }
 
         dockerfileContent += """COPY classes classes/
-ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.application.JettyMain"]
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs).collect { '"' + it + '"'}}
 """
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
@@ -347,6 +348,17 @@ ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmusc
         }
 
         dockerfileContent
+    }
+
+    private static List<String> buildEntrypoint(List<String> jvmArgs) {
+        List<String> entrypoint = ["java"]
+
+        if (!jvmArgs.empty) {
+            entrypoint.addAll(jvmArgs)
+        }
+
+        entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.application.JettyMain"])
+        entrypoint
     }
 
     private void assertBuildContextLibs() {
@@ -373,5 +385,6 @@ ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmusc
         boolean copyLibs = true
         boolean copyResources = false
         List<String> exposedPorts = [8080]
+        List<String> jmvArgs = []
     }
 }

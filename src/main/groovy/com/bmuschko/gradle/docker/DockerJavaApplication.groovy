@@ -27,10 +27,38 @@ import org.gradle.api.tasks.Nested
 
 @CompileStatic
 class DockerJavaApplication {
+    /**
+     * The Docker base image used for Java application.
+     * <p>
+     * Defaults to {@code openjdk:jre-alpine}.
+     */
     final Property<String> baseImage
+
+    /**
+     * The maintainer of the image.
+     * <p>
+     * Defaults to the value of the system property {@code user.name}.
+     */
     final Property<String> maintainer
+
+    /**
+     * The Docker image exposed ports.
+     * <p>
+     * Defaults to {@code [8080]}.
+     */
     final ListProperty<Integer> ports
+
+    /**
+     * The tag used for the Docker image.
+     * <p>
+     * Defaults to {@code <project.group>/<applicationName>:<project.version>}.
+     */
     final Property<String> tag
+
+    /**
+     * The JVM arguments used to start the Java program.
+     */
+    final ListProperty<String> jvmArgs
 
     private final CompositeExecInstruction compositeExecInstruction
 
@@ -42,15 +70,27 @@ class DockerJavaApplication {
         ports = objectFactory.listProperty(Integer)
         ports.set([8080])
         tag = objectFactory.property(String)
+        jvmArgs = objectFactory.listProperty(String).empty()
         compositeExecInstruction = new CompositeExecInstruction(objectFactory)
     }
 
+    /**
+     * Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions.
+     *
+     * @param action Action
+     * @return The instruction
+     */
     CompositeExecInstruction exec(Action<CompositeExecInstruction> action) {
         compositeExecInstruction.clear()
         action.execute(compositeExecInstruction)
         return compositeExecInstruction
     }
 
+    /**
+     * Returns the definitive ENTRYPOINT and/or CMD Dockerfile instructions.
+     *
+     * @return The instruction
+     */
     CompositeExecInstruction getExecInstruction() {
         compositeExecInstruction
     }

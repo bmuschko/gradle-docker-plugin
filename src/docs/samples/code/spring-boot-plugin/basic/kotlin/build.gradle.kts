@@ -12,6 +12,7 @@ docker {
         baseImage.set("openjdk:8-alpine")
         ports.set(listOf(9090, 8080))
         tag.set("awesome-spring-boot:1.115")
+        jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
     }
 }
 // end::extension[]

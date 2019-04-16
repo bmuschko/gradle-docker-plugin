@@ -9,6 +9,7 @@ The following properties can be configured:
 |`baseImage`     |`Property<String>`      |`openjdk:jre-alpine`                               |The Docker base image used for the Spring Boot application.
 |`ports`         |`ListProperty<Integer>` |`[8080]`                                           |The Docker image exposed ports.
 |`tag`           |`Property<String>`      |`<project.group>/<project.name>:<project.version>` |The tag used for the Docker image.
+|`jvmArgs`       |`ListProperty<String>`  |`[]`                                               |The JVM arguments passed to the `java` command.
 |=======
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
