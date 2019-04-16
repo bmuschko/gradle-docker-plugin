@@ -9,7 +9,7 @@ The plugin defines an extension with the namespace `javaApplication` as a child 
 |`exec`          |`Action<CompositeExecInstruction>` |-                                                        |Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions.
 |`ports`         |`ListProperty<Integer>`            |`[8080]`                                                 |The Docker image exposed ports.
 |`tag`           |`Property<String>`                 |`<project.group>/<applicationName>:<project.version>`    |The tag used for the Docker image.
-|`jvmArgs`       |`ListProperty<String>`             |empty                                                    |The JVM arguments passed to the `java` command.
+|`jvmArgs`       |`ListProperty<String>`             |`[]`                                                     |The JVM arguments passed to the `java` command.
 |=======
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
