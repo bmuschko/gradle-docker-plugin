@@ -339,13 +339,8 @@ WORKDIR /app
         }
 
         dockerfileContent += """COPY classes classes/
-ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.application.JettyMain"]
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs).collect { '"' + it + '"'}}
 """
-
-        if (!expectedDockerfile.jmvArgs.empty) {
-            dockerfileContent += """CMD ["${expectedDockerfile.jmvArgs.join('", "')}"]
-"""
-        }
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
             dockerfileContent += """EXPOSE ${expectedDockerfile.exposedPorts.join(' ')}
@@ -353,6 +348,17 @@ ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmusc
         }
 
         dockerfileContent
+    }
+
+    private static List<String> buildEntrypoint(List<String> jvmArgs) {
+        List<String> entrypoint = ["java"]
+
+        if (!jvmArgs.empty) {
+            entrypoint.addAll(jvmArgs)
+        }
+
+        entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.application.JettyMain"])
+        entrypoint
     }
 
     private void assertBuildContextLibs() {

@@ -118,10 +118,17 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                     entryPoint(project.provider(new Callable<List<String>>() {
                         @Override
                         List<String> call() throws Exception {
-                            ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", getSpringApplicationMainClassName(project)]
+                            List<String> entrypoint = ["java"]
+                            List<String> jvmArgs = dockerSpringBootApplication.jvmArgs.get()
+
+                            if (!jvmArgs.empty) {
+                                entrypoint.addAll(jvmArgs)
+                            }
+
+                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getSpringApplicationMainClassName(project)])
+                            entrypoint
                         }
                     }))
-                    defaultCommand(dockerSpringBootApplication.jvmArgs)
                     exposePort(dockerSpringBootApplication.ports)
                 }
             }

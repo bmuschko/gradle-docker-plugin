@@ -214,13 +214,8 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.springboot.Application"]
+ENTRYPOINT ${buildEntrypoint(jvmArgs).collect { '"' + it + '"'} }
 """
-
-        if (!jvmArgs.empty) {
-            dockerFileContent += """CMD ["${jvmArgs.join('", "')}"]
-"""
-        }
 
         if(!ports.empty) {
             dockerFileContent += """EXPOSE ${ports.join(' ')}
@@ -228,5 +223,16 @@ ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmusc
         }
 
         dockerFileContent
+    }
+
+    private static List<String> buildEntrypoint(List<String> jvmArgs) {
+        List<String> entrypoint = ["java"]
+
+        if (!jvmArgs.empty) {
+            entrypoint.addAll(jvmArgs)
+        }
+
+        entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.springboot.Application"])
+        entrypoint
     }
 }

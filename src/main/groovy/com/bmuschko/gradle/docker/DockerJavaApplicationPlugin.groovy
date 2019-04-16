@@ -58,7 +58,15 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     compositeExecInstruction.entryPoint(project.provider(new Callable<List<String>>() {
                         @Override
                         List<String> call() throws Exception {
-                            ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationPluginMainClassName(project)]
+                            List<String> entrypoint = ["java"]
+                            List<String> jvmArgs = dockerJavaApplication.jvmArgs.get()
+
+                            if (!jvmArgs.empty) {
+                                entrypoint.addAll(jvmArgs)
+                            }
+
+                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationPluginMainClassName(project)])
+                            entrypoint
                         }
                     }))
                 }
@@ -113,7 +121,6 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     }))
                     copyFile('classes', 'classes/')
                     instructions.add(dockerJavaApplication.execInstruction)
-                    defaultCommand(dockerJavaApplication.jvmArgs)
                     exposePort(dockerJavaApplication.ports)
                 }
             }
