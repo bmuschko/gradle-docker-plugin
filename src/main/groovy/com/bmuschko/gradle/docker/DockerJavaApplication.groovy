@@ -111,7 +111,7 @@ class DockerJavaApplication {
         }
 
         void clear() {
-            instructions.set([])
+            instructions.empty()
         }
 
         /**

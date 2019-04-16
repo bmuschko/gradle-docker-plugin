@@ -116,12 +116,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     DockerBuildImage() {
         inputDir.set(project.layout.buildDirectory.dir('docker'))
-        tags.set([])
+        tags.empty()
         noCache.set(false)
         remove.set(false)
         quiet.set(false)
         pull.set(false)
-        cacheFrom.set([])
+        cacheFrom.empty()
     }
 
     @Override

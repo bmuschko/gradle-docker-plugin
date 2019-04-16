@@ -48,7 +48,7 @@ class Dockerfile extends DefaultTask {
 
     Dockerfile() {
         instructions = project.objects.listProperty(Instruction)
-        instructions.set([])
+        instructions.empty()
         destFile = project.objects.fileProperty()
         destFile.set(project.layout.buildDirectory.file('docker/Dockerfile'))
     }

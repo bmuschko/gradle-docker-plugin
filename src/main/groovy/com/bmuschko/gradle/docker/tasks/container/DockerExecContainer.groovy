@@ -72,11 +72,11 @@ class DockerExecContainer extends DockerExistingContainer {
     final ListProperty<String> execIds = project.objects.listProperty(String)
 
     DockerExecContainer() {
-        commands.set([])
+        commands.empty()
         attachStdout.set(true)
         attachStderr.set(true)
-        successOnExitCodes.set([])
-        execIds.set([])
+        successOnExitCodes.empty()
+        execIds.empty()
     }
 
     @Override
