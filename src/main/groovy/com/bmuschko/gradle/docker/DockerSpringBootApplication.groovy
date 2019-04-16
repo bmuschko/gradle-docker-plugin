@@ -33,6 +33,8 @@ class DockerSpringBootApplication {
 
     /**
      * The JVM arguments used to start the Java program.
+     *
+     * @since 4.8.0
      */
     final ListProperty<String> jvmArgs
 
