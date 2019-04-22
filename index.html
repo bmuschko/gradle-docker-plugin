@@ -711,7 +711,7 @@ See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle 
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:4.7.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.8.0'
     }
 }
 
@@ -726,7 +726,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'</code></pre>
         gradlePluginPortal()
     }
     dependencies {
-        classpath("com.bmuschko:gradle-docker-plugin:4.7.1")
+        classpath("com.bmuschko:gradle-docker-plugin:4.8.0")
     }
 }
 
@@ -740,7 +740,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.7.1'
+    id 'com.bmuschko.docker-remote-api' version '4.8.0'
 }</code></pre>
 </div>
 </div>
@@ -748,7 +748,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.7.1"
+    id("com.bmuschko.docker-remote-api") version "4.8.0"
 }</code></pre>
 </div>
 </div>
@@ -778,7 +778,7 @@ When used with the Kotlin DSL, it is recommended to move your implementation int
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:4.7.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.8.0'
     }
 }
 
@@ -808,7 +808,7 @@ You can model any workflow imaginable by creating enhanced task of the custom ta
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.7.1'
+    id 'com.bmuschko.docker-remote-api' version '4.8.0'
 }
 
 // Import task types
@@ -825,7 +825,7 @@ task buildMyAppImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.7.1"
+    id("com.bmuschko.docker-remote-api") version "4.8.0"
 }
 
 // Import task types
@@ -885,45 +885,20 @@ The following properties can be configured:</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>url</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Property&lt;String&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">see below</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unix:///var/run/docker.sock</code> (Unix), <code>tcp://127.0.0.1:2375</code> (Windows)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The server URL to connect to via Docker&#8217;s remote API.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>certPath</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DirectoryProperty</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Value of environment variable <code>DOCKER_CERT_PATH</code> if set</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The path to certificates for communicating with <a href="https://docs.docker.com/articles/https/">Docker over SSL</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>apiVersion</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Property&lt;String&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The remote API version. For most cases this can be left null.</p></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p>The default value is now generated based on a best guess attempt given the <a href="https://github.com/bmuschko/gradle-docker-plugin/blob/master/src/main/groovy/com/bmuschko/gradle/docker/DockerExtension.groovy#L42">operating system and environment</a>:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Operating system</th>
-<th class="tableblock halign-left valign-top">Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Unix-based machine</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unix:///var/run/docker.sock</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Windows-based machine (and everything else)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tcp://127.0.0.1:2375</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <a href="https://docs.docker.com/develop/sdk/#view-the-api-reference">remote API version</a>. For most cases this can be left null.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1538,7 +1513,7 @@ order.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.7.1'
+    id 'com.bmuschko.docker-remote-api' version '4.8.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1559,7 +1534,7 @@ task buildImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.7.1"
+    id("com.bmuschko.docker-remote-api") version "4.8.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1587,7 +1562,7 @@ At the end of this operation, the container is stopped.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.7.1'
+    id 'com.bmuschko.docker-remote-api' version '4.8.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1624,7 +1599,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.7.1"
+    id("com.bmuschko.docker-remote-api") version "4.8.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1668,7 +1643,7 @@ In that case you may wish using traditional linking:</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.7.1'
+    id 'com.bmuschko.docker-remote-api' version '4.8.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1716,7 +1691,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "4.7.1"
+    id("com.bmuschko.docker-remote-api") version "4.8.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1881,7 +1856,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'application'
-    id 'com.bmuschko.docker-java-application' version '4.7.1'
+    id 'com.bmuschko.docker-java-application' version '4.8.0'
 }</code></pre>
 </div>
 </div>
@@ -1891,7 +1866,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     application
-    id("com.bmuschko.docker-java-application") version "4.7.1"
+    id("com.bmuschko.docker-java-application") version "4.8.0"
 }</code></pre>
 </div>
 </div>
@@ -1927,19 +1902,25 @@ The default configuration is tweakable via an exposed extension.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>exec</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Action&lt;CompositeExecInstruction&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ports</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListProperty&lt;Integer&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[8080]</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The Docker image exposed ports (if provided, this values will override <code>port</code> configuration property)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Docker image exposed ports.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>tag</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Property&lt;String&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;project.group&gt;/&lt;applicationName&gt;:&lt;project.version&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The tag used for the Docker image.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jvmArgs</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListProperty&lt;String&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The JVM arguments passed to the <code>java</code> command.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1952,6 +1933,7 @@ The default configuration is tweakable via an exposed extension.</p>
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         ports = [9090, 5701]
         tag = 'jettyapp:1.115'
+        jvmArgs = ['-Xms256m', '-Xmx2048m']
     }
 }</code></pre>
 </div>
@@ -1965,6 +1947,7 @@ The default configuration is tweakable via an exposed extension.</p>
         maintainer.set("Benjamin Muschko 'benjamin.muschko@gmail.com'")
         ports.set(listOf(9090, 5701))
         tag.set("jettyapp:1.115")
+        jvmArgs.set(listOf("-Xms256m", "-Xmx2048m"))
     }
 }</code></pre>
 </div>
@@ -2065,7 +2048,7 @@ More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-d
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'application'
-    id 'com.bmuschko.docker-java-application' version '4.7.1'
+    id 'com.bmuschko.docker-java-application' version '4.8.0'
 }
 
 version = '1.0'
@@ -2094,7 +2077,7 @@ docker {
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     application
-    id("com.bmuschko.docker-java-application") version "4.7.1"
+    id("com.bmuschko.docker-java-application") version "4.8.0"
 }
 
 version = "1.0"
@@ -2196,7 +2179,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '4.7.1'
+    id 'com.bmuschko.docker-spring-boot-application' version '4.8.0'
 }</code></pre>
 </div>
 </div>
@@ -2206,7 +2189,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     id("org.springframework.boot") version "2.0.3.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "4.7.1"
+    id("com.bmuschko.docker-spring-boot-application") version "4.8.0"
 }</code></pre>
 </div>
 </div>
@@ -2251,6 +2234,12 @@ The following properties can be configured:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;project.group&gt;/&lt;project.name&gt;:&lt;project.version&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The tag used for the Docker image.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jvmArgs</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListProperty&lt;String&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The JVM arguments passed to the <code>java</code> command.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="listingblock primary">
@@ -2261,6 +2250,7 @@ The following properties can be configured:</p>
         baseImage = 'openjdk:8-alpine'
         ports = [9090, 8080]
         tag = 'awesome-spring-boot:1.115'
+        jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
     }
 }</code></pre>
 </div>
@@ -2273,6 +2263,7 @@ The following properties can be configured:</p>
         baseImage.set("openjdk:8-alpine")
         ports.set(listOf(9090, 8080))
         tag.set("awesome-spring-boot:1.115")
+        jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
     }
 }</code></pre>
 </div>
@@ -2340,7 +2331,7 @@ The following properties can be configured:</p>
     id 'war'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '4.7.1'
+    id 'com.bmuschko.docker-spring-boot-application' version '4.8.0'
 }
 
 version = '1.0'
@@ -2371,7 +2362,7 @@ docker {
     war
     id("org.springframework.boot") version "2.0.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.5.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "4.7.1"
+    id("com.bmuschko.docker-spring-boot-application") version "4.8.0"
 }
 
 version = "1.0"
@@ -2608,7 +2599,14 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div class="sect1">
 <h2 id="change_log"><a class="anchor" href="#change_log"></a>6. Change Log</h2>
 <div class="sectionbody">
-<h3 id="v4_7_2_tba" class="discrete">v4.7.2 (TBA)</h3>
+<h3 id="v4_8_0_april_22_2019" class="discrete">v4.8.0 (April 22, 2019)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Expose extension property for configuring JVM arguments - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/790">PR 790</a></p>
+</li>
+</ul>
+</div>
 <h3 id="v4_7_1_april_13_2019" class="discrete">v4.7.1 (April 13, 2019)</h3>
 <div class="ulist">
 <ul>
@@ -3825,7 +3823,7 @@ setting port bindings for task <code>DockerStartContainer</code> anymore. Needs 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-04-14 01:39:43 UTC
+Last updated 2019-04-22 16:07:43 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
