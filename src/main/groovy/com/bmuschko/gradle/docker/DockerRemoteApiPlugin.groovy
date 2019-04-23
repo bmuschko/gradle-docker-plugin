@@ -15,13 +15,11 @@
  */
 package com.bmuschko.gradle.docker
 
-
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
@@ -43,8 +41,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(RepositoriesFallbackPlugin)
         DockerExtension dockerExtension = project.extensions.create(EXTENSION_NAME, DockerExtension, project.objects)
-        DockerRegistryCredentials dockerRegistryCredentials = ((ExtensionAware) dockerExtension).extensions.create('registryCredentials', DockerRegistryCredentials, project.objects)
-        configureRegistryAwareTasks(project, dockerRegistryCredentials)
+        configureRegistryAwareTasks(project, dockerExtension.registryCredentials)
     }
 
     private void configureRegistryAwareTasks(Project project, DockerRegistryCredentials dockerRegistryCredentials) {
