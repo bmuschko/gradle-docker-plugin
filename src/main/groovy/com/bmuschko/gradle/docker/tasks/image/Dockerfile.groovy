@@ -37,22 +37,37 @@ import org.gradle.api.tasks.TaskAction
 
 import javax.annotation.Nullable
 
+/**
+ * Creates a Dockerfile based on the provided instructions.
+ */
 @CacheableTask
 @CompileStatic
 class Dockerfile extends DefaultTask {
+
     private final ListProperty<Instruction> instructions
 
+    /**
+     * The destination file representing the Dockerfile. The destination file encourages the conventional file name Dockerfile but allows any arbitrary file name.
+     * <p>
+     * Defaults to {@code $buildDir/docker/Dockerfile}.
+     * <p>
+     * The method {@link #getDestDir()} returns the parent directory of the Dockerfile.
+     */
     @OutputFile
     @PathSensitive(PathSensitivity.RELATIVE)
     final RegularFileProperty destFile
 
     Dockerfile() {
-        instructions = project.objects.listProperty(Instruction)
-        instructions.empty()
+        instructions = project.objects.listProperty(Instruction).empty()
         destFile = project.objects.fileProperty()
         destFile.set(project.layout.buildDirectory.file('docker/Dockerfile'))
     }
 
+    /**
+     * Returns all instructions used to generate the Dockerfile.
+     *
+     * @return All instructions
+     */
     @Nested
     ListProperty<Instruction> getInstructions() {
         instructions
