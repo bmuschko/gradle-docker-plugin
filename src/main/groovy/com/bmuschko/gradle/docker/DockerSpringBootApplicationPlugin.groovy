@@ -26,6 +26,8 @@ import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getRuntime
  */
 @CompileStatic
 class DockerSpringBootApplicationPlugin implements Plugin<Project> {
+    private static final String SPRING_BOOT_PLUGIN_ID = 'org.springframework.boot'
+    private static final String SPRING_BOOT_APP_ANNOTATION = 'org.springframework.boot.autoconfigure.SpringBootApplication'
     public static final String SPRING_BOOT_APPLICATION_EXTENSION_NAME = 'springBootApplication'
     public static final String SYNC_BUILD_CONTEXT_TASK_NAME = 'dockerSyncBuildContext'
     public static final String DOCKERFILE_TASK_NAME = 'dockerCreateDockerfile'
@@ -39,7 +41,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         DockerSpringBootApplication dockerSpringBootApplication = configureExtension(project.objects, dockerExtension)
 
         project.plugins.withType(JavaPlugin) {
-            project.plugins.withId('org.springframework.boot') {
+            project.plugins.withId(SPRING_BOOT_PLUGIN_ID) {
                 Dockerfile createDockerfileTask = createDockerfileTask(project, dockerSpringBootApplication)
                 Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
                 createDockerfileTask.dependsOn syncBuildContextTask
@@ -186,7 +188,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
 
     private static String getSpringApplicationMainClassName(Project project) {
         for (File classesDir : getMainJavaSourceSetOutput(project).classesDirs) {
-            String mainClassName = MainClassFinder.findSingleMainClass(classesDir, 'org.springframework.boot.autoconfigure.SpringBootApplication')
+            String mainClassName = MainClassFinder.findSingleMainClass(classesDir, SPRING_BOOT_APP_ANNOTATION)
 
             if (mainClassName) {
                 return mainClassName
