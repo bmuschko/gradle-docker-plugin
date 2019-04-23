@@ -37,13 +37,35 @@ import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.*
 
 /**
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
+ * <p>
+ * This plugin can be configured with the help of {@link DockerJavaApplication}.
  */
 @CompileStatic
 class DockerJavaApplicationPlugin implements Plugin<Project> {
+
+    /**
+     * The name of extension registered with type {@link DockerJavaApplication}.
+     */
     public static final String JAVA_APPLICATION_EXTENSION_NAME = 'javaApplication'
+
+    /**
+     * The task name that copies the application files to a temporary directory for image creation.
+     */
     public static final String SYNC_BUILD_CONTEXT_TASK_NAME = 'dockerSyncBuildContext'
+
+    /**
+     * The task name that creates the Docker image for the Java application.
+     */
     public static final String DOCKERFILE_TASK_NAME = 'dockerCreateDockerfile'
+
+    /**
+     * The task name that builds the Docker image for the Java application.
+     */
     public static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
+
+    /**
+     * The task name that pushes created Docker image to the repository.
+     */
     public static final String PUSH_IMAGE_TASK_NAME = 'dockerPushImage'
 
     @Override

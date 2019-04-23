@@ -28,7 +28,15 @@ import org.gradle.api.plugins.ExtensionAware
  */
 @CompileStatic
 class DockerRemoteApiPlugin implements Plugin<Project> {
+
+    /**
+     * The name of the extension.
+     */
     public static final String EXTENSION_NAME = 'docker'
+
+    /**
+     * The group for all tasks created by this plugin.
+     */
     public static final String DEFAULT_TASK_GROUP = 'Docker'
 
     @Override

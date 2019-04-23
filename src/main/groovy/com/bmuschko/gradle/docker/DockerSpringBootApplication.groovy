@@ -6,10 +6,27 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 
 /**
+ * The extension for configuring a Spring Boot application via the {@link DockerSpringBootApplicationPlugin}.
+ * <p>
+ * Enhances the extension {@link DockerExtension} as child DSL element.
+ * <p>
+ * The following example demonstrates the use of the extension in a build script using the Groovy DSL:
+ * <pre>
+ * docker {
+ *     springBootApplication {
+ *         baseImage = 'openjdk:8-alpine'
+ *         ports = [9090, 8080]
+ *         tag = 'awesome-spring-boot:1.115'
+ *         jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
+ *     }
+ * }
+ * </pre>
+ *
  * @since 3.4.5
  */
 @CompileStatic
 class DockerSpringBootApplication {
+
     /**
      * The Docker base image used for the Spring Boot application.
      * <p>
@@ -33,6 +50,8 @@ class DockerSpringBootApplication {
 
     /**
      * The JVM arguments used to start the Java program.
+     * <p>
+     * Defaults to {@code []}.
      *
      * @since 4.8.0
      */

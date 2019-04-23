@@ -25,8 +25,27 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Nested
 
+/**
+ * The extension for configuring a Java application via the {@link DockerJavaApplicationPlugin}.
+ * <p>
+ * Enhances the extension {@link DockerExtension} as child DSL element.
+ * <p>
+ * The following example demonstrates the use of the extension in a build script using the Groovy DSL:
+ * <pre>
+ * docker {
+ *     javaApplication {
+ *         baseImage = 'dockerfile/java:openjdk-7-jre'
+ *         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
+ *         ports = [9090, 5701]
+ *         tag = 'jettyapp:1.115'
+ *         jvmArgs = ['-Xms256m', '-Xmx2048m']
+ *    }
+ * }
+ * </pre>
+ */
 @CompileStatic
 class DockerJavaApplication {
+
     /**
      * The Docker base image used for Java application.
      * <p>
@@ -57,6 +76,8 @@ class DockerJavaApplication {
 
     /**
      * The JVM arguments used to start the Java program.
+     * <p>
+     * Defaults to {@code []}.
      *
      * @since 4.8.0
      */

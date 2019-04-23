@@ -24,32 +24,57 @@ import org.gradle.api.tasks.Optional
 
 import javax.annotation.Nullable
 
+/**
+ * The extension for configuring the Docker communication via the remote API through the {@link DockerRemoteApiPlugin}.
+ * <p>
+ * The following example demonstrates the use of the extension in a build script using the Groovy DSL:
+ * <pre>
+ * docker {
+ *     registryCredentials {
+ *         username = 'bmuschko'
+ *         password = 'pwd'
+ *     }
+ * }
+ * </pre>
+ */
 @CompileStatic
 class DockerRegistryCredentials {
+
+    /**
+     * The registry URL used as default value for the property {@link #url}.
+     */
     public static final String DEFAULT_URL = 'https://index.docker.io/v1/'
 
     /**
-     * Registry URL needed to push images. Defaults to "https://index.docker.io/v1/".
+     * Registry URL needed to push images.
+     * <p>
+     * Defaults to "https://index.docker.io/v1/".
      */
     @Input
     final Property<String> url
 
     /**
-     * Registry username needed to push images. Defaults to null.
+     * Registry username needed to push images.
+     * <p>
+     * Defaults to null.
      */
     @Input
     @Optional
     final Property<String> username
 
     /**
-     * Registry password needed to push images. Defaults to null.
+     * Registry password needed to push images.
+     * <p>
+     * Defaults to null.
      */
     @Input
     @Optional
     final Property<String> password
 
     /**
-     * Registry email address needed to push images. Defaults to null.
+     * Registry email address needed to push images.
+     * <p>
+     * Defaults to null.
      */
     @Input
     @Optional

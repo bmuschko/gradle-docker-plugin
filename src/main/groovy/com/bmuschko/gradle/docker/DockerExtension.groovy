@@ -22,8 +22,21 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 
+/**
+ * The extension for configuring the Docker communication via the remote API through the {@link DockerRemoteApiPlugin}.
+ * <p>
+ * Other convention plugins like the {@link DockerJavaApplicationPlugin} and {@link DockerSpringBootApplicationPlugin} may further extend this extension as nested configuration elements.
+ * <p>
+ * The following example demonstrates the use of the extension in a build script using the Groovy DSL:
+ * <pre>
+ * docker {
+ *     url = 'https://192.168.59.103:2376'
+ * }
+ * </pre>
+ */
 @CompileStatic
 class DockerExtension {
+
     private final Logger logger = Logging.getLogger(DockerExtension)
 
     /**

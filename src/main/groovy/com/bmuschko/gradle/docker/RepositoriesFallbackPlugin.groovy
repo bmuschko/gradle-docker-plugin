@@ -4,6 +4,11 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * A plugin for using the same repositories for the buildscript classpath as already defined by the project's list of repositories.
+ *
+ * TODO: This plugin should live outside of the Docker functionality and applied on-demand as needed by users.
+ */
 @CompileStatic
 class RepositoriesFallbackPlugin implements Plugin<Project> {
     @Override

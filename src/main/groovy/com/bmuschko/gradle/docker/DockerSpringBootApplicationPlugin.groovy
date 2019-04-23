@@ -22,16 +22,41 @@ import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getMainJav
 import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getRuntimeClasspathConfiguration
 
 /**
+ * Opinionated Gradle plugin for creating and pushing a Docker image for a Spring Boot application.
+ * <p>
+ * This plugin can be configured with the help of {@link DockerSpringBootApplication}.
+ *
  * @since 3.4.5
  */
 @CompileStatic
 class DockerSpringBootApplicationPlugin implements Plugin<Project> {
+
     private static final String SPRING_BOOT_PLUGIN_ID = 'org.springframework.boot'
     private static final String SPRING_BOOT_APP_ANNOTATION = 'org.springframework.boot.autoconfigure.SpringBootApplication'
+
+    /**
+     * The name of extension registered with type {@link DockerSpringBootApplication}.
+     */
     public static final String SPRING_BOOT_APPLICATION_EXTENSION_NAME = 'springBootApplication'
+
+    /**
+     * The task name that copies the application files to a temporary directory for image creation.
+     */
     public static final String SYNC_BUILD_CONTEXT_TASK_NAME = 'dockerSyncBuildContext'
+
+    /**
+     * The task name that creates the Docker image for the Java application.
+     */
     public static final String DOCKERFILE_TASK_NAME = 'dockerCreateDockerfile'
+
+    /**
+     * The task name that builds the Docker image for the Java application.
+     */
     public static final String BUILD_IMAGE_TASK_NAME = 'dockerBuildImage'
+
+    /**
+     * The task name that pushes created Docker image to the repository.
+     */
     public static final String PUSH_IMAGE_TASK_NAME = 'dockerPushImage'
 
     @Override
