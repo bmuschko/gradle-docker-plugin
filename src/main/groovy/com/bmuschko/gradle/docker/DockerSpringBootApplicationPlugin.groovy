@@ -8,6 +8,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Transformer
 import org.gradle.api.file.CopySpec
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
@@ -172,10 +173,10 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    imageName.set(project.provider(new Callable<String>() {
+                    imageName.set(dockerBuildImageTask.getTags().map(new Transformer<String, Set<String>>() {
                         @Override
-                        String call() throws Exception {
-                            dockerBuildImageTask.getTags().get().first() as String
+                        String transform(Set<String> tags) {
+                            tags.first()
                         }
                     }))
                 }
