@@ -82,10 +82,10 @@ class DockerExecContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand(DockerClient dockerClient) {
         logger.quiet "Executing on container with ID '${containerId.get()}'."
-        _runRemoteCommand(dockerClient)
+        doRunRemoteCommand(dockerClient)
     }
 
-    void _runRemoteCommand(DockerClient dockerClient) {
+    protected void doRunRemoteCommand(DockerClient dockerClient) {
         def execCallback = createCallback()
 
         List<String[]> localCommands = commands.get()
@@ -114,7 +114,7 @@ class DockerExecContainer extends DockerExistingContainer {
             while (isRunning && localPollTime > 0) {
                 pollTimes += 1
 
-                lastExecResponse = DockerInspectExecContainer._runRemoteCommand(dockerClient, localExecId)
+                lastExecResponse = dockerClient.inspectExecCmd(localExecId).exec()
                 isRunning = Boolean.valueOf(lastExecResponse.running)
                 if (isRunning) {
 

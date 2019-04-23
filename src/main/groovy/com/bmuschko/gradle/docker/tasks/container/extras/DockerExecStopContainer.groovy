@@ -58,7 +58,7 @@ class DockerExecStopContainer extends DockerExecContainer {
         if (commands.get()) {
 
             // 2.) kick the exec command
-            _runRemoteCommand(dockerClient)
+            doRunRemoteCommand(dockerClient)
 
             // create progressLogger for pretty printing of terminal log progression.
             final def progressLogger = getProgressLogger(project, DockerExecStopContainer)
