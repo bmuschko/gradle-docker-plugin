@@ -1,3 +1,4 @@
+[[spring-boot-plugin-extension]]
 === Extension
 
 The plugin defines an extension with the namespace `springBootApplication` as a child of the `docker` namespace.

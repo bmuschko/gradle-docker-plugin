@@ -4,6 +4,8 @@ The following usage examples demonstrate code for common use cases. More scenari
 
 ==== Using the Plugin For an Application Run on Tomcat
 
+The Spring Boot archive can be created as executable JAR or WAR file. If you are target environment is a Servlet Container or Application Server, the WAR file is likely the better option. To generate a WAR file, simply apply the `war` plugin and declare the appropriate container-related dependencies to run the application locally.
+
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
@@ -14,4 +16,45 @@ include::{samplesCodeDir}/spring-boot-plugin/tomcat/groovy/build.gradle[]
 .Kotlin
 ----
 include::{samplesCodeDir}/spring-boot-plugin/tomcat/kotlin/build.gradle.kts[]
+----
+
+==== Providing Container Build-Time and Runtime Parameters
+
+It's common practice to provide JVM parameters to a Spring Boot application running in a container. For example, you might want to provide memory parameters or set a specific Spring profile. There's a two ways to achieve this. Each of them serve different use cases.
+
+You may want to provide JVM parameters when you build the image with a Dockerfile. That's likely the case if you don't want to change the parameters later when running the image in a container. You can provide a list of JVM parameters that should be baked into image with the <<spring-boot-plugin-extension,extension property jvmArgs>>.
+
+Hard-coding a JVM parameter may not be the right solution to your problem. There are situations when you want to provide runtime behavior when starting the container. A typical example is a Spring profile that needs to be enabled depending on the environment you want to run.
+
+If you are running the image with Docker, then you can just provide pre-built environment variables known to Spring Boot. Below, we are running an application with the `prod` profile.
+
+----
+$ docker run -e "SPRING_PROFILES_ACTIVE=prod" -p 8080:8080 -t my-spring-boot-app:1.2.3
+----
+
+You can achieve the same behavior in Kubernetes by defining an environment variable in your Pod or Deployment spec. The example below demonstrates the use of a Deployment.
+
+.deployment.yaml
+[source,yaml]
+----
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: my-spring-boot-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-spring-boot-app
+  template:
+    metadata:
+      labels:
+        app: my-spring-boot-app
+    spec:
+      containers:
+        - name: my-spring-boot-app
+          image: my-spring-boot-app:1.2.3
+          env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: prod
 ----
