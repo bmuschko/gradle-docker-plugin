@@ -9,7 +9,6 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Transformer
-import org.gradle.api.file.CopySpec
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
@@ -18,8 +17,8 @@ import org.gradle.api.tasks.Sync
 
 import java.util.concurrent.Callable
 
+import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.createAppFilesCopySpec
 import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getMainJavaSourceSetOutput
-import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getRuntimeClasspathConfiguration
 
 /**
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Spring Boot application.
@@ -89,24 +88,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                     description = "Copies the distribution resources to a temporary directory for image creation."
                     dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
                     into(createDockerfileTask.destDir)
-                    into('libs', new Action<CopySpec>() {
-                        @Override
-                        void execute(CopySpec copySpec) {
-                            copySpec.from(getRuntimeClasspathConfiguration(project))
-                        }
-                    })
-                    into('resources', new Action<CopySpec>() {
-                        @Override
-                        void execute(CopySpec copySpec) {
-                            copySpec.from(getMainJavaSourceSetOutput(project).resourcesDir)
-                        }
-                    })
-                    into('classes', new Action<CopySpec>() {
-                        @Override
-                        void execute(CopySpec copySpec) {
-                            copySpec.from(getMainJavaSourceSetOutput(project).classesDirs)
-                        }
-                    })
+                    with(createAppFilesCopySpec(project))
                 }
             }
         })
