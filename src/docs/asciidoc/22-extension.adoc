@@ -6,10 +6,11 @@ The plugin defines an extension with the namespace `javaApplication` as a child 
 |=======
 |Property name   |Type                               |Default value                                            |Description
 |`baseImage`     |`Property<String>`                 |`openjdk:jre-alpine`                                     |The Docker base image used for Java application.
-|`exec`          |`Action<CompositeExecInstruction>` |-                                                        |Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions.
+|`maintainer`    |`Property<String>`                 |Value of system property `user.name`                     |The maintainer of the image.
 |`ports`         |`ListProperty<Integer>`            |`[8080]`                                                 |The Docker image exposed ports.
 |`tag`           |`Property<String>`                 |`<project.group>/<applicationName>:<project.version>`    |The tag used for the Docker image.
 |`jvmArgs`       |`ListProperty<String>`             |`[]`                                                     |The JVM arguments passed to the `java` command.
+|`exec`          |`Action<CompositeExecInstruction>` |-                                                        |Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions.
 |=======
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]

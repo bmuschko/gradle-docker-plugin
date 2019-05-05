@@ -4,6 +4,7 @@
 === v4.8.0 (April 22, 2019)
 
 * Expose extension property for configuring JVM arguments - {uri-github}/pull/790[PR 790]
+* Introduce `maintainer` property to extension of Spring Boot application plugin - {uri-github}/issues/779[Issue 779]
 * **Breaking Change!** Removed `RepositoriesFallbackPlugin` that was applied automatically - {uri-github}/issues/794[Issue 794]
 
 [discrete]

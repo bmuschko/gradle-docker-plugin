@@ -35,6 +35,15 @@ class DockerSpringBootApplication {
     final Property<String> baseImage
 
     /**
+     * The maintainer of the image.
+     * <p>
+     * Defaults to the value of the system property {@code user.name}.
+     *
+     * @since 4.9.0
+     */
+    final Property<String> maintainer
+
+    /**
      * The Docker image exposed ports.
      * <p>
      * Defaults to {@code [8080]}.
@@ -60,6 +69,8 @@ class DockerSpringBootApplication {
     DockerSpringBootApplication(ObjectFactory objectFactory) {
         baseImage = objectFactory.property(String)
         baseImage.set('openjdk:jre-alpine')
+        maintainer = objectFactory.property(String)
+        maintainer.set(System.getProperty('user.name'))
         ports = objectFactory.listProperty(Integer)
         ports.set([8080])
         tag = objectFactory.property(String)

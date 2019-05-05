@@ -30,7 +30,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(DEFAULT_BASE_IMAGE, [8080], [])
+        dockerfile.text == expectedDockerFileContent(new ExpectedDockerfile())
 
         where:
         plugin << REACTED_PLUGINS
@@ -45,6 +45,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
             docker {
                 springBootApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
+                    maintainer = 'benjamin.muschko@gmail.com'
                     ports = [9090, 8080]
                     tag = 'awesome-spring-boot:1.115'
                     jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
@@ -58,7 +59,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [9090, 8080], ['-Dspring.profiles.active=production', '-Xmx2048m'])
+        dockerfile.text == expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080], jvmArgs: ['-Dspring.profiles.active=production', '-Xmx2048m']))
 
         where:
         plugin << REACTED_PLUGINS
@@ -85,7 +86,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [], [])
+        dockerfile.text == expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, exposePorts: []))
 
         where:
         plugin << REACTED_PLUGINS
@@ -119,7 +120,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [8080], [])
+        dockerfile.text == expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE))
 
         where:
         plugin << REACTED_PLUGINS
@@ -146,7 +147,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(CUSTOM_BASE_IMAGE, [8080], [])
+        dockerfile.text == expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE))
 
         where:
         plugin << REACTED_PLUGINS
@@ -209,16 +210,17 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         new File(projectDir, 'build/docker/Dockerfile')
     }
 
-    private static String expectedDockerFileContent(String image, List<String> ports, List<String> jvmArgs) {
-        String dockerFileContent = """FROM $image
+    private static String expectedDockerFileContent(ExpectedDockerfile expectedDockerfile) {
+        String dockerFileContent = """FROM $expectedDockerfile.baseImage
+LABEL maintainer=$expectedDockerfile.maintainer
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT ${buildEntrypoint(jvmArgs).collect { '"' + it + '"'} }
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs).collect { '"' + it + '"'} }
 """
 
-        if(!ports.empty) {
-            dockerFileContent += """EXPOSE ${ports.join(' ')}
+        if (!expectedDockerfile.exposedPorts.isEmpty()) {
+            dockerFileContent += """EXPOSE ${expectedDockerfile.exposedPorts.join(' ')}
 """
         }
 
@@ -234,5 +236,12 @@ ENTRYPOINT ${buildEntrypoint(jvmArgs).collect { '"' + it + '"'} }
 
         entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.springboot.Application"])
         entrypoint
+    }
+
+    private static class ExpectedDockerfile {
+        String baseImage = DEFAULT_BASE_IMAGE
+        String maintainer = System.getProperty('user.name')
+        List<String> exposedPorts = [8080]
+        List<String> jmvArgs = []
     }
 }

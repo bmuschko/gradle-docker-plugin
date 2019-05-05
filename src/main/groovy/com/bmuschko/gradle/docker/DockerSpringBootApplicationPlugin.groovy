@@ -107,6 +107,12 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                             new Dockerfile.From(dockerSpringBootApplication.baseImage.get())
                         }
                     }))
+                    label(project.provider(new Callable<Map<String, String>>() {
+                        @Override
+                        Map<String, String> call() throws Exception {
+                            ['maintainer': dockerSpringBootApplication.maintainer.get()]
+                        }
+                    }))
                     workingDir('/app')
                     copyFile(project.provider(new Callable<Dockerfile.File>() {
                         @Override
