@@ -211,20 +211,56 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             }
         }
 
-        new BuildImageResultCallback() {
-            @Override
-            void onNext(BuildResponseItem item) {
-                try {
-                    def possibleStream = item.stream
-                    if (possibleStream) {
-                        logger.quiet(possibleStream.trim())
-                    }
-                } catch(Exception e) {
-                    logger.error('Failed to handle build response', e)
-                    return
+        new CollectingResultCallback()
+    }
+
+    /**
+     * Collects output and logs it once a newline has been found.
+     */
+    private class CollectingResultCallback extends BuildImageResultCallback {
+
+        private final StringBuffer buffer = new StringBuffer();
+
+        @Override
+        void onNext(BuildResponseItem item) {
+            try {
+                def possibleStream = item.stream
+                if (possibleStream) {
+                    consumeStream(possibleStream)
                 }
-                super.onNext(item)
+            } catch(Exception e) {
+                logger.error('Failed to handle build response', e)
+                return
             }
+            super.onNext(item)
+        }
+
+        @Override
+        void close() throws IOException {
+            if (buffer.length() > 0) {
+                flushBuffer()
+            }
+            super.close()
+        }
+
+        private void consumeStream(String stream) {
+            // Split the received output segment on line terminators (newlines).
+            // We always store the first part in the buffer. All subsequent parts result in
+            // a buffer flush.
+            // For example, if stream = "output line\n", the string will be split into ["output line", ""].
+            // The empty, second part will make sure the line is printed.
+            String[] parts = stream.split("\\R", -1)
+            // We store the first substring in the buffer; all subsequent substrings will flush the buffer.
+            buffer.append(parts[0])
+            for (int i = 1; i < parts.length; i++) {
+                flushBuffer()
+                buffer.append(parts[i])
+            }
+        }
+
+        private void flushBuffer() {
+            logger.quiet(buffer.toString())
+            buffer.delete(0, buffer.length())
         }
     }
 }
