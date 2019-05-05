@@ -23,6 +23,8 @@ import org.gradle.api.Project
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
+ * <p>
+ * Exposes the extension {@link DockerExtension) required to configure the communication and authentication with the Docker remote API.
  */
 @CompileStatic
 class DockerRemoteApiPlugin implements Plugin<Project> {
