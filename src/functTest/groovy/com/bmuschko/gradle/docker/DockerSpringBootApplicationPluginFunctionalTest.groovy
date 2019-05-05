@@ -59,7 +59,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080], jmvArgs: ['-Dspring.profiles.active=production', '-Xmx2048m']))
+        dockerfile.text == expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080], jvmArgs: ['-Dspring.profiles.active=production', '-Xmx2048m']))
 
         where:
         plugin << REACTED_PLUGINS
@@ -216,7 +216,7 @@ LABEL maintainer=$expectedDockerfile.maintainer
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs).collect { '"' + it + '"'} }
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs).collect { '"' + it + '"'} }
 """
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
@@ -242,6 +242,6 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs).collect { '"' + it + '"
         String baseImage = DEFAULT_BASE_IMAGE
         String maintainer = System.getProperty('user.name')
         List<String> exposedPorts = [8080]
-        List<String> jmvArgs = []
+        List<String> jvmArgs = []
     }
 }
