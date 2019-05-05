@@ -15,6 +15,7 @@ import org.gradle.api.provider.Property
  * docker {
  *     springBootApplication {
  *         baseImage = 'openjdk:8-alpine'
+ *         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
  *         ports = [9090, 8080]
  *         tag = 'awesome-spring-boot:1.115'
  *         jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
