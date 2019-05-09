@@ -103,7 +103,7 @@ class DockerLogsContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Logs for container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient)
     }

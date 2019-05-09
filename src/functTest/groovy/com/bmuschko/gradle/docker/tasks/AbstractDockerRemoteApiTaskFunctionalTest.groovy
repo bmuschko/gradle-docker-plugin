@@ -23,7 +23,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
 
             class CustomDocker extends AbstractDockerRemoteApiTask {
                 @Override
-                void runRemoteCommand(DockerClient dockerClient) {
+                void runRemoteCommand() {
                     assert dockerClient
                     assert dockerClient.dockerClientConfig.dockerHost.host == new URI('$TestConfiguration.dockerHost').host
                     assert dockerClient.dockerClientConfig.dockerHost.port == new URI('$TestConfiguration.dockerHost').port
@@ -64,7 +64,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
 
             class CustomDocker extends AbstractDockerRemoteApiTask {
                 @Override
-                void runRemoteCommand(DockerClient dockerClient) {
+                void runRemoteCommand() {
                     assert dockerClient
                     assert dockerClient.dockerClientConfig.dockerHost == new URI('tcp://remote.docker.com:2375')
                     assert dockerClient.dockerClientConfig.registryUrl == 'https://index.docker.io/v1/'

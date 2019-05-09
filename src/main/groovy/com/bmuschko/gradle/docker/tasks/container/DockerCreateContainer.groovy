@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.CreateContainerCmd
 import com.github.dockerjava.api.command.CreateContainerResponse
 import com.github.dockerjava.api.model.Bind
@@ -240,7 +239,7 @@ class DockerCreateContainer extends DockerExistingImage {
     }
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         CreateContainerCmd containerCommand = dockerClient.createContainerCmd(imageId.get())
         setContainerCommandConfig(containerCommand)
         CreateContainerResponse container = containerCommand.exec()

@@ -21,13 +21,13 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
 import groovy.transform.CompileStatic
-import groovy.transform.Memoized
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -58,6 +58,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     final Property<String> apiVersion = project.objects.property(String)
 
+    private DockerClient dockerClient
     private Action<? super Throwable> errorHandler
     protected Action<? super Object> nextHandler
     private Runnable completeHandler
@@ -66,8 +67,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     void start() {
         boolean commandFailed = false
         try {
-            DockerExtension dockerExtension = (DockerExtension) project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME)
-            runRemoteCommand(getDockerClient(createDockerClientConfig(), dockerExtension))
+            runRemoteCommand()
         } catch (Exception possibleException) {
             commandFailed = true
             if (errorHandler) {
@@ -120,42 +120,49 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     }
 
     /**
-     * Get, and possibly create, DockerClient.
+     * Gets the Docker Java client uses to communicate with Docker via its remote API.
+     * <p>
+     * Initialized instance upon first request. Returns the same instance for any successive method call.
      *
-     * @param dockerClientConfiguration Docker client configuration
-     * @param classpathFiles set of files containing DockerClient jars
-     * @return DockerClient instance
+     * @return The Docker Java client instance
      */
-    @Memoized
-    private DockerClient getDockerClient(DockerClientConfiguration dockerClientConfiguration, DockerExtension dockerExtension) {
-        String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
-        File dockerCertPath = dockerClientConfiguration.certPath?.asFile ?: dockerExtension.certPath.getOrNull()?.asFile
-        String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion.getOrNull()
+    @Internal
+    DockerClient getDockerClient() {
+        if (dockerClient == null) {
+            DockerClientConfiguration dockerClientConfiguration = createDockerClientConfig()
+            DockerExtension dockerExtension = (DockerExtension) project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME)
+            String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
+            File dockerCertPath = dockerClientConfiguration.certPath?.asFile ?: dockerExtension.certPath.getOrNull()?.asFile
+            String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion.getOrNull()
 
-        // Create configuration
-        DefaultDockerClientConfig.Builder dockerClientConfigBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder()
-        dockerClientConfigBuilder.withDockerHost(dockerUrl)
+            // Create configuration
+            DefaultDockerClientConfig.Builder dockerClientConfigBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder()
+            dockerClientConfigBuilder.withDockerHost(dockerUrl)
 
-        if (dockerCertPath) {
-            dockerClientConfigBuilder.withDockerTlsVerify(true)
-            dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
-        } else {
-            dockerClientConfigBuilder.withDockerTlsVerify(false)
+            if (dockerCertPath) {
+                dockerClientConfigBuilder.withDockerTlsVerify(true)
+                dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
+            } else {
+                dockerClientConfigBuilder.withDockerTlsVerify(false)
+            }
+
+            if (apiVersion) {
+                dockerClientConfigBuilder.withApiVersion(apiVersion)
+            }
+
+            DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
+
+            // Create client
+            DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
+
+            // register shutdown-hook to close kubernetes client.
+            addShutdownHook {
+                dockerClient.close()
+            }
+
+            this.dockerClient = dockerClient
         }
 
-        if (apiVersion) {
-            dockerClientConfigBuilder.withApiVersion(apiVersion)
-        }
-
-        DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
-
-        // Create client
-        DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
-
-        // register shutdown-hook to close kubernetes client.
-        addShutdownHook {
-            dockerClient.close()
-        }
         dockerClient
     }
 
@@ -171,5 +178,5 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         url.startsWith('http') ? 'tcp' + url.substring(url.indexOf(':')) : url
     }
 
-    abstract void runRemoteCommand(DockerClient dockerClient)
+    abstract void runRemoteCommand()
 }

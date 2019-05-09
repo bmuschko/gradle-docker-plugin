@@ -15,12 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.StartContainerCmd
 
 class DockerStartContainer extends DockerExistingContainer {
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Starting container with ID '${containerId.get()}'."
         StartContainerCmd containerCommand = dockerClient.startContainerCmd(containerId.get())
         containerCommand.exec()

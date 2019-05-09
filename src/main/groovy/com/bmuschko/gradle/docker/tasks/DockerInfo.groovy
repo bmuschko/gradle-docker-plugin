@@ -15,13 +15,12 @@
  */
 package com.bmuschko.gradle.docker.tasks
 
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.model.Info
 
 class DockerInfo extends AbstractDockerRemoteApiTask {
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Retrieving Docker info."
         Info info = dockerClient.infoCmd().exec()
 
