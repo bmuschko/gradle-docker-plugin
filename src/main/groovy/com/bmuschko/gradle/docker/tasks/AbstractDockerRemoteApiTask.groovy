@@ -21,6 +21,7 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
 import groovy.transform.CompileStatic
+import groovy.transform.Memoized
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -58,7 +59,6 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Optional
     final Property<String> apiVersion = project.objects.property(String)
 
-    private DockerClient dockerClient
     private Action<? super Throwable> errorHandler
     protected Action<? super Object> nextHandler
     private Runnable completeHandler
@@ -127,40 +127,37 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      * @return The Docker Java client instance
      */
     @Internal
+    @Memoized
     DockerClient getDockerClient() {
-        if (dockerClient == null) {
-            DockerClientConfiguration dockerClientConfiguration = createDockerClientConfig()
-            DockerExtension dockerExtension = (DockerExtension) project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME)
-            String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
-            File dockerCertPath = dockerClientConfiguration.certPath?.asFile ?: dockerExtension.certPath.getOrNull()?.asFile
-            String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion.getOrNull()
+        DockerClientConfiguration dockerClientConfiguration = createDockerClientConfig()
+        DockerExtension dockerExtension = (DockerExtension) project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME)
+        String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
+        File dockerCertPath = dockerClientConfiguration.certPath?.asFile ?: dockerExtension.certPath.getOrNull()?.asFile
+        String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion.getOrNull()
 
-            // Create configuration
-            DefaultDockerClientConfig.Builder dockerClientConfigBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder()
-            dockerClientConfigBuilder.withDockerHost(dockerUrl)
+        // Create configuration
+        DefaultDockerClientConfig.Builder dockerClientConfigBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder()
+        dockerClientConfigBuilder.withDockerHost(dockerUrl)
 
-            if (dockerCertPath) {
-                dockerClientConfigBuilder.withDockerTlsVerify(true)
-                dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
-            } else {
-                dockerClientConfigBuilder.withDockerTlsVerify(false)
-            }
+        if (dockerCertPath) {
+            dockerClientConfigBuilder.withDockerTlsVerify(true)
+            dockerClientConfigBuilder.withDockerCertPath(dockerCertPath.canonicalPath)
+        } else {
+            dockerClientConfigBuilder.withDockerTlsVerify(false)
+        }
 
-            if (apiVersion) {
-                dockerClientConfigBuilder.withApiVersion(apiVersion)
-            }
+        if (apiVersion) {
+            dockerClientConfigBuilder.withApiVersion(apiVersion)
+        }
 
-            DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
+        DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
 
-            // Create client
-            DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
+        // Create client
+        DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
 
-            // register shutdown-hook to close kubernetes client.
-            addShutdownHook {
-                dockerClient.close()
-            }
-
-            this.dockerClient = dockerClient
+        // register shutdown-hook to close kubernetes client.
+        addShutdownHook {
+            dockerClient.close()
         }
 
         dockerClient
