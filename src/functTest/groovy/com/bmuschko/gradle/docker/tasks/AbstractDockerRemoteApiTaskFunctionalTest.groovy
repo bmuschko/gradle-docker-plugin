@@ -84,32 +84,20 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
         noExceptionThrown()
     }
 
-    def "Can use Docker client for UP-TO-DATE check in constructor of custom task"() {
-        buildFile << """
-            docker {
-                url = 'tcp://remote.docker.com:2375'
-            }
+    def "Can use Docker client for UP-TO-DATE check in constructor of custom task [extension set before task]"() {
+        buildFile << dockerExtensionWithCustomUrl()
+        buildFile << dockerClientUsageInCustomTaskConstructor()
 
-            task customDocker(type: CustomDocker)
+        when:
+        BuildResult result = build('customDocker')
 
-            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-            import com.github.dockerjava.api.DockerClient
+        then:
+        result.task(':customDocker').outcome == TaskOutcome.SUCCESS
+    }
 
-            class CustomDocker extends AbstractDockerRemoteApiTask {
-                CustomDocker() {
-                    outputs.upToDateWhen {
-                        assert dockerClient
-                        assert dockerClient.dockerClientConfig.dockerHost == new URI('tcp://remote.docker.com:2375')
-                        false
-                    }
-                }
-
-                @Override
-                void runRemoteCommand() {
-                    // do nothing
-                }
-            }
-        """
+    def "Can use Docker client for UP-TO-DATE check in constructor of custom task [extension set after task]"() {
+        buildFile << dockerClientUsageInCustomTaskConstructor()
+        buildFile << dockerExtensionWithCustomUrl()
 
         when:
         BuildResult result = build('customDocker')
@@ -156,5 +144,37 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
         }
 
         return null
+    }
+
+    static String dockerClientUsageInCustomTaskConstructor() {
+        """
+            task customDocker(type: CustomDocker)
+
+            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+            import com.github.dockerjava.api.DockerClient
+
+            class CustomDocker extends AbstractDockerRemoteApiTask {
+                CustomDocker() {
+                    outputs.upToDateWhen {
+                        assert dockerClient
+                        assert dockerClient.dockerClientConfig.dockerHost == new URI('tcp://remote.docker.com:2375')
+                        false
+                    }
+                }
+
+                @Override
+                void runRemoteCommand() {
+                    // do nothing
+                }
+            }
+        """
+    }
+
+    static String dockerExtensionWithCustomUrl() {
+        """
+            docker {
+                url = 'tcp://remote.docker.com:2375'
+            }
+        """
     }
 }
