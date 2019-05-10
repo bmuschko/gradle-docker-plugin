@@ -111,20 +111,25 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         completeHandler = callback
     }
 
-    private DockerClientConfiguration createDockerClientConfig() {
-        DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
-        dockerClientConfig.url = url.getOrNull()
-        dockerClientConfig.certPath = certPath.getOrNull()
-        dockerClientConfig.apiVersion = apiVersion.getOrNull()
-        dockerClientConfig
-    }
-
     /**
-     * Gets the Docker Java client uses to communicate with Docker via its remote API.
+     * Gets the Docker client uses to communicate with Docker via its remote API.
+     * Initialized instance upon first request.
+     * Returns the same instance for any successive method call.
      * <p>
-     * Initialized instance upon first request. Returns the same instance for any successive method call.
+     * Before accessing the Docker client, all data used for configuring its runtime behavior needs to be evaluated.
+     * The data includes:
+     * <ol>
+     * <li>The property values of this class</li>
+     * <li>The plugin's extension property values</li>
+     * </ol>
+     * <p>
+     * It is safe to access the Docker client under the following conditions:
+     * <ol>
+     * <li>In the task action</li>
+     * <li>In the task's constructor if used in {@code Action} or {@code Closure} of {@code outputs.upToDateWhen}</li>
+     * </ol>
      *
-     * @return The Docker Java client instance
+     * @return The Docker client
      */
     @Internal
     @Memoized
@@ -161,6 +166,14 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         }
 
         dockerClient
+    }
+
+    private DockerClientConfiguration createDockerClientConfig() {
+        DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
+        dockerClientConfig.url = url.getOrNull()
+        dockerClientConfig.certPath = certPath.getOrNull()
+        dockerClientConfig.apiVersion = apiVersion.getOrNull()
+        dockerClientConfig
     }
 
     /**
