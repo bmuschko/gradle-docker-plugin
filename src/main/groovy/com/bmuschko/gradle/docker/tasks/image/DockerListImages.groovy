@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.ListImagesCmd
 import com.github.dockerjava.api.model.Image
 import org.gradle.api.Action
@@ -48,7 +47,7 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
     }
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         ListImagesCmd listImagesCmd = dockerClient.listImagesCmd()
 
         if (showAll.getOrNull()) {

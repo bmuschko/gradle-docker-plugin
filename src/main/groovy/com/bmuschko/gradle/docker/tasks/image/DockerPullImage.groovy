@@ -18,7 +18,6 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.PullImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PullResponseItem
@@ -51,7 +50,7 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     DockerRegistryCredentials registryCredentials
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Pulling repository '${repository.get()}'."
         PullImageCmd pullImageCmd = dockerClient.pullImageCmd(repository.get())
 

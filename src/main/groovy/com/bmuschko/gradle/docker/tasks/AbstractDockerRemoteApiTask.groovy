@@ -28,6 +28,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -66,8 +67,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     void start() {
         boolean commandFailed = false
         try {
-            DockerExtension dockerExtension = (DockerExtension) project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME)
-            runRemoteCommand(getDockerClient(createDockerClientConfig(), dockerExtension))
+            runRemoteCommand()
         } catch (Exception possibleException) {
             commandFailed = true
             if (errorHandler) {
@@ -120,14 +120,17 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     }
 
     /**
-     * Get, and possibly create, DockerClient.
+     * Gets the Docker Java client uses to communicate with Docker via its remote API.
+     * <p>
+     * Initialized instance upon first request. Returns the same instance for any successive method call.
      *
-     * @param dockerClientConfiguration Docker client configuration
-     * @param classpathFiles set of files containing DockerClient jars
-     * @return DockerClient instance
+     * @return The Docker Java client instance
      */
+    @Internal
     @Memoized
-    private DockerClient getDockerClient(DockerClientConfiguration dockerClientConfiguration, DockerExtension dockerExtension) {
+    DockerClient getDockerClient() {
+        DockerClientConfiguration dockerClientConfiguration = createDockerClientConfig()
+        DockerExtension dockerExtension = (DockerExtension) project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME)
         String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
         File dockerCertPath = dockerClientConfiguration.certPath?.asFile ?: dockerExtension.certPath.getOrNull()?.asFile
         String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion.getOrNull()
@@ -156,6 +159,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         addShutdownHook {
             dockerClient.close()
         }
+
         dockerClient
     }
 
@@ -171,5 +175,5 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         url.startsWith('http') ? 'tcp' + url.substring(url.indexOf(':')) : url
     }
 
-    abstract void runRemoteCommand(DockerClient dockerClient)
+    abstract void runRemoteCommand()
 }

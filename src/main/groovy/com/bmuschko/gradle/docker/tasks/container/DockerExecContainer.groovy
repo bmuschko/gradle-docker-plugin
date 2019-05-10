@@ -80,7 +80,7 @@ class DockerExecContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Executing on container with ID '${containerId.get()}'."
         doRunRemoteCommand(dockerClient)
     }

@@ -2,6 +2,8 @@ package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Shared
 
 class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctionalTest {
@@ -23,7 +25,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
 
             class CustomDocker extends AbstractDockerRemoteApiTask {
                 @Override
-                void runRemoteCommand(DockerClient dockerClient) {
+                void runRemoteCommand() {
                     assert dockerClient
                     assert dockerClient.dockerClientConfig.dockerHost.host == new URI('$TestConfiguration.dockerHost').host
                     assert dockerClient.dockerClientConfig.dockerHost.port == new URI('$TestConfiguration.dockerHost').port
@@ -64,7 +66,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
 
             class CustomDocker extends AbstractDockerRemoteApiTask {
                 @Override
-                void runRemoteCommand(DockerClient dockerClient) {
+                void runRemoteCommand() {
                     assert dockerClient
                     assert dockerClient.dockerClientConfig.dockerHost == new URI('tcp://remote.docker.com:2375')
                     assert dockerClient.dockerClientConfig.registryUrl == 'https://index.docker.io/v1/'
@@ -80,6 +82,28 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
 
         then:
         noExceptionThrown()
+    }
+
+    def "Can use Docker client for UP-TO-DATE check in constructor of custom task [extension set before task]"() {
+        buildFile << dockerExtensionWithCustomUrl()
+        buildFile << dockerClientUsageInCustomTaskConstructor()
+
+        when:
+        BuildResult result = build('customDocker')
+
+        then:
+        result.task(':customDocker').outcome == TaskOutcome.SUCCESS
+    }
+
+    def "Can use Docker client for UP-TO-DATE check in constructor of custom task [extension set after task]"() {
+        buildFile << dockerClientUsageInCustomTaskConstructor()
+        buildFile << dockerExtensionWithCustomUrl()
+
+        when:
+        BuildResult result = build('customDocker')
+
+        then:
+        result.task(':customDocker').outcome == TaskOutcome.SUCCESS
     }
 
     private String determineUsername() {
@@ -120,5 +144,37 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
         }
 
         return null
+    }
+
+    static String dockerClientUsageInCustomTaskConstructor() {
+        """
+            task customDocker(type: CustomDocker)
+
+            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+            import com.github.dockerjava.api.DockerClient
+
+            class CustomDocker extends AbstractDockerRemoteApiTask {
+                CustomDocker() {
+                    outputs.upToDateWhen {
+                        assert dockerClient
+                        assert dockerClient.dockerClientConfig.dockerHost == new URI('tcp://remote.docker.com:2375')
+                        false
+                    }
+                }
+
+                @Override
+                void runRemoteCommand() {
+                    // do nothing
+                }
+            }
+        """
+    }
+
+    static String dockerExtensionWithCustomUrl() {
+        """
+            docker {
+                url = 'tcp://remote.docker.com:2375'
+            }
+        """
     }
 }

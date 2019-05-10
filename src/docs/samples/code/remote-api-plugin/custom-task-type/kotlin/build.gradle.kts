@@ -41,8 +41,8 @@ open class DockerImageIdForName : AbstractDockerRemoteApiTask {
         })
     }
 
-    override fun runRemoteCommand(dockerClient: com.github.dockerjava.api.DockerClient) {
-        val images = dockerClient.listImagesCmd()
+    override fun runRemoteCommand() {
+        val images = getDockerClient().listImagesCmd()
             .withImageNameFilter(filteredImageName.get())
             .exec()
 

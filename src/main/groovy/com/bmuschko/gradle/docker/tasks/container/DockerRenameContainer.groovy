@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.github.dockerjava.api.DockerClient
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
@@ -25,7 +24,7 @@ class DockerRenameContainer extends DockerExistingContainer {
     final Property<String> renameTo = project.objects.property(String)
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Renaming container with ID '${containerId.get()}' to '${renameTo.get()}'."
         dockerClient.renameContainerCmd(containerId.get()).withName(renameTo.get()).exec()
     }
