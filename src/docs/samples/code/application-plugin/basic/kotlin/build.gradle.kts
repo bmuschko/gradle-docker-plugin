@@ -20,17 +20,6 @@ docker {
 }
 // end::extension[]
 
-// tag::exec[]
-docker {
-    javaApplication {
-        exec {
-            defaultCommand("server")
-            entryPoint("myApp/bin/containerLaunch.sh")
-        }
-    }
-}
-// end::exec[]
-
 // tag::dockerfile-addition-instructions[]
 tasks.named<Dockerfile>("dockerCreateDockerfile") {
     instruction("RUN ls -la")

@@ -10,7 +10,6 @@ The plugin defines an extension with the namespace `javaApplication` as a child 
 |`ports`         |`ListProperty<Integer>`            |`[8080]`                                                 |The Docker image exposed ports.
 |`tag`           |`Property<String>`                 |`<project.group>/<applicationName>:<project.version>`    |The tag used for the Docker image.
 |`jvmArgs`       |`ListProperty<String>`             |`[]`                                                     |The JVM arguments passed to the `java` command.
-|`exec`          |`Action<CompositeExecInstruction>` |-                                                        |Specifies the definitive ENTRYPOINT and/or CMD Dockerfile instructions.
 |=======
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
@@ -23,22 +22,4 @@ include::{samplesCodeDir}/application-plugin/basic/groovy/build.gradle[tags=exte
 .Kotlin
 ----
 include::{samplesCodeDir}/application-plugin/basic/kotlin/build.gradle.kts[tags=extension]
-----
-
-==== Adding custom instructions to Dockerfile
-
-The `exec` extension property accepts a String array or Provider which delegates to the {uri-ghpages}/api/com/bmuschko/gradle/docker/DockerJavaApplication.CompositeExecInstruction.html[DockerJavaApplication.CompositeExecInstruction] subset of the {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/Dockerfile.html[Dockerfile task].
-It allows for specifying custom ENTRYPOINT or CMD commands at an appropriate location in the Dockerfile.
-
-[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
-.Groovy
-----
-include::{samplesCodeDir}/application-plugin/basic/groovy/build.gradle[tags=exec]
-
-----
-
-[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
-.Kotlin
-----
-include::{samplesCodeDir}/application-plugin/basic/kotlin/build.gradle.kts[tags=exec]
 ----
