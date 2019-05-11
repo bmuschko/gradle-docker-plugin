@@ -3,16 +3,14 @@
 [discrete]
 === v4.8.1 (May 11, 2019)
 
-* Revert of injecting ObjectFactory  
-* Initialize and return Docker Java client on demand - {uri-github}/pull/790[PR 802]
+* Introduce `maintainer` property to extension of Spring Boot application plugin - {uri-github}/issues/779[Issue 779]
+* **Breaking Change!** Removed `RepositoriesFallbackPlugin` that was applied automatically - {uri-github}/issues/794[Issue 794]
+* **Breaking Change!** The Docker client in `AbstractDockerRemoteApiTask` is not inject into the method `runRemoteCommand` anymore - {uri-github}/issues/802[Issue 802]
 
 [discrete]
 === v4.8.0 (April 22, 2019)
 
 * Expose extension property for configuring JVM arguments - {uri-github}/pull/790[PR 790]
-* Introduce `maintainer` property to extension of Spring Boot application plugin - {uri-github}/issues/779[Issue 779]
-* **Breaking Change!** Removed `RepositoriesFallbackPlugin` that was applied automatically - {uri-github}/issues/794[Issue 794]
-* **Breaking Change!** The Docker client in `AbstractDockerRemoteApiTask` is not inject into the method `runRemoteCommand` anymore - {uri-github}/issues/802[Issue 802]
 
 [discrete]
 === v4.7.1 (April 13, 2019)
