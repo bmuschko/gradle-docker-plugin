@@ -1,6 +1,9 @@
 == Change Log
 
 [discrete]
+=== v4.9.0 (TBA)
+
+[discrete]
 === v4.8.1 (May 11, 2019)
 
 * Introduce `maintainer` property to extension of Spring Boot application plugin - {uri-github}/issues/779[Issue 779]
