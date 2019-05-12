@@ -25,8 +25,8 @@ class DocumentationPlugin : Plugin<Project> {
 
     private
     fun Project.addLinks() {
-        val javaApiUrl = "http://docs.oracle.com/javase/1.6.0/docs/api/"
-        val groovyApiUrl = "http://docs.groovy-lang.org/2.4.12/html/gapi/"
+        val javaApiUrl = "https://docs.oracle.com/javase/8/docs/api/"
+        val groovyApiUrl = "http://docs.groovy-lang.org/2.5.4/html/gapi/"
         val gradleApiUrl = "https://docs.gradle.org/${project.gradle.gradleVersion}/javadoc/"
 
         tasks.withType<Javadoc>().configureEach {
