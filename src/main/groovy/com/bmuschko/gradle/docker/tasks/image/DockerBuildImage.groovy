@@ -171,9 +171,19 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         if (registryCredentials) {
             AuthConfig authConfig = new AuthConfig()
             authConfig.registryAddress = registryCredentials.url.get()
-            authConfig.username = registryCredentials.username.getOrNull()
-            authConfig.password = registryCredentials.password.getOrNull()
-            authConfig.email = registryCredentials.email.getOrNull()
+
+            if (registryCredentials.username.isPresent()) {
+                authConfig.withUsername(registryCredentials.username.get())
+            }
+
+            if (registryCredentials.password.isPresent()) {
+                authConfig.withPassword(registryCredentials.password.get())
+            }
+
+            if (registryCredentials.email.isPresent()) {
+                authConfig.withEmail(registryCredentials.email.get())
+            }
+
             AuthConfigurations authConfigurations = new AuthConfigurations()
             authConfigurations.addConfig(authConfig)
             buildImageCmd.withBuildAuthConfigs(authConfigurations)
