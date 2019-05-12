@@ -106,7 +106,6 @@ class Dockerfile extends DefaultTask {
         }
     }
 
-    @CompileStatic(TypeCheckingMode.SKIP)
     private void verifyValidInstructions() {
         List<Instruction> allInstructions = instructions.get().collect()
 
