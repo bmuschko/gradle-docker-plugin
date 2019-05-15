@@ -20,7 +20,8 @@ import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.BuildImageCmd
-import com.github.dockerjava.api.command.ListImagesCmd
+import com.github.dockerjava.api.command.InspectImageCmd
+import com.github.dockerjava.api.exception.NotFoundException
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.api.model.BuildResponseItem
@@ -114,6 +115,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     /**
      * Output file containing the image ID of the built image. 
      * Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
+     * If path contains ':' it will be replaced by '_'.
+     * @since 5.0.0
      */
     @OutputFile
     @PathSensitive(PathSensitivity.RELATIVE)
@@ -131,12 +134,20 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         pull.set(false)
         cacheFrom.empty()
         String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
-        imageIdFile.set(new File(project.buildDir, ".docker/${safeTaskPath}-imageId.txt"))
+        imageIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
 
-        if(imageIdFile.get().asFile.exists()){
-            // Get all images in docker registry and make sure the imageId is found in there
-            outputs.upToDateWhen{getDockerClient().listImagesCmd().exec().any{image -> image.toString().contains(imageIdFile.get().asFile.text)}}
-        }     
+        outputs.upToDateWhen {
+            File file = imageIdFile.get().asFile
+            if(file.exists()) {
+                try {
+                    getDockerClient().inspectImageCmd(file.text).exec()
+                    return true
+                } catch (NotFoundException e) {
+                    return false
+                }
+            }
+            return false
+        }
     }
 
     @Override
