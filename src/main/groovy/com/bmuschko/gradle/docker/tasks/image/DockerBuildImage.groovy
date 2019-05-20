@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.bmuschko.gradle.docker.utils.OutputCollector
 import com.github.dockerjava.api.command.BuildImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
@@ -220,56 +221,23 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             }
         }
 
-        new CollectingResultCallback()
-    }
+        new BuildImageResultCallback() {
 
-    /**
-     * Collects output and logs it once a newline has been found.
-     */
-    private class CollectingResultCallback extends BuildImageResultCallback {
+            def collector = new OutputCollector({ s -> logger.quiet(s) })
 
-        private final StringBuffer buffer = new StringBuffer();
-
-        @Override
-        void onNext(BuildResponseItem item) {
-            try {
-                def possibleStream = item.stream
-                if (possibleStream) {
-                    consumeStream(possibleStream)
+            @Override
+            void onNext(BuildResponseItem item) {
+                try {
+                    def possibleStream = item.stream
+                    if (possibleStream) {
+                        collector.accept(possibleStream)
+                    }
+                } catch(Exception e) {
+                    logger.error('Failed to handle build response', e)
+                    return
                 }
-            } catch(Exception e) {
-                logger.error('Failed to handle build response', e)
-                return
+                super.onNext(item)
             }
-            super.onNext(item)
-        }
-
-        @Override
-        void close() throws IOException {
-            if (buffer.length() > 0) {
-                flushBuffer()
-            }
-            super.close()
-        }
-
-        private void consumeStream(String stream) {
-            // Split the received output segment on line terminators (newlines).
-            // We always store the first part in the buffer. All subsequent parts result in
-            // a buffer flush.
-            // For example, if stream = "output line\n", the string will be split into ["output line", ""].
-            // The empty, second part will make sure the line is printed.
-            String[] parts = stream.split("\\R", -1)
-            // We store the first substring in the buffer; all subsequent substrings will flush the buffer.
-            buffer.append(parts[0])
-            for (int i = 1; i < parts.length; i++) {
-                flushBuffer()
-                buffer.append(parts[i])
-            }
-        }
-
-        private void flushBuffer() {
-            logger.quiet(buffer.toString())
-            buffer.delete(0, buffer.length())
         }
     }
 }
