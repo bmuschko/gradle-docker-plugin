@@ -18,7 +18,6 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.PushImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PushResponseItem
@@ -47,7 +46,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     DockerRegistryCredentials registryCredentials
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         PushImageCmd pushImageCmd = dockerClient.pushImageCmd(imageName.get())
 
         if(tag.getOrNull()) {
@@ -60,9 +59,19 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
         if(registryCredentials) {
             AuthConfig authConfig = new AuthConfig()
             authConfig.registryAddress = registryCredentials.url.get()
-            authConfig.username = registryCredentials.username.getOrNull()
-            authConfig.password = registryCredentials.password.getOrNull()
-            authConfig.email = registryCredentials.email.getOrNull()
+
+            if (registryCredentials.username.isPresent()) {
+                authConfig.withUsername(registryCredentials.username.get())
+            }
+
+            if (registryCredentials.password.isPresent()) {
+                authConfig.withPassword(registryCredentials.password.get())
+            }
+
+            if (registryCredentials.email.isPresent()) {
+                authConfig.withEmail(registryCredentials.email.get())
+            }
+
             pushImageCmd.withAuthConfig(authConfig)
         }
 

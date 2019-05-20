@@ -1,7 +1,6 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.InspectExecResponse
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -56,7 +55,7 @@ class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
     }
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Inspecting exec with ID '${execId.get()}'."
         InspectExecResponse result = dockerClient.inspectExecCmd(execId.get()).exec()
         if (nextHandler) {

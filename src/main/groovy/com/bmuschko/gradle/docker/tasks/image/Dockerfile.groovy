@@ -106,7 +106,6 @@ class Dockerfile extends DefaultTask {
         }
     }
 
-    @CompileStatic(TypeCheckingMode.SKIP)
     private void verifyValidInstructions() {
         List<Instruction> allInstructions = instructions.get().collect()
 
@@ -167,9 +166,9 @@ class Dockerfile extends DefaultTask {
 
     /**
      * Adds a full instruction as String.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     instruction('FROM ubuntu:14.04')
@@ -186,13 +185,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * Adds a full instruction as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     instruction(project.provider(new Callable<String>() {
-     *         @Override
+     *         {@literal @}Override
      *         String call() throws Exception {
      *             'FROM ubuntu:14.04'
      *         }
@@ -211,9 +210,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#from">FROM instruction</a> sets the Base Image for
      * subsequent instructions.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     from('ubuntu:14.04')
@@ -230,13 +229,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#from">FROM instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     from(project.provider(new Callable<Dockerfile.From>() {
-     *         @Override
+     *         {@literal @}Override
      *         Dockerfile.From call() throws Exception {
      *             new Dockerfile.From('ubuntu:14.04')
      *         }
@@ -255,9 +254,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#arg">ARG instruction</a> defines a variable that
      * users can pass at build-time to the builder.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     arg('user1=someuser')
@@ -273,13 +272,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#arg">ARG instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     arg(project.provider(new Callable<String>() {
-     *         @Override
+     *         {@literal @}Override
      *         String call() throws Exception {
      *             'user1=someuser'
      *         }
@@ -298,9 +297,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#run">RUN instruction</a> will execute any commands in a
      * new layer on top of the current image and commit the results.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     runCommand('/bin/bash -c echo hello')
@@ -316,13 +315,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#run">RUN instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     runCommand(project.provider(new Callable<String>() {
-     *         @Override
+     *         {@literal @}Override
      *         String call() throws Exception {
      *             '/bin/bash -c echo hello'
      *         }
@@ -341,9 +340,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The main purpose of a <a href="https://docs.docker.com/engine/reference/builder/#cmd">CMD instruction</a> is to provide
      * defaults for an executing container.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     defaultCommand('/usr/bin/wc', '--help')
@@ -359,13 +358,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#cmd">CMD instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     defaultCommand(project.provider(new Callable<List<String>>() {
-     *         @Override
+     *         {@literal @}Override
      *         List<String> call() throws Exception {
      *             ['/usr/bin/wc', '--help']
      *         }
@@ -384,9 +383,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#expose">EXPOSE instruction</a> informs Docker that the
      * container will listen on the specified network ports at runtime.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     exposePort(8080, 9090)
@@ -402,13 +401,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#expose">EXPOSE instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     exposePort(project.provider(new Callable<List<Integer>>() {
-     *         @Override
+     *         {@literal @}Override
      *         List<Integer> call() throws Exception {
      *             [8080, 9090]
      *         }
@@ -426,10 +425,10 @@ class Dockerfile extends DefaultTask {
 
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#env">ENV instruction</a> sets the environment variable
-     * <key> to the value <value>. This value will be passed to all future RUN instructions.
-     *
+     * &lt;key&gt; to the value &lt;value&gt;. This value will be passed to all future RUN instructions.
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     environmentVariable('myName', 'John Doe')
@@ -447,9 +446,9 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#env">ENV instruction</a> as Map.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     environmentVariable(['myName': 'John Doe'])
@@ -466,13 +465,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#env">ENV instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     environmentVariable(project.provider(new Callable<Map<String, String>>() {
-     *         @Override
+     *         {@literal @}Override
      *         Map<String, String> call() throws Exception {
      *             ['myName': 'John Doe']
      *         }
@@ -491,10 +490,10 @@ class Dockerfile extends DefaultTask {
 
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#add">ADD instruction</a> copies new files, directories
-     * or remote file URLs from <src> and adds them to the filesystem of the container at the path <dest>.
-     *
+     * or remote file URLs from &lt;src&gt; and adds them to the filesystem of the container at the path &lt;dest&gt;.
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     addFile('test', '/absoluteDir/')
@@ -511,13 +510,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#add">ADD instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     addFile(project.provider(new Callable<Dockerfile.File>() {
-     *         @Override
+     *         {@literal @}Override
      *         Dockerfile.File call() throws Exception {
      *             new Dockerfile.File('test', '/absoluteDir/')
      *         }
@@ -535,10 +534,10 @@ class Dockerfile extends DefaultTask {
 
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#copy">COPY instruction</a> copies new files or directories
-     * from <src> and adds them to the filesystem of the container at the path <dest>.
-     *
+     * from &lt;src&gt; and adds them to the filesystem of the container at the path &lt;dest&gt;.
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     copyFile('test', '/absoluteDir/')
@@ -556,13 +555,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#copy">COPY instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     copyFile(project.provider(new Callable<Dockerfile.File>() {
-     *         @Override
+     *         {@literal @}Override
      *         Dockerfile.File call() throws Exception {
      *             new Dockerfile.File('test', '/absoluteDir/')
      *         }
@@ -581,9 +580,9 @@ class Dockerfile extends DefaultTask {
     /**
      * An <a href="https://docs.docker.com/engine/reference/builder/#entrypoint">ENTRYPOINT</a> allows you to configure a container
      * that will run as an executable.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     entryPoint('top', '-b')
@@ -599,13 +598,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#entrypoint">ENTRYPOINT</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     entryPoint(project.provider(new Callable<List<String>>() {
-     *         @Override
+     *         {@literal @}Override
      *         List<String> call() throws Exception {
      *             ['top', '-b']
      *         }
@@ -624,9 +623,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#volume">VOLUME instruction</a> will create a mount point
      * with the specified name and mark it as holding externally mounted volumes from native host or other containers.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     volume('/myvol')
@@ -642,13 +641,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#volume">VOLUME instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     volume(project.provider(new Callable<List<String>>() {
-     *         @Override
+     *         {@literal @}Override
      *         List<String> call() throws Exception {
      *             ['/myvol']
      *         }
@@ -667,9 +666,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#user">USER instruction</a> sets the user name or UID to
      * use when running the image and for any RUN, CMD and ENTRYPOINT instructions that follow it in the Dockerfile.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     user('patrick')
@@ -685,13 +684,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#user">USER instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     user(project.provider(new Callable<String>() {
-     *         @Override
+     *         {@literal @}Override
      *         String call() throws Exception {
      *             'patrick'
      *         }
@@ -710,9 +709,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#workdir">WORKDIR instruction</a> sets the working directory
      * for any RUN, CMD and ENTRYPOINT instructions that follow it in the Dockerfile.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     workingDir('/path/to/workdir')
@@ -728,13 +727,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#workdir">WORKDIR instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     workingDir(project.provider(new Callable<String>() {
-     *         @Override
+     *         {@literal @}Override
      *         String call() throws Exception {
      *             '/path/to/workdir'
      *         }
@@ -753,9 +752,9 @@ class Dockerfile extends DefaultTask {
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#onbuild">ONBUILD instruction</a> adds to the image a
      * trigger instruction to be executed at a later time, when the image is used as the base for another build.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     onBuild('ADD . /app/src')
@@ -771,13 +770,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#onbuild">ONBUILD instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     onBuild(project.provider(new Callable<String>() {
-     *         @Override
+     *         {@literal @}Override
      *         String call() throws Exception {
      *             'ADD . /app/src'
      *         }
@@ -795,9 +794,9 @@ class Dockerfile extends DefaultTask {
 
     /**
      * The <a href="https://docs.docker.com/engine/reference/builder/#label">LABEL instruction</a> adds metadata to an image.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     label(['version': '1.0'])
@@ -813,13 +812,13 @@ class Dockerfile extends DefaultTask {
 
     /**
      * A <a href="https://docs.docker.com/engine/reference/builder/#label">LABEL instruction</a> as Provider.
-     *
+     * <p>
      * Example in Groovy DSL:
-     *
+     * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
      *     label(project.provider(new Callable<Map<String, String>>() {
-     *         @Override
+     *         {@literal @}Override
      *         Map<String, String> call() throws Exception {
      *             ['version': '1.0']
      *         }
@@ -835,6 +834,9 @@ class Dockerfile extends DefaultTask {
         instructions.add(new LabelInstruction(provider))
     }
 
+    /**
+     * A representation of an instruction in a Dockerfile.
+     */
     static interface Instruction {
         /**
          * Gets the keyword of the instruction as used in the Dockerfile.
@@ -859,6 +861,11 @@ class Dockerfile extends DefaultTask {
         String getText()
     }
 
+    /**
+     * An instruction that uses the provided value as-is without any additional formatting.
+     * <p>
+     * Use this instruction if you want to provide a very complex instruction or if there's not a specific implementation of {@link Instruction} that serves your use case.
+     */
     static class GenericInstruction implements Instruction {
         private final String instruction
         private final Provider<String> instructionProvider
@@ -871,6 +878,9 @@ class Dockerfile extends DefaultTask {
             this.instructionProvider = instructionProvider
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             if (instructionProvider) {
@@ -884,6 +894,9 @@ class Dockerfile extends DefaultTask {
             inst?.substring(0, inst.indexOf(' '))
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getText() {
             if (instructionProvider) {
@@ -894,6 +907,9 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * An instruction whose value is a String.
+     */
     static abstract class StringCommandInstruction implements Instruction {
         private final String command
         private final Provider<String> commandProvider
@@ -906,6 +922,9 @@ class Dockerfile extends DefaultTask {
             this.commandProvider = commandProvider
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getText() {
             if (commandProvider) {
@@ -924,6 +943,9 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * An instruction whose value is a String array.
+     */
     static abstract class StringArrayInstruction implements Instruction {
         private final String[] command
         private final Provider<List<String>> commandProvider
@@ -936,6 +958,9 @@ class Dockerfile extends DefaultTask {
             this.commandProvider = commandProvider
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getText() {
             if (commandProvider) {
@@ -995,6 +1020,9 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * An instruction whose value is a Map.
+     */
     static abstract class MapInstruction implements Instruction {
         private final Map<String, String> command
         private final Provider<Map<String, String>> commandProvider
@@ -1014,6 +1042,9 @@ class Dockerfile extends DefaultTask {
             joiner = new MultiItemJoiner()
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getText() {
             Map<String, String> commandToJoin = command
@@ -1042,6 +1073,9 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * An instruction whose value is a File.
+     */
     static abstract class FileInstruction implements Instruction {
         private final String src
         private final String dest
@@ -1058,6 +1092,9 @@ class Dockerfile extends DefaultTask {
             this.provider = provider
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getText() {
             String keyword = getKeyword()
@@ -1080,6 +1117,9 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * Represents a {@code FROM} instruction.
+     */
     static class FromInstruction implements Instruction {
         public static final String KEYWORD = 'FROM'
         private final String image
@@ -1095,11 +1135,17 @@ class Dockerfile extends DefaultTask {
             this.provider = provider
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             KEYWORD
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getText() {
             if (provider) {
@@ -1122,6 +1168,9 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * Represents a {@code ARG} instruction.
+     */
     static class ArgInstruction extends StringCommandInstruction {
         public static final String KEYWORD = 'ARG'
 
@@ -1133,12 +1182,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             KEYWORD
         }
     }
 
+    /**
+     * Represents a {@code RUN} instruction.
+     */
     static class RunCommandInstruction extends StringCommandInstruction {
         RunCommandInstruction(String command) {
             super(command)
@@ -1148,12 +1203,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "RUN"
         }
     }
 
+    /**
+     * Represents a {@code CMD} instruction.
+     */
     static class DefaultCommandInstruction extends StringArrayInstruction {
         DefaultCommandInstruction(String... command) {
             super(command)
@@ -1163,12 +1224,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "CMD"
         }
     }
 
+    /**
+     * Represents a {@code EXPOSE} instruction.
+     */
     static class ExposePortInstruction implements Instruction {
         private final Integer[] ports
         private final Provider<List<Integer>> provider
@@ -1181,11 +1248,17 @@ class Dockerfile extends DefaultTask {
             this.provider = provider
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "EXPOSE"
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getText() {
             if (provider) {
@@ -1204,6 +1277,9 @@ class Dockerfile extends DefaultTask {
         }
     }
 
+    /**
+     * Represents a {@code ENV} instruction.
+     */
     static class EnvironmentVariableInstruction extends MapInstruction {
         EnvironmentVariableInstruction(String key, String value) {
             super([(key): value], new SingleItemJoiner())
@@ -1217,12 +1293,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "ENV"
         }
     }
 
+    /**
+     * Represents a {@code ADD} instruction.
+     */
     static class AddFileInstruction extends FileInstruction {
         AddFileInstruction(String src, String dest) {
             super(src, dest)
@@ -1232,12 +1314,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "ADD"
         }
     }
 
+    /**
+     * Represents a {@code COPY} instruction.
+     */
     static class CopyFileInstruction extends FileInstruction {
         CopyFileInstruction(String src, String dest, String stageName = null) {
             super(src, dest, stageName ? "--from=$stageName" : null)
@@ -1247,12 +1335,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "COPY"
         }
     }
 
+    /**
+     * Represents a {@code ENTRYPOINT} instruction.
+     */
     static class EntryPointInstruction extends StringArrayInstruction {
         EntryPointInstruction(String... entryPoint) {
             super(entryPoint)
@@ -1262,6 +1356,9 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "ENTRYPOINT"
@@ -1277,12 +1374,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "VOLUME"
         }
     }
 
+    /**
+     * Represents a {@code USER} instruction.
+     */
     static class UserInstruction extends StringCommandInstruction {
         UserInstruction(String user) {
             super(user)
@@ -1292,12 +1395,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "USER"
         }
     }
 
+    /**
+     * Represents a {@code WORKDIR} instruction.
+     */
     static class WorkDirInstruction extends StringCommandInstruction {
         WorkDirInstruction(String dir) {
             super(dir)
@@ -1307,12 +1416,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "WORKDIR"
         }
     }
 
+    /**
+     * Represents a {@code ONBUILD} instruction.
+     */
     static class OnBuildInstruction extends StringCommandInstruction {
         OnBuildInstruction(String instruction) {
             super(instruction)
@@ -1322,12 +1437,18 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "ONBUILD"
         }
     }
 
+    /**
+     * Represents a {@code LABEL} instruction.
+     */
     static class LabelInstruction extends MapInstruction {
         LabelInstruction(Map labels) {
             super(labels)
@@ -1337,6 +1458,9 @@ class Dockerfile extends DefaultTask {
             super(provider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             "LABEL"
@@ -1344,6 +1468,8 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
+     * Represents a comment instruction.
+     *
      * @since 4.0.1
      */
     static class CommentInstruction extends StringCommandInstruction {
@@ -1357,6 +1483,9 @@ class Dockerfile extends DefaultTask {
             super(commandProvider)
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         String getKeyword() {
             KEYWORD
@@ -1364,7 +1493,7 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * Input data for a copy or add instruction.
+     * Input data for a {@link AddFileInstruction} or {@link CopyFileInstruction}.
      *
      * @since 4.0.0
      */
@@ -1386,7 +1515,7 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * Input data for a from instruction.
+     * Input data for a {@link FromInstruction}.
      *
      * @since 4.0.0
      */

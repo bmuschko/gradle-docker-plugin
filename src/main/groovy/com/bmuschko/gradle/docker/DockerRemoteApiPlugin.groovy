@@ -20,6 +20,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
@@ -42,7 +43,8 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         DockerExtension dockerExtension = project.extensions.create(EXTENSION_NAME, DockerExtension, project.objects)
-        configureRegistryAwareTasks(project, dockerExtension.registryCredentials)
+        DockerRegistryCredentials dockerRegistryCredentials = ((ExtensionAware) dockerExtension).extensions.create('registryCredentials', DockerRegistryCredentials, project.objects)
+        configureRegistryAwareTasks(project, dockerRegistryCredentials)
     }
 
     private void configureRegistryAwareTasks(Project project, DockerRegistryCredentials dockerRegistryCredentials) {

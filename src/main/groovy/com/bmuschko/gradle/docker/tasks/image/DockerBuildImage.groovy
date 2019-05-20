@@ -18,7 +18,6 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.BuildImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
@@ -122,7 +121,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     }
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Building image using context '${inputDir.get().asFile}'."
         BuildImageCmd buildImageCmd
 
@@ -172,9 +171,19 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         if (registryCredentials) {
             AuthConfig authConfig = new AuthConfig()
             authConfig.registryAddress = registryCredentials.url.get()
-            authConfig.username = registryCredentials.username.getOrNull()
-            authConfig.password = registryCredentials.password.getOrNull()
-            authConfig.email = registryCredentials.email.getOrNull()
+
+            if (registryCredentials.username.isPresent()) {
+                authConfig.withUsername(registryCredentials.username.get())
+            }
+
+            if (registryCredentials.password.isPresent()) {
+                authConfig.withPassword(registryCredentials.password.get())
+            }
+
+            if (registryCredentials.email.isPresent()) {
+                authConfig.withEmail(registryCredentials.email.get())
+            }
+
             AuthConfigurations authConfigurations = new AuthConfigurations()
             authConfigurations.addConfig(authConfig)
             buildImageCmd.withBuildAuthConfigs(authConfigurations)

@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.InspectContainerResponse
 import org.gradle.api.Action
 
@@ -26,7 +25,7 @@ class DockerInspectContainer extends DockerExistingContainer {
     }
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Inspecting container with ID '${containerId.get()}'."
         InspectContainerResponse container = dockerClient.inspectContainerCmd(containerId.get()).exec()
 

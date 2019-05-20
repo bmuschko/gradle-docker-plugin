@@ -40,7 +40,7 @@ class DockerImageIdForName extends AbstractDockerRemoteApiTask {
     }
 
     @Override
-    void runRemoteCommand(com.github.dockerjava.api.DockerClient dockerClient) {
+    void runRemoteCommand() {
         def images = dockerClient.listImagesCmd()
             .withImageNameFilter(filteredImageName.get())
             .exec()

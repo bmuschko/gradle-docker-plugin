@@ -15,16 +15,13 @@
  */
 
 package com.bmuschko.gradle.docker.tasks
-
-import com.github.dockerjava.api.DockerClient
-
 /**
  *  Passes the underlying `docker-java` client to the defined `onNext` closure if it exists.
  */
 class DockerOperation extends AbstractDockerRemoteApiTask {
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         if (nextHandler) {
             nextHandler.execute(dockerClient)
         } else {

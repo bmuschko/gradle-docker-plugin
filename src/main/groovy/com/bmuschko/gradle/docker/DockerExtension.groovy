@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
-import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -39,7 +38,6 @@ import org.gradle.api.provider.Property
 class DockerExtension {
 
     private final Logger logger = Logging.getLogger(DockerExtension)
-    private final DockerRegistryCredentials registryCredentials
 
     /**
      * The server URL to connect to via Docker’s remote API.
@@ -61,7 +59,6 @@ class DockerExtension {
     final Property<String> apiVersion
 
     DockerExtension(ObjectFactory objectFactory) {
-        registryCredentials = objectFactory.newInstance(DockerRegistryCredentials, objectFactory)
         url = objectFactory.property(String)
         url.set(getDefaultDockerUrl())
         certPath = objectFactory.directoryProperty()
@@ -73,25 +70,6 @@ class DockerExtension {
         }
 
         apiVersion = objectFactory.property(String)
-    }
-
-    /**
-     * Configures the registry credentials.
-     *
-     * @param action Action configuring the registry credentials
-     */
-    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
-        action.execute(registryCredentials)
-    }
-
-    /**
-     * Returns the registry credentials.
-     *
-     * @return The registry credentials
-     * @see #registryCredentials(org.gradle.api.Action)
-     */
-    DockerRegistryCredentials getRegistryCredentials() {
-        registryCredentials
     }
 
     private String getDefaultDockerUrl() {

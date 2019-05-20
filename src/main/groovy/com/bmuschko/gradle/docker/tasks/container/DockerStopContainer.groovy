@@ -31,7 +31,7 @@ class DockerStopContainer extends DockerExistingContainer {
     final Property<Integer> waitTime = project.objects.property(Integer)
 
     @Override
-    void runRemoteCommand(DockerClient dockerClient) {
+    void runRemoteCommand() {
         logger.quiet "Stopping container with ID '${containerId.get()}'."
         _runRemoteCommand(dockerClient, containerId.get(), waitTime.getOrNull())
     }
