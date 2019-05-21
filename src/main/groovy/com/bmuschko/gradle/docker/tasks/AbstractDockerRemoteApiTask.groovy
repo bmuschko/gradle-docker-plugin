@@ -160,11 +160,10 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         // Create client
         DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
 
-        // register shutdown-hook to close kubernetes client.
-        addShutdownHook {
+        // register buildFinished-hook to close kubernetes client.
+        project.gradle.buildFinished {
             dockerClient.close()
         }
-
         dockerClient
     }
 
