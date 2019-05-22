@@ -44,7 +44,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
-    final DirectoryProperty inputDir = newInputDirectory()
+    final DirectoryProperty inputDir = project.objects.directoryProperty()
 
     /**
      * The Dockerfile to use to build the image.  If null, will use 'Dockerfile' in the
@@ -53,7 +53,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @InputFile
     @PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    final RegularFileProperty dockerFile = newInputFile()
+    final RegularFileProperty dockerFile = project.objects.fileProperty()
 
     /**
      * Tags for image.
@@ -94,6 +94,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     final SetProperty<String> cacheFrom = project.objects.setProperty(String)
 
+    @Input
+    @Optional
+    final Property<String> target = project.objects.property(String)
+
     /**
      * Size of <code>/dev/shm</code> in bytes.
      * The size must be greater than 0.
@@ -120,7 +124,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         remove.set(false)
         quiet.set(false)
         pull.set(false)
-        cacheFrom.set([])
+        cacheFrom.empty()
     }
 
     @Override
@@ -169,6 +173,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         if(shmSize.getOrNull() != null) { // 0 is valid input
             buildImageCmd.withShmsize(shmSize.get())
+        }
+
+        if(target.getOrNull() != null) {
+            buildImageCmd.withTarget(target.get())
         }
 
         if (registryCredentials) {

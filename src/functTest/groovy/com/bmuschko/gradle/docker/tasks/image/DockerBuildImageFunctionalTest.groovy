@@ -137,6 +137,16 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         noExceptionThrown()
     }
 
+    def "can build image with different targets"() {
+        buildFile << buildMultiStageImage()
+
+        when:
+        build('buildTarget')
+
+        then:
+        noExceptionThrown()
+    }
+
     @PendingFeature
     def "task can be up-to-date"() {
         given:
@@ -366,6 +376,26 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildWithHostNetwork(type: DockerBuildImage) {
                 dependsOn dockerfile
                 network = 'host'
+            }
+        """
+    }
+
+    private static String buildMultiStageImage() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG', 'stage1'
+                label(['maintainer': 'stage1 - ${UUID.randomUUID().toString()}'])
+
+                from '$TEST_IMAGE_WITH_TAG', 'stage2'
+                label(['maintainer': 'stage2 - ${UUID.randomUUID().toString()}'])
+            }
+
+            task buildTarget(type: DockerBuildImage) {
+                dependsOn dockerfile
+                target = "stage2"
             }
         """
     }
