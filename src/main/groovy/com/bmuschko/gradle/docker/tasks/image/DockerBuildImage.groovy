@@ -94,6 +94,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     final SetProperty<String> cacheFrom = project.objects.setProperty(String)
 
+    @Input
+    @Optional
+    final Property<String> target = project.objects.property(String)
+
     /**
      * Size of <code>/dev/shm</code> in bytes.
      * The size must be greater than 0.
@@ -167,6 +171,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         if(shmSize.getOrNull() != null) { // 0 is valid input
             buildImageCmd.withShmsize(shmSize.get())
+        }
+
+        if(target.getOrNull() != null) {
+            buildImageCmd.withTarget(target.get())
         }
 
         if (registryCredentials) {
