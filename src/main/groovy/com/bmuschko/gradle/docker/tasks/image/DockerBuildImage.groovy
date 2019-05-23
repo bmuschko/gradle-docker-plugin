@@ -18,10 +18,11 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.bmuschko.gradle.docker.utils.OutputCollector
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.BuildImageCmd
 import com.github.dockerjava.api.command.InspectImageCmd
-import com.github.dockerjava.api.exception.NotFoundException
+import com.github.dockerjava.api.exception.DockerException
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.api.model.BuildResponseItem
@@ -142,7 +143,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
                 try {
                     getDockerClient().inspectImageCmd(file.text).exec()
                     return true
-                } catch (NotFoundException e) {
+                } catch (DockerException e) {
                     return false
                 }
             }
@@ -252,18 +253,27 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         new BuildImageResultCallback() {
+
+            def collector = new OutputCollector({ s -> logger.quiet(s) })
+
             @Override
             void onNext(BuildResponseItem item) {
                 try {
                     def possibleStream = item.stream
                     if (possibleStream) {
-                        logger.quiet(possibleStream.trim())
+                        collector.accept(possibleStream)
                     }
                 } catch(Exception e) {
                     logger.error('Failed to handle build response', e)
                     return
                 }
                 super.onNext(item)
+            }
+
+            @Override
+            void close() throws IOException {
+                collector.close()
+                super.close()
             }
         }
     }

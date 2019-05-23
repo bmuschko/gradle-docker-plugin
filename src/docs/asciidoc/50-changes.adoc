@@ -3,6 +3,9 @@
 [discrete]
 === v4.9.0 (TBA)
 
+* Avoid memory leakage by replacing addShutdownHook with Gradle.buildFinished - {uri-github}/pull/810[PR 810]
+* `DockerBuildImage` will print whole lines by collecting output and waiting for newline - {uri-github}/pull/799[PR 799]
+
 [discrete]
 === v4.8.1 (May 11, 2019)
 
