@@ -238,6 +238,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
                 }
                 super.onNext(item)
             }
+
+            @Override
+            void close() throws IOException {
+                collector.close()
+                super.close()
+            }
         }
     }
 }
