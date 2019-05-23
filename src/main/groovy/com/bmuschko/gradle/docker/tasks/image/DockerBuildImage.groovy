@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.bmuschko.gradle.docker.utils.OutputCollector
 import com.github.dockerjava.api.command.BuildImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
@@ -221,18 +222,27 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         new BuildImageResultCallback() {
+
+            def collector = new OutputCollector({ s -> logger.quiet(s) })
+
             @Override
             void onNext(BuildResponseItem item) {
                 try {
                     def possibleStream = item.stream
                     if (possibleStream) {
-                        logger.quiet(possibleStream.trim())
+                        collector.accept(possibleStream)
                     }
                 } catch(Exception e) {
                     logger.error('Failed to handle build response', e)
                     return
                 }
                 super.onNext(item)
+            }
+
+            @Override
+            void close() throws IOException {
+                collector.close()
+                super.close()
             }
         }
     }
