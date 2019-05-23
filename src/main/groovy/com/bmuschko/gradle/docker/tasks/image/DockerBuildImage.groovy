@@ -94,6 +94,11 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     final SetProperty<String> cacheFrom = project.objects.setProperty(String)
 
+    /**
+     * With this parameter it is possible to build a special
+     * stage in a multi stage Docker file. This is available with Docker 17.05
+     * @since 4.9.0
+     */
     @Input
     @Optional
     final Property<String> target = project.objects.property(String)
