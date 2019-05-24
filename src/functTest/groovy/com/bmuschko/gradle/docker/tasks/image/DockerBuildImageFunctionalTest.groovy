@@ -141,7 +141,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         buildFile << buildMultiStageImage()
 
         when:
-        build('removeImage')
+        build('buildTarget')
 
         then:
         noExceptionThrown()
@@ -396,11 +396,12 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildTarget(type: DockerBuildImage) {
                 dependsOn dockerfile
+                finalizedBy removeImage
+                
                 target = "stage2"
             }
             
             task removeImage(type: DockerRemoveImage) {
-                dependsOn buildTarget
                 force = true
                 targetImageId buildTarget.getImageId()
             }
