@@ -384,6 +384,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG', 'stage1'
