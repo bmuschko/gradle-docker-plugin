@@ -117,7 +117,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      * Output file containing the image ID of the built image. 
      * Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
      * If path contains ':' it will be replaced by '_'.
-     * @since 5.0.0
+     * @since 4.9.0
      */
     @OutputFile
     @PathSensitive(PathSensitivity.RELATIVE)
