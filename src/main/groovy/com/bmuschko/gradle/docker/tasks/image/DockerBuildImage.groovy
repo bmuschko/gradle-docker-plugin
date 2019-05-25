@@ -19,10 +19,14 @@ import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.bmuschko.gradle.docker.utils.OutputCollector
+import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.BuildImageCmd
+import com.github.dockerjava.api.command.InspectImageCmd
+import com.github.dockerjava.api.exception.DockerException
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.api.model.BuildResponseItem
+import com.github.dockerjava.api.model.Image
 import com.github.dockerjava.core.command.BuildImageResultCallback
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -36,6 +40,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.OutputFile
 
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
@@ -108,6 +113,16 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     DockerRegistryCredentials registryCredentials
 
+    /**
+     * Output file containing the image ID of the built image. 
+     * Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
+     * If path contains ':' it will be replaced by '_'.
+     * @since 5.0.0
+     */
+    @OutputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty imageIdFile = newOutputFile()
+
     @Internal
     final Property<String> imageId = project.objects.property(String)
 
@@ -119,6 +134,21 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         quiet.set(false)
         pull.set(false)
         cacheFrom.empty()
+        String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
+        imageIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
+
+        outputs.upToDateWhen {
+            File file = imageIdFile.get().asFile
+            if(file.exists()) {
+                try {
+                    getDockerClient().inspectImageCmd(file.text).exec()
+                    return true
+                } catch (DockerException e) {
+                    return false
+                }
+            }
+            return false
+        }
     }
 
     @Override
@@ -202,6 +232,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         String createdImageId = buildImageCmd.exec(createCallback()).awaitImageId()
         imageId.set(createdImageId)
+        imageIdFile.get().asFile.text = createdImageId
         logger.quiet "Created image with ID '$createdImageId'."
     }
 

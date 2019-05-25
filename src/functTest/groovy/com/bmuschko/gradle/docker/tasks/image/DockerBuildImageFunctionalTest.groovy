@@ -137,16 +137,41 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         noExceptionThrown()
     }
 
-    @PendingFeature
     def "task can be up-to-date"() {
         given:
         buildFile << imageCreation()
         buildFile << """
             task verifyImageId {
                 dependsOn buildImage
-                doLast {
-                    assert buildImage.imageId.isPresent()
-                }
+            }
+        """
+        File imageIdFile = new File(projectDir, 'build/.docker/buildImage-imageId.txt')
+
+        when:
+        BuildResult result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+
+        when:
+        result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.UP_TO_DATE
+        !result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+    }
+
+    def "task not up-to-date when no imageIdFile"() {
+        given:
+        buildFile << imageCreation()
+        buildFile << """
+            task verifyImageId {
+                dependsOn buildImage
             }
         """
         File imageIdFile = new File(projectDir, 'build/.docker/buildImage-imageId.txt')
@@ -180,6 +205,91 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         imageIdFile.text != ""
     }
 
+    def "task not up-to-date when image not in registry"() {
+        given:
+        buildFile << imageCreation()
+        buildFile << """
+            task verifyImageId {
+                dependsOn buildImage
+            }
+        """
+        File imageIdFile = new File(projectDir, 'build/.docker/buildImage-imageId.txt')
+
+        when:
+        BuildResult result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+
+        when:
+        result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.UP_TO_DATE
+        !result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+
+        when:
+        buildFile << imageRemoval(imageIdFile.text)
+        result = build('removeImage')
+
+        then:
+        result.task(':removeImage').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Removing image with ID")
+
+        when:
+        result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+    }
+
+    def "task not up-to-date when imageIdFile changed"() {
+        given:
+        buildFile << imageCreation()
+        buildFile << """
+            task verifyImageId {
+                dependsOn buildImage
+            }
+        """
+        File imageIdFile = new File(projectDir, 'build/.docker/buildImage-imageId.txt')
+
+        when:
+        BuildResult result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+
+        when:
+        result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.UP_TO_DATE
+        !result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+
+        when:
+        imageIdFile << " "
+        result = build('verifyImageId')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+        imageIdFile.isFile()
+        imageIdFile.text != ""
+    }
+
     private static String buildImageWithShmSize() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -203,10 +313,22 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
+                runCommand('pwd')
             }
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+            }
+        """
+    }
+
+    private static String imageRemoval(String imageId) {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                targetImageId '$imageId'
             }
         """
     }
