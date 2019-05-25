@@ -114,23 +114,23 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                         }
                     }))
                     workingDir('/app')
-                    copyFile(project.provider(new Callable<Dockerfile.File>() {
+                    copyFile(project.provider(new Callable<Dockerfile.CopyFile>() {
                         @Override
-                        Dockerfile.File call() throws Exception {
+                        Dockerfile.CopyFile call() throws Exception {
                             if (new File(dockerfile.destDir.get().asFile, 'libs').isDirectory()) {
-                                return new Dockerfile.File('libs', 'libs/')
+                                return new Dockerfile.CopyFile('libs', 'libs/')
                             }
                         }
                     }))
-                    copyFile(project.provider(new Callable<Dockerfile.File>() {
+                    copyFile(project.provider(new Callable<Dockerfile.CopyFile>() {
                         @Override
-                        Dockerfile.File call() throws Exception {
+                        Dockerfile.CopyFile call() throws Exception {
                             if (getMainJavaSourceSetOutput(project).resourcesDir.isDirectory()) {
-                                return new Dockerfile.File('resources', 'resources/')
+                                return new Dockerfile.CopyFile('resources', 'resources/')
                             }
                         }
                     }))
-                    copyFile('classes', 'classes/')
+                    copyFile(new Dockerfile.CopyFile('classes', 'classes/'))
                     entryPoint(project.provider(new Callable<List<String>>() {
                         @Override
                         List<String> call() throws Exception {

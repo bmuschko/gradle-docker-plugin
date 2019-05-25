@@ -219,12 +219,33 @@ class Dockerfile extends DefaultTask {
      * }
      * </pre>
      *
-     * @param image Base image name
-     * @param stageName stage name in case of multi-stage builds (default null)
+     * @param from From definition
+     * @see #from(From)
      * @see #from(Provider)
      */
-    void from(String image, String stageName = null) {
-        instructions.add(new FromInstruction(image, stageName))
+    void from(String image) {
+        instructions.add(new FromInstruction(new From(image)))
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/engine/reference/builder/#from">FROM instruction</a> sets the Base Image for
+     * subsequent instructions.
+     * <p>
+     * Example in Groovy DSL:
+     * <p>
+     * <pre>
+     * task createDockerfile(type: Dockerfile) {
+     *     from(new From('ubuntu:14.04'))
+     * }
+     * </pre>
+     *
+     * @param from From definition
+     * @param stageName stage name in case of multi-stage builds (default null)
+     * @see #from(String)
+     * @see #from(Provider)
+     */
+    void from(From from) {
+        instructions.add(new FromInstruction(from))
     }
 
     /**
@@ -244,7 +265,7 @@ class Dockerfile extends DefaultTask {
      * </pre>
      *
      * @param provider From information as Provider
-     * @see #from(String, String)
+     * @see #from(From)
      * @since 4.0.0
      */
     void from(Provider<Dockerfile.From> provider) {
@@ -500,12 +521,33 @@ class Dockerfile extends DefaultTask {
      * }
      * </pre>
      *
-     * @param src Source file
-     * @param dest Destination path
+     * @param src The source path
+     * @param dest The destination path
+     * @see #addFile(File)
      * @see #addFile(Provider)
      */
     void addFile(String src, String dest) {
-        instructions.add(new AddFileInstruction(src, dest))
+        addFile(new File(src, dest))
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/engine/reference/builder/#add">ADD instruction</a> copies new files, directories
+     * or remote file URLs from &lt;src&gt; and adds them to the filesystem of the container at the path &lt;dest&gt;.
+     * <p>
+     * Example in Groovy DSL:
+     * <p>
+     * <pre>
+     * task createDockerfile(type: Dockerfile) {
+     *     addFile(new Dockerfile.File('test', '/absoluteDir/'))
+     * }
+     * </pre>
+     *
+     * @param file File definition
+     * @see #addFile(String, String)
+     * @see #addFile(Provider)
+     */
+    void addFile(File file) {
+        instructions.add(new AddFileInstruction(file))
     }
 
     /**
@@ -526,6 +568,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Add instruction as Provider
      * @see #addFile(String, String)
+     * @see #addFile(File)
      * @since 4.0.0
      */
     void addFile(Provider<Dockerfile.File> provider) {
@@ -544,13 +587,33 @@ class Dockerfile extends DefaultTask {
      * }
      * </pre>
      *
-     * @param src Source file
-     * @param dest Destination path
-     * @param stageName stage name in case of multi stage build
+     * @param src The source path
+     * @param dest The destination path
+     * @see #copyFile(CopyFile)
      * @see #copyFile(Provider)
      */
-    void copyFile(String src, String dest, String stageName = null) {
-        instructions.add(new CopyFileInstruction(src, dest, stageName))
+    void copyFile(String src, String dest) {
+        copyFile(new CopyFile(src, dest))
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/engine/reference/builder/#copy">COPY instruction</a> copies new files or directories
+     * from &lt;src&gt; and adds them to the filesystem of the container at the path &lt;dest&gt;.
+     * <p>
+     * Example in Groovy DSL:
+     * <p>
+     * <pre>
+     * task createDockerfile(type: Dockerfile) {
+     *     copyFile(new Dockerfile.CopyFile('test', '/absoluteDir/'))
+     * }
+     * </pre>
+     *
+     * @param file File definition
+     * @see #copyFile(String, String)
+     * @see #copyFile(Provider)
+     */
+    void copyFile(CopyFile file) {
+        instructions.add(new CopyFileInstruction(file))
     }
 
     /**
@@ -560,20 +623,21 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     copyFile(project.provider(new Callable<Dockerfile.File>() {
+     *     copyFile(project.provider(new Callable<Dockerfile.CopyFile>() {
      *         {@literal @}Override
-     *         Dockerfile.File call() throws Exception {
-     *             new Dockerfile.File('test', '/absoluteDir/')
+     *         Dockerfile.CopyFile call() throws Exception {
+     *             new Dockerfile.CopyFile('test', '/absoluteDir/')
      *         }
      *     }))
      * }
      * </pre>
      *
      * @param provider Copy instruction as Provider
-     * @see #copyFile(String, String, String)
+     * @see #copyFile(String, String)
+     * @see #copyFile(CopyFile)
      * @since 4.0.0
      */
-    void copyFile(Provider<Dockerfile.File> provider) {
+    void copyFile(Provider<Dockerfile.CopyFile> provider) {
         instructions.add(new CopyFileInstruction(provider))
     }
 
@@ -884,10 +948,10 @@ class Dockerfile extends DefaultTask {
         @Override
         String getKeyword() {
             if (instructionProvider) {
-                parseKeyword(instructionProvider.getOrNull())
-            } else {
-                parseKeyword(instruction)
+                return parseKeyword(instructionProvider.getOrNull())
             }
+
+            parseKeyword(instruction)
         }
 
         private String parseKeyword(String inst) {
@@ -1076,20 +1140,20 @@ class Dockerfile extends DefaultTask {
     /**
      * An instruction whose value is a File.
      */
-    static abstract class FileInstruction implements Instruction {
-        private final String src
-        private final String dest
-        private final String flags
-        private final Provider<File> provider
+    static abstract class FileInstruction<T extends File> implements Instruction {
+        private final T file
+        private final Provider<T> provider
 
-        FileInstruction(String src, String dest, String flags = null) {
-            this.src = src
-            this.dest = dest
-            this.flags = flags
+        FileInstruction(T file) {
+            this.file = file
         }
 
-        FileInstruction(Provider<File> provider) {
+        FileInstruction(Provider<T> provider) {
             this.provider = provider
+        }
+
+        T getFile() {
+            provider ? provider.getOrNull() : file
         }
 
         /**
@@ -1097,22 +1161,19 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getText() {
-            String keyword = getKeyword()
-            File file
+            File fileValue = getFile()
 
-            if (provider) {
-                file = provider.getOrNull()
-            } else {
-                file = new File(src, dest, flags)
-            }
+            if (fileValue) {
+                StringBuilder instruction = new StringBuilder(keyword)
 
-            if (file) {
-                if (file.flags) {
-                    keyword += " $file.flags"
+                if (fileValue.chown) {
+                    instruction.append(" --chown=$fileValue.chown")
                 }
-                if (file.src && file.dest) {
-                    "$keyword $file.src $file.dest"
+                if (fileValue.src && fileValue.dest) {
+                    instruction.append(" $fileValue.src $fileValue.dest")
                 }
+
+                instruction.toString()
             }
         }
     }
@@ -1122,13 +1183,11 @@ class Dockerfile extends DefaultTask {
      */
     static class FromInstruction implements Instruction {
         public static final String KEYWORD = 'FROM'
-        private final String image
-        private final String stageName
+        private final From from
         private final Provider<From> provider
 
-        FromInstruction(String image, String stageName = null) {
-            this.image = image
-            this.stageName = stageName
+        FromInstruction(From from) {
+            this.from = from
         }
 
         FromInstruction(Provider<From> provider) {
@@ -1152,15 +1211,15 @@ class Dockerfile extends DefaultTask {
                 return buildTextInstruction(provider.getOrNull())
             }
 
-            buildTextInstruction(new From(image, stageName))
+            buildTextInstruction(from)
         }
 
         private String buildTextInstruction(From from) {
             if (from) {
                 String result = "$keyword $from.image"
 
-                if (from.stageName) {
-                    result += " AS $from.stageName"
+                if (from.stage) {
+                    result += " AS $from.stage"
                 }
 
                 result
@@ -1305,9 +1364,9 @@ class Dockerfile extends DefaultTask {
     /**
      * Represents a {@code ADD} instruction.
      */
-    static class AddFileInstruction extends FileInstruction {
-        AddFileInstruction(String src, String dest) {
-            super(src, dest)
+    static class AddFileInstruction extends FileInstruction<File> {
+        AddFileInstruction(File file) {
+            super(file)
         }
 
         AddFileInstruction(Provider<File> provider) {
@@ -1326,13 +1385,25 @@ class Dockerfile extends DefaultTask {
     /**
      * Represents a {@code COPY} instruction.
      */
-    static class CopyFileInstruction extends FileInstruction {
-        CopyFileInstruction(String src, String dest, String stageName = null) {
-            super(src, dest, stageName ? "--from=$stageName" : null)
+    static class CopyFileInstruction extends FileInstruction<CopyFile> {
+        CopyFileInstruction(CopyFile file) {
+            super(file)
         }
 
-        CopyFileInstruction(Provider<File> provider) {
+        CopyFileInstruction(Provider<CopyFile> provider) {
             super(provider)
+        }
+
+        @Override
+        String getText() {
+            String text = super.getText()
+
+            if (file && file.stage) {
+                int keywordIndex = keyword.length()
+                text = text.substring(0, keywordIndex) + " --from=$file.stage" + text.substring(keywordIndex, text.length())
+            }
+
+            text
         }
 
         /**
@@ -1498,19 +1569,87 @@ class Dockerfile extends DefaultTask {
      * @since 4.0.0
      */
     static class File {
-        final String src
-        final String dest
-        final @Nullable String flags
+        private final String src
+        private final String dest
+        private @Nullable String chown
 
         File(String src, String dest) {
             this.src = src
             this.dest = dest
         }
 
-        File(String src, String dest, @Nullable String flags) {
-            this.src = src
-            this.dest = dest
-            this.flags = flags
+        /**
+         * Specifies a given username, groupname, or UID/GID combination to request specific ownership of the copied content with the help of the {@code --chown} option.
+         * <p>
+         * Should be provided in the form of {@code <user>:<group>}.
+         *
+         * @param chown The ownership of the copied content
+         */
+        File withChown(String chown) {
+            this.chown = chown
+            this
+        }
+
+        /**
+         * Return the source path.
+         *
+         * @return The source path
+         */
+        String getSrc() {
+            src
+        }
+
+        /**
+         * Returns the target path.
+         *
+         * @return The target path
+         */
+        String getDest() {
+            dest
+        }
+
+        /**
+         * Returns the ownership of the copied content.
+         *
+         * @return The ownership of the copied content
+         */
+        @Nullable
+        String getChown() {
+            chown
+        }
+    }
+
+    /**
+     * Input data for a {@link CopyFileInstruction}.
+     *
+     * @since 5.0.0
+     */
+    static class CopyFile extends File {
+        private @Nullable String stage
+
+        CopyFile(String src, String dest) {
+            super(src, dest)
+        }
+
+        /**
+         * Used to set the source location to a previous build stage.
+         *
+         * @param The previous stage
+         * @return This instruction
+         */
+        CopyFile withStage(String stage) {
+            this.stage = stage
+            this
+        }
+
+        /**
+         * Returns the previous build stage.
+         *
+         * @return The previous stage
+         */
+        @Nullable
+        String getStage() {
+            stage
         }
     }
 
@@ -1520,16 +1659,41 @@ class Dockerfile extends DefaultTask {
      * @since 4.0.0
      */
     static class From {
-        final String image
-        final @Nullable String stageName
+        private final String image
+        private @Nullable String stage
 
         From(String image) {
             this.image = image
         }
 
-        From(String image, @Nullable String stageName) {
-            this.image = image
-            this.stageName = stageName
+        /**
+         * Sets a new build stage by adding AS name to the FROM instruction.
+         *
+         * @param stage The stage
+         * @return This instruction
+         */
+        From withStage(String stage) {
+            this.stage = stage
+            this
+        }
+
+        /**
+         * Returns the base image.
+         *
+         * @return The base image
+         */
+        String getImage() {
+            image
+        }
+
+        /**
+         * Returns the stage.
+         *
+         * @return The stage
+         */
+        @Nullable
+        String getStage() {
+            stage
         }
     }
 }

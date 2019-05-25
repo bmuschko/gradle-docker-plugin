@@ -18,7 +18,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                addFile('./aaa', 'aaa')
+                addFile(new Dockerfile.File('./aaa', 'aaa'))
             }
 
             task buildImage(type: DockerBuildImage) {
