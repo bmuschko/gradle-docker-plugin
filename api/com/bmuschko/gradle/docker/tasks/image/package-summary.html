@@ -22,7 +22,7 @@
 <html>
 <head>
 
-<title>com.bmuschko.gradle.docker.tasks.image (gradle-docker-plugin 4.8.1 API)</title>
+<title>com.bmuschko.gradle.docker.tasks.image (gradle-docker-plugin 4.9.0 API)</title>
 <meta name="keywords" content="com.bmuschko.gradle.docker.tasks.image package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css" title="Style">
@@ -31,7 +31,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.bmuschko.gradle.docker.tasks.image (gradle-docker-plugin 4.8.1 API)";
+    parent.document.title="com.bmuschko.gradle.docker.tasks.image (gradle-docker-plugin 4.9.0 API)";
 }
 </script>
 <noscript>
@@ -92,7 +92,7 @@ function windowTitle()
                                     Dockerfile.Instruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>A representation of an instruction in a Dockerfile.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -224,7 +224,7 @@ function windowTitle()
                                     Dockerfile.AddFileInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>ADD</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -232,7 +232,7 @@ function windowTitle()
                                     Dockerfile.ArgInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>ARG</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -240,7 +240,7 @@ function windowTitle()
                                     Dockerfile.CommentInstruction
                                 </a></strong>
                             </td>
-                            <td>@since 4.0.1</td>
+                            <td>Represents a comment instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -248,7 +248,7 @@ function windowTitle()
                                     Dockerfile.CopyFileInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>COPY</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -256,7 +256,7 @@ function windowTitle()
                                     Dockerfile.DefaultCommandInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>CMD</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -264,7 +264,7 @@ function windowTitle()
                                     Dockerfile.EntryPointInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>ENTRYPOINT</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -272,7 +272,7 @@ function windowTitle()
                                     Dockerfile.EnvironmentVariableInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>ENV</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -280,7 +280,7 @@ function windowTitle()
                                     Dockerfile.ExposePortInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>EXPOSE</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -288,7 +288,7 @@ function windowTitle()
                                     Dockerfile.File
                                 </a></strong>
                             </td>
-                            <td>Input data for a copy or add instruction.</td>
+                            <td>Input data for a AddFileInstruction or CopyFileInstruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -296,7 +296,7 @@ function windowTitle()
                                     Dockerfile.FileInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>An instruction whose value is a File.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -304,7 +304,7 @@ function windowTitle()
                                     Dockerfile.From
                                 </a></strong>
                             </td>
-                            <td>Input data for a from instruction.</td>
+                            <td>Input data for a FromInstruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -312,7 +312,7 @@ function windowTitle()
                                     Dockerfile.FromInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>FROM</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -320,7 +320,7 @@ function windowTitle()
                                     Dockerfile.GenericInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>An instruction that uses the provided value as-is without any additional formatting.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -328,7 +328,7 @@ function windowTitle()
                                     Dockerfile.LabelInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>LABEL</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -336,7 +336,7 @@ function windowTitle()
                                     Dockerfile.MapInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>An instruction whose value is a Map.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -352,7 +352,7 @@ function windowTitle()
                                     Dockerfile.OnBuildInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>ONBUILD</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -360,7 +360,7 @@ function windowTitle()
                                     Dockerfile.RunCommandInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>RUN</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -376,7 +376,7 @@ function windowTitle()
                                     Dockerfile.StringArrayInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>An instruction whose value is a String array.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -384,7 +384,7 @@ function windowTitle()
                                     Dockerfile.StringCommandInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>An instruction whose value is a String.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -392,7 +392,7 @@ function windowTitle()
                                     Dockerfile.UserInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>USER</CODE> instruction.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -408,7 +408,7 @@ function windowTitle()
                                     Dockerfile.WorkDirInstruction
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Represents a <CODE>WORKDIR</CODE> instruction.</td>
                         </tr>
 
                     </tbody>
