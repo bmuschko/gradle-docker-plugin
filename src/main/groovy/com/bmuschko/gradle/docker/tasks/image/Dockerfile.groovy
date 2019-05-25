@@ -1571,7 +1571,9 @@ class Dockerfile extends DefaultTask {
     static class File {
         private final String src
         private final String dest
-        private @Nullable String chown
+
+        @Nullable
+        private String chown
 
         File(String src, String dest) {
             this.src = src
@@ -1600,9 +1602,9 @@ class Dockerfile extends DefaultTask {
         }
 
         /**
-         * Returns the target path.
+         * Returns the destination path.
          *
-         * @return The target path
+         * @return The destination path
          */
         String getDest() {
             dest
@@ -1625,7 +1627,8 @@ class Dockerfile extends DefaultTask {
      * @since 5.0.0
      */
     static class CopyFile extends File {
-        private @Nullable String stage
+        @Nullable
+        private String stage
 
         CopyFile(String src, String dest) {
             super(src, dest)
@@ -1660,14 +1663,16 @@ class Dockerfile extends DefaultTask {
      */
     static class From {
         private final String image
-        private @Nullable String stage
+
+        @Nullable
+        private String stage
 
         From(String image) {
             this.image = image
         }
 
         /**
-         * Sets a new build stage by adding AS name to the FROM instruction.
+         * Sets a new build stage by adding {@code AS} name to the {@code FROM} instruction.
          *
          * @param stage The stage
          * @return This instruction
