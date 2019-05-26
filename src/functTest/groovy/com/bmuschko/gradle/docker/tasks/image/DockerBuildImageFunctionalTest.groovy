@@ -393,10 +393,9 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 from '$TEST_IMAGE_WITH_TAG', 'stage2'
                 label(['maintainer': 'stage2 - ${UUID.randomUUID().toString()}'])
             }
-
+            
             task buildTarget(type: DockerBuildImage) {
                 dependsOn dockerfile
-                finalizedBy removeImage
                 
                 target = "stage2"
             }
@@ -405,6 +404,8 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 force = true
                 targetImageId buildTarget.getImageId()
             }
+            
+            buildTarget.finalizedBy tasks.removeImage
         """
     }
 }
