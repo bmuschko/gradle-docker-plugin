@@ -95,6 +95,16 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         noExceptionThrown()
     }
 
+    def "can build image with different targets"() {
+        buildFile << buildMultiStageImage()
+
+        when:
+        BuildResult result = build('buildTarget')
+
+        then:
+        result.output.contains("Successfully built")
+    }
+
     def "can build image using --cache-from with nothing in the cache"() {
         buildFile << buildImageUsingCacheFromWithNothingInCache()
 
@@ -489,6 +499,35 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn dockerfile
                 network = 'host'
             }
+        """
+    }
+
+    private static String buildMultiStageImage() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG', 'stage1'
+                label(['maintainer': 'stage1 - ${UUID.randomUUID().toString()}'])
+
+                from '$TEST_IMAGE_WITH_TAG', 'stage2'
+                label(['maintainer': 'stage2 - ${UUID.randomUUID().toString()}'])
+            }
+            
+            task buildTarget(type: DockerBuildImage) {
+                dependsOn dockerfile
+                
+                target = "stage2"
+            }
+            
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                targetImageId buildTarget.getImageId()
+            }
+            
+            buildTarget.finalizedBy tasks.removeImage
         """
     }
 }
