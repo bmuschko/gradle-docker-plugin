@@ -111,7 +111,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     /**
      * With this parameter it is possible to build a special
      * stage in a multi stage Docker file. This is available with Docker 17.05
-     * @since 4.9.0
+     * @since 4.10.0
      */
     @Input
     @Optional
@@ -126,7 +126,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      * Output file containing the image ID of the built image. 
      * Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
      * If path contains ':' it will be replaced by '_'.
-     * @since 4.10.0
+     * @since 4.9.0
      */
     @OutputFile
     @PathSensitive(PathSensitivity.RELATIVE)
