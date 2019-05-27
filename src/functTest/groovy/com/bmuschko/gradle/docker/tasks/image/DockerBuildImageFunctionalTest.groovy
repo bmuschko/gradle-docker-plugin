@@ -102,7 +102,14 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         BuildResult result = build('buildTarget')
 
         then:
+        noExceptionThrown()
+        // check the output for the built stages
+        result.output.contains("Step 2/4 : LABEL maintainer=\"stage1")
+        result.output.contains("Step 4/4 : LABEL maintainer=\"stage2")
+        result.output.contains("Removing intermediate container")
         result.output.contains("Successfully built")
+        //stage3 was not called
+        ! result.output.contains("stage3")
     }
 
     def "can build image using --cache-from with nothing in the cache"() {
@@ -514,6 +521,9 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
                 from '$TEST_IMAGE_WITH_TAG', 'stage2'
                 label(['maintainer': 'stage2 - ${UUID.randomUUID().toString()}'])
+
+                from '$TEST_IMAGE_WITH_TAG', 'stage3'
+                label(['maintainer': 'stage3 - ${UUID.randomUUID().toString()}'])
             }
             
             task buildTarget(type: DockerBuildImage) {
