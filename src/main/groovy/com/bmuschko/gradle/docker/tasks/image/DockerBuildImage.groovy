@@ -109,6 +109,15 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final Property<Long> shmSize = project.objects.property(Long)
 
     /**
+     * With this parameter it is possible to build a special
+     * stage in a multi stage Docker file. This is available with Docker 17.05
+     * @since 4.10.0
+     */
+    @Input
+    @Optional
+    final Property<String> target = project.objects.property(String)
+
+    /**
      * {@inheritDoc}
      */
     DockerRegistryCredentials registryCredentials
@@ -197,6 +206,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         if(shmSize.getOrNull() != null) { // 0 is valid input
             buildImageCmd.withShmsize(shmSize.get())
+        }
+
+        if(target.getOrNull() != null) {
+            buildImageCmd.withTarget(target.get())
         }
 
         if (registryCredentials) {

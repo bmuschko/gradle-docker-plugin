@@ -95,6 +95,23 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         noExceptionThrown()
     }
 
+    def "can build image with different targets"() {
+        buildFile << buildMultiStageImage()
+
+        when:
+        BuildResult result = build('buildTarget')
+
+        then:
+        noExceptionThrown()
+        // check the output for the built stages
+        result.output.contains("Step 2/4 : LABEL maintainer=\"stage1")
+        result.output.contains("Step 4/4 : LABEL maintainer=\"stage2")
+        result.output.contains("Removing intermediate container")
+        result.output.contains("Successfully built")
+        //stage3 was not called
+        ! result.output.contains("stage3")
+    }
+
     def "can build image using --cache-from with nothing in the cache"() {
         buildFile << buildImageUsingCacheFromWithNothingInCache()
 
@@ -489,6 +506,38 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn dockerfile
                 network = 'host'
             }
+        """
+    }
+
+    private static String buildMultiStageImage() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG', 'stage1'
+                label(['maintainer': 'stage1 - ${UUID.randomUUID().toString()}'])
+
+                from '$TEST_IMAGE_WITH_TAG', 'stage2'
+                label(['maintainer': 'stage2 - ${UUID.randomUUID().toString()}'])
+
+                from '$TEST_IMAGE_WITH_TAG', 'stage3'
+                label(['maintainer': 'stage3 - ${UUID.randomUUID().toString()}'])
+            }
+            
+            task buildTarget(type: DockerBuildImage) {
+                dependsOn dockerfile
+                
+                target = "stage2"
+            }
+            
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                targetImageId buildTarget.getImageId()
+            }
+            
+            buildTarget.finalizedBy tasks.removeImage
         """
     }
 }
