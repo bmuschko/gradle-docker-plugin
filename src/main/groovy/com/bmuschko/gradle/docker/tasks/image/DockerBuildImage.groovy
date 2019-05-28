@@ -19,14 +19,11 @@ import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.bmuschko.gradle.docker.utils.OutputCollector
-import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.BuildImageCmd
-import com.github.dockerjava.api.command.InspectImageCmd
 import com.github.dockerjava.api.exception.DockerException
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.api.model.BuildResponseItem
-import com.github.dockerjava.api.model.Image
 import com.github.dockerjava.core.command.BuildImageResultCallback
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -38,9 +35,9 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import org.gradle.api.tasks.OutputFile
 
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
@@ -109,8 +106,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final Property<Long> shmSize = project.objects.property(Long)
 
     /**
-     * With this parameter it is possible to build a special
-     * stage in a multi stage Docker file. This is available with Docker 17.05
+     * With this parameter it is possible to build a special stage in a multi-stage Docker file.
+     * <p>
+     * This feature is only available for use with Docker 17.05 and higher.
+     *
      * @since 4.10.0
      */
     @Input
@@ -126,6 +125,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      * Output file containing the image ID of the built image. 
      * Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
      * If path contains ':' it will be replaced by '_'.
+     *
      * @since 4.9.0
      */
     @OutputFile

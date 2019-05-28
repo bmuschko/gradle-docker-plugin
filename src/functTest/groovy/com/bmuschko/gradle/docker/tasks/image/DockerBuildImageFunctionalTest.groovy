@@ -5,7 +5,6 @@ import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
-import spock.lang.PendingFeature
 import spock.lang.Requires
 import spock.lang.Unroll
 
@@ -102,14 +101,11 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         BuildResult result = build('buildTarget')
 
         then:
-        noExceptionThrown()
         // check the output for the built stages
-        result.output.contains("Step 2/4 : LABEL maintainer=\"stage1")
-        result.output.contains("Step 4/4 : LABEL maintainer=\"stage2")
-        result.output.contains("Removing intermediate container")
-        result.output.contains("Successfully built")
-        //stage3 was not called
-        ! result.output.contains("stage3")
+        result.output.contains('Step 2/4 : LABEL maintainer=stage1')
+        result.output.contains('Step 4/4 : LABEL maintainer=stage2')
+        // stage3 was not called
+        ! result.output.contains('stage3')
     }
 
     def "can build image using --cache-from with nothing in the cache"() {
@@ -517,18 +513,17 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG', 'stage1'
-                label(['maintainer': 'stage1 - ${UUID.randomUUID().toString()}'])
+                label(['maintainer': 'stage1'])
 
                 from '$TEST_IMAGE_WITH_TAG', 'stage2'
-                label(['maintainer': 'stage2 - ${UUID.randomUUID().toString()}'])
+                label(['maintainer': 'stage2'])
 
                 from '$TEST_IMAGE_WITH_TAG', 'stage3'
-                label(['maintainer': 'stage3 - ${UUID.randomUUID().toString()}'])
+                label(['maintainer': 'stage3'])
             }
             
             task buildTarget(type: DockerBuildImage) {
                 dependsOn dockerfile
-                
                 target = "stage2"
             }
             
