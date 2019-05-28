@@ -1,7 +1,9 @@
 == Change Log
 
 [discrete]
-=== v4.9.1 (TBA)
+=== v4.10.0 (TBA)
+
+* Expose `target` property for BuildImageTask - {uri-github}/pull/813[PR 813]
 
 [discrete]
 === v4.9.0 (May 25, 2019)
