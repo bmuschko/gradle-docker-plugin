@@ -53,7 +53,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     /**
      * The Dockerfile to use to build the image.  If null, will use 'Dockerfile' in the
-     * build context, i.e. "$inputDir/Dockerfile".
+     * build context, i.e. "$inputDir/Dockerfile". It must be within inputDir.
      */
     @InputFile
     @PathSensitive(PathSensitivity.RELATIVE)
