@@ -52,8 +52,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final DirectoryProperty inputDir = project.objects.directoryProperty()
 
     /**
-     * The Dockerfile to use to build the image.  If null, will use 'Dockerfile' in the
-     * build context, i.e. "$inputDir/Dockerfile".
+     * The Dockerfile to use to build the image. Must be within $inputDir file tree.
+     * If null, will use 'Dockerfile' in the build context, i.e. "$inputDir/Dockerfile". 
      */
     @InputFile
     @PathSensitive(PathSensitivity.RELATIVE)
@@ -86,6 +86,14 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Input
     @Optional
     final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
+
+    /**
+     * The buildLabels are labels that will not invalidate the cache key when changed.
+     * Usually used to store in the image build information that changes all the time.
+     * They will only be applied when the image builds, otherwise they are ignored.
+     */
+    @Internal
+    final MapProperty<String, String> buildLabels = project.objects.mapProperty(String, String)
 
     @Input
     @Optional
@@ -193,7 +201,11 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (labels.getOrNull()) {
-            buildImageCmd.withLabels(labels.get().collectEntries { [it.key, it.value.toString()] })
+            buildLabels.putAll(labels.get())
+        }
+        
+        if (buildLabels.getOrNull()) {
+            buildImageCmd.withLabels(buildLabels.get().collectEntries { [it.key, it.value.toString()] })
         }
 
         if(shmSize.getOrNull() != null) { // 0 is valid input

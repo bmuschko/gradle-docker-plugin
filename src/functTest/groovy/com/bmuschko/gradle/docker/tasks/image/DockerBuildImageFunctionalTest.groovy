@@ -73,6 +73,46 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         gradleTaskDefinition << [imageCreationWithBuildArgs(), imageCreationWithLabelParameter()]
     }
 
+    def "can build image changing buildLabels without forcing to rebuild"() {
+        buildFile << imageCreationWithInspection()
+
+        when:
+        buildFile << """
+            buildImage {
+                buildLabels = ['buildLabel1':'test1', 'buildLabel2':'test2']
+            }
+        """
+        BuildResult result = build('inspectImage')
+
+        then:
+        result.output.contains("buildLabel1:test1, buildLabel2:test2")
+
+        when:
+        buildFile << """
+            buildImage {
+                buildLabels = ['buildLabel1':'test1', 'buildLabel2':'test2', 'buildLabel3':'test3']
+            }
+        """
+        result = build('inspectImage')
+
+        then:
+        result.output.contains("buildLabel1:test1, buildLabel2:test2")
+        !result.output.contains("buildLabel3:test3")
+
+        when:
+        buildFile << """
+            buildImage {
+                labels = ['label1':'test5', 'label2':'test6']
+            }
+        """
+        result = build('inspectImage')
+
+        then:
+        result.output.contains("buildLabel1:test1, buildLabel2:test2")
+        result.output.contains("buildLabel3:test3")
+        result.output.contains("label1:test5, label2:test6")
+    }
+
     def "can build image with multiple tags"() {
         buildFile << buildImageWithTags()
 
@@ -373,6 +413,27 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 labels = ['label1':'test1', 'label2':'test2', 'label3':"\$project.name"]
+            }
+
+            task inspectImage(type: DockerInspectImage) {
+                dependsOn buildImage
+                targetImageId buildImage.getImageId()
+            }
+        """
+    }
+
+    private static String imageCreationWithInspection() {
+        """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
             }
 
             task inspectImage(type: DockerInspectImage) {
