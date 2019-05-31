@@ -142,6 +142,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             if(file.exists()) {
                 try {
                     getDockerClient().inspectImageCmd(file.text).exec()
+                    imageId.set(file.text)
                     return true
                 } catch (DockerException e) {
                     return false
