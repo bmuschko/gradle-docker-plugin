@@ -46,7 +46,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
-    final DirectoryProperty inputDir = project.objects.directoryProperty()
+    DirectoryProperty inputDir = project.objects.directoryProperty()
 
     /**
      * The Dockerfile to use to build the image.  If null, will use 'Dockerfile' in the
@@ -55,46 +55,46 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @InputFile
     @PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    final RegularFileProperty dockerFile = project.objects.fileProperty()
+    RegularFileProperty dockerFile = project.objects.fileProperty()
 
     /**
      * Tags for image.
      */
     @Input
     @Optional
-    final SetProperty<String> tags = project.objects.setProperty(String)
+    SetProperty<String> tags = project.objects.setProperty(String)
 
     @Input
     @Optional
-    final Property<Boolean> noCache = project.objects.property(Boolean)
+    Property<Boolean> noCache = project.objects.property(Boolean)
 
     @Input
     @Optional
-    final Property<Boolean> remove = project.objects.property(Boolean)
+    Property<Boolean> remove = project.objects.property(Boolean)
 
     @Input
     @Optional
-    final Property<Boolean> quiet = project.objects.property(Boolean)
+    Property<Boolean> quiet = project.objects.property(Boolean)
 
     @Input
     @Optional
-    final Property<Boolean> pull = project.objects.property(Boolean)
+    Property<Boolean> pull = project.objects.property(Boolean)
 
     @Input
     @Optional
-    final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
+    MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
     @Input
     @Optional
-    final Property<String> network = project.objects.property(String)
+    Property<String> network = project.objects.property(String)
 
     @Input
     @Optional
-    final MapProperty<String, String> buildArgs = project.objects.mapProperty(String, String)
+    MapProperty<String, String> buildArgs = project.objects.mapProperty(String, String)
 
     @Input
     @Optional
-    final SetProperty<String> cacheFrom = project.objects.setProperty(String)
+    SetProperty<String> cacheFrom = project.objects.setProperty(String)
 
     /**
      * Size of <code>/dev/shm</code> in bytes.
@@ -103,7 +103,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @Input
     @Optional
-    final Property<Long> shmSize = project.objects.property(Long)
+    Property<Long> shmSize = project.objects.property(Long)
 
     /**
      * With this parameter it is possible to build a special stage in a multi-stage Docker file.
@@ -114,7 +114,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @Input
     @Optional
-    final Property<String> target = project.objects.property(String)
+    Property<String> target = project.objects.property(String)
 
     /**
      * {@inheritDoc}
@@ -130,10 +130,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @OutputFile
     @PathSensitive(PathSensitivity.RELATIVE)
-    final RegularFileProperty imageIdFile = newOutputFile()
+    RegularFileProperty imageIdFile = newOutputFile()
 
     @Internal
-    final Property<String> imageId = project.objects.property(String)
+    Property<String> imageId = project.objects.property(String)
 
     DockerBuildImage() {
         inputDir.set(project.layout.buildDirectory.dir('docker'))
