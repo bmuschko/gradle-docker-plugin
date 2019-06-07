@@ -64,40 +64,64 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     final SetProperty<String> tags = project.objects.setProperty(String)
 
+    /**
+     * When {@code true}, do not use docker cache when building the image.
+     */
     @Input
     @Optional
     final Property<Boolean> noCache = project.objects.property(Boolean)
 
+    /**
+     * When {@code true}, remove intermediate containers after a successful build.
+     */
     @Input
     @Optional
     final Property<Boolean> remove = project.objects.property(Boolean)
 
+    /**
+     * When {@code true}, suppress the build output and print image ID on success.
+     */
     @Input
     @Optional
     final Property<Boolean> quiet = project.objects.property(Boolean)
 
+    /**
+     * When {@code true}, always attempt to pull a newer version of the image.
+     */
     @Input
     @Optional
     final Property<Boolean> pull = project.objects.property(Boolean)
 
+    /**
+     * Labels to attach as metadata for to the image.
+     */
     @Input
     @Optional
     final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
+    /**
+     * Networking mode for the RUN instructions during build.
+     */
     @Input
     @Optional
     final Property<String> network = project.objects.property(String)
 
+    /**
+     * Build-time variables to pass to the image build.
+     */
     @Input
     @Optional
     final MapProperty<String, String> buildArgs = project.objects.mapProperty(String, String)
 
+    /**
+     * Images to consider as cache sources.
+     */
     @Input
     @Optional
     final SetProperty<String> cacheFrom = project.objects.setProperty(String)
 
     /**
-     * Size of <code>/dev/shm</code> in bytes.
+     * Size of {@code /dev/shm} in bytes.
      * The size must be greater than 0.
      * If omitted the system uses 64MB.
      */
@@ -122,7 +146,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     DockerRegistryCredentials registryCredentials
 
     /**
-     * Output file containing the image ID of the built image. 
+     * Output file containing the image ID of the built image.
      * Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
      * If path contains ':' it will be replaced by '_'.
      *
@@ -132,6 +156,9 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @PathSensitive(PathSensitivity.RELATIVE)
     final RegularFileProperty imageIdFile = newOutputFile()
 
+    /**
+     * The id of the image built.
+     */
     @Internal
     final Property<String> imageId = project.objects.property(String)
 
