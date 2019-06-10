@@ -326,7 +326,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                runCommand('pwd')
+                runCommand("echo ${UUID.randomUUID()}")
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -382,7 +382,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
             }
-            
+
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 labels = ['label1':'test1', 'label2':'test2', 'label3':"\$project.name"]
@@ -410,7 +410,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn dockerfile
                 tags = ['test/image:123', "registry.com:5000/test/image:\$project.version"]
             }
-            
+
             task buildImageWithTag(type: DockerBuildImage) {
                 dependsOn dockerfile
                 tags.add('test/image:123')
@@ -521,17 +521,17 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 from '$TEST_IMAGE_WITH_TAG', 'stage3'
                 label(['maintainer': 'stage3'])
             }
-            
+
             task buildTarget(type: DockerBuildImage) {
                 dependsOn dockerfile
                 target = "stage2"
             }
-            
+
             task removeImage(type: DockerRemoveImage) {
                 force = true
                 targetImageId buildTarget.getImageId()
             }
-            
+
             buildTarget.finalizedBy tasks.removeImage
         """
     }
