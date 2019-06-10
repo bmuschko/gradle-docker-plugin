@@ -326,7 +326,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                runCommand('pwd')
+                runCommand("echo ${UUID.randomUUID()}")
             }
 
             task buildImage(type: DockerBuildImage) {
