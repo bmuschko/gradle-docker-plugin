@@ -72,6 +72,42 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         gradleTaskDefinition << [imageCreationWithBuildArgs(), imageCreationWithLabelParameter()]
     }
 
+    def "labels can be excluded from up-to-date check"() {
+        given:
+        buildFile << dockerFile() << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            task buildImage(type: CustomDockerBuildImage) {
+                dependsOn dockerfile
+                labels = ["build-date": "\${getBuildDate()}"]
+            }
+
+            def getBuildDate() {
+                return new Date().format('yyyyMMddHHmmss.SSS')
+            }
+
+            class CustomDockerBuildImage extends DockerBuildImage {
+                @Override
+                @Internal
+                MapProperty<String, String> getLabels() {
+                    super.getLabels()
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('buildImage')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.SUCCESS
+
+        when:
+        result = build('buildImage')
+
+        then:
+        result.task(':buildImage').outcome == TaskOutcome.UP_TO_DATE
+    }
+
     def "can build image with multiple tags"() {
         buildFile << buildImageWithTags()
 
@@ -319,15 +355,21 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
     }
 
-    private static String imageCreation() {
+    private static String dockerFile() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
                 runCommand("echo ${UUID.randomUUID()}")
             }
+        """
+    }
+
+
+    private static String imageCreation() {
+        dockerFile() << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile

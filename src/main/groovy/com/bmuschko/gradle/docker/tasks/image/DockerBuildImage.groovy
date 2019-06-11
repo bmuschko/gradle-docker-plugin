@@ -94,10 +94,29 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     /**
      * Labels to attach as metadata for to the image.
+     * <p>
+     * This property is not final to allow build authors to remove the labels from the up-to-date
+     * check by extending {@code DockerBuildImage} and annotating the overrided {@code getLabels()} method
+     * with {@code @Internal}, example:
+     *
+     * <pre>
+     * import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+     *
+     * class CustomDockerBuildImage extends DockerBuildImage {
+     *     @Override
+     *     @Internal
+     *     MapProperty<String, String> getLabels() {
+     *         super.getLabels()
+     *     }
+     * }
+     * </pre>
+     *
+     * A use case for excluding the labels from the up-to-date check is if build author wants to set build
+     * information as labels (date, version-control-revision).
      */
     @Input
     @Optional
-    final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
+    MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
     /**
      * Networking mode for the RUN instructions during build.
