@@ -4,6 +4,7 @@
 === v4.10.0 (TBA)
 
 * Expose `target` property for BuildImageTask - {uri-github}/pull/813[PR 813]
+* Remove final from DockerBuildImage.labels property - {uri-github}/pull/823[PR 823]
 
 [discrete]
 === v4.9.0 (May 25, 2019)
