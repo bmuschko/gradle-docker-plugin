@@ -74,25 +74,6 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         DockerJavaApplication dockerJavaApplication = configureExtension(project.objects, dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
-            dockerJavaApplication.exec(new Action<DockerJavaApplication.CompositeExecInstruction>() {
-                @Override
-                void execute(DockerJavaApplication.CompositeExecInstruction compositeExecInstruction) {
-                    compositeExecInstruction.entryPoint(project.provider(new Callable<List<String>>() {
-                        @Override
-                        List<String> call() throws Exception {
-                            List<String> entrypoint = ["java"]
-                            List<String> jvmArgs = dockerJavaApplication.jvmArgs.get()
-
-                            if (!jvmArgs.empty) {
-                                entrypoint.addAll(jvmArgs)
-                            }
-
-                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationPluginMainClassName(project)])
-                            entrypoint
-                        }
-                    }))
-                }
-            })
             Dockerfile createDockerfileTask = createDockerfileTask(project, dockerJavaApplication)
             Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
             createDockerfileTask.dependsOn syncBuildContextTask
@@ -142,7 +123,20 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                         }
                     }))
                     copyFile('classes', 'classes/')
-                    instructions.add(dockerJavaApplication.execInstruction)
+                    entryPoint(project.provider(new Callable<List<String>>() {
+                        @Override
+                        List<String> call() throws Exception {
+                            List<String> entrypoint = ["java"]
+                            List<String> jvmArgs = dockerJavaApplication.jvmArgs.get()
+
+                            if (!jvmArgs.empty) {
+                                entrypoint.addAll(jvmArgs)
+                            }
+
+                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationPluginMainClassName(project)])
+                            entrypoint
+                        }
+                    }))
                     exposePort(dockerJavaApplication.ports)
                 }
             }
