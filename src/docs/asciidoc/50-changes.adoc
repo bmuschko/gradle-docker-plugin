@@ -5,6 +5,7 @@
 
 * Expose `target` property for BuildImageTask - {uri-github}/pull/813[PR 813]
 * Remove final from DockerBuildImage.labels property - {uri-github}/pull/823[PR 823]
+* Always set imageId within DockerBuildImage on success - {uri-github}/pull/819[PR 819]
 
 [discrete]
 === v4.9.0 (May 25, 2019)
