@@ -5,6 +5,7 @@ plugins {
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.Instruction
 import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.FromInstruction
+import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.From
 
 // tag::existing-instructions[]
 tasks.create('createDockerfile', Dockerfile) {
@@ -22,7 +23,7 @@ createDockerfile {
     int fromInstructionIndex = originalInstructions
             .findIndexOf { it.keyword == FromInstruction.KEYWORD }
     originalInstructions.remove(fromInstructionIndex)
-    FromInstruction baseImage = new FromInstruction('openjdk:8-alpine')
+    FromInstruction baseImage = new FromInstruction(new From('openjdk:8-alpine'))
     originalInstructions.add(0, baseImage)
     instructions.set(originalInstructions)
 }

@@ -144,8 +144,8 @@ LABEL maintainer=benjamin.muschko@gmail.com
                 environmentVariable 'ENV_VAR_KEY', 'envVarVal'
                 environmentVariable ENV_VAR_A: 'val_a'
                 environmentVariable ENV_VAR_B: 'val_b', ENV_VAR_C: 'val_c'
-                addFile 'http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'
-                copyFile 'http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'
+                addFile new Dockerfile.File('http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war')
+                copyFile new Dockerfile.CopyFile('http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar')
                 entryPoint 'java', '-jar', '/opt/jenkins.war'
                 volume '/jenkins', '/myApp'
                 user 'root'
@@ -190,7 +190,7 @@ LABEL version=1.0
                 exposePort project.provider { [8080, 9090] }
                 environmentVariable project.provider { ['MY': 'value'] }
                 addFile project.provider { new Dockerfile.File('test', '/absoluteDir/') }
-                copyFile project.provider { new Dockerfile.File('test', '/absoluteDir/') }
+                copyFile project.provider { new Dockerfile.CopyFile('test', '/absoluteDir/') }
                 entryPoint project.provider { ['top', '-b'] }
                 volume project.provider { ['/myvol'] }
                 user project.provider { 'patrick' }
@@ -225,7 +225,7 @@ LABEL version=1.0
         given:
         buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                instructions.add(new Dockerfile.FromInstruction('$TEST_IMAGE_WITH_TAG'))
+                instructions.add(new Dockerfile.FromInstruction(new Dockerfile.From('$TEST_IMAGE_WITH_TAG')))
                 instructions.add(new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com']))
             }
         """
@@ -312,11 +312,11 @@ LABEL maintainer=benjamin.muschko@gmail.com
         given:
         buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                from('$TEST_IMAGE_WITH_TAG', 'builder')
+                from(new Dockerfile.From('$TEST_IMAGE_WITH_TAG').withStage('builder'))
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
-                copyFile('http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar')
-                from('$TEST_IMAGE_WITH_TAG', 'prod')
-                copyFile('/opt/h2.jar', '/opt/h2.jar', 'builder')
+                copyFile(new Dockerfile.CopyFile('http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'))
+                from(new Dockerfile.From('$TEST_IMAGE_WITH_TAG').withStage('prod'))
+                copyFile(new Dockerfile.CopyFile('/opt/h2.jar', '/opt/h2.jar').withStage('builder'))
             }
         """
 

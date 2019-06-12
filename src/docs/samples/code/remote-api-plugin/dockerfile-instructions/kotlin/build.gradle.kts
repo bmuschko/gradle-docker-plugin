@@ -4,6 +4,7 @@ plugins {
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile.FromInstruction
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile.From
 
 // tag::existing-instructions[]
 tasks.create("createDockerfile", Dockerfile::class) {
@@ -22,7 +23,7 @@ tasks {
         val fromInstructionIndex = originalInstructions
                 .indexOfFirst { item -> item.keyword == FromInstruction.KEYWORD }
         originalInstructions.removeAt(fromInstructionIndex)
-        val baseImage = FromInstruction("openjdk:8-alpine")
+        val baseImage = FromInstruction(From("openjdk:8-alpine"))
         originalInstructions.add(0, baseImage)
         instructions.set(originalInstructions)
     }

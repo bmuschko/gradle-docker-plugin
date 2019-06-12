@@ -18,7 +18,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
-                addFile('./aaa', 'aaa')
+                addFile(new Dockerfile.File('./aaa', 'aaa'))
             }
 
             task buildImage(type: DockerBuildImage) {
@@ -572,13 +572,13 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task dockerfile(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG', 'stage1'
+                from(new Dockerfile.From('$TEST_IMAGE_WITH_TAG').withStage('stage1'))
                 label(['maintainer': 'stage1'])
 
-                from '$TEST_IMAGE_WITH_TAG', 'stage2'
+                from(new Dockerfile.From('$TEST_IMAGE_WITH_TAG').withStage('stage2'))
                 label(['maintainer': 'stage2'])
 
-                from '$TEST_IMAGE_WITH_TAG', 'stage3'
+                from(new Dockerfile.From('$TEST_IMAGE_WITH_TAG').withStage('stage3'))
                 label(['maintainer': 'stage3'])
             }
 
