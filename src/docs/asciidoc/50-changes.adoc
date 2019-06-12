@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v5.0.0 (TBA)
+
+* **Breaking Change!** Remove exec/cmd hooks in Docker application plugin - {uri-github}/pull/806[PR 806]
+
+[discrete]
 === v4.10.0 (June 12, 2019)
 
 * Expose `target` property for BuildImageTask - {uri-github}/pull/813[PR 813]
