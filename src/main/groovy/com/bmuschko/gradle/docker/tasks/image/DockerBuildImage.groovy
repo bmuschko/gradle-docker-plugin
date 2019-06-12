@@ -18,7 +18,9 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.bmuschko.gradle.docker.utils.OutputCollector
 import com.github.dockerjava.api.command.BuildImageCmd
+import com.github.dockerjava.api.exception.DockerException
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.api.model.BuildResponseItem
@@ -33,6 +35,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 
@@ -61,40 +64,83 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Optional
     final SetProperty<String> tags = project.objects.setProperty(String)
 
+    /**
+     * When {@code true}, do not use docker cache when building the image.
+     */
     @Input
     @Optional
     final Property<Boolean> noCache = project.objects.property(Boolean)
 
+    /**
+     * When {@code true}, remove intermediate containers after a successful build.
+     */
     @Input
     @Optional
     final Property<Boolean> remove = project.objects.property(Boolean)
 
+    /**
+     * When {@code true}, suppress the build output and print image ID on success.
+     */
     @Input
     @Optional
     final Property<Boolean> quiet = project.objects.property(Boolean)
 
+    /**
+     * When {@code true}, always attempt to pull a newer version of the image.
+     */
     @Input
     @Optional
     final Property<Boolean> pull = project.objects.property(Boolean)
 
+    /**
+     * Labels to attach as metadata for to the image.
+     * <p>
+     * This property is not final to allow build authors to remove the labels from the up-to-date
+     * check by extending {@code DockerBuildImage} and annotating the overrided {@code getLabels()} method
+     * with {@code @Internal}, example:
+     *
+     * <pre>
+     * import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+     *
+     * class CustomDockerBuildImage extends DockerBuildImage {
+     *     @Override
+     *     @Internal
+     *     MapProperty<String, String> getLabels() {
+     *         super.getLabels()
+     *     }
+     * }
+     * </pre>
+     *
+     * A use case for excluding the labels from the up-to-date check is if build author wants to set build
+     * information as labels (date, version-control-revision).
+     */
     @Input
     @Optional
-    final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
+    MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
+    /**
+     * Networking mode for the RUN instructions during build.
+     */
     @Input
     @Optional
     final Property<String> network = project.objects.property(String)
 
+    /**
+     * Build-time variables to pass to the image build.
+     */
     @Input
     @Optional
     final MapProperty<String, String> buildArgs = project.objects.mapProperty(String, String)
 
+    /**
+     * Images to consider as cache sources.
+     */
     @Input
     @Optional
     final SetProperty<String> cacheFrom = project.objects.setProperty(String)
 
     /**
-     * Size of <code>/dev/shm</code> in bytes.
+     * Size of {@code /dev/shm} in bytes.
      * The size must be greater than 0.
      * If omitted the system uses 64MB.
      */
@@ -103,10 +149,35 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final Property<Long> shmSize = project.objects.property(Long)
 
     /**
+     * With this parameter it is possible to build a special stage in a multi-stage Docker file.
+     * <p>
+     * This feature is only available for use with Docker 17.05 and higher.
+     *
+     * @since 4.10.0
+     */
+    @Input
+    @Optional
+    final Property<String> target = project.objects.property(String)
+
+    /**
      * {@inheritDoc}
      */
     DockerRegistryCredentials registryCredentials
 
+    /**
+     * Output file containing the image ID of the built image.
+     * Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
+     * If path contains ':' it will be replaced by '_'.
+     *
+     * @since 4.9.0
+     */
+    @OutputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty imageIdFile = newOutputFile()
+
+    /**
+     * The id of the image built.
+     */
     @Internal
     final Property<String> imageId = project.objects.property(String)
 
@@ -118,6 +189,23 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         quiet.set(false)
         pull.set(false)
         cacheFrom.empty()
+        String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
+        imageIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
+
+        outputs.upToDateWhen {
+            File file = imageIdFile.get().asFile
+            if(file.exists()) {
+                try {
+                    def fileImageId = file.text
+                    getDockerClient().inspectImageCmd(fileImageId).exec()
+                    imageId.set(fileImageId)
+                    return true
+                } catch (DockerException e) {
+                    return false
+                }
+            }
+            return false
+        }
     }
 
     @Override
@@ -168,6 +256,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withShmsize(shmSize.get())
         }
 
+        if(target.getOrNull() != null) {
+            buildImageCmd.withTarget(target.get())
+        }
+
         if (registryCredentials) {
             AuthConfig authConfig = new AuthConfig()
             authConfig.registryAddress = registryCredentials.url.get()
@@ -201,6 +293,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         String createdImageId = buildImageCmd.exec(createCallback()).awaitImageId()
         imageId.set(createdImageId)
+        imageIdFile.get().asFile.text = createdImageId
         logger.quiet "Created image with ID '$createdImageId'."
     }
 
@@ -221,18 +314,27 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         new BuildImageResultCallback() {
+
+            def collector = new OutputCollector({ s -> logger.quiet(s) })
+
             @Override
             void onNext(BuildResponseItem item) {
                 try {
                     def possibleStream = item.stream
                     if (possibleStream) {
-                        logger.quiet(possibleStream.trim())
+                        collector.accept(possibleStream)
                     }
                 } catch(Exception e) {
                     logger.error('Failed to handle build response', e)
                     return
                 }
                 super.onNext(item)
+            }
+
+            @Override
+            void close() throws IOException {
+                collector.close()
+                super.close()
             }
         }
     }
