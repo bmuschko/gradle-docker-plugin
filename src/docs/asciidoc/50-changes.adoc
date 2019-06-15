@@ -4,7 +4,7 @@
 === v5.0.0 (TBA)
 
 * **Breaking Change!** Remove exec/cmd hooks in Docker application plugin - {uri-github}/pull/806[PR 806]
-* API cleanup of Dockerfile task - {uri-github}/pull/812[PR 812]
+* **Breaking Change!** API cleanup of Dockerfile task - {uri-github}/pull/812[PR 812]
 
 [discrete]
 === v4.10.0 (June 12, 2019)
