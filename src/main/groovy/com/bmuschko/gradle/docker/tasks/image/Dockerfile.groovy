@@ -1073,7 +1073,7 @@ class Dockerfile extends DefaultTask {
         }
     }
 
-    private class ItemJoinerUtil {
+    private static class ItemJoinerUtil {
         private static boolean isUnquotedStringWithWhitespaces(String str) {
             return !str.matches('["].*["]') &&
                 str.matches('.*(?: |(?:\r?\n)).*')
