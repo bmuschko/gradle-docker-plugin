@@ -111,7 +111,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         when:
         ExtensionAware dockerExtension = (ExtensionAware) project.extensions.getByType(DockerExtension)
         DockerJavaApplication dockerJavaApplicationExtension = dockerExtension.extensions.getByType(DockerJavaApplication)
-        dockerJavaApplicationExtension.tag.set("some-test-tag")
+        dockerJavaApplicationExtension.tags.set(["some-test-tag"])
 
         then:
         DockerBuildImage task = project
@@ -128,13 +128,30 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         applyDockerJavaApplicationPluginAndApplicationPlugin(project)
         when:
         project.docker.javaApplication {
-            tag.set(testTagName)
+            tags.set([testTagName])
         }
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
         Set<String> tags = task.tags.get()
         tags.size() == 1
         tags.first() == testTagName
+    }
+
+    def "Can configure the dockerJava.javaApplication extension dynamically and set multiple tags"() {
+        given:
+        String testTagName1 = "some-test-tag"
+        String testTagName2 = "another-test-tag"
+        applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+        when:
+        project.docker.javaApplication {
+            tags.set([testTagName1, testTagName2])
+        }
+        then:
+        DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
+        Set<String> tags = task.tags.get()
+        tags.size() == 2
+        tags.contains(testTagName1)
+        tags.contains(testTagName2)
     }
 
     private void applyDockerJavaApplicationPluginWithoutApplicationPlugin(Project project) {

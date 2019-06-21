@@ -64,11 +64,11 @@ class DockerJavaApplication {
     final ListProperty<Integer> ports
 
     /**
-     * The tag used for the Docker image.
+     * The tags used for the Docker image.
      * <p>
-     * Defaults to {@code <project.group>/<applicationName>:<project.version>}.
+     * Defaults to {@code [<project.group>/<applicationName>:<project.version>]}.
      */
-    final Property<String> tag
+    final ListProperty<String> tags
 
     /**
      * The JVM arguments used to start the Java program.
@@ -86,7 +86,7 @@ class DockerJavaApplication {
         maintainer.set(System.getProperty('user.name'))
         ports = objectFactory.listProperty(Integer)
         ports.set([8080])
-        tag = objectFactory.property(String)
+        tags = objectFactory.listProperty(String)
         jvmArgs = objectFactory.listProperty(String).empty()
     }
 }

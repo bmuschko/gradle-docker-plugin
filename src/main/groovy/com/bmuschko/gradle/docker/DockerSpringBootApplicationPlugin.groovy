@@ -159,23 +159,23 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Builds the Docker image for the Spring Boot application.'
                     dependsOn createDockerfileTask
-                    tags.add(determineImageTag(project, dockerSpringBootApplication))
+                    tags.addAll(determineImageTags(project, dockerSpringBootApplication))
                 }
             }
         })
     }
 
-    private static Provider<String> determineImageTag(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
-        project.provider(new Callable<String>() {
+    private static Provider<List<String>> determineImageTags(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
+        project.provider(new Callable<List<String>>() {
             @Override
-            String call() throws Exception {
-                if (dockerSpringBootApplication.tag.getOrNull()) {
-                    return dockerSpringBootApplication.tag.get()
+            List<String> call() throws Exception {
+                if (dockerSpringBootApplication.tags.getOrNull()) {
+                    return dockerSpringBootApplication.tags.get()
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
                 String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
-                project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+                [project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion]
             }
         })
     }

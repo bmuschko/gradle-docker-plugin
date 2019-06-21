@@ -167,23 +167,23 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Builds the Docker image for the Java application.'
                     dependsOn createDockerfileTask
-                    tags.add(determineImageTag(project, dockerJavaApplication))
+                    tags.addAll(determineImageTag(project, dockerJavaApplication))
                 }
             }
         })
     }
 
-    private static Provider<String> determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
-        project.provider(new Callable<String>() {
+    private static Provider<List<String>> determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
+        project.provider(new Callable<List<String>>() {
             @Override
-            String call() throws Exception {
-                if (dockerJavaApplication.tag.getOrNull()) {
-                    return dockerJavaApplication.tag.get()
+            List<String> call() throws Exception {
+                if (dockerJavaApplication.tags.getOrNull()) {
+                    return dockerJavaApplication.tags.get()
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-                String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
-                project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+                String artifactAndVersion = "${applicationName}:${tagVersion}".toLowerCase().toString()
+                [project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion]
             }
         })
     }
