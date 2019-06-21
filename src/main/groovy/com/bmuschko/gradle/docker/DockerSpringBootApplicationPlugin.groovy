@@ -169,6 +169,9 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         project.provider(new Callable<List<String>>() {
             @Override
             List<String> call() throws Exception {
+                if (dockerSpringBootApplication.tag.getOrNull()) {
+                    return [dockerSpringBootApplication.tag.get()]
+                }
                 if (dockerSpringBootApplication.tags.getOrNull()) {
                     return dockerSpringBootApplication.tags.get()
                 }

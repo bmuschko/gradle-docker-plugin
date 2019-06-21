@@ -52,6 +52,15 @@ class DockerSpringBootApplication {
     final ListProperty<Integer> ports
 
     /**
+     * The tag used for the Docker image.
+     * <p>
+     * Defaults to {@code <project.group>/<applicationName>:<project.version>}.
+     * @deprecated use {@link #tags}
+     */
+    @Deprecated
+    final Property<String> tag
+
+    /**
      * The tags used for the Docker image.
      * <p>
      * Defaults to {@code [<project.group>/<applicationName>:<project.version>]}.
@@ -74,6 +83,7 @@ class DockerSpringBootApplication {
         maintainer.set(System.getProperty('user.name'))
         ports = objectFactory.listProperty(Integer)
         ports.set([8080])
+        tag = objectFactory.property(String)
         tags = objectFactory.listProperty(String)
         jvmArgs = objectFactory.listProperty(String).empty()
     }

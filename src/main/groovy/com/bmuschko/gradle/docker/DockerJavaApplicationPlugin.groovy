@@ -167,16 +167,21 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Builds the Docker image for the Java application.'
                     dependsOn createDockerfileTask
-                    tags.addAll(determineImageTag(project, dockerJavaApplication))
+                    tags.addAll(determineImageTags(project, dockerJavaApplication))
                 }
             }
         })
     }
 
-    private static Provider<List<String>> determineImageTag(Project project, DockerJavaApplication dockerJavaApplication) {
+    private static Provider<List<String>> determineImageTags(Project project, DockerJavaApplication dockerJavaApplication) {
         project.provider(new Callable<List<String>>() {
             @Override
             List<String> call() throws Exception {
+                // To preserve backwards compatibility, if `tag` is set,
+                // use that instead of tags
+                if (dockerJavaApplication.tag.getOrNull()) {
+                    return [dockerJavaApplication.tag.get()]
+                }
                 if (dockerJavaApplication.tags.getOrNull()) {
                     return dockerJavaApplication.tags.get()
                 }
