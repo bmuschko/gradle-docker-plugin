@@ -47,14 +47,14 @@ class DockerfileTest extends Specification {
         new DefaultCommandInstruction('ping google.com')                     | 'CMD'           | 'CMD ["ping google.com"]'
         new ExposePortInstruction(8080)                                          | 'EXPOSE'        | 'EXPOSE 8080'
         new ExposePortInstruction(8080, 9090)                                    | 'EXPOSE'        | 'EXPOSE 8080 9090'
-        new EnvironmentVariableInstruction('OS', 'Linux')                               | 'ENV'           | 'ENV OS Linux'
+        new EnvironmentVariableInstruction('OS', 'Linux')                               | 'ENV'           | 'ENV OS=Linux'
         new EnvironmentVariableInstruction('', 'Linux')                                 | 'ENV'           | IllegalArgumentException.class
         new EnvironmentVariableInstruction(' ', 'Linux')                                | 'ENV'           | IllegalArgumentException.class
-        new EnvironmentVariableInstruction('OS', '"Linux"')                             | 'ENV'           | 'ENV OS "Linux"'
-        new EnvironmentVariableInstruction('OS', 'Linux or Windows')                    | 'ENV'           | 'ENV OS Linux or Windows'
+        new EnvironmentVariableInstruction('OS', '"Linux"')                             | 'ENV'           | 'ENV OS="Linux"'
+        new EnvironmentVariableInstruction('OS', 'Linux or Windows')                    | 'ENV'           | 'ENV OS="Linux or Windows"'
         new EnvironmentVariableInstruction('long', '''Multiple line env 
-with linebreaks in between''')                                                          | 'ENV'           | "ENV long Multiple line env \\\n\
-with linebreaks in between"
+with linebreaks in between''')                                                          | 'ENV'           | "ENV long=\"Multiple line env \\\n\
+with linebreaks in between\""
         new EnvironmentVariableInstruction(['OS': 'Linux'])                             | 'ENV'           | 'ENV OS=Linux'
         new EnvironmentVariableInstruction(['long': '''Multiple line env 
 with linebreaks in between'''])                                                         | 'ENV'           | "ENV long=\"Multiple line env \\\n\

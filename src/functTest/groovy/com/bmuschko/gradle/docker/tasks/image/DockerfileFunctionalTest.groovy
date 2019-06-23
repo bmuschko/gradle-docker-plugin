@@ -165,7 +165,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
 CMD ["echo", "some", "command"]
 EXPOSE 8080 14500
-ENV ENV_VAR_KEY envVarVal
+ENV ENV_VAR_KEY=envVarVal
 ENV ENV_VAR_A=val_a
 ENV ENV_VAR_B=val_b ENV_VAR_C=val_c
 ADD http://mirrors.jenkins-ci.org/war/1.563/jenkins.war /opt/jenkins.war
