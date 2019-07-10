@@ -173,7 +173,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
      */
     @OutputFile
     @PathSensitive(PathSensitivity.RELATIVE)
-    final RegularFileProperty imageIdFile = newOutputFile()
+    final RegularFileProperty imageIdFile = project.objects.fileProperty()
 
     /**
      * The id of the image built.
