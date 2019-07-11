@@ -1043,11 +1043,11 @@ class Dockerfile extends DefaultTask {
         }
     }
 
-    interface ItemJoiner {
+    private interface ItemJoiner {
         String join(Map<String, String> map)
     }
 
-    static class MultiItemJoiner implements ItemJoiner {
+    private static class MultiItemJoiner implements ItemJoiner {
         @Override
         @CompileStatic(TypeCheckingMode.SKIP)
         String join(Map<String, String> map) {
@@ -1057,19 +1057,6 @@ class Dockerfile extends DefaultTask {
                 value = value.replaceAll("(\r)*\n", "\\\\\n")
                 result << "$key=$value"
             }.join(' ')
-        }
-    }
-
-    static class SingleItemJoiner implements ItemJoiner {
-        @Override
-        @CompileStatic(TypeCheckingMode.SKIP)
-        String join(Map<String, String> map) {
-            map.inject([]) { result, entry ->
-                def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
-                // preserve multiline value in a single item key value instruction but ignore any other whitespaces or quotings
-                def value = entry.value.replaceAll("(\r)*\n", "\\\\\n")
-                result << "$key $value"
-            }.join('')
         }
     }
 
@@ -1092,13 +1079,9 @@ class Dockerfile extends DefaultTask {
         private final Provider<Map<String, String>> commandProvider
         private final ItemJoiner joiner
 
-        MapInstruction(Map<String, String> command, ItemJoiner joiner) {
-            this.command = command
-            this.joiner = joiner
-        }
-
         MapInstruction(Map<String, String> command) {
-            this(command, new MultiItemJoiner())
+            this.command = command
+            this.joiner = new MultiItemJoiner()
         }
 
         MapInstruction(Provider<Map<String, String>> commandProvider) {
@@ -1341,7 +1324,7 @@ class Dockerfile extends DefaultTask {
      */
     static class EnvironmentVariableInstruction extends MapInstruction {
         EnvironmentVariableInstruction(String key, String value) {
-            super([(key): value], new SingleItemJoiner())
+            super([(key): value])
         }
 
         EnvironmentVariableInstruction(Map envVars) {
