@@ -20,7 +20,6 @@ import com.bmuschko.gradle.docker.domain.LivenessProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 import com.github.dockerjava.api.command.InspectContainerResponse
 import org.gradle.api.GradleException
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
@@ -40,7 +39,6 @@ class DockerLivenessContainer extends DockerLogsContainer {
 
     // last call to inspect container which will only
     // be non-null once task has completed execution.
-    @Internal
     private InspectContainerResponse lastInspection
 
     @Override
