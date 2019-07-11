@@ -31,8 +31,6 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
 import javax.annotation.Nullable
@@ -54,7 +52,6 @@ class Dockerfile extends DefaultTask {
      * The method {@link #getDestDir()} returns the parent directory of the Dockerfile.
      */
     @OutputFile
-    @PathSensitive(PathSensitivity.RELATIVE)
     final RegularFileProperty destFile
 
     Dockerfile() {
