@@ -46,7 +46,7 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         BuildResult result = buildAndFail(COMMIT_TASK_NAME)
 
         then:
-        result.output.contains('{"message":"No such container: idonotexist"}')
+        result.output.contains('No such container: idonotexist')
     }
 
     static String containerStart(containerCommitImageExecutionTask) {
@@ -74,9 +74,9 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
-            
+
             ${containerCommitImageExecutionTask}
-            
+
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
