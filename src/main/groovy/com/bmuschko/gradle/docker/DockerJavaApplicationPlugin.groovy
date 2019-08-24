@@ -29,7 +29,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
-
+import org.gradle.api.tasks.TaskProvider
 import java.util.concurrent.Callable
 
 import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.*
@@ -74,11 +74,10 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         DockerJavaApplication dockerJavaApplication = configureExtension(project.objects, dockerExtension)
 
         project.plugins.withType(ApplicationPlugin) {
-            Dockerfile createDockerfileTask = createDockerfileTask(project, dockerJavaApplication)
-            Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
-            createDockerfileTask.dependsOn syncBuildContextTask
-            DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerJavaApplication)
-            createPushImageTask(project, dockerBuildImageTask)
+            TaskProvider<Dockerfile> createDockerfileTaskProvider = registerDockerfileTask(project, dockerJavaApplication)
+            registerSyncBuildContextTask(project, createDockerfileTaskProvider)
+            TaskProvider<DockerBuildImage> dockerBuildImageTaskProvider = registerBuildImageTask(project, createDockerfileTaskProvider, dockerJavaApplication)
+            registerPushImageTask(project, dockerBuildImageTaskProvider)
         }
     }
 
@@ -86,13 +85,14 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         ((ExtensionAware) dockerExtension).extensions.create(JAVA_APPLICATION_EXTENSION_NAME, DockerJavaApplication, objectFactory)
     }
 
-    private static Dockerfile createDockerfileTask(Project project, DockerJavaApplication dockerJavaApplication) {
-        project.tasks.create(DOCKERFILE_TASK_NAME, Dockerfile, new Action<Dockerfile>() {
+    private static TaskProvider<Dockerfile> registerDockerfileTask(Project project, DockerJavaApplication dockerJavaApplication) {
+        project.tasks.register(DOCKERFILE_TASK_NAME, Dockerfile, new Action<Dockerfile>() {
             @Override
             void execute(Dockerfile dockerfile) {
                 dockerfile.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Creates the Docker image for the Java application.'
+                    dependsOn project.tasks.getByName(SYNC_BUILD_CONTEXT_TASK_NAME)
                     from(project.provider(new Callable<Dockerfile.From>() {
                         @Override
                         Dockerfile.From call() throws Exception {
@@ -143,29 +143,29 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         })
     }
 
-    private static Sync createSyncBuildContextTask(Project project, Dockerfile createDockerfileTask) {
-        project.tasks.create(SYNC_BUILD_CONTEXT_TASK_NAME, Sync, new Action<Sync>() {
+    private static TaskProvider<Sync> registerSyncBuildContextTask(Project project, TaskProvider<Dockerfile> createDockerfileTaskProvider) {
+        project.tasks.register(SYNC_BUILD_CONTEXT_TASK_NAME, Sync, new Action<Sync>() {
             @Override
             void execute(Sync sync) {
                 sync.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = "Copies the distribution resources to a temporary directory for image creation."
                     dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
-                    into(createDockerfileTask.destDir)
+                    into(createDockerfileTaskProvider.get().destDir)
                     with(createAppFilesCopySpec(project))
                 }
             }
         })
     }
 
-    private static DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerJavaApplication dockerJavaApplication) {
-        project.tasks.create(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
+    private static TaskProvider<DockerBuildImage> registerBuildImageTask(Project project, TaskProvider<Dockerfile> createDockerfileTaskProvider, DockerJavaApplication dockerJavaApplication) {
+        project.tasks.register(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
             @Override
             void execute(DockerBuildImage dockerBuildImage) {
                 dockerBuildImage.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Builds the Docker image for the Java application.'
-                    dependsOn createDockerfileTask
+                    dependsOn createDockerfileTaskProvider
                     tags.add(determineImageTag(project, dockerJavaApplication))
                 }
             }
@@ -188,15 +188,15 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         })
     }
 
-    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
-        project.tasks.create(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
+    private static void registerPushImageTask(Project project, TaskProvider<DockerBuildImage> dockerBuildImageTask) {
+        project.tasks.register(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
             @Override
             void execute(DockerPushImage pushImage) {
                 pushImage.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    imageName.set(dockerBuildImageTask.getTags().map(new Transformer<String, Set<String>>() {
+                    imageName.set(dockerBuildImageTask.get().getTags().map(new Transformer<String, Set<String>>() {
                         @Override
                         String transform(Set<String> tags) {
                             tags.first()

@@ -14,6 +14,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
+import org.gradle.api.tasks.TaskProvider
 
 import java.util.concurrent.Callable
 
@@ -66,11 +67,10 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
 
         project.plugins.withType(JavaPlugin) {
             project.plugins.withId(SPRING_BOOT_PLUGIN_ID) {
-                Dockerfile createDockerfileTask = createDockerfileTask(project, dockerSpringBootApplication)
-                Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
-                createDockerfileTask.dependsOn syncBuildContextTask
-                DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerSpringBootApplication)
-                createPushImageTask(project, dockerBuildImageTask)
+                TaskProvider<Dockerfile> createDockerfileTaskProvider = registerDockerfileTask(project, dockerSpringBootApplication)
+                registerSyncBuildContextTask(project, createDockerfileTaskProvider)
+                TaskProvider<DockerBuildImage> dockerBuildImageTaskProvider = registerBuildImageTask(project, createDockerfileTaskProvider, dockerSpringBootApplication)
+                registerPushImageTask(project, dockerBuildImageTaskProvider)
             }
         }
     }
@@ -79,28 +79,29 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         ((ExtensionAware) dockerExtension).extensions.create(SPRING_BOOT_APPLICATION_EXTENSION_NAME, DockerSpringBootApplication, objectFactory)
     }
 
-    private static Sync createSyncBuildContextTask(Project project, Dockerfile createDockerfileTask) {
-        project.tasks.create(SYNC_BUILD_CONTEXT_TASK_NAME, Sync, new Action<Sync>() {
+    private static TaskProvider<Sync> registerSyncBuildContextTask(Project project, TaskProvider<Dockerfile> createDockerfileTaskProvider) {
+        project.tasks.register(SYNC_BUILD_CONTEXT_TASK_NAME, Sync, new Action<Sync>() {
             @Override
             void execute(Sync sync) {
                 sync.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = "Copies the distribution resources to a temporary directory for image creation."
                     dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
-                    into(createDockerfileTask.destDir)
+                    into(createDockerfileTaskProvider.get().destDir)
                     with(createAppFilesCopySpec(project))
                 }
             }
         })
     }
 
-    private static Dockerfile createDockerfileTask(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
-        project.tasks.create(DOCKERFILE_TASK_NAME, Dockerfile, new Action<Dockerfile>() {
+    private static TaskProvider<Dockerfile> registerDockerfileTask(Project project, DockerSpringBootApplication dockerSpringBootApplication) {
+        project.tasks.register(DOCKERFILE_TASK_NAME, Dockerfile, new Action<Dockerfile>() {
             @Override
             void execute(Dockerfile dockerfile) {
                 dockerfile.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Creates the Docker image for the Spring Boot application.'
+                    dependsOn project.tasks.getByName(SYNC_BUILD_CONTEXT_TASK_NAME)
                     from(project.provider(new Callable<Dockerfile.From>() {
                         @Override
                         Dockerfile.From call() throws Exception {
@@ -151,8 +152,8 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         })
     }
 
-    private static DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, DockerSpringBootApplication dockerSpringBootApplication) {
-        project.tasks.create(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
+    private static TaskProvider<DockerBuildImage> registerBuildImageTask(Project project, TaskProvider<Dockerfile> createDockerfileTask, DockerSpringBootApplication dockerSpringBootApplication) {
+        project.tasks.register(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
             @Override
             void execute(DockerBuildImage dockerBuildImage) {
                 dockerBuildImage.with {
@@ -180,15 +181,15 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         })
     }
 
-    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
-        project.tasks.create(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
+    private static void registerPushImageTask(Project project, TaskProvider<DockerBuildImage> dockerBuildImageTaskProvider) {
+        project.tasks.register(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
             @Override
             void execute(DockerPushImage dockerPushImage) {
                 dockerPushImage.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
-                    dependsOn dockerBuildImageTask
-                    imageName.set(dockerBuildImageTask.getTags().map(new Transformer<String, Set<String>>() {
+                    dependsOn dockerBuildImageTaskProvider
+                    imageName.set(dockerBuildImageTaskProvider.get().getTags().map(new Transformer<String, Set<String>>() {
                         @Override
                         String transform(Set<String> tags) {
                             tags.first()

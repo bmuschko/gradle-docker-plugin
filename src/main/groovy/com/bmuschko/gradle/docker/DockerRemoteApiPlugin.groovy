@@ -48,7 +48,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureRegistryAwareTasks(Project project, DockerRegistryCredentials dockerRegistryCredentials) {
-        project.tasks.withType(RegistryCredentialsAware, new Action<RegistryCredentialsAware>() {
+        project.tasks.withType(RegistryCredentialsAware).configureEach( new Action<RegistryCredentialsAware>() {
             @Override
             void execute(RegistryCredentialsAware registryCredentialsAware) {
                 registryCredentialsAware.setRegistryCredentials(dockerRegistryCredentials)
