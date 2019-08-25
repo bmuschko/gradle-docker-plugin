@@ -141,7 +141,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                                 entrypoint.addAll(jvmArgs)
                             }
 
-                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getSpringApplicationMainClassName(project)])
+                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationMainClassName(project)])
                             entrypoint
                         }
                     }))
@@ -199,7 +199,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         })
     }
 
-    private static String getSpringApplicationMainClassName(Project project) {
+    private static String getApplicationMainClassName(Project project) {
         for (File classesDir : getMainJavaSourceSetOutput(project).classesDirs) {
             String mainClassName = MainClassFinder.findSingleMainClass(classesDir, SPRING_BOOT_APP_ANNOTATION)
 

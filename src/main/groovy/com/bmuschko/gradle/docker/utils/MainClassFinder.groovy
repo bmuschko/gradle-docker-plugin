@@ -18,6 +18,10 @@ class MainClassFinder {
     private static final Type STRING_ARRAY_TYPE = Type.getType(String[].class)
     private static final Type MAIN_METHOD_TYPE = Type.getMethodType(Type.VOID_TYPE, STRING_ARRAY_TYPE)
 
+    static String findSingleMainClass(File rootFolder) throws IOException {
+        findSingleMainClass(rootFolder, null)
+    }
+
     static String findSingleMainClass(File rootFolder, String annotationName) throws IOException {
         SingleMainClassCallback callback = new SingleMainClassCallback(annotationName)
         MainClassFinder.doWithMainClasses(rootFolder, callback)

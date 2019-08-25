@@ -20,6 +20,18 @@ class MainClassFinderTest extends Specification {
         testJarFile = new TestJarFile(temporaryFolder)
     }
 
+    def "can find main class without annotation"() {
+        given:
+        testJarFile.addClass('a/B.class', ClassWithMainMethod)
+        testJarFile.addClass('a/b/c/E.class', ClassWithoutMainMethod)
+
+        when:
+        String mainClass = MainClassFinder.findSingleMainClass(testJarFile.getJarSource())
+
+        then:
+        mainClass == 'a.B'
+    }
+
     def "can find annotated main class"() {
         given:
         testJarFile.addClass('a/B.class', ClassWithMainMethod)
