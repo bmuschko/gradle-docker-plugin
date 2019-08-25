@@ -156,8 +156,6 @@ ADD file2.txt /other/dir/file2.txt
         given:
         DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
         buildFile << """
-            applicationName = 'javaapp'
-
             docker {
                 registryCredentials {
                     username = '$credentials.username'
@@ -185,8 +183,6 @@ ADD file2.txt /other/dir/file2.txt
     def "Can create image for Java application and push to private registry"() {
         given:
         buildFile << """
-            applicationName = 'javaapp'
-
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
@@ -218,7 +214,6 @@ ADD file2.txt /other/dir/file2.txt
     private void writeBasicSetupToBuildFile() {
         buildFile << """
             apply plugin: 'java'
-            apply plugin: 'application'
             apply plugin: com.bmuschko.gradle.docker.DockerJavaApplicationPlugin
 
             version = '1.0'
@@ -231,8 +226,6 @@ ADD file2.txt /other/dir/file2.txt
             dependencies {
                 compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
             }
-
-            mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
         """
     }
 
