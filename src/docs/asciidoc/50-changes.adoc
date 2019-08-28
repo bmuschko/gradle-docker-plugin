@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v5.1.0 (TBA)
+
+* **Potentially Breaking Change!** https://github.com/bmuschko/gradle-docker-plugin/pull/852 - {uri-github}/pull/852[PR 852]
+
+[discrete]
 === v5.0.0 (August 13, 2019)
 
 * **Breaking Change!** Remove exec/cmd hooks in Docker application plugin - {uri-github}/pull/806[PR 806]
