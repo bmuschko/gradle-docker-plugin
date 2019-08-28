@@ -18,13 +18,13 @@ package com.bmuschko.gradle.docker
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.utils.MainClassFinder
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Transformer
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
@@ -32,7 +32,8 @@ import org.gradle.api.tasks.Sync
 
 import java.util.concurrent.Callable
 
-import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.*
+import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.createAppFilesCopySpec
+import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getMainJavaSourceSetOutput
 
 /**
  * Opinionated Gradle plugin for creating and pushing a Docker image for a Java application.
@@ -73,7 +74,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
         DockerExtension dockerExtension = project.extensions.getByType(DockerExtension)
         DockerJavaApplication dockerJavaApplication = configureExtension(project.objects, dockerExtension)
 
-        project.plugins.withType(ApplicationPlugin) {
+        project.plugins.withType(JavaPlugin) {
             Dockerfile createDockerfileTask = createDockerfileTask(project, dockerJavaApplication)
             Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
             createDockerfileTask.dependsOn syncBuildContextTask
@@ -133,7 +134,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                                 entrypoint.addAll(jvmArgs)
                             }
 
-                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationPluginMainClassName(project)])
+                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationMainClassName(project)])
                             entrypoint
                         }
                     }))
@@ -181,8 +182,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-                final String applicationName = getApplicationPluginName(project)
-                String artifactAndVersion = "${applicationName}:${tagVersion}".toLowerCase().toString()
+                String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
                 project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
             }
         })
@@ -205,5 +205,17 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 }
             }
         })
+    }
+
+    private static String getApplicationMainClassName(Project project) {
+        for (File classesDir : getMainJavaSourceSetOutput(project).classesDirs) {
+            String mainClassName = MainClassFinder.findSingleMainClass(classesDir)
+
+            if (mainClassName) {
+                return mainClassName
+            }
+        }
+
+        throw new IllegalStateException('Main class name could not be resolved')
     }
 }
