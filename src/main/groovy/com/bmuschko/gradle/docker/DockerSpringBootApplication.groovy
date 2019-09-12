@@ -55,7 +55,7 @@ class DockerSpringBootApplication {
      * The tag used for the Docker image.
      * <p>
      * Defaults to {@code <project.group>/<applicationName>:<project.version>}.
-     * @deprecated use {@link #tags}
+     * @deprecated use {@link #tags} - will be removed in 6.0.0
      */
     @Deprecated
     final Property<String> tag
@@ -66,6 +66,16 @@ class DockerSpringBootApplication {
      * Defaults to {@code [<project.group>/<applicationName>:<project.version>]}.
      */
     final ListProperty<String> tags
+
+    /**
+     * Tags that will be used for building the Docker image, but will not be pushed to the repo.
+     * In order for these tags to be built, they should be specified in the {@link #tags} property.
+     * e.g. for rapid local development, "busybox:latest" would be useful, but becomes confusing when
+     * pushed to a remote repo
+     * <p>
+     * Defaults to {@code []}
+     */
+    final ListProperty<String> localOnlyTags
 
     /**
      * The JVM arguments used to start the Java program.
@@ -85,6 +95,7 @@ class DockerSpringBootApplication {
         ports.set([8080])
         tag = objectFactory.property(String)
         tags = objectFactory.listProperty(String)
+        localOnlyTags = objectFactory.listProperty(String).empty()
         jvmArgs = objectFactory.listProperty(String).empty()
     }
 }

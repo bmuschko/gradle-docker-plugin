@@ -15,12 +15,10 @@
  */
 package com.bmuschko.gradle.docker
 
-
 import groovy.transform.CompileStatic
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-
 /**
  * The extension for configuring a Java application via the {@link DockerJavaApplicationPlugin}.
  * <p>
@@ -67,7 +65,7 @@ class DockerJavaApplication {
      * The tag used for the Docker image.
      * <p>
      * Defaults to {@code <project.group>/<applicationName>:<project.version>}.
-     * @deprecated use {@link #tags}
+     * @deprecated use {@link #tags} - will be removed in 6.0.0
      */
     @Deprecated
     final Property<String> tag
@@ -78,6 +76,16 @@ class DockerJavaApplication {
      * Defaults to {@code [<project.group>/<applicationName>:<project.version>]}.
      */
     final ListProperty<String> tags
+
+    /**
+     * Tags that will be used for building the Docker image, but will not be pushed to the repo.
+     * In order for these tags to be built, they should be specified in the {@link #tags} property.
+     * e.g. for rapid local development, "busybox:latest" would be useful, but becomes confusing when
+     * pushed to a remote repo
+     * <p>
+     * Defaults to {@code []}
+     */
+    final ListProperty<String> localOnlyTags
 
 
     /**
@@ -98,6 +106,7 @@ class DockerJavaApplication {
         ports.set([8080])
         tag = objectFactory.property(String)
         tags = objectFactory.listProperty(String)
+        localOnlyTags = objectFactory.listProperty(String).empty()
         jvmArgs = objectFactory.listProperty(String).empty()
     }
 }

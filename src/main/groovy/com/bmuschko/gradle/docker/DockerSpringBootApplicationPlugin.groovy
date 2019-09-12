@@ -70,7 +70,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                 Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
                 createDockerfileTask.dependsOn syncBuildContextTask
                 DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerSpringBootApplication)
-                createPushImageTask(project, dockerBuildImageTask)
+                createPushImageTask(project, dockerBuildImageTask, dockerSpringBootApplication)
             }
         }
     }
@@ -183,7 +183,7 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
         })
     }
 
-    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
+    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask, DockerSpringBootApplication dockerSpringBootApplication) {
         project.tasks.create(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
             @Override
             void execute(DockerPushImage dockerPushImage) {
@@ -191,10 +191,11 @@ class DockerSpringBootApplicationPlugin implements Plugin<Project> {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    imageName.set(dockerBuildImageTask.getTags().map(new Transformer<String, Set<String>>() {
+                    imageNames.set(dockerBuildImageTask.getTags().map(new Transformer<Set<String>, Set<String>>() {
                         @Override
-                        String transform(Set<String> tags) {
-                            tags.first()
+                        Set<String> transform(Set<String> tags) {
+                            tags.removeAll(dockerSpringBootApplication.localOnlyTags.getOrNull())
+                            return tags
                         }
                     }))
                 }

@@ -79,7 +79,7 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
             Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
             createDockerfileTask.dependsOn syncBuildContextTask
             DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, dockerJavaApplication)
-            createPushImageTask(project, dockerBuildImageTask)
+            createPushImageTask(project, dockerBuildImageTask, dockerJavaApplication)
         }
     }
 
@@ -187,13 +187,13 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
-                String artifactAndVersion = "${applicationName}:${tagVersion}".toLowerCase().toString()
+                String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
                 [project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion]
             }
         })
     }
 
-    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
+    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask, DockerJavaApplication dockerJavaApplication) {
         project.tasks.create(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
             @Override
             void execute(DockerPushImage pushImage) {
@@ -201,10 +201,11 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    imageName.set(dockerBuildImageTask.getTags().map(new Transformer<String, Set<String>>() {
+                    imageNames.set(dockerBuildImageTask.getTags().map(new Transformer<Set<String>, Set<String>>() {
                         @Override
-                        String transform(Set<String> tags) {
-                            tags.first()
+                        Set<String> transform(Set<String> tags) {
+                            tags.removeAll(dockerJavaApplication.localOnlyTags.getOrNull())
+                            return tags
                         }
                     }))
                 }
