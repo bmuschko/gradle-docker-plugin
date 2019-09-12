@@ -32,6 +32,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
      * The image name e.g. "bmuschko/busybox" or just "busybox" if you want to default.
      */
     @Input
+    @Optional
     final Property<String> imageName = project.objects.property(String)
 
     /**
@@ -53,11 +54,14 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     DockerRegistryCredentials registryCredentials
 
     private List<String> getAllImageNames() {
-        List<String> imageNames = imageNames.getOrElse([])
-        if (imageName.getOrNull()) {
-            imageNames.add(imageName.get())
+        List<String> allImageNames = new ArrayList<>()
+        if (imageNames.getOrNull()) {
+            allImageNames.addAll(imageNames.get())
         }
-        return imageNames
+        if (imageName.getOrNull()) {
+            allImageNames.add(imageName.get())
+        }
+        return allImageNames
     }
 
     @Override

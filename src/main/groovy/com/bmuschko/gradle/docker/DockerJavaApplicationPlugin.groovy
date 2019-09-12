@@ -204,8 +204,11 @@ class DockerJavaApplicationPlugin implements Plugin<Project> {
                     imageNames.set(dockerBuildImageTask.getTags().map(new Transformer<Set<String>, Set<String>>() {
                         @Override
                         Set<String> transform(Set<String> tags) {
-                            tags.removeAll(dockerJavaApplication.localOnlyTags.getOrNull())
-                            return tags
+                            // The Set that is passed in is immutable,
+                            // and throws an exception if we try to call .removeAll() directly on it
+                            Set<String> mutableTags = new HashSet<>(tags)
+                            mutableTags.removeAll(dockerJavaApplication.localOnlyTags.getOrNull())
+                            return mutableTags
                         }
                     }))
                 }
