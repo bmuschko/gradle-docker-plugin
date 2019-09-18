@@ -1,19 +1,7 @@
 language: java
+jdk: openjdk8
 install: true
 sudo: required
-
-addons:
-  apt:
-    packages:
-    - docker-ce
-
-services:
-  - docker
-
-before_install:
-  - docker run -d -p 5000:5000 --restart=always --name registry registry:2
-
-jdk: openjdk8
 
 jobs:
   include:
@@ -25,6 +13,12 @@ jobs:
       script: ./gradlew integrationTest
     - stage: Functional Tests
       script: ./gradlew functionalTest
+      before_script:
+        - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        - sudo apt-get update
+        - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+        - docker run -d -p 5000:5000 --restart=always --name registry registry:2
     - stage: release
       script: skip
       deploy:
