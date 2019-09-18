@@ -17,13 +17,19 @@ jdk: openjdk11
 
 jobs:
   include:
-    - stage: all tests
-      script: ./gradlew build -s
+    - stage: Compilation
+      script: ./gradlew classes
+    - stage: Unit Tests
+      script: ./gradlew test
+    - stage: Integration Tests
+      script: ./gradlew integrationTest
+    - stage: Functional Tests
+      script: ./gradlew functionalTest
     - stage: release
       script: skip
       deploy:
         provider: script
-        script: ./gradlew -s clean assemble bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=$GH_TOKEN
+        script: ./gradlew -s assemble bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=$GH_TOKEN
         on:
           tags: true
 
