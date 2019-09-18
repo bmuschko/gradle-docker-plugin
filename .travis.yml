@@ -13,7 +13,7 @@ services:
 before_install:
   - docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
-jdk: openjdk11
+jdk: openjdk8
 
 jobs:
   include:
