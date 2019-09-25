@@ -224,7 +224,11 @@ class DockerCreateContainer extends DockerExistingImage {
     @Input
     @Optional
     final Property<String> ipcMode = project.objects.property(String)
-
+    
+    @Input
+    @Optional
+    final MapProperty<String, String> sysctls = project.objects.mapProperty(String, String)
+    
     DockerCreateContainer() {
         links.empty()
         portSpecs.empty()
@@ -460,6 +464,10 @@ class DockerCreateContainer extends DockerExistingImage {
         
         if(ipcMode.getOrNull()) {
             containerCommand.hostConfig.withIpcMode(ipcMode.get())
+        }
+        
+        if(sysctls.getOrNull()) {
+            containerCommand.hostConfig.withSysctls(sysctls.get())
         }
     }
 
