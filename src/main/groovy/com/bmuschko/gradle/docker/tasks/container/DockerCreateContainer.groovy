@@ -213,6 +213,14 @@ class DockerCreateContainer extends DockerExistingImage {
     @Optional
     final Property<String> macAddress = project.objects.property(String)
     
+    /**
+     * Set the IPC mode for the container
+     * "none"- Own private IPC namespace, with /dev/shm not mounted.
+     * "private" - 	Own private IPC namespace.
+     * "shareable" - Own private IPC namespace, with a possibility to share it with other containers.
+     * "container: <_name-or-ID_>" - Join another ("shareable") container’s IPC namespace.
+     * "host" - Use the host system’s IPC namespace.
+     */
     @Input
     @Optional
     final Property<String> ipcMode = project.objects.property(String)
