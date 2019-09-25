@@ -212,6 +212,10 @@ class DockerCreateContainer extends DockerExistingImage {
     @Input
     @Optional
     final Property<String> macAddress = project.objects.property(String)
+    
+    @Input
+    @Optional
+    final Property<String> ipcMode = project.objects.property(String)
 
     DockerCreateContainer() {
         links.empty()
@@ -444,6 +448,10 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if(macAddress.getOrNull()) {
             containerCommand.withMacAddress(macAddress.get())
+        }
+        
+        if(ipcMode.getOrNull()) {
+            containerCommand.hostConfig.withIpcMode(ipcMode.get())
         }
     }
 
