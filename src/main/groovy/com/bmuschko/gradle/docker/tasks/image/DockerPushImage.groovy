@@ -47,7 +47,8 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand() {
-        PushImageCmd pushImageCmd = dockerClient.pushImageCmd(imageName.get())
+        PushImageCmd pushImageCmd = dockerClient
+            .pushImageCmd(imageName.get())
 
         if(tag.getOrNull()) {
             pushImageCmd.withTag(tag.get())
@@ -55,7 +56,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
         } else {
             logger.quiet "Pushing image with name '${imageName.get()}'."
         }
-
+        
         if(registryCredentials) {
             AuthConfig authConfig = new AuthConfig()
             authConfig.registryAddress = registryCredentials.url.get()
@@ -72,6 +73,9 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
                 authConfig.withEmail(registryCredentials.email.get())
             }
 
+            pushImageCmd.withAuthConfig(authConfig)
+        } else {
+            AuthConfig authConfig = getAuthConfig(imageName.get())
             pushImageCmd.withAuthConfig(authConfig)
         }
 
