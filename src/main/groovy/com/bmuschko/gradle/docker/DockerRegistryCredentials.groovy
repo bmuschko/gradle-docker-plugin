@@ -116,4 +116,14 @@ class DockerRegistryCredentials {
             }
         }
     }
+
+    /**
+     * Check if credentials are valid. Valid means that it has
+     * at least one of the following properties set:
+     * username, password, email
+     * @return
+     */
+    boolean isValid() {
+        username.isPresent() || password.isPresent() || email.isPresent()
+    }
 }

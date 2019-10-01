@@ -56,8 +56,8 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
         } else {
             logger.quiet "Pushing image with name '${imageName.get()}'."
         }
-        
-        if(registryCredentials) {
+
+        if(registryCredentials && registryCredentials.isValid()) {
             AuthConfig authConfig = new AuthConfig()
             authConfig.registryAddress = registryCredentials.url.get()
 

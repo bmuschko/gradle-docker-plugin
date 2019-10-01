@@ -59,7 +59,7 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
             pullImageCmd.withTag(tag.get())
         }
 
-        if(registryCredentials) {
+        if(registryCredentials && registryCredentials.isValid()) {
             AuthConfig authConfig = new AuthConfig()
             authConfig.registryAddress = registryCredentials.url.get()
 
