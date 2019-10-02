@@ -3,10 +3,12 @@
 [discrete]
 === v5.2.0 (TBA)
 
+* **Potentially Breaking Change!** Remove duplicated code in convention plugins - {uri-github}/pull/864[PR 864]
+
 [discrete]
 === v5.1.0 (September 18, 2019)
 
-* **Potentially Breaking Change!** https://github.com/bmuschko/gradle-docker-plugin/pull/852 - {uri-github}/pull/852[PR 852]
+* **Potentially Breaking Change!** Remove remaining use of Application Plugin in convention plugins - {uri-github}/pull/852[PR 852]
 
 [discrete]
 === v5.0.0 (August 13, 2019)
