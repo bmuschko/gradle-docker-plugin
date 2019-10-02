@@ -15,11 +15,8 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.bmuschko.gradle.docker.tasks.AbstractCredentialsAwareRemoteApiTask
 import com.github.dockerjava.api.command.PullImageCmd
-import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PullResponseItem
 import com.github.dockerjava.core.command.PullImageResultCallback
 import org.gradle.api.provider.Property
@@ -30,7 +27,7 @@ import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.Callable
 
-class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
+class DockerPullImage extends AbstractCredentialsAwareRemoteApiTask {
     /**
      * The image repository.
      */
@@ -44,11 +41,6 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     @Optional
     final Property<String> tag = project.objects.property(String)
 
-    /**
-     * {@inheritDoc}
-     */
-    DockerRegistryCredentials registryCredentials
-
     @Override
     void runRemoteCommand() {
         logger.quiet "Pulling repository '${repository.get()}'."
@@ -59,27 +51,7 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
             pullImageCmd.withTag(tag.get())
         }
 
-        if(registryCredentials && registryCredentials.isValid()) {
-            AuthConfig authConfig = new AuthConfig()
-            authConfig.registryAddress = registryCredentials.url.get()
-
-            if (registryCredentials.username.isPresent()) {
-                authConfig.withUsername(registryCredentials.username.get())
-            }
-
-            if (registryCredentials.password.isPresent()) {
-                authConfig.withPassword(registryCredentials.password.get())
-            }
-
-            if (registryCredentials.email.isPresent()) {
-                authConfig.withEmail(registryCredentials.email.get())
-            }
-
-            pullImageCmd.withAuthConfig(authConfig)
-        } else {
-            AuthConfig authConfig = getAuthConfig(repository.get())
-            pullImageCmd.withAuthConfig(getAuthConfig(authConfig))
-        }
+        pullImageCmd.withAuthConfig(resolveAuthConfig(repository.get()))
 
         PullImageResultCallback callback = new PullImageResultCallback() {
             @Override
