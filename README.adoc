@@ -5,6 +5,21 @@ image:https://badges.gitter.im/Join%20Chat.svg["Gitter", link="https://gitter.im
 
 = Gradle Docker plugin
 
+++++
+<table border=1>
+    <tr>
+        <td>
+            Over the past couple of years this plugin has seen many releases. Our core committers and contributors have done an amazing job! Sometimes life can get in the way of Open Source leading to less frequent releases and slower response times on issues.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            We are actively looking for additional committers that can drive the direction of the functionality and are willing to take on maintenance and implementation of the project. If you are interested, shoot me a <a href="mailto:benjamin.muschko@gmail.com">mail</a>. We'd love to hear from you!
+        </td>
+    </tr>
+</table>
+++++
+
 Gradle plugin for managing link:https://www.docker.io/[Docker] images and containers using the
 link:http://docs.docker.io/reference/api/docker_remote_api/[Docker remote API]. The heavy lifting of communicating with the
 Docker remote API is handled by the link:https://github.com/docker-java/docker-java[Docker Java library]. Please
