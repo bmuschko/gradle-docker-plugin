@@ -4,6 +4,7 @@
 === v5.2.0 (TBA)
 
 * **Potentially Breaking Change!** Remove duplicated code in convention plugins - {uri-github}/pull/864[PR 864]
+* Restore compatibility with Gradle 5.1 as runtime version - {uri-github}/issue/866[Issue 866]
 
 [discrete]
 === v5.1.0 (September 18, 2019)
