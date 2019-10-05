@@ -1,7 +1,7 @@
 == Change Log
 
 [discrete]
-=== v5.2.0 (TBA)
+=== v5.2.0 (October 5, 2019)
 
 * **Potentially Breaking Change!** Remove duplicated code in convention plugins - {uri-github}/pull/864[PR 864]
 * Restore compatibility with Gradle 5.1 as runtime version - {uri-github}/issue/866[Issue 866]
