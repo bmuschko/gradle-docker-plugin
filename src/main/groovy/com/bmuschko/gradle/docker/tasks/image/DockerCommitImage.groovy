@@ -23,18 +23,11 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
 class DockerCommitImage extends DockerExistingContainer {
-    /**
-     * Repository.
-     */
-    @Input
-    @Optional
-    final Property<String> repository = project.objects.property(String)
 
     /**
-     * Commit tag.
+     * The tag used to save the image e.g. {@code my-java-app:1.2.3}.
      */
     @Input
-    @Optional
     final Property<String> tag = project.objects.property(String)
 
     /**
@@ -70,14 +63,7 @@ class DockerCommitImage extends DockerExistingContainer {
     void runRemoteCommand() {
         logger.quiet "Committing image for container '${getContainerId().get()}'."
         CommitCmd commitCmd = dockerClient.commitCmd(getContainerId().get())
-
-        if(repository.getOrNull()) {
-            commitCmd.withRepository(repository.get())
-        }
-
-        if(tag.getOrNull()) {
-            commitCmd.withTag(tag.get())
-        }
+        commitCmd.withTag(tag.get())
 
         if(message.getOrNull()) {
             commitCmd.withMessage(message.get())

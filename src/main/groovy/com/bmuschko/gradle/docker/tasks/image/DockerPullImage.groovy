@@ -26,8 +26,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
+
     /**
-     * The tag to pull e.g. {@code my-java-app:1.2.3}. The tag should include the repository as needed.
+     * The tag to pull e.g. {@code my-java-app:1.2.3}. The tag may include the repository.
      */
     @Input
     final Property<String> tag = project.objects.property(String)

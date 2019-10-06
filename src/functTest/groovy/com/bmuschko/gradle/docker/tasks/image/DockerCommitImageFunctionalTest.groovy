@@ -37,6 +37,7 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task $COMMIT_TASK_NAME(type: DockerCommitImage) {
                 dependsOn startContainer
                 targetContainerId "idonotexist"
+                tag = "myimage:latest"
             }
         """
 
