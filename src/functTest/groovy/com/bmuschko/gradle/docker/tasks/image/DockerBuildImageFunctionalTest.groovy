@@ -521,7 +521,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                tags.set(buildImage.tags.get())
+                tags.set(buildImage.tags)
             }
 
             task removeImage(type: DockerRemoveImage) {
@@ -532,7 +532,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task pullImage(type: DockerPullImage) {
                 dependsOn removeImage
-                tag = '$uniqueTag'
+                tag = '$uniqueTag:latest'
             }
 
             task buildImageWithCacheFrom(type: DockerBuildImage) {
