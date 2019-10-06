@@ -59,13 +59,12 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 autoRemove = true
                 entrypoint = ['tail', '-f', '/dev/null']
             }

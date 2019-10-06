@@ -23,25 +23,13 @@ import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PullResponseItem
 import com.github.dockerjava.core.command.PullImageResultCallback
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-
-import java.util.concurrent.Callable
 
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
     /**
-     * The image repository.
+     * The tag to pull e.g. {@code my-java-app:1.2.3}. The tag should include the repository as needed.
      */
     @Input
-    final Property<String> repository = project.objects.property(String)
-
-    /**
-     * The image's tag.
-     */
-    @Input
-    @Optional
     final Property<String> tag = project.objects.property(String)
 
     /**
@@ -51,12 +39,8 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand() {
-        logger.quiet "Pulling repository '${repository.get()}'."
-        PullImageCmd pullImageCmd = dockerClient.pullImageCmd(repository.get())
-
-        if(tag.getOrNull()) {
-            pullImageCmd.withTag(tag.get())
-        }
+        logger.quiet "Pulling image '${tag.get()}'."
+        PullImageCmd pullImageCmd = dockerClient.pullImageCmd(tag.get())
 
         if(registryCredentials) {
             AuthConfig authConfig = new AuthConfig()
@@ -92,16 +76,6 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
             }
         }
 
-        pullImageCmd.exec(callback).awaitSuccess()
-    }
-
-    @Internal
-    Provider<String> getImageId() {
-        project.provider(new Callable<String>() {
-            @Override
-            String call() throws Exception {
-                tag.getOrNull()?.trim() ? "${repository.get()}:${tag.get()}" : repository.get()
-            }
-        })
+        pullImageCmd.exec(callback).awaitCompletion()
     }
 }

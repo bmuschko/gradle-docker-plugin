@@ -22,7 +22,6 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Transformer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
@@ -156,23 +155,23 @@ abstract class DockerConventionApplicationPlugin<EXT extends DockerConventionApp
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Builds the Docker image for the application.'
                     dependsOn createDockerfileTask
-                    tags.add(determineImageTag(project, extension))
+                    tags.addAll(determineImageTags(project, extension))
                 }
             }
         })
     }
 
-    private Provider<String> determineImageTag(Project project, EXT extension) {
-        project.provider(new Callable<String>() {
+    private Provider<Set<String>> determineImageTags(Project project, EXT extension) {
+        project.provider(new Callable<Set<String>>() {
             @Override
-            String call() throws Exception {
-                if (extension.tag.getOrNull()) {
-                    return extension.tag.get()
+            Set<String> call() throws Exception {
+                if (extension.tags.getOrNull()) {
+                    return extension.tags.get()
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
                 String artifactAndVersion = "${project.name}:${tagVersion}".toLowerCase().toString()
-                project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion
+                [project.group ? "$project.group/$artifactAndVersion".toString() : artifactAndVersion] as Set<String>
             }
         })
     }
@@ -185,12 +184,7 @@ abstract class DockerConventionApplicationPlugin<EXT extends DockerConventionApp
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    imageName.set(dockerBuildImageTask.getTags().map(new Transformer<String, Set<String>>() {
-                        @Override
-                        String transform(Set<String> tags) {
-                            tags.first()
-                        }
-                    }))
+                    tags.set(dockerBuildImageTask.getTags())
                 }
             }
         })

@@ -76,13 +76,12 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
             import com.bmuschko.gradle.docker.tasks.container.extras.*
 
             task pullImage(type: DockerPullImage) {
-                repository = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE'
-                tag = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
+                tag = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE:$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 cmd = ['sleep','60']
             }
 

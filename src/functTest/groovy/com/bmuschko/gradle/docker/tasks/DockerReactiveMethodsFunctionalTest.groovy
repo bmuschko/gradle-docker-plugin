@@ -116,13 +116,12 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 cmd = ["/bin/sh","-c","echo Hello World"]
             }
 
@@ -163,8 +162,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
     
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task listImages(type: DockerListImages) {
@@ -389,13 +387,12 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 
                 onNext { image ->
                     logger.quiet 'Cmd:        ' + image.config.cmd
@@ -426,8 +423,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task pullImage(type: DockerPullImage) {
                 dependsOn removeImage
-                repository = 'busybox'
-                tag = 'musl'
+                tag = 'busybox:musl'
                 
                 onNext { p ->
                     logger.quiet p.status + ' ' + (p.progress ?: '')
@@ -472,7 +468,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
                 finalizedBy removeImage
-                imageName = buildImage.tags.get().first()
+                tags.set(buildImage.tags)
                 
                 onNext { p ->
                     logger.quiet p.status + ' ' + (p.progress ?: '')

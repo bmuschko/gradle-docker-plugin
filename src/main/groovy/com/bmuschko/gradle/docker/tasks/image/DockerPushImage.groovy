@@ -22,23 +22,17 @@ import com.github.dockerjava.api.command.PushImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PushResponseItem
 import com.github.dockerjava.core.command.PushImageResultCallback
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 
 class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
     /**
-     * The image name e.g. "bmuschko/busybox" or just "busybox" if you want to default.
+     * The tags to push e.g. {@code my-java-app:1.2.3}.
+     *
+     * @since 6.0.0
      */
     @Input
-    final Property<String> imageName = project.objects.property(String)
-
-    /**
-     * The image's tag.
-     */
-    @Input
-    @Optional
-    final Property<String> tag = project.objects.property(String)
+    final SetProperty<String> tags = project.objects.setProperty(String).empty()
 
     /**
      * {@inheritDoc}
@@ -47,49 +41,45 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand() {
-        PushImageCmd pushImageCmd = dockerClient.pushImageCmd(imageName.get())
+        tags.get().each { currentTag ->
+            logger.quiet "Pushing image with name '${currentTag}'."
+            PushImageCmd pushImageCmd = dockerClient.pushImageCmd(currentTag)
 
-        if(tag.getOrNull()) {
-            pushImageCmd.withTag(tag.get())
-            logger.quiet "Pushing image with name '${imageName.get()}:${tag.get()}'."
-        } else {
-            logger.quiet "Pushing image with name '${imageName.get()}'."
-        }
+            if(registryCredentials) {
+                AuthConfig authConfig = new AuthConfig()
+                authConfig.registryAddress = registryCredentials.url.get()
 
-        if(registryCredentials) {
-            AuthConfig authConfig = new AuthConfig()
-            authConfig.registryAddress = registryCredentials.url.get()
-
-            if (registryCredentials.username.isPresent()) {
-                authConfig.withUsername(registryCredentials.username.get())
-            }
-
-            if (registryCredentials.password.isPresent()) {
-                authConfig.withPassword(registryCredentials.password.get())
-            }
-
-            if (registryCredentials.email.isPresent()) {
-                authConfig.withEmail(registryCredentials.email.get())
-            }
-
-            pushImageCmd.withAuthConfig(authConfig)
-        }
-
-        PushImageResultCallback callback = new PushImageResultCallback() {
-            @Override
-            void onNext(PushResponseItem item) {
-                if (nextHandler) {
-                    try {
-                        nextHandler.execute(item)
-                    } catch (Exception e) {
-                        logger.error('Failed to handle push response', e)
-                        return
-                    }
+                if (registryCredentials.username.isPresent()) {
+                    authConfig.withUsername(registryCredentials.username.get())
                 }
-                super.onNext(item)
-            }
-        }
 
-        pushImageCmd.exec(callback).awaitSuccess()
+                if (registryCredentials.password.isPresent()) {
+                    authConfig.withPassword(registryCredentials.password.get())
+                }
+
+                if (registryCredentials.email.isPresent()) {
+                    authConfig.withEmail(registryCredentials.email.get())
+                }
+
+                pushImageCmd.withAuthConfig(authConfig)
+            }
+
+            PushImageResultCallback callback = new PushImageResultCallback() {
+                @Override
+                void onNext(PushResponseItem item) {
+                    if (nextHandler) {
+                        try {
+                            nextHandler.execute(item)
+                        } catch (Exception e) {
+                            logger.error('Failed to handle push response', e)
+                            return
+                        }
+                    }
+                    super.onNext(item)
+                }
+            }
+
+            pushImageCmd.exec(callback).awaitCompletion()
+        }
     }
 }

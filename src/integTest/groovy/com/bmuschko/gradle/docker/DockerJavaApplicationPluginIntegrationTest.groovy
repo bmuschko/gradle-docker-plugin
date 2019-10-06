@@ -111,7 +111,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         when:
         ExtensionAware dockerExtension = (ExtensionAware) project.extensions.getByType(DockerExtension)
         DockerJavaApplication dockerJavaApplicationExtension = dockerExtension.extensions.getByType(DockerJavaApplication)
-        dockerJavaApplicationExtension.tag.set("some-test-tag")
+        dockerJavaApplicationExtension.tags.add("some-test-tag")
 
         then:
         DockerBuildImage task = project
@@ -128,7 +128,7 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         applyDockerJavaApplicationPluginAndApplicationPlugin(project)
         when:
         project.docker.javaApplication {
-            tag.set(testTagName)
+            tags.add(testTagName)
         }
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)

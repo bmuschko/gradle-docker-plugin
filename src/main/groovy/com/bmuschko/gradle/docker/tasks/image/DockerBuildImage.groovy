@@ -58,7 +58,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final RegularFileProperty dockerFile = project.objects.fileProperty()
 
     /**
-     * Tags for image.
+     * The tags to build e.g. {@code my-java-app:1.2.3}.
      */
     @Input
     @Optional

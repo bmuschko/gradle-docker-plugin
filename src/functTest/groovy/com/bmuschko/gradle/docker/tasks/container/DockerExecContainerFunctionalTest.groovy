@@ -178,13 +178,12 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 cmd = ['sleep','$sleep']
             }
 

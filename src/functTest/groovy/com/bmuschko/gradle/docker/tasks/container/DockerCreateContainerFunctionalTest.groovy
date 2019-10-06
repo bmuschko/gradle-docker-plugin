@@ -26,7 +26,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 cmd = ['groups']
                 groups = ['postgres']
             }
@@ -57,7 +57,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 binds = ['/tmp': '/testdata']
             }
         """
@@ -87,7 +87,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 cmd = ['ifconfig']
                 macAddress = '02:03:04:05:06:07'
                 cpuset = '1'
@@ -110,7 +110,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 cmd = ['env']
                 
                 // add by appending new map to current map
@@ -142,7 +142,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 autoRemove = true
 
                 // The sleep is to keep the container around to avoid the
@@ -180,7 +180,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
             }
         """
 
@@ -207,7 +207,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getTag()
                 autoRemove = true
                 
                 cmd = ['sleep', '10']
@@ -257,8 +257,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             ${containerCreationTask}

@@ -12,7 +12,7 @@ docker {
         baseImage = 'dockerfile/java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         ports = [9090, 5701]
-        tag = 'jettyapp:1.115'
+        tags = ['jettyapp:1.115']
         jvmArgs = ['-Xms256m', '-Xmx2048m']
     }
 }
