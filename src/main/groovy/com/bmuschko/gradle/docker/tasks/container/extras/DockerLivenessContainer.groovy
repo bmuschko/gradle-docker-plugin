@@ -41,6 +41,12 @@ class DockerLivenessContainer extends DockerLogsContainer {
     // be non-null once task has completed execution.
     private InspectContainerResponse lastInspection
 
+    DockerLivenessContainer() {
+        tailCount.finalizeValue()
+        tailAll.finalizeValue()
+        follow.finalizeValue()
+    }
+
     @Override
     void runRemoteCommand() {
         logger.quiet "Starting liveness probe on container with ID '${containerId.get()}'."
@@ -60,9 +66,6 @@ class DockerLivenessContainer extends DockerLogsContainer {
             // 1.) Write the content of the logs into a StringWriter which we zero-out
             //     below after each successive log grab.
             setSink(new StringWriter())
-            tailCount.set(null)
-            tailAll.set(null)
-            follow.set(null)
 
             Date lastDate = since.getOrNull()
 
