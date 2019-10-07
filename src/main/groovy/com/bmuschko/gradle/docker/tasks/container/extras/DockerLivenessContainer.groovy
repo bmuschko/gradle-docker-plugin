@@ -37,6 +37,8 @@ class DockerLivenessContainer extends DockerLogsContainer {
     @Optional
     LivenessProbe livenessProbe
 
+    private Date internalSince
+
     // last call to inspect container which will only
     // be non-null once task has completed execution.
     private InspectContainerResponse lastInspection
@@ -45,6 +47,11 @@ class DockerLivenessContainer extends DockerLogsContainer {
         tailCount.finalizeValue()
         tailAll.finalizeValue()
         follow.finalizeValue()
+    }
+
+    @Override
+    protected Date getInternalSince() {
+        return internalSince
     }
 
     @Override
@@ -79,7 +86,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
                 }
 
                 if (lastDate) {
-                    this.setSince(lastDate)
+                    this.internalSince = lastDate
                 }
                 final Date justBeforeLastExecutionDate = Calendar.getInstance().getTime()
 

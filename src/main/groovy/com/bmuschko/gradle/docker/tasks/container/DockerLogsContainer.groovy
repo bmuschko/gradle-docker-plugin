@@ -97,6 +97,11 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Optional
     Writer sink
 
+    // Allows subclasses to carry their own logic
+    protected Date getInternalSince() {
+        return since.getOrNull()
+    }
+
     DockerLogsContainer() {
         stdOut.set(true)
         stdErr.set(true)
@@ -200,8 +205,9 @@ class DockerLogsContainer extends DockerExistingContainer {
             logsCommand.withTail(tailCount.get())
         }
 
-        if (since.getOrNull()) {
-            logsCommand.withSince((int) (since.get().time / 1000))
+        Date since = getInternalSince()
+        if (since) {
+            logsCommand.withSince((int) (since.time / 1000))
         }
     }
 }
