@@ -44,6 +44,5 @@ final class IOUtils {
         ProgressLoggerFactory factory = registry.get(ProgressLoggerFactory)
         ProgressLogger progressLogger = factory.newOperation(Objects.requireNonNull(clazz))
         progressLogger.setDescription("ProgressLogger for ${clazz.getSimpleName()}")
-        progressLogger.setLoggingHeader(null)
     }
 }
