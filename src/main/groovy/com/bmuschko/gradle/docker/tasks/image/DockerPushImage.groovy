@@ -41,26 +41,13 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand() {
+        AuthConfig authConfig = registryCredentials ? createAuthConfig() : null
+
         tags.get().each { currentTag ->
             logger.quiet "Pushing image with name '${currentTag}'."
             PushImageCmd pushImageCmd = dockerClient.pushImageCmd(currentTag)
 
-            if(registryCredentials) {
-                AuthConfig authConfig = new AuthConfig()
-                authConfig.registryAddress = registryCredentials.url.get()
-
-                if (registryCredentials.username.isPresent()) {
-                    authConfig.withUsername(registryCredentials.username.get())
-                }
-
-                if (registryCredentials.password.isPresent()) {
-                    authConfig.withPassword(registryCredentials.password.get())
-                }
-
-                if (registryCredentials.email.isPresent()) {
-                    authConfig.withEmail(registryCredentials.email.get())
-                }
-
+            if(authConfig) {
                 pushImageCmd.withAuthConfig(authConfig)
             }
 
@@ -81,5 +68,24 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
             pushImageCmd.exec(callback).awaitCompletion()
         }
+    }
+
+    private AuthConfig createAuthConfig() {
+        AuthConfig authConfig = new AuthConfig()
+        authConfig.withRegistryAddress(registryCredentials.url.get())
+
+        if (registryCredentials.username.isPresent()) {
+            authConfig.withUsername(registryCredentials.username.get())
+        }
+
+        if (registryCredentials.password.isPresent()) {
+            authConfig.withPassword(registryCredentials.password.get())
+        }
+
+        if (registryCredentials.email.isPresent()) {
+            authConfig.withEmail(registryCredentials.email.get())
+        }
+
+        authConfig
     }
 }
