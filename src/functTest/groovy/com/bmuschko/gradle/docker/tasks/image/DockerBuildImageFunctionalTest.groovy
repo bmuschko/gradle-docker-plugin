@@ -4,7 +4,9 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import org.junit.rules.TemporaryFolder
 import spock.lang.Issue
 import spock.lang.Requires
 import spock.lang.Unroll
@@ -214,6 +216,68 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         !result.output.contains("Created image with ID")
         imageIdFile.isFile()
         imageIdFile.text != ""
+    }
+
+    def "try to reproduce"() {
+        given:
+
+        TemporaryFolder temporaryFolder = new TemporaryFolder()
+        temporaryFolder.create()
+        def temporaryDir = temporaryFolder.root
+        def gradlebuildfile = temporaryFolder.newFile("build.gradle.kts")
+        def dockerfile = temporaryFolder.newFile("Dockerfile")
+
+        gradlebuildfile << """
+import com.bmuschko.gradle.docker.tasks.image.*
+
+plugins {
+    id("com.bmuschko.docker-remote-api") version "5.1.0"
+}
+
+group = "edu.vanderbilt.isis"
+version = "0.1-SNAPSHOT"
+
+repositories {
+    jcenter()
+}
+
+val docker_repository = "build_tensorflow"
+val docker_tag = "latest"
+val image_name_list = listOf(
+        listOf(docker_repository, docker_tag).joinToString(":")
+)
+
+tasks.register<DockerBuildImage>("buildTensorflow") {
+
+    inputDir.set(File("."))
+    tags.set(image_name_list)
+}
+"""
+
+        dockerfile << """
+FROM tensorflow/tensorflow:1.13.1-gpu
+
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu \$(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+"""
+
+        def runner = GradleRunner.create()
+            .withProjectDir(temporaryDir)
+            .withArguments(["buildTensorflow", "-s"])
+            .withPluginClasspath()
+
+        when:
+        BuildResult result = runner.build()
+
+        then:
+        result.task(':buildTensorflow').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+
+        when:
+        result = runner.build()
+
+        then:
+        result.task(':buildTensorflow').outcome == TaskOutcome.UP_TO_DATE
+        !result.output.contains("Created image with ID")
     }
 
     def "task not up-to-date when no imageIdFile"() {
@@ -614,5 +678,10 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 task.finalizedBy assertTask
             }
         """
+    }
+
+    @Override
+    String getBuildFileName() {
+        'build.gradle.kts'
     }
 }
