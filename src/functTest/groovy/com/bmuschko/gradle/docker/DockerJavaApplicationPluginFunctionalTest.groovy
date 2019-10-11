@@ -165,7 +165,7 @@ ADD file2.txt /other/dir/file2.txt
 
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    images = ["\${docker.registryCredentials.username.get()}/javaapp".toString()] 
+                    images = ["\${docker.registryCredentials.username.get()}/javaapp:1.2.3".toString(), "\${docker.registryCredentials.username.get()}/javaapp:latest".toString()] 
                 }
             }
         """
@@ -186,7 +186,7 @@ ADD file2.txt /other/dir/file2.txt
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    images = ['${TestConfiguration.dockerPrivateRegistryDomain}/javaapp']
+                    images = ['${TestConfiguration.dockerPrivateRegistryDomain}/javaapp:1.2.3', '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp:latest']
                 }
             }
         """

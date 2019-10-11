@@ -109,7 +109,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
 
                 springBootApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    images = ["\${docker.registryCredentials.username.get()}/springbootapp".toString()]
+                    images = ["\${docker.registryCredentials.username.get()}/springbootapp:1.2.3".toString(), "\${docker.registryCredentials.username.get()}/springbootapp:latest".toString()]
                 }
             }
         """
@@ -136,7 +136,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
             docker {
                 springBootApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    images = ['${TestConfiguration.dockerPrivateRegistryDomain}/springbootapp']
+                    images = ['${TestConfiguration.dockerPrivateRegistryDomain}/springbootapp:1.2.3', '${TestConfiguration.dockerPrivateRegistryDomain}/springbootapp:latest']
                 }
             }
         """
