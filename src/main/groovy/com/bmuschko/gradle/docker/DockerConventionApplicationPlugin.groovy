@@ -155,18 +155,18 @@ abstract class DockerConventionApplicationPlugin<EXT extends DockerConventionApp
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Builds the Docker image for the application.'
                     dependsOn createDockerfileTask
-                    tags.addAll(determineImageTags(project, extension))
+                    images.addAll(determineImages(project, extension))
                 }
             }
         })
     }
 
-    private Provider<Set<String>> determineImageTags(Project project, EXT extension) {
+    private Provider<Set<String>> determineImages(Project project, EXT extension) {
         project.provider(new Callable<Set<String>>() {
             @Override
             Set<String> call() throws Exception {
-                if (extension.tags.getOrNull()) {
-                    return extension.tags.get()
+                if (extension.images.getOrNull()) {
+                    return extension.images.get()
                 }
 
                 String tagVersion = project.version == 'unspecified' ? 'latest' : project.version
@@ -184,7 +184,7 @@ abstract class DockerConventionApplicationPlugin<EXT extends DockerConventionApp
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    tags.set(dockerBuildImageTask.getTags())
+                    images.set(dockerBuildImageTask.getImages())
                 }
             }
         })

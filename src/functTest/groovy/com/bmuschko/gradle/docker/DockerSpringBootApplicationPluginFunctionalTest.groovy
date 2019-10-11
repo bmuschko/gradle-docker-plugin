@@ -47,7 +47,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
                     ports = [9090, 8080]
-                    tags = ['awesome-spring-boot:1.115']
+                    images = ['awesome-spring-boot:1.115']
                     jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
                 }
             }
@@ -75,7 +75,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
                 springBootApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     ports = []
-                    tags = ['awesome-spring-boot:1.115']
+                    images = ['awesome-spring-boot:1.115']
                 }
             }
         """
@@ -109,7 +109,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
 
                 springBootApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    tags = ["\${docker.registryCredentials.username.get()}/springbootapp".toString()]
+                    images = ["\${docker.registryCredentials.username.get()}/springbootapp".toString()]
                 }
             }
         """
@@ -136,7 +136,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
             docker {
                 springBootApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    tags = ['${TestConfiguration.dockerPrivateRegistryDomain}/springbootapp']
+                    images = ['${TestConfiguration.dockerPrivateRegistryDomain}/springbootapp']
                 }
             }
         """

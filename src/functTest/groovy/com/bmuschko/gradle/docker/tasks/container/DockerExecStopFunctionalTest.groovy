@@ -86,12 +86,12 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
-                tag = 'postgres:alpine'
+                image = 'postgres:alpine'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getTag()
+                targetImageId pullImage.getImage()
             }
 
             task startContainer(type: DockerStartContainer) {

@@ -15,7 +15,7 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
 
             task saveImage(type: DockerSaveImage) {
-                tag = "${IMAGE}"
+                image = "${IMAGE}"
                 destFile = file("${IMAGE_FILE}")
             }
         """
@@ -32,14 +32,14 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
 
             task saveImageControl(type: DockerSaveImage) {
-                tag = "${IMAGE}"
+                image = "${IMAGE}"
                 destFile = file("${CONTROL_SAVED_IMAGE}")
             }
 
             task saveImage(type: DockerSaveImage) {
                 dependsOn saveImageControl
                 useCompression = true
-                tag = "${IMAGE}"
+                image = "${IMAGE}"
                 destFile = file("${COMPRESSED_IMAGE_FILE}")
             }
         """

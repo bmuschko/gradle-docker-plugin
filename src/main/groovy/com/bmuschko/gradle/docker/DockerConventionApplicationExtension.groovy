@@ -51,13 +51,13 @@ class DockerConventionApplicationExtension {
     final ListProperty<Integer> ports
 
     /**
-     * The tags used for the Docker image e.g. {@code my-java-app:1.2.3}.
+     * The images used for the build and push operation e.g. {@code vieux/apache:2.0}.
      * <p>
      * Defaults to {@code [<project.group>/<applicationName>:<project.version>]}.
      *
      * @since 6.0.0
      */
-    final SetProperty<String> tags
+    final SetProperty<String> images
 
     /**
      * The JVM arguments used to start the Java program.
@@ -75,7 +75,7 @@ class DockerConventionApplicationExtension {
         maintainer.set(System.getProperty('user.name'))
         ports = objectFactory.listProperty(Integer)
         ports.set([8080])
-        tags = objectFactory.setProperty(String).empty()
+        images = objectFactory.setProperty(String).empty()
         jvmArgs = objectFactory.listProperty(String).empty()
     }
 }

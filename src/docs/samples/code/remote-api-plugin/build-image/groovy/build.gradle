@@ -12,5 +12,5 @@ task createDockerfile(type: Dockerfile) {
 
 task buildImage(type: DockerBuildImage) {
     dependsOn createDockerfile
-    tags.add('bmuschko/myimage:latest')
+    images.add('bmuschko/myimage:latest')
 }

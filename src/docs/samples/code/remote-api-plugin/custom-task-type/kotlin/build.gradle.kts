@@ -19,7 +19,7 @@ val printImageId by tasks.creating {
 // end::task-type-usage[]
 
 val pullImage by tasks.creating(DockerPullImage::class) {
-    tag.set("alpine:3.4")
+    image.set("alpine:3.4")
 }
 
 imageIdForName.dependsOn(pullImage)

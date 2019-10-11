@@ -43,9 +43,9 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        Set<String> tags = task.tags.get()
-        tags.size() == 1
-        tags.first() == "${project.applicationName}:latest"
+        Set<String> images = task.images.get()
+        images.size() == 1
+        images.first() == "${project.applicationName}:latest"
     }
 
     def "Configures image task without project group and but with version"() {
@@ -58,9 +58,9 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        Set<String> tags = task.tags.get()
-        tags.size() == 1
-        tags.first() == "${project.applicationName}:${projectVersion}"
+        Set<String> images = task.images.get()
+        images.size() == 1
+        images.first() == "${project.applicationName}:${projectVersion}"
     }
 
     def "Configures image task with project group and version"() {
@@ -75,9 +75,9 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        Set<String> tags = task.tags.get()
-        tags.size() == 1
-        tags.first() == "${projectGroup}/${project.applicationName}:${projectVersion}"
+        Set<String> images = task.images.get()
+        images.size() == 1
+        images.first() == "${projectGroup}/${project.applicationName}:${projectVersion}"
     }
 
     def "Can access the dockerJava.javaApplication extension dynamically"() {
@@ -111,15 +111,15 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         when:
         ExtensionAware dockerExtension = (ExtensionAware) project.extensions.getByType(DockerExtension)
         DockerJavaApplication dockerJavaApplicationExtension = dockerExtension.extensions.getByType(DockerJavaApplication)
-        dockerJavaApplicationExtension.tags.add("some-test-tag")
+        dockerJavaApplicationExtension.images.add("some-test-tag")
 
         then:
         DockerBuildImage task = project
             .tasks
             .findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME) as DockerBuildImage
-        Set<String> tags = task.tags.get()
-        tags.size() == 1
-        tags.first() == testTagName
+        Set<String> images = task.images.get()
+        images.size() == 1
+        images.first() == testTagName
     }
 
     def "Can configure the dockerJava.javaApplication extension dynamically"() {
@@ -128,13 +128,13 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         applyDockerJavaApplicationPluginAndApplicationPlugin(project)
         when:
         project.docker.javaApplication {
-            tags.add(testTagName)
+            images.add(testTagName)
         }
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
-        Set<String> tags = task.tags.get()
-        tags.size() == 1
-        tags.first() == testTagName
+        Set<String> images = task.images.get()
+        images.size() == 1
+        images.first() == testTagName
     }
 
     private void applyDockerJavaApplicationPluginWithoutApplicationPlugin(Project project) {

@@ -28,10 +28,12 @@ import org.gradle.api.tasks.Input
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
-     * The tag to pull e.g. {@code my-java-app:1.2.3}. The tag may include the repository.
+     * The image including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
+     *
+     * @since 6.0.0
      */
     @Input
-    final Property<String> tag = project.objects.property(String)
+    final Property<String> image = project.objects.property(String)
 
     /**
      * {@inheritDoc}
@@ -40,8 +42,8 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand() {
-        logger.quiet "Pulling image '${tag.get()}'."
-        PullImageCmd pullImageCmd = dockerClient.pullImageCmd(tag.get())
+        logger.quiet "Pulling image '${image.get()}'."
+        PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image.get())
 
         if(registryCredentials) {
             AuthConfig authConfig = new AuthConfig()

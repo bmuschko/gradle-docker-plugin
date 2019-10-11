@@ -116,12 +116,12 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 
             task pullImage(type: DockerPullImage) {
-                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
+                image = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getTag()
+                targetImageId pullImage.getImage()
                 cmd = ["/bin/sh","-c","echo Hello World"]
             }
 
@@ -162,7 +162,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
     
             task pullImage(type: DockerPullImage) {
-                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
+                image = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task listImages(type: DockerListImages) {
@@ -387,12 +387,12 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
             task pullImage(type: DockerPullImage) {
-                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
+                image = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task inspectImage(type: DockerInspectImage) {
                 dependsOn pullImage
-                targetImageId pullImage.getTag()
+                targetImageId pullImage.getImage()
                 
                 onNext { image ->
                     logger.quiet 'Cmd:        ' + image.config.cmd
@@ -423,7 +423,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task pullImage(type: DockerPullImage) {
                 dependsOn removeImage
-                tag = 'busybox:musl'
+                image = 'busybox:musl'
                 
                 onNext { p ->
                     logger.quiet p.status + ' ' + (p.progress ?: '')
@@ -457,7 +457,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
                 inputDir = createDockerfile.destFile.get().asFile.parentFile
-                tags.add('${dockerPrivateRegistryDomain}/${createUniqueImageId()}')
+                images.add('${dockerPrivateRegistryDomain}/${createUniqueImageId()}')
             }
 
             task removeImage(type: DockerRemoveImage) {
@@ -468,7 +468,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
                 finalizedBy removeImage
-                tags.set(buildImage.tags)
+                images.set(buildImage.images)
                 
                 onNext { p ->
                     logger.quiet p.status + ' ' + (p.progress ?: '')

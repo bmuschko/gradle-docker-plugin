@@ -26,13 +26,14 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
 class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
+
     /**
-     * The tags to push e.g. {@code my-java-app:1.2.3}.
+     * The images including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
      *
      * @since 6.0.0
      */
     @Input
-    final SetProperty<String> tags = project.objects.setProperty(String).empty()
+    final SetProperty<String> images = project.objects.setProperty(String).empty()
 
     /**
      * {@inheritDoc}
@@ -43,9 +44,9 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     void runRemoteCommand() {
         AuthConfig authConfig = registryCredentials ? createAuthConfig() : null
 
-        tags.get().each { currentTag ->
-            logger.quiet "Pushing image with name '${currentTag}'."
-            PushImageCmd pushImageCmd = dockerClient.pushImageCmd(currentTag)
+        images.get().each { image ->
+            logger.quiet "Pushing image '${image}'."
+            PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
 
             if(authConfig) {
                 pushImageCmd.withAuthConfig(authConfig)

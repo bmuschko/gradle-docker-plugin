@@ -134,12 +134,12 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task pullImage(type: DockerPullImage) {
-                tag = '$TEST_IMAGE:$TEST_IMAGE_TAG'
+                image = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getTag()
+                targetImageId pullImage.getImage()
                 cmd = ['echo', 'Hello World']
             }
             

@@ -19,7 +19,7 @@ task printImageId {
 // end::task-type-usage[]
 
 task pullImage(type: DockerPullImage) {
-    tag = 'alpine:3.4'
+    image = 'alpine:3.4'
 }
 
 imageIdForName.dependsOn pullImage

@@ -15,10 +15,12 @@ import java.util.zip.GZIPOutputStream
 class DockerSaveImage extends AbstractDockerRemoteApiTask {
 
     /**
-     * The tag used to save the image e.g. {@code my-java-app:1.2.3}.
+     * The image including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
+     *
+     * @since 6.0.0
      */
     @Input
-    final Property<String> tag = project.objects.property(String)
+    final Property<String> image = project.objects.property(String)
 
     @Input
     @Optional
@@ -36,7 +38,7 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
 
     @Override
     void runRemoteCommand() {
-        SaveImageCmd saveImageCmd = dockerClient.saveImageCmd(tag.get())
+        SaveImageCmd saveImageCmd = dockerClient.saveImageCmd(image.get())
         InputStream image = saveImageCmd.exec()
         OutputStream os
         try {

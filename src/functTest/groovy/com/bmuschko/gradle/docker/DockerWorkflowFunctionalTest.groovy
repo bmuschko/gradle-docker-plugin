@@ -38,7 +38,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -106,7 +106,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer1(type: DockerCreateContainer) {
@@ -154,7 +154,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer1(type: DockerCreateContainer) {
@@ -204,12 +204,12 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
                 inputDir = createDockerfile.destFile.get().asFile.parentFile
-                tags.add('${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}')
+                images.add('${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}')
             }
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                tags.set(buildImage.tags)
+                images.set(buildImage.images)
             }
 
             task workflow {
@@ -242,7 +242,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -301,7 +301,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -340,7 +340,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -379,7 +379,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -418,7 +418,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -457,7 +457,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -516,7 +516,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -563,7 +563,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -607,7 +607,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -653,12 +653,12 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${imageName}")
+                images.add("${imageName}")
             }
 
             task saveImage(type: DockerSaveImage) {
                 dependsOn buildImage
-                tag = "${imageName}"
+                image = "${imageName}"
                 destFile = new File("${savedImagePath}")
             }
             

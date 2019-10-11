@@ -61,12 +61,12 @@ class DockerRenameContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.container.*
     
             task pullImage(type: DockerPullImage) {
-                tag = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE:$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
+                image = '$AbstractGroovyDslFunctionalTest.TEST_IMAGE:$AbstractGroovyDslFunctionalTest.TEST_IMAGE_TAG'
             }
     
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getTag()
+                targetImageId pullImage.getImage()
             }
     
             task removeContainer(type: DockerRemoveContainer) {
