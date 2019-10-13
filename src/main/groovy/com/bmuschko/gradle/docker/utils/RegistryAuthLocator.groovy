@@ -229,33 +229,19 @@ class RegistryAuthLocator {
         log.debug('Executing docker credential helper: {} to locate auth config for: {}',
             credentialHelperName, hostName)
         try {
-            ProcessBuilder pb = new ProcessBuilder(credentialHelperName, 'get')
-            Process process = pb.start()
-
-            writeHostName(process, hostName)
-            return readStdOut(process)
+            StringBuilder sOut = new StringBuilder()
+            StringBuilder sErr = new StringBuilder()
+            Process proc = "$credentialHelperName get".execute()
+            proc.consumeProcessOutput(sOut, sErr)
+            proc.withWriter { Writer writer -> writer << hostName }
+            proc.waitFor()
+            if (sErr.length() > 0) {
+                log.error("{} get: {}", credentialHelperName, sErr.toString())
+            }
+            return sOut.toString()
         } catch (Exception e) {
             log.error('Failure running docker credential helper ({})', credentialHelperName)
             throw e
         }
-    }
-
-    private static writeHostName(Process process, String hostName) {
-        BufferedWriter writer = new BufferedWriter(
-            new OutputStreamWriter(process.getOutputStream()))
-        writer.write(hostName)
-        writer.close()
-    }
-
-    private static readStdOut(Process process) {
-        BufferedReader reader =
-            new BufferedReader(new InputStreamReader(process.getInputStream()))
-        StringBuilder builder = new StringBuilder()
-        String line
-        while ( (line = reader.readLine()) != null) {
-            builder.append(line)
-            builder.append(System.getProperty("line.separator"))
-        }
-        return builder.toString().trim()
     }
 }
