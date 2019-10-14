@@ -1,6 +1,14 @@
 == Change Log
 
 [discrete]
+=== v6.0.0 (TBA)
+
+* **Breaking Change!** Multi-tag support for push operation and convention plugins - {uri-github}/pull/867[PR 867]
+* **Breaking Change!** Renamed property `tags` to `images` for extensions `DockerJavaApplication` and `DockerSpringBootApplication`.
+* **Breaking Change!** Renamed property `tag` to `image` for custom tasks `DockerBuildImage`, `DockerCommitImage`, `DockerPullImage`, `DockerSaveImage`, `DockerListImages`,`DockerCreateContainer`.
+* **Breaking Change!** Removal of method `DockerPullImage.getImageId()`. Use `DockerPullImage.getImage()` instead.
+
+[discrete]
 === v5.2.0 (October 5, 2019)
 
 * **Potentially Breaking Change!** Remove duplicated code in convention plugins - {uri-github}/pull/864[PR 864]
