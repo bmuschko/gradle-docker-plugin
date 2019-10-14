@@ -7,7 +7,7 @@ import com.bmuschko.gradle.docker.tasks.image.*
 
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('docker/myapp')
-    tags.add('test/myapp:latest')
+    images.add('test/myapp:latest')
 }
 
 task createMyAppContainer(type: DockerCreateContainer) {

@@ -43,7 +43,7 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
     }
 
     /**
-     * Sets the target container ID or name.
+     * Sets the target image ID or name.
      *
      * @param imageId Image ID or name as Callable
      * @see #targetImageId(String)
@@ -54,7 +54,7 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
     }
 
     /**
-     * Sets the target container ID or name.
+     * Sets the target image ID or name.
      *
      * @param imageId Image ID or name as Provider
      * @see #targetImageId(String)

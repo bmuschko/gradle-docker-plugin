@@ -44,7 +44,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
                     ports = [9090]
-                    tag = 'jettyapp:1.115'
+                    images = ['jettyapp:1.115']
                     jvmArgs = ['-Xms256m', '-Xmx2048m']
                 }
             }
@@ -67,7 +67,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
                     ports = [9090, 8080]
-                    tag = 'jettyapp:1.115'
+                    images = ['jettyapp:1.115']
                 }
             }
         """
@@ -89,7 +89,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
                     ports = []
-                    tag = 'jettyapp:1.115'
+                    images = ['jettyapp:1.115']
                 }
             }
         """
@@ -124,7 +124,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     maintainer = 'benjamin.muschko@gmail.com'
                     ports = [9090]
-                    tag = 'jettyapp:1.115'
+                    images = ['jettyapp:1.115']
                 }
             }
         """
@@ -165,7 +165,7 @@ ADD file2.txt /other/dir/file2.txt
 
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    tag = "\${docker.registryCredentials.username.get()}/javaapp".toString() 
+                    images = ["\${docker.registryCredentials.username.get()}/javaapp:1.2.3".toString(), "\${docker.registryCredentials.username.get()}/javaapp:latest".toString()] 
                 }
             }
         """
@@ -186,7 +186,7 @@ ADD file2.txt /other/dir/file2.txt
             docker {
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    tag = '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp'
+                    images = ['${TestConfiguration.dockerPrivateRegistryDomain}/javaapp:1.2.3', '${TestConfiguration.dockerPrivateRegistryDomain}/javaapp:latest']
                 }
             }
         """

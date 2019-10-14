@@ -58,11 +58,13 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final RegularFileProperty dockerFile = project.objects.fileProperty()
 
     /**
-     * Tags for image.
+     * The images including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
+     *
+     * @since 6.0.0
      */
     @Input
     @Optional
-    final SetProperty<String> tags = project.objects.setProperty(String)
+    final SetProperty<String> images = project.objects.setProperty(String)
 
     /**
      * When {@code true}, do not use docker cache when building the image.
@@ -182,7 +184,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     DockerBuildImage() {
         inputDir.set(project.layout.buildDirectory.dir('docker'))
-        tags.empty()
+        images.empty()
         noCache.set(false)
         remove.set(false)
         quiet.set(false)
@@ -221,10 +223,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd = dockerClient.buildImageCmd(inputDir.get().asFile)
         }
 
-        if (tags.getOrNull()) {
-            def tagListString = tags.get().collect {"'${it}'"}.join(", ")
-            logger.quiet "Using tags ${tagListString} for image."
-            buildImageCmd.withTags(tags.get().collect { it.toString() }.toSet() )
+        if (images.getOrNull()) {
+            def tagListString = images.get().collect {"'${it}'"}.join(", ")
+            logger.quiet "Using images ${tagListString}."
+            buildImageCmd.withTags(images.get())
         }
 
         if (noCache.getOrNull()) {

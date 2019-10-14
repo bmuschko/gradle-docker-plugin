@@ -117,13 +117,12 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
-                repository = 'postgres'
-                tag = 'alpine'
+                image = 'postgres:alpine'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getImage()
             }
 
             task startContainer(type: DockerStartContainer) {
