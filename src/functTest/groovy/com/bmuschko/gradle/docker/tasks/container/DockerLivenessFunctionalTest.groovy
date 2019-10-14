@@ -2,6 +2,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
+import spock.lang.Unroll
 
 class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -19,7 +20,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                     println 'doLast container state is ' + lastInspection()
                 }
             }
-            
+
             task execStopContainer(type: DockerExecStopContainer) {
                 dependsOn livenessProbe
                 finalizedBy removeContainer
@@ -58,7 +59,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                     println 'doLast container state is ' + lastInspection()
                 }
             }
-            
+
             task execStopContainer(type: DockerExecStopContainer) {
                 dependsOn livenessProbe
                 finalizedBy removeContainer
@@ -106,6 +107,28 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
         result.output.contains("is not running and so can't perform liveness")
     }
 
+    @Unroll
+    def "Probe cannot configure all fields from DockerLogsContainer"() {
+        String additionalTasks = """
+            task livenessProbe(type: DockerLivenessContainer) {
+                $property = $value
+            }
+        """
+        buildFile << containerUsage(additionalTasks)
+
+        when:
+        BuildResult result = buildAndFail('livenessProbe')
+
+        then:
+        result.output.contains("The value for this property is final and cannot be changed any further.")
+
+        where:
+        property    | value
+        'tailAll'   | false
+        'tailCount' | 10
+        'follow'    | true
+    }
+
     static String containerUsage(String additionalTasks) {
         """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
@@ -129,13 +152,13 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
-            
+
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
                 targetContainerId startContainer.getContainerId()
             }
-            
+
             ${additionalTasks}
         """
     }
