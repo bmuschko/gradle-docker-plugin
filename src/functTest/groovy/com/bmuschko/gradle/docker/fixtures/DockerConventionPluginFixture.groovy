@@ -21,6 +21,7 @@ final class DockerConventionPluginFixture {
             task removeImage(type: DockerRemoveImage) {
                 dependsOn dockerBuildImage
                 targetImageId dockerBuildImage.getImageId()
+                force = true
             }
             
             task buildAndRemoveImage {

@@ -11,7 +11,7 @@ docker {
     springBootApplication {
         baseImage.set("openjdk:8-alpine")
         ports.set(listOf(9090, 8080))
-        tag.set("awesome-spring-boot:1.115")
+        images.set(setOf("awesome-spring-boot:1.115", "awesome-spring-boot:latest"))
         jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
     }
 }

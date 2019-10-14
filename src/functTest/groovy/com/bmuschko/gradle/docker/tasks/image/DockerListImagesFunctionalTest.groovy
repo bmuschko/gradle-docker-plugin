@@ -106,7 +106,7 @@ class DockerListImagesFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 inputDir = file("build/docker")
-                tags.add("${IMAGE_ID}")
+                images.add("${IMAGE_ID}")
                 labels = ["setup":"${IMAGE_ID}"]
             }
             

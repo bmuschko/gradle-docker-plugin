@@ -116,8 +116,8 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         BuildResult result = build('buildImageWithTags', 'buildImageWithTag')
 
         then:
-        result.output.contains("Using tags 'test/image:123', 'registry.com:5000/test/image:123' for image.")
-        result.output.contains("Using tags 'test/image:123' for image.")
+        result.output.contains("Using images 'test/image:123', 'registry.com:5000/test/image:123'.")
+        result.output.contains("Using images 'test/image:123'.")
     }
 
 
@@ -460,12 +460,12 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImageWithTags(type: DockerBuildImage) {
                 dependsOn dockerfile
-                tags = ['test/image:123', "registry.com:5000/test/image:\$project.version"]
+                images = ['test/image:123', "registry.com:5000/test/image:\$project.version"]
             }
 
             task buildImageWithTag(type: DockerBuildImage) {
                 dependsOn dockerfile
-                tags.add('test/image:123')
+                images.add('test/image:123')
             }
 
             ${imageIdValidation()}
@@ -489,7 +489,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildImageWithCacheFrom(type: DockerBuildImage) {
                 dependsOn dockerfile
                 cacheFrom.add('$uniqueTag:latest')
-                tags.add('$uniqueTag:latest')
+                images.add('$uniqueTag:latest')
             }
 
             ${imageIdValidation()}
@@ -516,13 +516,12 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 cacheFrom.add('$TEST_IMAGE_WITH_TAG') // no effect
-                tags.add('$uniqueTag')
+                images.add('$uniqueTag')
             }
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                imageName = buildImage.tags.get().first()
-                tag = 'latest'
+                images.set(buildImage.images)
             }
 
             task removeImage(type: DockerRemoveImage) {
@@ -533,8 +532,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task pullImage(type: DockerPullImage) {
                 dependsOn removeImage
-                repository = '$uniqueTag'
-                tag = 'latest'
+                image = '$uniqueTag:latest'
             }
 
             task buildImageWithCacheFrom(type: DockerBuildImage) {

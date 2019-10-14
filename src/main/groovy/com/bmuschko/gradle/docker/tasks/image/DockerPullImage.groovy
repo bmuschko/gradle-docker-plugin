@@ -20,38 +20,24 @@ import com.github.dockerjava.api.command.PullImageCmd
 import com.github.dockerjava.api.model.PullResponseItem
 import com.github.dockerjava.core.command.PullImageResultCallback
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-
-import java.util.concurrent.Callable
 
 class DockerPullImage extends AbstractCredentialsAwareRemoteApiTask {
-    /**
-     * The image repository.
-     */
-    @Input
-    final Property<String> repository = project.objects.property(String)
 
     /**
-     * The image's tag.
+     * The image including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
+     *
+     * @since 6.0.0
      */
     @Input
-    @Optional
-    final Property<String> tag = project.objects.property(String)
+    final Property<String> image = project.objects.property(String)
 
     @Override
     void runRemoteCommand() {
-        logger.quiet "Pulling repository '${repository.get()}'."
-        PullImageCmd pullImageCmd = dockerClient
-            .pullImageCmd(repository.get())
+        logger.quiet "Pulling image '${image.get()}'."
+        PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image.get())
 
-        if(tag.getOrNull()) {
-            pullImageCmd.withTag(tag.get())
-        }
-
-        pullImageCmd.withAuthConfig(resolveAuthConfig(repository.get()))
+        pullImageCmd.withAuthConfig(resolveAuthConfig(image.get()))
 
         PullImageResultCallback callback = new PullImageResultCallback() {
             @Override
@@ -68,16 +54,6 @@ class DockerPullImage extends AbstractCredentialsAwareRemoteApiTask {
             }
         }
 
-        pullImageCmd.exec(callback).awaitSuccess()
-    }
-
-    @Internal
-    Provider<String> getImageId() {
-        project.provider(new Callable<String>() {
-            @Override
-            String call() throws Exception {
-                tag.getOrNull()?.trim() ? "${repository.get()}:${tag.get()}" : repository.get()
-            }
-        })
+        pullImageCmd.exec(callback).awaitCompletion()
     }
 }

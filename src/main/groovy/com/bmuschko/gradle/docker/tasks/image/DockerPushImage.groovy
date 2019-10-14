@@ -19,53 +19,42 @@ import com.bmuschko.gradle.docker.tasks.AbstractCredentialsAwareRemoteApiTask
 import com.github.dockerjava.api.command.PushImageCmd
 import com.github.dockerjava.api.model.PushResponseItem
 import com.github.dockerjava.core.command.PushImageResultCallback
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 
 class DockerPushImage extends AbstractCredentialsAwareRemoteApiTask {
-    /**
-     * The image name e.g. "bmuschko/busybox" or just "busybox" if you want to default.
-     */
-    @Input
-    final Property<String> imageName = project.objects.property(String)
 
     /**
-     * The image's tag.
+     * The images including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
+     *
+     * @since 6.0.0
      */
     @Input
-    @Optional
-    final Property<String> tag = project.objects.property(String)
+    final SetProperty<String> images = project.objects.setProperty(String).empty()
 
     @Override
     void runRemoteCommand() {
-        PushImageCmd pushImageCmd = dockerClient
-            .pushImageCmd(imageName.get())
+        images.get().each { image ->
+            logger.quiet "Pushing image '${image}'."
+            PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
+            pushImageCmd.withAuthConfig(resolveAuthConfig(image))
 
-        if(tag.getOrNull()) {
-            pushImageCmd.withTag(tag.get())
-            logger.quiet "Pushing image with name '${imageName.get()}:${tag.get()}'."
-        } else {
-            logger.quiet "Pushing image with name '${imageName.get()}'."
-        }
-
-        pushImageCmd.withAuthConfig(resolveAuthConfig(imageName.get()))
-
-        PushImageResultCallback callback = new PushImageResultCallback() {
-            @Override
-            void onNext(PushResponseItem item) {
-                if (nextHandler) {
-                    try {
-                        nextHandler.execute(item)
-                    } catch (Exception e) {
-                        logger.error('Failed to handle push response', e)
-                        return
+            PushImageResultCallback callback = new PushImageResultCallback() {
+                @Override
+                void onNext(PushResponseItem item) {
+                    if (nextHandler) {
+                        try {
+                            nextHandler.execute(item)
+                        } catch (Exception e) {
+                            logger.error('Failed to handle push response', e)
+                            return
+                        }
                     }
+                    super.onNext(item)
                 }
-                super.onNext(item)
             }
-        }
 
-        pushImageCmd.exec(callback).awaitSuccess()
+            pushImageCmd.exec(callback).awaitCompletion()
+        }
     }
 }

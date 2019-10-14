@@ -15,7 +15,7 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 targetContainerId createContainer.getContainerId()
                 author = "john doe"
                 message = "My image created"
-                tag = "myimage:latest"
+                image = "myimage:latest"
             }
         """
 
@@ -37,6 +37,7 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task $COMMIT_TASK_NAME(type: DockerCommitImage) {
                 dependsOn startContainer
                 targetContainerId "idonotexist"
+                image = "myimage:latest"
             }
         """
 
@@ -59,13 +60,12 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                image = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getImage()
                 autoRemove = true
                 entrypoint = ['tail', '-f', '/dev/null']
             }

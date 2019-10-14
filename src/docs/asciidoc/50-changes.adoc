@@ -1,12 +1,24 @@
 == Change Log
 
 [discrete]
-=== v5.2.0 (TBA)
+=== v6.0.0 (TBA)
+
+* **Breaking Change!** Multi-tag support for push operation and convention plugins - {uri-github}/pull/867[PR 867]
+* **Breaking Change!** Renamed property `tags` to `images` for extensions `DockerJavaApplication` and `DockerSpringBootApplication`.
+* **Breaking Change!** Renamed property `tag` to `image` for custom tasks `DockerBuildImage`, `DockerCommitImage`, `DockerPullImage`, `DockerSaveImage`, `DockerListImages`,`DockerCreateContainer`.
+* **Breaking Change!** Removal of method `DockerPullImage.getImageId()`. Use `DockerPullImage.getImage()` instead.
+* Gradle 6.0 compatibility fixes - {uri-github}/pull/869[PR 869]
+
+[discrete]
+=== v5.2.0 (October 5, 2019)
+
+* **Potentially Breaking Change!** Remove duplicated code in convention plugins - {uri-github}/pull/864[PR 864]
+* Restore compatibility with Gradle 5.1 as runtime version - {uri-github}/issue/866[Issue 866]
 
 [discrete]
 === v5.1.0 (September 18, 2019)
 
-* **Potentially Breaking Change!** https://github.com/bmuschko/gradle-docker-plugin/pull/852 - {uri-github}/pull/852[PR 852]
+* **Potentially Breaking Change!** Remove remaining use of Application Plugin in convention plugins - {uri-github}/pull/852[PR 852]
 
 [discrete]
 === v5.0.0 (August 13, 2019)
