@@ -13,18 +13,18 @@ task buildMyAppImage(type: DockerBuildImage) {
 task createDBContainer(type: DockerCreateContainer) {
     targetImageId 'postgres:latest'
     containerName = 'docker_auto'
-    autoRemove = true
+    hostConfig.autoRemove = true
 }
 
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage, createDBContainer
     targetImageId buildMyAppImage.getImageId()
-    portBindings = ['8080:8080']
-    autoRemove = true
-    links = ["docker_auto:database"]
+    hostConfig.portBindings = ['8080:8080']
+    hostConfig.autoRemove = true
+    hostConfig.links = ["docker_auto:database"]
 
     // If you use Systemd in containers you should also add lines. #320
-    binds = ['/sys/fs/cgroup': '/sys/fs/cgroup']
+    hostConfig.binds = ['/sys/fs/cgroup': '/sys/fs/cgroup']
     tty = true
 }
 
