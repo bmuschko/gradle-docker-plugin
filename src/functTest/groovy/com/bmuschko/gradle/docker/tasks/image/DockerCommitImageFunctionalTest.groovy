@@ -66,7 +66,7 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
                 targetImageId pullImage.getImage()
-                autoRemove = true
+                hostConfig.autoRemove = true
                 entrypoint = ['tail', '-f', '/dev/null']
             }
 

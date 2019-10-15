@@ -13,8 +13,8 @@ task buildMyAppImage(type: DockerBuildImage) {
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage
     targetImageId buildMyAppImage.getImageId()
-    portBindings = ['8080:8080']
-    autoRemove = true
+    hostConfig.portBindings = ['8080:8080']
+    hostConfig.autoRemove = true
 }
 
 task startMyAppContainer(type: DockerStartContainer) {
