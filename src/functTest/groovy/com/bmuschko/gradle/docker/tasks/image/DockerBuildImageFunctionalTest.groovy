@@ -231,7 +231,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 import com.bmuschko.gradle.docker.tasks.image.*
 
 plugins {
-    id("com.bmuschko.docker-remote-api") version "5.1.0"
+    id("com.bmuschko.docker-remote-api") version "5.2.0"
 }
 
 group = "edu.vanderbilt.isis"
