@@ -8,7 +8,7 @@ The plugin defines an extension with the namespace `javaApplication` as a child 
 |`baseImage`     |`Property<String>`                 |`openjdk:jre-alpine`                                     |The Docker base image used for Java application.
 |`maintainer`    |`Property<String>`                 |Value of system property `user.name`                     |The maintainer of the image.
 |`ports`         |`ListProperty<Integer>`            |`[8080]`                                                 |The Docker image exposed ports.
-|`tag`           |`Property<String>`                 |`<project.group>/<applicationName>:<project.version>`    |The tag used for the Docker image.
+|`images`        |`SetProperty<String>`              |`[<project.group>/<applicationName>:<project.version>]`  |The images used for the build and push operation.
 |`jvmArgs`       |`ListProperty<String>`             |`[]`                                                     |The JVM arguments passed to the `java` command.
 |=======
 

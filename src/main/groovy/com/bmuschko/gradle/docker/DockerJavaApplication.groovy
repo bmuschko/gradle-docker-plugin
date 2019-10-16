@@ -15,11 +15,8 @@
  */
 package com.bmuschko.gradle.docker
 
-
 import groovy.transform.CompileStatic
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 
 /**
  * The extension for configuring a Java application via the {@link DockerJavaApplicationPlugin}.
@@ -40,53 +37,9 @@ import org.gradle.api.provider.Property
  * </pre>
  */
 @CompileStatic
-class DockerJavaApplication {
-
-    /**
-     * The Docker base image used for Java application.
-     * <p>
-     * Defaults to {@code openjdk:jre-alpine}.
-     */
-    final Property<String> baseImage
-
-    /**
-     * The maintainer of the image.
-     * <p>
-     * Defaults to the value of the system property {@code user.name}.
-     */
-    final Property<String> maintainer
-
-    /**
-     * The Docker image exposed ports.
-     * <p>
-     * Defaults to {@code [8080]}.
-     */
-    final ListProperty<Integer> ports
-
-    /**
-     * The tag used for the Docker image.
-     * <p>
-     * Defaults to {@code <project.group>/<applicationName>:<project.version>}.
-     */
-    final Property<String> tag
-
-    /**
-     * The JVM arguments used to start the Java program.
-     * <p>
-     * Defaults to {@code []}.
-     *
-     * @since 4.8.0
-     */
-    final ListProperty<String> jvmArgs
+class DockerJavaApplication extends DockerConventionApplicationExtension {
 
     DockerJavaApplication(ObjectFactory objectFactory) {
-        baseImage = objectFactory.property(String)
-        baseImage.set('openjdk:jre-alpine')
-        maintainer = objectFactory.property(String)
-        maintainer.set(System.getProperty('user.name'))
-        ports = objectFactory.listProperty(Integer)
-        ports.set([8080])
-        tag = objectFactory.property(String)
-        jvmArgs = objectFactory.listProperty(String).empty()
+        super(objectFactory)
     }
 }

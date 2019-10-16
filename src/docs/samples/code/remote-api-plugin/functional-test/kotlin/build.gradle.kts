@@ -7,14 +7,14 @@ import com.bmuschko.gradle.docker.tasks.image.*
 
 val buildMyAppImage by tasks.creating(DockerBuildImage::class) {
     inputDir.set(file("docker/myapp"))
-    tags.add("test/myapp:latest")
+    images.add("test/myapp:latest")
 }
 
 val createMyAppContainer by tasks.creating(DockerCreateContainer::class) {
     dependsOn(buildMyAppImage)
     targetImageId(buildMyAppImage.getImageId())
-    portBindings.set(listOf("8080:8080"))
-    autoRemove.set(true)
+    hostConfig.portBindings.set(listOf("8080:8080"))
+    hostConfig.autoRemove.set(true)
 }
 
 val startMyAppContainer by tasks.creating(DockerStartContainer::class) {

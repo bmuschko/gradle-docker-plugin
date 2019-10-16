@@ -27,18 +27,18 @@ import com.github.dockerjava.api.model.Ports
 import com.github.dockerjava.api.model.RestartPolicy
 import com.github.dockerjava.api.model.Volume
 import com.github.dockerjava.api.model.VolumesFrom
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
-class DockerCreateContainer extends DockerExistingImage {
-    @Input
-    @Optional
-    final ListProperty<String> links = project.objects.listProperty(String)
+import javax.inject.Inject
 
+class DockerCreateContainer extends DockerExistingImage {
     @Input
     @Optional
     final Property<String> containerName = project.objects.property(String)
@@ -59,15 +59,6 @@ class DockerCreateContainer extends DockerExistingImage {
     @Optional
     final Property<String> user = project.objects.property(String)
 
-    /**
-     * A list of additional groups that the container process will run as.
-     *
-     * @since 4.4.0
-     */
-    @Input
-    @Optional
-    final ListProperty<String> groups = project.objects.listProperty(String)
-
     @Input
     @Optional
     final Property<Boolean> stdinOpen = project.objects.property(Boolean)
@@ -75,26 +66,6 @@ class DockerCreateContainer extends DockerExistingImage {
     @Input
     @Optional
     final Property<Boolean> stdinOnce = project.objects.property(Boolean)
-
-    @Input
-    @Optional
-    final Property<Long> memory = project.objects.property(Long)
-
-    @Input
-    @Optional
-    final Property<Long> memorySwap = project.objects.property(Long)
-
-    @Input
-    @Optional
-    final Property<String> cpuset = project.objects.property(String)
-
-    @Input
-    @Optional
-    final ListProperty<String> portBindings = project.objects.listProperty(String)
-
-    @Input
-    @Optional
-    final Property<Boolean> publishAll = project.objects.property(Boolean)
 
     @Input
     @Optional
@@ -122,14 +93,6 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final ListProperty<String> dns = project.objects.listProperty(String)
-
-    @Input
-    @Optional
-    final Property<String> network = project.objects.property(String)
-
-    @Input
-    @Optional
     final ListProperty<String> networkAliases = project.objects.listProperty(String)
 
     @Input
@@ -142,10 +105,6 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final ListProperty<String> volumesFrom = project.objects.listProperty(String)
-
-    @Input
-    @Optional
     final Property<String> workingDir = project.objects.property(String)
 
     @Input
@@ -153,54 +112,11 @@ class DockerCreateContainer extends DockerExistingImage {
 
     @Input
     @Optional
-    final MapProperty<String, String> binds = project.objects.mapProperty(String, String)
-
-    @Input
-    @Optional
-    final ListProperty<String> extraHosts = project.objects.listProperty(String)
-
-    @Input
-    @Optional
-    final Property<LogConfig> logConfig = project.objects.property(LogConfig)
-
-    @Input
-    @Optional
-    final Property<Boolean> privileged = project.objects.property(Boolean)
-
-    @Input
-    @Optional
     final Property<Boolean> tty = project.objects.property(Boolean)
 
     @Input
     @Optional
-    final Property<String> restartPolicy = project.objects.property(String)
-
-    @Input
-    @Optional
     final Property<String> pid = project.objects.property(String)
-
-    @Input
-    @Optional
-    final ListProperty<String> devices = project.objects.listProperty(String)
-
-    /**
-     * Size of <code>/dev/shm</code> in bytes.
-     * The size must be greater than 0.
-     * If omitted the system uses 64MB.
-     */
-    @Input
-    @Optional
-    final Property<Long> shmSize = project.objects.property(Long)
-
-    /* 
-     * Automatically remove the container when the container's process exits.
-     *
-     * This has no effect if {@link #restartPolicy} is set.
-     * @since 3.6.2
-     */
-    @Input
-    @Optional
-    final Property<Boolean> autoRemove = project.objects.property(Boolean)
 
     @Input
     @Optional
@@ -212,46 +128,25 @@ class DockerCreateContainer extends DockerExistingImage {
     @Input
     @Optional
     final Property<String> macAddress = project.objects.property(String)
-    
-    /**
-     * Set the IPC mode for the container
-     * "none"- Own private IPC namespace, with /dev/shm not mounted.
-     * "private" - 	Own private IPC namespace.
-     * "shareable" - Own private IPC namespace, with a possibility to share it with other containers.
-     * "container: <_name-or-ID_>" - Join another ("shareable") container’s IPC namespace.
-     * "host" - Use the host system’s IPC namespace.
-     */
-    @Input
-    @Optional
-    final Property<String> ipcMode = project.objects.property(String)
-    
-    @Input
-    @Optional
-    final MapProperty<String, String> sysctls = project.objects.mapProperty(String, String)
-    
-    DockerCreateContainer() {
-        links.empty()
+
+    @Nested
+    final HostConfig hostConfig
+
+    @Inject
+    DockerCreateContainer(ObjectFactory objectFactory) {
+        hostConfig = objectFactory.newInstance(HostConfig, objectFactory)
         portSpecs.empty()
         stdinOpen.set(false)
         stdinOnce.set(false)
-        portBindings.empty()
-        publishAll.set(false)
         attachStdin.set(false)
         attachStdout.set(false)
         attachStderr.set(false)
         cmd.empty()
         entrypoint.empty()
-        dns.empty()
         networkAliases.empty()
         volumes.empty()
-        volumesFrom.empty()
         exposedPorts.empty()
-        extraHosts.empty()
-        privileged.set(false)
         tty.set(false)
-        devices.empty()
-        autoRemove.set(false)
-        groups.empty()
     }
 
     @Override
@@ -267,16 +162,8 @@ class DockerCreateContainer extends DockerExistingImage {
         }
     }
 
-    void logConfig(String type, Map<String, String> config) {
-        this.logConfig.set(new LogConfig(type: type, config: config))
-    }
-
     void exposePorts(String internetProtocol, List<Integer> ports) {
         exposedPorts.add(new ExposedPort(internetProtocol, ports))
-    }
-
-    void restartPolicy(String name, int maximumRetryCount) {
-        this.restartPolicy.set("${name}:${maximumRetryCount}".toString())
     }
 
     void withEnvVar(def key, def value) {
@@ -308,8 +195,8 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.withUser(user.get())
         }
 
-        if(groups.getOrNull()) {
-            containerCommand.hostConfig.withGroupAdd(groups.get())
+        if(hostConfig.groups.getOrNull()) {
+            containerCommand.hostConfig.withGroupAdd(hostConfig.groups.get())
         }
 
         if(stdinOpen.getOrNull()) {
@@ -320,16 +207,16 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.withStdInOnce(stdinOnce.get())
         }
 
-        if(memory.getOrNull()) {
-            containerCommand.hostConfig.withMemory(memory.get())
+        if(hostConfig.memory.getOrNull()) {
+            containerCommand.hostConfig.withMemory(hostConfig.memory.get())
         }
 
-        if(memorySwap.getOrNull()) {
-            containerCommand.hostConfig.withMemorySwap(memorySwap.get())
+        if(hostConfig.memorySwap.getOrNull()) {
+            containerCommand.hostConfig.withMemorySwap(hostConfig.memorySwap.get())
         }
 
-        if(cpuset.getOrNull()) {
-            containerCommand.hostConfig.withCpusetCpus(cpuset.get())
+        if(hostConfig.cpuset.getOrNull()) {
+            containerCommand.hostConfig.withCpusetCpus(hostConfig.cpuset.get())
         }
 
         if(attachStdin.getOrNull()) {
@@ -357,12 +244,12 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.withEntrypoint(entrypoint.get())
         }
 
-        if(dns.getOrNull()) {
-            containerCommand.hostConfig.withDns(dns.get())
+        if(hostConfig.dns.getOrNull()) {
+            containerCommand.hostConfig.withDns(hostConfig.dns.get())
         }
 
-        if(network.getOrNull()) {
-            containerCommand.hostConfig.withNetworkMode(network.get())
+        if(hostConfig.network.getOrNull()) {
+            containerCommand.hostConfig.withNetworkMode(hostConfig.network.get())
         }
 
         if(networkAliases.getOrNull()) {
@@ -378,13 +265,13 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.withVolumes(createdVolumes)
         }
 
-        if (links.getOrNull()) {
-            List<Link> createdLinks = links.get().collect { Link.parse(it) }
+        if (hostConfig.links.getOrNull()) {
+            List<Link> createdLinks = hostConfig.links.get().collect { Link.parse(it) }
             containerCommand.hostConfig.withLinks(createdLinks as Link[])
         }
 
-        if(volumesFrom.getOrNull()) {
-            List<VolumesFrom> createdVolumes = volumesFrom.get().collect { new VolumesFrom(it) }
+        if(hostConfig.volumesFrom.getOrNull()) {
+            List<VolumesFrom> createdVolumes = hostConfig.volumesFrom.get().collect { new VolumesFrom(it) }
             containerCommand.hostConfig.withVolumesFrom(createdVolumes)
         }
 
@@ -401,44 +288,44 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.withExposedPorts(allPorts.flatten() as List<com.github.dockerjava.api.model.ExposedPort>)
         }
 
-        if(portBindings.getOrNull()) {
-            List<PortBinding> createdPortBindings = portBindings.get().collect { PortBinding.parse(it) }
+        if(hostConfig.portBindings.getOrNull()) {
+            List<PortBinding> createdPortBindings = hostConfig.portBindings.get().collect { PortBinding.parse(it) }
             containerCommand.hostConfig.withPortBindings(new Ports(createdPortBindings as PortBinding[]))
         }
 
-        if(publishAll.getOrNull()) {
-            containerCommand.hostConfig.withPublishAllPorts(publishAll.get())
+        if(hostConfig.publishAll.getOrNull()) {
+            containerCommand.hostConfig.withPublishAllPorts(hostConfig.publishAll.get())
         }
 
-        if(binds.getOrNull()) {
-            List<Bind> createdBinds = binds.get().collect { Bind.parse([it.key, it.value].join(':')) }
+        if(hostConfig.binds.getOrNull()) {
+            List<Bind> createdBinds = hostConfig.binds.get().collect { Bind.parse([it.key, it.value].join(':')) }
             containerCommand.hostConfig.withBinds(createdBinds)
         }
 
-        if(extraHosts.getOrNull()) {
-            containerCommand.hostConfig.withExtraHosts(extraHosts.get() as String[])
+        if(hostConfig.extraHosts.getOrNull()) {
+            containerCommand.hostConfig.withExtraHosts(hostConfig.extraHosts.get() as String[])
         }
 
-        if(logConfig.getOrNull()) {
-            com.github.dockerjava.api.model.LogConfig.LoggingType type = com.github.dockerjava.api.model.LogConfig.LoggingType.fromValue(logConfig.get().type)
-            com.github.dockerjava.api.model.LogConfig config = new com.github.dockerjava.api.model.LogConfig(type, logConfig.get().config)
+        if(hostConfig.logConfig.getOrNull()) {
+            com.github.dockerjava.api.model.LogConfig.LoggingType type = com.github.dockerjava.api.model.LogConfig.LoggingType.fromValue(hostConfig.logConfig.get().type)
+            com.github.dockerjava.api.model.LogConfig config = new com.github.dockerjava.api.model.LogConfig(type, hostConfig.logConfig.get().config)
             containerCommand.hostConfig.withLogConfig(config)
         }
 
-        if(privileged.getOrNull()) {
-            containerCommand.hostConfig.withPrivileged(privileged.get())
+        if(hostConfig.privileged.getOrNull()) {
+            containerCommand.hostConfig.withPrivileged(hostConfig.privileged.get())
         }
 
-        if (restartPolicy.getOrNull()) {
-            containerCommand.hostConfig.withRestartPolicy(RestartPolicy.parse(restartPolicy.get()))
+        if (hostConfig.restartPolicy.getOrNull()) {
+            containerCommand.hostConfig.withRestartPolicy(RestartPolicy.parse(hostConfig.restartPolicy.get()))
         }
 
         if (pid.getOrNull()) {
             containerCommand.getHostConfig().withPidMode(pid.get())
         }
 
-        if (devices.getOrNull()) {
-            List<Device> createdDevices = devices.get().collect { Device.parse(it) }
+        if (hostConfig.devices.getOrNull()) {
+            List<Device> createdDevices = hostConfig.devices.get().collect { Device.parse(it) }
             containerCommand.hostConfig.withDevices(createdDevices)
         }
 
@@ -446,12 +333,12 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.withTty(tty.get())
         }
 
-        if(shmSize.getOrNull() != null) { // 0 is valid input
-            containerCommand.hostConfig.withShmSize(shmSize.get())
+        if(hostConfig.shmSize.getOrNull() != null) { // 0 is valid input
+            containerCommand.hostConfig.withShmSize(hostConfig.shmSize.get())
         }
 
-        if (autoRemove.getOrNull()) {
-            containerCommand.hostConfig.withAutoRemove(autoRemove.get())
+        if (hostConfig.autoRemove.getOrNull()) {
+            containerCommand.hostConfig.withAutoRemove(hostConfig.autoRemove.get())
         }
 
         if(labels.getOrNull()) {
@@ -462,27 +349,181 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.withMacAddress(macAddress.get())
         }
         
-        if(ipcMode.getOrNull()) {
+        if(hostConfig.ipcMode.getOrNull()) {
             containerCommand.hostConfig.withIpcMode(ipcMode.get())
         }
         
-        if(sysctls.getOrNull()) {
+        if(hostConfig.sysctls.getOrNull()) {
             containerCommand.hostConfig.withSysctls(sysctls.get())
         }
     }
 
-    static class LogConfig {
-        @Input String type
-        @Input Map<String, String> config = [:]
-    }
-
     static class ExposedPort {
-        @Input final String internetProtocol
-        @Input final List<Integer> ports = []
+        final String internetProtocol
+        final List<Integer> ports
 
         ExposedPort(String internetProtocol, List<Integer> ports) {
             this.internetProtocol = internetProtocol
             this.ports = ports
+        }
+    }
+
+    /**
+     * @since 6.0.0
+     */
+    static class HostConfig {
+        /**
+         * A list of additional groups that the container process will run as.
+         */
+        @Input
+        @Optional
+        final ListProperty<String> groups
+
+        @Input
+        @Optional
+        final Property<Long> memory
+
+        @Input
+        @Optional
+        final Property<Long> memorySwap
+
+        @Input
+        @Optional
+        final Property<String> cpuset
+
+        @Input
+        @Optional
+        final ListProperty<String> dns
+
+        @Input
+        @Optional
+        final Property<String> network
+
+        @Input
+        @Optional
+        final ListProperty<String> links
+
+        @Input
+        @Optional
+        final ListProperty<String> volumesFrom
+
+        @Input
+        @Optional
+        final ListProperty<String> portBindings
+
+        @Input
+        @Optional
+        final Property<Boolean> publishAll
+
+        @Input
+        @Optional
+        final MapProperty<String, String> binds
+
+        @Input
+        @Optional
+        final ListProperty<String> extraHosts
+
+        @Input
+        @Optional
+        final Property<LogConfig> logConfig
+
+        @Input
+        @Optional
+        final Property<Boolean> privileged
+
+        @Input
+        @Optional
+        final Property<String> restartPolicy
+
+        @Input
+        @Optional
+        final ListProperty<String> devices
+
+        /**
+         * Size of {@code /dev/shm} in bytes.
+         * <p>
+         * The size must be greater than 0. If omitted the system uses 64MB.
+         */
+        @Input
+        @Optional
+        final Property<Long> shmSize
+
+        /**
+         * Automatically remove the container when the container's process exits.
+         * <p>
+         * This has no effect if {@link #restartPolicy} is set.
+         */
+        @Input
+        @Optional
+        final Property<Boolean> autoRemove
+      
+        /**
+        * Set the IPC mode for the container
+        * "none"- Own private IPC namespace, with /dev/shm not mounted.
+        * "private" - 	Own private IPC namespace.
+        * "shareable" - Own private IPC namespace, with a possibility to share it with other containers.
+        * "container: <_name-or-ID_>" - Join another ("shareable") container’s IPC namespace.
+        * "host" - Use the host system’s IPC namespace.
+        */
+        @Input
+        @Optional
+        final Property<String> ipcMode
+      
+        /**
+        * Sets namespaced kernel parameters (sysctls) in the container. 
+        * For example, to turn on IP forwarding in the containers network namespace:
+        * sysctls = ['net.ipv4.ip_forward':'1']
+        * <strong>Note:</strong> Not all sysctls are namespaced. 
+        * Docker does not support changing sysctls inside of a container that also modify the host system. 
+        */
+        @Input
+        @Optional
+        final MapProperty<String, String> sysctls
+      
+        @Inject
+        HostConfig(ObjectFactory objectFactory) {
+            groups = objectFactory.listProperty(String)
+            groups.empty()
+            memory = objectFactory.property(Long)
+            memorySwap = objectFactory.property(Long)
+            cpuset = objectFactory.property(String)
+            dns = objectFactory.listProperty(String)
+            dns.empty()
+            network = objectFactory.property(String)
+            links = objectFactory.listProperty(String)
+            links.empty()
+            volumesFrom = objectFactory.listProperty(String)
+            volumesFrom.empty()
+            portBindings = objectFactory.listProperty(String)
+            portBindings.empty()
+            publishAll = objectFactory.property(Boolean)
+            publishAll.set(false)
+            binds = objectFactory.mapProperty(String, String)
+            extraHosts = objectFactory.listProperty(String)
+            extraHosts.empty()
+            logConfig = objectFactory.property(LogConfig)
+            privileged = objectFactory.property(Boolean)
+            privileged.set(false)
+            restartPolicy = objectFactory.property(String)
+            devices = objectFactory.listProperty(String)
+            shmSize = objectFactory.property(Long)
+            autoRemove = objectFactory.property(Boolean)
+            autoRemove.set(false)
+            ipcMode = project.objects.property(String)
+            sysctls = project.objects.mapProperty(String, String)
+        }
+
+        void logConfig(String type, Map<String, String> config) {
+            this.logConfig.set(new LogConfig(type: type, config: config))
+        }
+
+        void restartPolicy(String name, int maximumRetryCount) {
+            this.restartPolicy.set("${name}:${maximumRetryCount}".toString())
+        }
+
+        static class LogConfig {
+            String type
+            Map<String, String> config = [:]
         }
     }
 }

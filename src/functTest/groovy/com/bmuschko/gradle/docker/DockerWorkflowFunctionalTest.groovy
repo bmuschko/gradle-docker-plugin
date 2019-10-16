@@ -38,14 +38,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "$uniqueContainerName"
-                portBindings = ['8080:8080']
+                hostConfig.portBindings = ['8080:8080']
                 cmd = ['/bin/sh']
             }
 
@@ -106,7 +106,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer1(type: DockerCreateContainer) {
@@ -120,7 +120,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer1
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}2"
-                links = ["${uniqueContainerName}1:container1"]
+                hostConfig.links = ["${uniqueContainerName}1:container1"]
                 cmd = ['/bin/sh']
             }
 
@@ -154,7 +154,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer1(type: DockerCreateContainer) {
@@ -168,7 +168,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer1
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}-2"
-                volumesFrom = ["${uniqueContainerName}-1"]
+                hostConfig.volumesFrom = ["${uniqueContainerName}-1"]
                 cmd = ['/bin/sh']
             }
 
@@ -204,12 +204,12 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task buildImage(type: DockerBuildImage) {
                 dependsOn createDockerfile
                 inputDir = createDockerfile.destFile.get().asFile.parentFile
-                tags.add('${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}')
+                images.add('${TestConfiguration.dockerPrivateRegistryDomain}/${createUniqueImageId()}')
             }
 
             task pushImage(type: DockerPushImage) {
                 dependsOn buildImage
-                imageName = buildImage.tags.get().first()
+                images.set(buildImage.images)
             }
 
             task workflow {
@@ -242,7 +242,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file('images/minimal')
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -301,7 +301,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -340,14 +340,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                logConfig("none", [:])
+                hostConfig.logConfig("none", [:])
                 cmd = ['/bin/sh']
             }
 
@@ -379,14 +379,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                restartPolicy("on-failure", 999)
+                hostConfig.restartPolicy("on-failure", 999)
                 cmd = ['/bin/sh']
             }
 
@@ -418,14 +418,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                devices = ["/dev/sda:/dev/xvda:rwm"]
+                hostConfig.devices = ["/dev/sda:/dev/xvda:rwm"]
                 cmd = ['/bin/sh']
             }
 
@@ -457,15 +457,15 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                portBindings = ['8080:8080']
-                shmSize = 128000L
+                hostConfig.portBindings = ['8080:8080']
+                hostConfig.shmSize = 128000L
                 cmd = ['/bin/sh']
             }
 
@@ -516,14 +516,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
                 dependsOn buildImage, createNetwork
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                network = createNetwork.getNetworkId()
+                hostConfig.network = createNetwork.getNetworkId()
                 networkAliases = ["some-alias"]
                 cmd = ['/bin/sh']
             }
@@ -563,7 +563,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -607,7 +607,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${createUniqueImageId()}")
+                images.add("${createUniqueImageId()}")
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -653,12 +653,12 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             
             task buildImage(type: DockerBuildImage) {
                 inputDir = file("${dockerFile.parentFile.path}")
-                tags.add("${imageName}")
+                images.add("${imageName}")
             }
 
             task saveImage(type: DockerSaveImage) {
                 dependsOn buildImage
-                repository = "${imageName}"
+                image = "${imageName}"
                 destFile = new File("${savedImagePath}")
             }
             

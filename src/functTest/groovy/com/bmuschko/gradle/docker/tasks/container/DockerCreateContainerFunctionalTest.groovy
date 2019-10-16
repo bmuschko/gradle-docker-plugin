@@ -26,9 +26,9 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getImage()
                 cmd = ['groups']
-                groups = ['postgres']
+                hostConfig.groups = ['postgres']
             }
         """
         buildFile <<
@@ -57,8 +57,8 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
-                binds = ['/tmp': '/testdata']
+                targetImageId pullImage.getImage()
+                hostConfig.binds = ['/tmp': '/testdata']
             }
         """
         buildFile <<
@@ -87,10 +87,10 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getImage()
                 cmd = ['ifconfig']
                 macAddress = '02:03:04:05:06:07'
-                cpuset = '1'
+                hostConfig.cpuset = '1'
                 labels = ["project.name": "\$project.name"]
             }
         """
@@ -110,7 +110,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getImage()
                 cmd = ['env']
                 
                 // add by appending new map to current map
@@ -142,8 +142,8 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
-                autoRemove = true
+                targetImageId pullImage.getImage()
+                hostConfig.autoRemove = true
 
                 // The sleep is to keep the container around to avoid the
                 // stopContainer task failing due to the container not existing.
@@ -180,7 +180,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
+                targetImageId pullImage.getImage()
             }
         """
 
@@ -207,12 +207,12 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         String containerCreationTask = """
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
-                targetImageId pullImage.getImageId()
-                autoRemove = true
-                
+                targetImageId pullImage.getImage()
+                hostConfig.autoRemove = true
+
                 cmd = ['sleep', '10']
                 exposePorts 'tcp', $exposedPorts
-                publishAll = true
+                hostConfig.publishAll = true
             }
         """
 
@@ -257,8 +257,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
             task pullImage(type: DockerPullImage) {
-                repository = '$TEST_IMAGE'
-                tag = '$TEST_IMAGE_TAG'
+                image = '$TEST_IMAGE:$TEST_IMAGE_TAG'
             }
 
             ${containerCreationTask}
