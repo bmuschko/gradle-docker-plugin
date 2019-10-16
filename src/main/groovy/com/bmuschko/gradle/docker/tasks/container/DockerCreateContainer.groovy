@@ -348,11 +348,11 @@ class DockerCreateContainer extends DockerExistingImage {
         if(macAddress.getOrNull()) {
             containerCommand.withMacAddress(macAddress.get())
         }
-        
+
         if(hostConfig.ipcMode.getOrNull()) {
             containerCommand.hostConfig.withIpcMode(ipcMode.get())
         }
-        
+
         if(hostConfig.sysctls.getOrNull()) {
             containerCommand.hostConfig.withSysctls(sysctls.get())
         }
@@ -456,30 +456,36 @@ class DockerCreateContainer extends DockerExistingImage {
         @Input
         @Optional
         final Property<Boolean> autoRemove
-      
+
         /**
-        * Set the IPC mode for the container
-        * "none"- Own private IPC namespace, with /dev/shm not mounted.
-        * "private" - 	Own private IPC namespace.
-        * "shareable" - Own private IPC namespace, with a possibility to share it with other containers.
-        * "container: <_name-or-ID_>" - Join another ("shareable") container’s IPC namespace.
-        * "host" - Use the host system’s IPC namespace.
-        */
+         * The IPC mode for the container.
+         * <ol>
+         * <li>{@code none} - Own private IPC namespace, with /dev/shm not mounted.</li>
+         * <li>{@code private} - Own private IPC namespace.</li>
+         * <li>{@code shareable" - Own private IPC namespace, with a possibility to share it with other containers.</li>
+         * <li>{@code container <_name-or-ID_>} - Join another ("shareable") container’s IPC namespace.</li>
+         * <li>{@code host} - Use the host system’s IPC namespace.</li>
+         * </ol>
+         */
         @Input
         @Optional
         final Property<String> ipcMode
-      
+
         /**
-        * Sets namespaced kernel parameters (sysctls) in the container. 
-        * For example, to turn on IP forwarding in the containers network namespace:
-        * sysctls = ['net.ipv4.ip_forward':'1']
-        * <strong>Note:</strong> Not all sysctls are namespaced. 
-        * Docker does not support changing sysctls inside of a container that also modify the host system. 
-        */
+         * The namespaced kernel parameters (sysctls) in the container.
+         * <p>
+         * For example, to turn on IP forwarding in the containers network namespace: {@code sysctls = ['net.ipv4.ip_forward':'1']}
+         * <p>
+         * <strong>Note:</strong>
+         * <ol>
+         * <li>Not all sysctls are namespaced.</li>
+         * <li>Docker does not support changing sysctls inside of a container that also modify the host system.</li>
+         * </ol>
+         */
         @Input
         @Optional
         final MapProperty<String, String> sysctls
-      
+
         @Inject
         HostConfig(ObjectFactory objectFactory) {
             groups = objectFactory.listProperty(String)
