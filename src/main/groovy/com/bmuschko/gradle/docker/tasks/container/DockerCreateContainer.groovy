@@ -509,8 +509,8 @@ class DockerCreateContainer extends DockerExistingImage {
             shmSize = objectFactory.property(Long)
             autoRemove = objectFactory.property(Boolean)
             autoRemove.set(false)
-            ipcMode = project.objects.property(String)
-            sysctls = project.objects.mapProperty(String, String)
+            ipcMode = objectFactory.property(String)
+            sysctls = objectFactory.mapProperty(String, String)
         }
 
         void logConfig(String type, Map<String, String> config) {
