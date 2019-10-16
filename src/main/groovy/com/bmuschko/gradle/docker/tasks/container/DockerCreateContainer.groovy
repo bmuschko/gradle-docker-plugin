@@ -348,6 +348,14 @@ class DockerCreateContainer extends DockerExistingImage {
         if(macAddress.getOrNull()) {
             containerCommand.withMacAddress(macAddress.get())
         }
+        
+        if(hostConfig.ipcMode.getOrNull()) {
+            containerCommand.hostConfig.withIpcMode(ipcMode.get())
+        }
+        
+        if(hostConfig.sysctls.getOrNull()) {
+            containerCommand.hostConfig.withSysctls(sysctls.get())
+        }
     }
 
     static class ExposedPort {
@@ -448,7 +456,30 @@ class DockerCreateContainer extends DockerExistingImage {
         @Input
         @Optional
         final Property<Boolean> autoRemove
-
+      
+        /**
+        * Set the IPC mode for the container
+        * "none"- Own private IPC namespace, with /dev/shm not mounted.
+        * "private" - 	Own private IPC namespace.
+        * "shareable" - Own private IPC namespace, with a possibility to share it with other containers.
+        * "container: <_name-or-ID_>" - Join another ("shareable") container’s IPC namespace.
+        * "host" - Use the host system’s IPC namespace.
+        */
+        @Input
+        @Optional
+        final Property<String> ipcMode
+      
+        /**
+        * Sets namespaced kernel parameters (sysctls) in the container. 
+        * For example, to turn on IP forwarding in the containers network namespace:
+        * sysctls = ['net.ipv4.ip_forward':'1']
+        * <strong>Note:</strong> Not all sysctls are namespaced. 
+        * Docker does not support changing sysctls inside of a container that also modify the host system. 
+        */
+        @Input
+        @Optional
+        final MapProperty<String, String> sysctls
+      
         @Inject
         HostConfig(ObjectFactory objectFactory) {
             groups = objectFactory.listProperty(String)
@@ -478,6 +509,8 @@ class DockerCreateContainer extends DockerExistingImage {
             shmSize = objectFactory.property(Long)
             autoRemove = objectFactory.property(Boolean)
             autoRemove.set(false)
+            ipcMode = objectFactory.property(String)
+            sysctls = objectFactory.mapProperty(String, String)
         }
 
         void logConfig(String type, Map<String, String> config) {
