@@ -18,8 +18,10 @@ package com.bmuschko.gradle.docker.tasks
 import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.command.DockerCmdExecFactory
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
+import com.github.dockerjava.netty.NettyDockerCmdExecFactory
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import org.gradle.api.Action
@@ -36,6 +38,8 @@ import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
 abstract class AbstractDockerRemoteApiTask extends DefaultTask {
+
+    private static final String ENV_VAR_GDP_CONN_NETTY = "GDP_CONN_NETTY"
 
     /**
      * Docker remote API server URL. Defaults to "http://localhost:2375".
@@ -134,6 +138,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Internal
     @Memoized
     DockerClient getDockerClient() {
+
         DockerClientConfiguration dockerClientConfiguration = createDockerClientConfig()
         DockerExtension dockerExtension = (DockerExtension) project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME)
         String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
@@ -157,8 +162,9 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
         DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
 
-        // Create client
-        DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
+        boolean useNettyExecFactory = Boolean.valueOf(System.getenv(ENV_VAR_GDP_CONN_NETTY))
+        DockerCmdExecFactory execFactory = useNettyExecFactory ? new NettyDockerCmdExecFactory() : null
+        DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).withDockerCmdExecFactory(execFactory).build()
 
         // register buildFinished-hook to close docker client.
         project.gradle.buildFinished {
