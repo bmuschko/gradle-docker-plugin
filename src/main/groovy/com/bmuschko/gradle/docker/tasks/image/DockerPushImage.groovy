@@ -15,14 +15,18 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.tasks.AbstractCredentialsAwareRemoteApiTask
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
+
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.github.dockerjava.api.command.PushImageCmd
+import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PushResponseItem
 import com.github.dockerjava.core.command.PushImageResultCallback
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
-class DockerPushImage extends AbstractCredentialsAwareRemoteApiTask {
+class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
      * The images including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
@@ -32,12 +36,18 @@ class DockerPushImage extends AbstractCredentialsAwareRemoteApiTask {
     @Input
     final SetProperty<String> images = project.objects.setProperty(String).empty()
 
+    /**
+     * {@inheritDoc}
+     */
+    DockerRegistryCredentials registryCredentials
+
     @Override
     void runRemoteCommand() {
         images.get().each { image ->
             logger.quiet "Pushing image '${image}'."
             PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
-            pushImageCmd.withAuthConfig(resolveAuthConfig(image))
+            AuthConfig authCfg = authLocator().lookupAuthConfig(image, registryCredentials)
+            pushImageCmd.withAuthConfig(authCfg)
 
             PushImageResultCallback callback = new PushImageResultCallback() {
                 @Override

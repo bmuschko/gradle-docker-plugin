@@ -170,15 +170,14 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     }
 
     /**
-     * Gets a docker-java auth config
-     * @return docker-java auth config
+     * Factory method to create the instance of RegistryAuthLocator
+     * Unless other credentials information provided,
+     * the instance returns authConfig object provided by DockerClient
+     * @return new RegistryAuthLocator instance
      */
-    AuthConfig getAuthConfig(String image) {
-        RegistryAuthLocator authLocator =
-            new RegistryAuthLocator(getDockerClient().authConfig())
-        authLocator.lookupAuthConfig(image)
+    protected RegistryAuthLocator authLocator() {
+        return new RegistryAuthLocator(getDockerClient().authConfig())
     }
-
 
     private DockerClientConfiguration createDockerClientConfig() {
         DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()

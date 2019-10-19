@@ -1,5 +1,6 @@
 package com.bmuschko.gradle.docker.utils
 
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.dockerjava.api.model.AuthConfig
@@ -9,10 +10,15 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 /**
- * Utility class to get credentials information from $DOCKER_CONFIG/.docker/config.json file
+ * Utility class to get credentials information
+ * from extension of type registryCredentials or
+ * from $DOCKER_CONFIG/.docker/config.json file
  * Supports auth token, credentials store and credentials helpers
  * Only linux OS is supported at the moment.
  * Returns default auth object if called on windows
+ * The class is ported from the
+ * <a href="https://github.com/testcontainers/testcontainers-java">testcontainers-java</a>
+ * project (PR <a href="https://github.com/testcontainers/testcontainers-java/pull/729">729</a>)
  */
 @CompileStatic
 class RegistryAuthLocator {
@@ -48,8 +54,30 @@ class RegistryAuthLocator {
         this(defaultAuthConfig, configFile, DEFAULT_HELPER_PREFIX)
     }
 
+    /**
+     * Creates new instance
+     * @param defaultAuthConfig the auth config object to return
+     * in case not credentials found
+     */
     RegistryAuthLocator(AuthConfig defaultAuthConfig) {
         this(defaultAuthConfig, new File(configLocation()), DEFAULT_HELPER_PREFIX)
+    }
+
+    /**
+     * Tries to get the authorization information from registryCredentials object first
+     * If missing, gets authorization information
+     * using $DOCKER_CONFIG/.docker/config.json file
+     * @param registryCredentials extension of type registryCredentials
+     * @param image the name of docker image the action to be authorized for
+     * @return AuthConfig object with a credentials info or default object if
+     * no credentials found
+     */
+    AuthConfig lookupAuthConfig(String image,
+                                DockerRegistryCredentials registryCredentials) {
+        if(registryCredentials && registryCredentials.isValid()) {
+            return createAuthConfig(registryCredentials)
+        }
+        return lookupAuthConfig(image)
     }
 
     /**
@@ -103,6 +131,24 @@ class RegistryAuthLocator {
                 ex)
         }
         defaultAuthConfig
+    }
+
+    private static AuthConfig createAuthConfig(DockerRegistryCredentials registryCredentials) {
+        AuthConfig authConfig = new AuthConfig()
+            .withRegistryAddress(registryCredentials.url.get())
+
+        if (registryCredentials.username.isPresent()) {
+            authConfig.withUsername(registryCredentials.username.get())
+        }
+
+        if (registryCredentials.password.isPresent()) {
+            authConfig.withPassword(registryCredentials.password.get())
+        }
+
+        if (registryCredentials.email.isPresent()) {
+            authConfig.withEmail(registryCredentials.email.get())
+        }
+        return authConfig
     }
 
     /**

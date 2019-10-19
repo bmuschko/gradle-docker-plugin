@@ -15,14 +15,18 @@
  */
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.tasks.AbstractCredentialsAwareRemoteApiTask
+import com.bmuschko.gradle.docker.DockerRegistryCredentials
+
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.github.dockerjava.api.command.PullImageCmd
+import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PullResponseItem
 import com.github.dockerjava.core.command.PullImageResultCallback
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
-class DockerPullImage extends AbstractCredentialsAwareRemoteApiTask {
+class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
      * The image including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
@@ -32,12 +36,18 @@ class DockerPullImage extends AbstractCredentialsAwareRemoteApiTask {
     @Input
     final Property<String> image = project.objects.property(String)
 
+    /**
+     * {@inheritDoc}
+     */
+    DockerRegistryCredentials registryCredentials
+
     @Override
     void runRemoteCommand() {
         logger.quiet "Pulling image '${image.get()}'."
         PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image.get())
 
-        pullImageCmd.withAuthConfig(resolveAuthConfig(image.get()))
+        AuthConfig authCfg = authLocator().lookupAuthConfig(image.get(), registryCredentials)
+        pullImageCmd.withAuthConfig(authCfg)
 
         PullImageResultCallback callback = new PullImageResultCallback() {
             @Override
