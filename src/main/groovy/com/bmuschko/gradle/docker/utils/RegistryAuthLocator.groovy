@@ -278,9 +278,9 @@ class RegistryAuthLocator {
             StringBuilder sOut = new StringBuilder()
             StringBuilder sErr = new StringBuilder()
             Process proc = "$credentialHelperName get".execute()
-            proc.consumeProcessOutput(sOut, sErr)
             proc.withWriter { Writer writer -> writer << hostName }
             proc.waitFor()
+            proc.waitForProcessOutput(sOut, sErr)
             if (sErr.length() > 0) {
                 log.error("{} get: {}", credentialHelperName, sErr.toString())
             }
