@@ -166,7 +166,7 @@ class DockerCreateContainer extends DockerExistingImage {
         exposedPorts.add(new ExposedPort(internetProtocol, ports))
     }
 
-    void withEnvVar(def key, def value) {
+    void withEnvVar(String key, String value) {
         if (envVars.getOrNull()) {
             envVars.put(key, value)
         } else {
@@ -342,7 +342,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(labels.getOrNull()) {
-            containerCommand.withLabels(labels.get().collectEntries { [it.key, it.value.toString()] })
+            containerCommand.withLabels(labels.get())
         }
 
         if(macAddress.getOrNull()) {
@@ -350,11 +350,11 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(hostConfig.ipcMode.getOrNull()) {
-            containerCommand.hostConfig.withIpcMode(ipcMode.get())
+            containerCommand.hostConfig.withIpcMode(hostConfig.ipcMode.get())
         }
 
         if(hostConfig.sysctls.getOrNull()) {
-            containerCommand.hostConfig.withSysctls(sysctls.get())
+            containerCommand.hostConfig.withSysctls(hostConfig.sysctls.get())
         }
     }
 
