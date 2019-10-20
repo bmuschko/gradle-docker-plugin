@@ -23,6 +23,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
 /**
@@ -98,6 +99,7 @@ class DockerLogsContainer extends DockerExistingContainer {
     Writer sink
 
     // Allows subclasses to carry their own logic
+    @Internal
     protected Date getInternalSince() {
         return since.getOrNull()
     }
