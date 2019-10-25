@@ -1,11 +1,10 @@
 package com.bmuschko.gradle.docker.utils
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.dockerjava.api.model.AuthConfig
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
-import org.apache.commons.lang.SystemUtils
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -33,12 +32,8 @@ class RegistryAuthLocator {
 
     private static final String DEFAULT_HELPER_PREFIX = 'docker-credential-'
 
-    private static final String SERVER_URL = '/ServerURL'
-    private static final String USER_NAME = '/Username'
-    private static final String SECRET = '/Secret'
-
     private static final Logger log = Logging.getLogger(RegistryAuthLocator)
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+    private final JsonSlurper slurper = new JsonSlurper()
 
     private final AuthConfig defaultAuthConfig
     private final File configFile
@@ -87,7 +82,7 @@ class RegistryAuthLocator {
      * no credentials found
      */
     AuthConfig lookupAuthConfig(String image) {
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (isWindows()) {
             log.debug('RegistryAuthLocator is not supported on Windows. ' +
                 'Please help test or improve it and update ' +
                 'https://github.com/bmuschko/gradle-docker-plugin/')
@@ -105,17 +100,19 @@ class RegistryAuthLocator {
             commandPathPrefix)
 
         try {
-            JsonNode config = OBJECT_MAPPER.readTree(configFile)
+            Map<String, Object> config = slurper.parse(configFile) as Map<String, Object>
 
             AuthConfig existingAuthConfig = findExistingAuthConfig(config, repository)
             if (existingAuthConfig != null) {
                 return existingAuthConfig
             }
+
             // auths is empty, using helper:
             AuthConfig helperAuthConfig = authConfigUsingHelper(config, repository)
             if (helperAuthConfig != null) {
                 return helperAuthConfig
             }
+
             // no credsHelper to use, using credsStore:
             final AuthConfig storeAuthConfig = authConfigUsingStore(config, repository)
             if (storeAuthConfig != null) {
@@ -184,12 +181,15 @@ class RegistryAuthLocator {
      * @param repository the name of the docker repository
      * @return auth object with a token if present or null otherwise
      */
-    private static AuthConfig findExistingAuthConfig(JsonNode config, String repository) {
-        Map.Entry<String, JsonNode> entry = findAuthNode(config, repository)
-        if (entry != null && entry.getValue() != null && entry.getValue().size() > 0) {
-            return OBJECT_MAPPER
-                .treeToValue(entry.getValue(), AuthConfig.class)
-                .withRegistryAddress(entry.getKey())
+    private static AuthConfig findExistingAuthConfig(Map<String, Object> config, String repository) {
+        Map.Entry<String, Object> entry = findAuthNode(config, repository)
+        if (entry != null && entry.getValue() != null && entry.getValue() instanceof Map) {
+            Map authMap = entry.getValue() as Map
+            if (authMap.size() > 0) {
+                String authJson = JsonOutput.toJson(entry.getValue())
+                AuthConfig authCfg = new JsonSlurper().parseText(authJson) as AuthConfig
+                return authCfg.withRegistryAddress(entry.getKey())
+            }
         }
         log.debug('No existing AuthConfig found')
         return null
@@ -201,13 +201,11 @@ class RegistryAuthLocator {
      * @param repository the name of the docker repository
      * @return auth json node if present or null otherwise
      */
-    private static Map.Entry<String, JsonNode> findAuthNode(JsonNode config,
+    private static Map.Entry<String, Object> findAuthNode(Map<String, Object> config,
                                                             String repository) {
-        JsonNode auths = config.get(AUTH_SECTION)
+        Map<String, Object> auths = config.get(AUTH_SECTION) as Map<String, Object>
         if (auths != null && auths.size() > 0) {
-            Iterator<Map.Entry<String, JsonNode>> fields = auths.fields()
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> entry = fields.next()
+            for (Map.Entry<String, Object> entry: auths.entrySet() ) {
                 if (entry.getKey().endsWith('://' + repository) || entry.getKey() == repository) {
                     return entry
                 }
@@ -222,12 +220,12 @@ class RegistryAuthLocator {
      * @param repository the name of the docker repository
      * @return auth object if present or null otherwise
      */
-    private AuthConfig authConfigUsingHelper(JsonNode config, String repository)  {
-        JsonNode credHelpers = config.get(HELPERS_SECTION)
+    private AuthConfig authConfigUsingHelper(Map<String, Object> config, String repository)  {
+        Map<String, Object> credHelpers = config.get(HELPERS_SECTION) as Map<String, Object>
         if (credHelpers != null && credHelpers.size() > 0) {
-            JsonNode helperNode = credHelpers.get(repository)
-            if (helperNode != null && helperNode.isTextual()) {
-                String helper = helperNode.asText()
+            Object helperNode = credHelpers.get(repository)
+            if (helperNode != null && helperNode instanceof String) {
+                String helper = helperNode as String
                 return runCredentialProvider(repository, helper)
             }
         }
@@ -245,13 +243,13 @@ class RegistryAuthLocator {
         String credentialHelperName = commandPathPrefix + credHelper
 
         String data = runCommand(hostName, credentialHelperName)
-        JsonNode helperResponse = OBJECT_MAPPER.readTree(data)
+        Map<String, String> helperResponse = slurper.parseText(data) as Map<String, String>
         log.debug('Credential helper provided auth config for: {}', hostName)
 
         return new AuthConfig()
-            .withRegistryAddress(helperResponse.at(SERVER_URL).asText())
-            .withUsername(helperResponse.at(USER_NAME).asText())
-            .withPassword(helperResponse.at(SECRET).asText())
+            .withRegistryAddress(helperResponse.ServerURL)
+            .withUsername(helperResponse.Username)
+            .withPassword(helperResponse.Secret)
     }
 
     /**
@@ -260,11 +258,10 @@ class RegistryAuthLocator {
      * @param repository the name of the docker repository
      * @return auth object if present or null otherwise
      */
-    private AuthConfig authConfigUsingStore(JsonNode config, String repository) {
-        JsonNode credsStoreNode = config.get(CREDS_STORE_SECTION)
-        if (credsStoreNode != null && !credsStoreNode.isMissingNode() &&
-                credsStoreNode.isTextual()) {
-            String credsStore = credsStoreNode.asText()
+    private AuthConfig authConfigUsingStore(Map<String, Object> config, String repository) {
+        Object credsStoreNode = config.get(CREDS_STORE_SECTION)
+        if (credsStoreNode != null && credsStoreNode instanceof String) {
+            String credsStore = credsStoreNode as String
             return runCredentialProvider(repository, credsStore)
         }
         log.debug('No helper found in the {} section', CREDS_STORE_SECTION)
@@ -289,5 +286,10 @@ class RegistryAuthLocator {
             log.error('Failure running docker credential helper ({})', credentialHelperName)
             throw e
         }
+    }
+
+    private static boolean isWindows() {
+        String osName = System.getProperty('os.name')
+        return osName != null && osName.startsWith('Windows')
     }
 }
