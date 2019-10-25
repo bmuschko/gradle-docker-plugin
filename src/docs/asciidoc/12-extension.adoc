@@ -12,7 +12,7 @@ The following properties can be configured:
 |=======
 
 Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.
-You can provide those credentials in the `registryCredentials` closure:
+You can provide those credentials in the `registryCredentials` closure. The credentials provided in the extension automatically become available to all custom tasks that implement the interface {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/RegistryCredentialsAware.html[RegistryCredentialsAware].
 
 [options="header"]
 |=======

@@ -13,6 +13,36 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         settingsFile << groovySettingsFile()
     }
 
+    def "can automatically use extension credentials in registry-aware custom tasks"() {
+        given:
+        buildFile << registryCredentials()
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+            task buildImage(type: DockerBuildImage)
+            task pullImage(type: DockerPullImage)
+            task pushImage(type: DockerPushImage)
+
+            task verify {
+                doLast {
+                    def registryCredentialsAwareTasks = tasks.withType(RegistryCredentialsAware)
+                    assert registryCredentialsAwareTasks.size() == 3
+
+                    registryCredentialsAwareTasks.each { task ->
+                        assert task.registryCredentials.username.get() == '$DEFAULT_USERNAME'
+                        assert task.registryCredentials.password.get() == '$DEFAULT_PASSWORD'
+                    }
+                }
+            }
+        """
+
+        expect:
+        build('verify')
+    }
+
     def "can convert credentials into PasswordCredentials type and retrieve values"() {
         given:
         buildFile << registryCredentials()
