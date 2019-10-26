@@ -43,6 +43,37 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('verify')
     }
 
+    def "can overwrite default credentials for custom tasks with action"() {
+        given:
+        buildFile << registryCredentials()
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+
+            task buildImage(type: DockerBuildImage) {
+                registryCredentials {
+                    username = '$CUSTOM_USERNAME'
+                    password = '$CUSTOM_PASSWORD'
+                }
+            }
+
+            task pullImage(type: DockerPullImage)
+
+            task verify {
+                doLast {
+                    assert buildImage.registryCredentials.username.get() == '$CUSTOM_USERNAME'
+                    assert buildImage.registryCredentials.password.get() == '$CUSTOM_PASSWORD'
+                    assert pullImage.registryCredentials.username.get() == '$DEFAULT_USERNAME'
+                    assert pullImage.registryCredentials.password.get() == '$DEFAULT_PASSWORD'
+                }
+            }
+        """
+
+        expect:
+        build('verify')
+    }
+
     def "can convert credentials into PasswordCredentials type and retrieve values"() {
         given:
         buildFile << registryCredentials()
