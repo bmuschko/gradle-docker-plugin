@@ -42,7 +42,7 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     final DockerRegistryCredentials registryCredentials
 
     DockerPullImage() {
-        registryCredentials = project.objects.newInstance(DockerRegistryCredentials)
+        registryCredentials = project.objects.newInstance(DockerRegistryCredentials, project.objects)
     }
 
     @Override
