@@ -22,6 +22,7 @@ import com.github.dockerjava.api.command.PushImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PushResponseItem
 import com.github.dockerjava.core.command.PushImageResultCallback
+import org.gradle.api.Action
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
@@ -38,11 +39,15 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     /**
      * {@inheritDoc}
      */
-    DockerRegistryCredentials registryCredentials
+    final DockerRegistryCredentials registryCredentials
+
+    DockerPushImage() {
+        registryCredentials = project.objects.newInstance(DockerRegistryCredentials)
+    }
 
     @Override
     void runRemoteCommand() {
-        AuthConfig authConfig = registryCredentials ? createAuthConfig() : null
+        AuthConfig authConfig = createAuthConfig()
 
         images.get().each { image ->
             logger.quiet "Pushing image '${image}'."
@@ -88,5 +93,16 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
         }
 
         authConfig
+    }
+
+    /**
+     * Configures the target Docker registry credentials.
+     *
+     * @param action The action against the Docker registry credentials
+     * @since 6.0.0
+     */
+    @Override
+    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
+        action.execute(registryCredentials)
     }
 }

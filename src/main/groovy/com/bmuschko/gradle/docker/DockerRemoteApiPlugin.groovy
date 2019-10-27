@@ -20,12 +20,11 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
  * <p>
- * Exposes the extension {@link DockerExtension) required to configure the communication and authentication with the Docker remote API.
+ * Exposes the extension {@link DockerExtension) required to configure the communication and authentication with the Docker remote API. Provides Docker registry credential values from the extension to all custom tasks that implement {@link RegistryCredentialsAware}.
  */
 @CompileStatic
 class DockerRemoteApiPlugin implements Plugin<Project> {
@@ -43,15 +42,17 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         DockerExtension dockerExtension = project.extensions.create(EXTENSION_NAME, DockerExtension, project.objects)
-        DockerRegistryCredentials dockerRegistryCredentials = ((ExtensionAware) dockerExtension).extensions.create('registryCredentials', DockerRegistryCredentials, project.objects)
-        configureRegistryAwareTasks(project, dockerRegistryCredentials)
+        configureRegistryCredentialsAwareTasks(project, dockerExtension.registryCredentials)
     }
 
-    private void configureRegistryAwareTasks(Project project, DockerRegistryCredentials dockerRegistryCredentials) {
+    private void configureRegistryCredentialsAwareTasks(Project project, DockerRegistryCredentials extensionRegistryCredentials) {
         project.tasks.withType(RegistryCredentialsAware, new Action<RegistryCredentialsAware>() {
             @Override
-            void execute(RegistryCredentialsAware registryCredentialsAware) {
-                registryCredentialsAware.setRegistryCredentials(dockerRegistryCredentials)
+            void execute(RegistryCredentialsAware task) {
+                task.registryCredentials.url.set(extensionRegistryCredentials.url)
+                task.registryCredentials.username.set(extensionRegistryCredentials.username)
+                task.registryCredentials.password.set(extensionRegistryCredentials.password)
+                task.registryCredentials.email.set(extensionRegistryCredentials.email)
             }
         })
     }
