@@ -252,7 +252,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (labels.getOrNull()) {
-            buildImageCmd.withLabels(labels.get().collectEntries { [it.key, it.value.toString()] })
+            buildImageCmd.withLabels(labels.get())
         }
 
         if(shmSize.getOrNull() != null) { // 0 is valid input
@@ -301,7 +301,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         new BuildImageResultCallback() {
 
-            def collector = new OutputCollector({ s -> logger.quiet(s) })
+            OutputCollector collector = new OutputCollector({ s -> logger.quiet(s) })
 
             @Override
             void onNext(BuildResponseItem item) {

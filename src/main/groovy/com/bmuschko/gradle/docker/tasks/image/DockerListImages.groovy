@@ -18,12 +18,14 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.github.dockerjava.api.command.ListImagesCmd
 import com.github.dockerjava.api.model.Image
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+@CompileStatic
 class DockerListImages extends AbstractDockerRemoteApiTask {
 
     @Input
