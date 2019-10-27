@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker
 
 import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -58,6 +59,11 @@ class DockerExtension {
      */
     final Property<String> apiVersion
 
+    /**
+     * The target Docker registry credentials.
+     */
+    final DockerRegistryCredentials registryCredentials
+
     DockerExtension(ObjectFactory objectFactory) {
         url = objectFactory.property(String)
         url.set(getDefaultDockerUrl())
@@ -70,6 +76,17 @@ class DockerExtension {
         }
 
         apiVersion = objectFactory.property(String)
+        registryCredentials = objectFactory.newInstance(DockerRegistryCredentials, objectFactory)
+    }
+
+    /**
+     * Configures the target Docker registry credentials.
+     *
+     * @param action The action against the Docker registry credentials
+     * @since 6.0.0
+     */
+    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
+        action.execute(registryCredentials)
     }
 
     private String getDefaultDockerUrl() {

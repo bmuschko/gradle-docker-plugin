@@ -61,7 +61,7 @@ class RegistryAuthLocatorTest extends Specification {
     def "AuthLocator returns default config when the file does not exist"() {
         when:
         def config = new AuthConfig()
-        def locator = new RegistryAuthLocator(config, new File("missing-file.json"))
+        def locator = new RegistryAuthLocator(new File("missing-file.json"))
         then:
         locator.lookupAuthConfig("registry.example.com/org/repo") == config
     }
@@ -69,7 +69,7 @@ class RegistryAuthLocatorTest extends Specification {
     def "AuthLocator returns default config when the file is invalid"() {
         when:
         def config = new AuthConfig()
-        def locator = new RegistryAuthLocator(config, new File("invalid.json"))
+        def locator = new RegistryAuthLocator(new File("invalid.json"))
         then:
         locator.lookupAuthConfig("registry.example.com/org/repo") == config
     }
@@ -84,7 +84,7 @@ class RegistryAuthLocatorTest extends Specification {
 
     def "AuthLocator works with localhost"() {
         when:
-        def locator = new RegistryAuthLocator(new AuthConfig())
+        def locator = new RegistryAuthLocator()
         def config =  locator.lookupAuthConfig("localhost:5001/abc")
         then:
         config.username == "testuser"
@@ -94,7 +94,7 @@ class RegistryAuthLocatorTest extends Specification {
     private RegistryAuthLocator createTestAuthLocator(String configName){
         def configFile = new File(getClass().getResource(CONFIG_LOCATION + configName).toURI())
         def command = configFile.getParentFile().getAbsolutePath() + "/docker-credential-"
-        return new RegistryAuthLocator(new AuthConfig(), configFile, command)
+        return new RegistryAuthLocator(configFile, command)
     }
 
 }

@@ -13,18 +13,18 @@ val buildMyAppImage by tasks.creating(DockerBuildImage::class) {
 val createDBContainer by tasks.creating(DockerCreateContainer::class) {
     targetImageId("postgres:latest")
     containerName.set("docker_auto")
-    autoRemove.set(true)
+    hostConfig.autoRemove.set(true)
 }
 
 val createMyAppContainer by tasks.creating(DockerCreateContainer::class) {
     dependsOn(buildMyAppImage, createDBContainer)
     targetImageId(buildMyAppImage.getImageId())
-    portBindings.set(listOf("8080:8080"))
-    autoRemove.set(true)
-    links.set(listOf("docker_auto:database"))
+    hostConfig.portBindings.set(listOf("8080:8080"))
+    hostConfig.autoRemove.set(true)
+    hostConfig.links.set(listOf("docker_auto:database"))
 
     // If you use Systemd in containers you should also add lines. #320
-    binds.set(mapOf("/sys/fs/cgroup" to "/sys/fs/cgroup"))
+    hostConfig.binds.set(mapOf("/sys/fs/cgroup" to "/sys/fs/cgroup"))
     tty.set(true)
 }
 

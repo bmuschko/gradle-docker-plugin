@@ -3,6 +3,7 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.utils.IOUtils
 import com.github.dockerjava.api.command.SaveImageCmd
+import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -12,6 +13,7 @@ import org.gradle.api.tasks.OutputFile
 
 import java.util.zip.GZIPOutputStream
 
+@CompileStatic
 class DockerSaveImage extends AbstractDockerRemoteApiTask {
 
     /**

@@ -1,5 +1,8 @@
 package com.bmuschko.gradle.docker.tasks.network
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class DockerRemoveNetwork extends DockerExistingNetwork {
     @Override
     void runRemoteCommand() {

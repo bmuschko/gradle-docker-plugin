@@ -68,8 +68,10 @@ abstract class AbstractGroovyDslFunctionalTest extends AbstractFunctionalTest {
 
         if (dockerPrivateRegistryUrl) {
             buildFile << """
-                docker.registryCredentials {
-                    url = '$dockerPrivateRegistryUrl'
+                docker {
+                    registryCredentials {
+                        url = '$dockerPrivateRegistryUrl'
+                    }
                 }
             """
         }

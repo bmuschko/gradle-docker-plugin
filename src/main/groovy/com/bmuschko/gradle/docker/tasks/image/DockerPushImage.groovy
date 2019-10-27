@@ -16,13 +16,13 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.github.dockerjava.api.command.PushImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PushResponseItem
 import com.github.dockerjava.core.command.PushImageResultCallback
+import org.gradle.api.Action
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
@@ -39,7 +39,11 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     /**
      * {@inheritDoc}
      */
-    DockerRegistryCredentials registryCredentials
+    final DockerRegistryCredentials registryCredentials
+
+    DockerPushImage() {
+        registryCredentials = project.objects.newInstance(DockerRegistryCredentials)
+    }
 
     @Override
     void runRemoteCommand() {
@@ -66,5 +70,16 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
             pushImageCmd.exec(callback).awaitCompletion()
         }
+    }
+
+    /**
+     * Configures the target Docker registry credentials.
+     *
+     * @param action The action against the Docker registry credentials
+     * @since 6.0.0
+     */
+    @Override
+    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
+        action.execute(registryCredentials)
     }
 }

@@ -23,6 +23,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 import javax.annotation.Nullable
+import javax.inject.Inject
 
 /**
  * The extension for configuring the Docker communication via the remote API through the {@link DockerRemoteApiPlugin}.
@@ -80,6 +81,7 @@ class DockerRegistryCredentials {
     @Optional
     final Property<String> email
 
+    @Inject
     DockerRegistryCredentials(ObjectFactory objectFactory) {
         url = objectFactory.property(String)
         url.set(DEFAULT_URL)
@@ -115,15 +117,5 @@ class DockerRegistryCredentials {
                 DockerRegistryCredentials.this.password.set(password)
             }
         }
-    }
-
-    /**
-     * Check if credentials are valid. Valid means that it has
-     * at both of the following properties are set:
-     * username, password
-     * @return true if both the username and password are present
-     */
-    boolean isValid() {
-        username.isPresent() && password.isPresent()
     }
 }

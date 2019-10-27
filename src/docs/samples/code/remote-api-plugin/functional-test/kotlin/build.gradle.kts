@@ -13,8 +13,8 @@ val buildMyAppImage by tasks.creating(DockerBuildImage::class) {
 val createMyAppContainer by tasks.creating(DockerCreateContainer::class) {
     dependsOn(buildMyAppImage)
     targetImageId(buildMyAppImage.getImageId())
-    portBindings.set(listOf("8080:8080"))
-    autoRemove.set(true)
+    hostConfig.portBindings.set(listOf("8080:8080"))
+    hostConfig.autoRemove.set(true)
 }
 
 val startMyAppContainer by tasks.creating(DockerStartContainer::class) {

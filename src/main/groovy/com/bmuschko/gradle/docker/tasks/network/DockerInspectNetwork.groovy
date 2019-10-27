@@ -1,7 +1,9 @@
 package com.bmuschko.gradle.docker.tasks.network
 
 import com.github.dockerjava.api.model.Network
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class DockerInspectNetwork extends DockerExistingNetwork {
     @Override
     void runRemoteCommand() {

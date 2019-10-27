@@ -45,7 +45,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "$uniqueContainerName"
-                portBindings = ['8080:8080']
+                hostConfig.portBindings = ['8080:8080']
                 cmd = ['/bin/sh']
             }
 
@@ -120,7 +120,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer1
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}2"
-                links = ["${uniqueContainerName}1:container1"]
+                hostConfig.links = ["${uniqueContainerName}1:container1"]
                 cmd = ['/bin/sh']
             }
 
@@ -168,7 +168,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer1
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}-2"
-                volumesFrom = ["${uniqueContainerName}-1"]
+                hostConfig.volumesFrom = ["${uniqueContainerName}-1"]
                 cmd = ['/bin/sh']
             }
 
@@ -347,7 +347,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                logConfig("none", [:])
+                hostConfig.logConfig("none", [:])
                 cmd = ['/bin/sh']
             }
 
@@ -386,7 +386,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                restartPolicy("on-failure", 999)
+                hostConfig.restartPolicy("on-failure", 999)
                 cmd = ['/bin/sh']
             }
 
@@ -425,7 +425,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                devices = ["/dev/sda:/dev/xvda:rwm"]
+                hostConfig.devices = ["/dev/sda:/dev/xvda:rwm"]
                 cmd = ['/bin/sh']
             }
 
@@ -464,8 +464,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn buildImage
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                portBindings = ['8080:8080']
-                shmSize = 128000L
+                hostConfig.portBindings = ['8080:8080']
+                hostConfig.shmSize = 128000L
                 cmd = ['/bin/sh']
             }
 
@@ -523,7 +523,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn buildImage, createNetwork
                 targetImageId buildImage.getImageId()
                 containerName = "${uniqueContainerName}"
-                network = createNetwork.getNetworkId()
+                hostConfig.network = createNetwork.getNetworkId()
                 networkAliases = ["some-alias"]
                 cmd = ['/bin/sh']
             }

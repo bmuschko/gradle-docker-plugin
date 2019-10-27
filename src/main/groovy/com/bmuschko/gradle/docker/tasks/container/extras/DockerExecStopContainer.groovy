@@ -20,6 +20,7 @@ import com.bmuschko.gradle.docker.domain.ExecProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.github.dockerjava.api.command.InspectContainerResponse
+import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
@@ -35,6 +36,7 @@ import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
  *  to check if the container is stopped and if not then attempt to issue a stop
  *  command on the container.
  */
+@CompileStatic
 class DockerExecStopContainer extends DockerExecContainer {
 
     @Nested

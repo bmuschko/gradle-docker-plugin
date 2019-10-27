@@ -25,6 +25,7 @@ import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.api.model.BuildResponseItem
 import com.github.dockerjava.core.command.BuildImageResultCallback
+import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
@@ -164,7 +165,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     /**
      * {@inheritDoc}
      */
-    DockerRegistryCredentials registryCredentials
+    final DockerRegistryCredentials registryCredentials
 
     /**
      * Output file containing the image ID of the built image.
@@ -191,6 +192,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         pull.set(false)
         cacheFrom.empty()
         String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
+        registryCredentials = project.objects.newInstance(DockerRegistryCredentials)
         imageIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
 
         outputs.upToDateWhen {
@@ -250,7 +252,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (labels.getOrNull()) {
-            buildImageCmd.withLabels(labels.get().collectEntries { [it.key, it.value.toString()] })
+            buildImageCmd.withLabels(labels.get())
         }
 
         if(shmSize.getOrNull() != null) { // 0 is valid input
@@ -261,26 +263,9 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withTarget(target.get())
         }
 
-        if (registryCredentials) {
-            AuthConfig authConfig = new AuthConfig()
-            authConfig.registryAddress = registryCredentials.url.get()
-
-            if (registryCredentials.username.isPresent()) {
-                authConfig.withUsername(registryCredentials.username.get())
-            }
-
-            if (registryCredentials.password.isPresent()) {
-                authConfig.withPassword(registryCredentials.password.get())
-            }
-
-            if (registryCredentials.email.isPresent()) {
-                authConfig.withEmail(registryCredentials.email.get())
-            }
-
-            AuthConfigurations authConfigurations = new AuthConfigurations()
-            authConfigurations.addConfig(authConfig)
-            buildImageCmd.withBuildAuthConfigs(authConfigurations)
-        }
+        AuthConfigurations authConfigurations = new AuthConfigurations()
+        authConfigurations.addConfig(createAuthConfig())
+        buildImageCmd.withBuildAuthConfigs(authConfigurations)
 
         if (buildArgs.getOrNull()) {
             buildArgs.get().each { arg, value ->
@@ -316,7 +301,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         new BuildImageResultCallback() {
 
-            def collector = new OutputCollector({ s -> logger.quiet(s) })
+            OutputCollector collector = new OutputCollector({ s -> logger.quiet(s) })
 
             @Override
             void onNext(BuildResponseItem item) {
@@ -338,5 +323,35 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
                 super.close()
             }
         }
+    }
+
+    /**
+     * Configures the target Docker registry credentials.
+     *
+     * @param action The action against the Docker registry credentials
+     * @since 6.0.0
+     */
+    @Override
+    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
+        action.execute(registryCredentials)
+    }
+
+    private AuthConfig createAuthConfig() {
+        AuthConfig authConfig = new AuthConfig()
+        authConfig.withRegistryAddress(registryCredentials.url.get())
+
+        if (registryCredentials.username.isPresent()) {
+            authConfig.withUsername(registryCredentials.username.get())
+        }
+
+        if (registryCredentials.password.isPresent()) {
+            authConfig.withPassword(registryCredentials.password.get())
+        }
+
+        if (registryCredentials.email.isPresent()) {
+            authConfig.withEmail(registryCredentials.email.get())
+        }
+
+        authConfig
     }
 }

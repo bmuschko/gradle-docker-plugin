@@ -28,7 +28,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn pullImage
                 targetImageId pullImage.getImage()
                 cmd = ['groups']
-                groups = ['postgres']
+                hostConfig.groups = ['postgres']
             }
         """
         buildFile <<
@@ -58,7 +58,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
                 targetImageId pullImage.getImage()
-                binds = ['/tmp': '/testdata']
+                hostConfig.binds = ['/tmp': '/testdata']
             }
         """
         buildFile <<
@@ -90,7 +90,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 targetImageId pullImage.getImage()
                 cmd = ['ifconfig']
                 macAddress = '02:03:04:05:06:07'
-                cpuset = '1'
+                hostConfig.cpuset = '1'
                 labels = ["project.name": "\$project.name"]
             }
         """
@@ -143,7 +143,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
                 targetImageId pullImage.getImage()
-                autoRemove = true
+                hostConfig.autoRemove = true
 
                 // The sleep is to keep the container around to avoid the
                 // stopContainer task failing due to the container not existing.
@@ -208,11 +208,11 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
                 targetImageId pullImage.getImage()
-                autoRemove = true
-                
+                hostConfig.autoRemove = true
+
                 cmd = ['sleep', '10']
                 exposePorts 'tcp', $exposedPorts
-                publishAll = true
+                hostConfig.publishAll = true
             }
         """
 

@@ -16,7 +16,9 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.github.dockerjava.api.model.Version
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class DockerVersion extends AbstractDockerRemoteApiTask {
 
     @Override

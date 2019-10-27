@@ -243,7 +243,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 targetImageId '$TEST_IMAGE_WITH_TAG'
                 containerName = "$uniqueContainerName"
                 cmd = ['/bin/sh']
-                autoRemove = true
+                hostConfig.autoRemove = true
                 
                 onNext { c ->
                     if(c.warnings) {
@@ -350,7 +350,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             task createContainer(type: DockerCreateContainer) {
                 targetImageId '$TEST_IMAGE_WITH_TAG'
                 cmd = ['sh', '-c', 'exit 1']
-                autoRemove = true
+                hostConfig.autoRemove = true
             }
 
             task startContainer(type: DockerStartContainer) {

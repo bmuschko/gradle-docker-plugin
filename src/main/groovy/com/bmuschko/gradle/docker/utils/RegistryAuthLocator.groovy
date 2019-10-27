@@ -35,18 +35,16 @@ class RegistryAuthLocator {
     private static final Logger log = Logging.getLogger(RegistryAuthLocator)
     private final JsonSlurper slurper = new JsonSlurper()
 
-    private final AuthConfig defaultAuthConfig
     private final File configFile
     private final String commandPathPrefix
 
-    RegistryAuthLocator(AuthConfig defaultAuthConfig, File configFile, String commandPathPrefix) {
-        this.defaultAuthConfig = defaultAuthConfig
+    RegistryAuthLocator(File configFile, String commandPathPrefix) {
         this.configFile = configFile
         this.commandPathPrefix = commandPathPrefix
     }
 
-    RegistryAuthLocator(AuthConfig defaultAuthConfig, File configFile) {
-        this(defaultAuthConfig, configFile, DEFAULT_HELPER_PREFIX)
+    RegistryAuthLocator(File configFile) {
+        this(configFile, DEFAULT_HELPER_PREFIX)
     }
 
     /**
@@ -54,14 +52,28 @@ class RegistryAuthLocator {
      * @param defaultAuthConfig the auth config object to return
      * in case not credentials found
      */
-    RegistryAuthLocator(AuthConfig defaultAuthConfig) {
-        this(defaultAuthConfig, new File(configLocation()), DEFAULT_HELPER_PREFIX)
+    RegistryAuthLocator() {
+        this(new File(configLocation()), DEFAULT_HELPER_PREFIX)
     }
 
     /**
-     * Tries to get the authorization information from registryCredentials object first
-     * If missing, gets authorization information
+     * Gets authorization information
      * using $DOCKER_CONFIG/.docker/config.json file
+     * If missing, returns empty AuthConfig object
+     * @param registryCredentials extension of type registryCredentials
+     * @param image the name of docker image the action to be authorized for
+     * @return AuthConfig object with a credentials info or empty object if
+     * no credentials found
+     */
+    AuthConfig lookupAuthConfig(String image) {
+        return lookupAuthConfig(image, new AuthConfig())
+    }
+
+    /**
+     * Gets authorization information
+     * using $DOCKER_CONFIG/.docker/config.json file
+     * If missing, gets the information from
+     * the registryCredentials object
      * @param registryCredentials extension of type registryCredentials
      * @param image the name of docker image the action to be authorized for
      * @return AuthConfig object with a credentials info or default object if
@@ -69,10 +81,8 @@ class RegistryAuthLocator {
      */
     AuthConfig lookupAuthConfig(String image,
                                 DockerRegistryCredentials registryCredentials) {
-        if(registryCredentials && registryCredentials.isValid()) {
-            return createAuthConfig(registryCredentials)
-        }
-        return lookupAuthConfig(image)
+        AuthConfig defaultConfig =  createAuthConfig(registryCredentials)
+        return lookupAuthConfig(image, defaultConfig)
     }
 
     /**
@@ -81,7 +91,7 @@ class RegistryAuthLocator {
      * @return AuthConfig object with a credentials info or default object if
      * no credentials found
      */
-    AuthConfig lookupAuthConfig(String image) {
+    AuthConfig lookupAuthConfig(String image, AuthConfig defaultAuthConfig) {
         if (isWindows()) {
             log.debug('RegistryAuthLocator is not supported on Windows. ' +
                 'Please help test or improve it and update ' +
@@ -132,7 +142,7 @@ class RegistryAuthLocator {
 
     private static AuthConfig createAuthConfig(DockerRegistryCredentials registryCredentials) {
         AuthConfig authConfig = new AuthConfig()
-            .withRegistryAddress(registryCredentials.url.get())
+        authConfig.withRegistryAddress(registryCredentials.url.get())
 
         if (registryCredentials.username.isPresent()) {
             authConfig.withUsername(registryCredentials.username.get())
@@ -145,7 +155,7 @@ class RegistryAuthLocator {
         if (registryCredentials.email.isPresent()) {
             authConfig.withEmail(registryCredentials.email.get())
         }
-        return authConfig
+        authConfig
     }
 
     /**
