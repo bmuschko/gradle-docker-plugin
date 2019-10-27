@@ -16,7 +16,10 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.github.dockerjava.api.command.InspectImageResponse
+import groovy.transform.CompileStatic
+import org.gradle.api.Action
 
+@CompileStatic
 class DockerInspectImage extends DockerExistingImage {
 
     DockerInspectImage() {
@@ -34,19 +37,22 @@ class DockerInspectImage extends DockerExistingImage {
     }
 
     private void defaultResponseHandling() {
-        Closure c = { InspectImageResponse image ->
-            logger.quiet "ID               : $image.id"
-            logger.quiet "Author           : $image.author"
-            logger.quiet "Created          : $image.created"
-            logger.quiet "Comment          : $image.comment"
-            logger.quiet "Architecture     : $image.arch"
-            logger.quiet "Operating System : $image.os"
-            logger.quiet "Parent           : $image.parent"
-            logger.quiet "Size             : $image.size"
-            logger.quiet "Docker Version   : $image.dockerVersion"
-            logger.quiet "Labels           : $image.config.labels"
+        Action<InspectImageResponse> action = new Action<InspectImageResponse>() {
+            @Override
+            void execute(InspectImageResponse image) {
+                logger.quiet "ID               : $image.id"
+                logger.quiet "Author           : $image.author"
+                logger.quiet "Created          : $image.created"
+                logger.quiet "Comment          : $image.comment"
+                logger.quiet "Architecture     : $image.arch"
+                logger.quiet "Operating System : $image.os"
+                logger.quiet "Parent           : $image.parent"
+                logger.quiet "Size             : $image.size"
+                logger.quiet "Docker Version   : $image.dockerVersion"
+                logger.quiet "Labels           : $image.config.labels"
+            }
         }
 
-        nextHandler = c
+        nextHandler = action
     }
 }

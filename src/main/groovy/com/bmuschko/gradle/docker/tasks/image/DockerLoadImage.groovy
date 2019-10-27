@@ -1,9 +1,11 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
+import groovy.transform.CompileStatic
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Input
 
+@CompileStatic
 class DockerLoadImage extends AbstractDockerRemoteApiTask {
 
     @Input

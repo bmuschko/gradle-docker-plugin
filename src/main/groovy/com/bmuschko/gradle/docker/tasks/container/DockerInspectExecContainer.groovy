@@ -2,6 +2,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.github.dockerjava.api.command.InspectExecResponse
+import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -12,6 +13,7 @@ import java.util.concurrent.Callable
  * Inspects task executed inside container
  * with {@link DockerExecContainer} command.
  */
+@CompileStatic
 class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
 
     /**

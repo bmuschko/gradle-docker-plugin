@@ -60,7 +60,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     final Property<String> apiVersion = project.objects.property(String)
 
     private Action<? super Throwable> errorHandler
-    protected Action<? super Object> nextHandler
+    protected Action nextHandler
     private Runnable completeHandler
 
     @TaskAction

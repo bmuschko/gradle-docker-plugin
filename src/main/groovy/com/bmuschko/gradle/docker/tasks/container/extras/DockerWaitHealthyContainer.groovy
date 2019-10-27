@@ -18,11 +18,13 @@ package com.bmuschko.gradle.docker.tasks.container.extras
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
 import com.github.dockerjava.api.command.InspectContainerCmd
 import com.github.dockerjava.api.command.InspectContainerResponse
+import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+@CompileStatic
 class DockerWaitHealthyContainer extends DockerExistingContainer {
 
     /**
