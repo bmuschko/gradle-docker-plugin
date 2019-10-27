@@ -200,6 +200,29 @@ ADD file2.txt /other/dir/file2.txt
         assertBuildContextClasses()
     }
 
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE })
+    def "Can create image for Java application and push to secure registry"() {
+        given:
+        buildFile << """
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    images = [
+                        '${TestConfiguration.dockerPrivateSecureRegistryDomain}/javaapp:1.2.3', 
+                        '${TestConfiguration.dockerPrivateSecureRegistryDomain}/javaapp:latest'
+                    ]
+                }
+            }
+        """
+
+        when:
+        build('pushAndRemoveImage')
+
+        then:
+        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE))
+        assertBuildContextLibs()
+    }
+
     private void setupProjectUnderTest() {
         writeSettingsFile()
         writeBasicSetupToBuildFile()

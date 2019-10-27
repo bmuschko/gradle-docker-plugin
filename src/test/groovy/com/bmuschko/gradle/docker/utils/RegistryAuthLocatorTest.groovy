@@ -82,6 +82,15 @@ class RegistryAuthLocatorTest extends Specification {
         locator.lookupAuthConfig("registry.example.com/org/repo") == config
     }
 
+    def "AuthLocator works with localhost"() {
+        when:
+        def locator = new RegistryAuthLocator(new AuthConfig())
+        def config =  locator.lookupAuthConfig("localhost:5001/abc")
+        then:
+        config.username == "testuser"
+        config.password == "testpassword"
+    }
+
     private RegistryAuthLocator createTestAuthLocator(String configName){
         def configFile = new File(getClass().getResource(CONFIG_LOCATION + configName).toURI())
         def command = configFile.getParentFile().getAbsolutePath() + "/docker-credential-"
