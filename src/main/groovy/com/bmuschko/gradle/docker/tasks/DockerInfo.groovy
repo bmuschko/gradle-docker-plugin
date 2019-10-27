@@ -16,7 +16,9 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.github.dockerjava.api.model.Info
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class DockerInfo extends AbstractDockerRemoteApiTask {
 
     @Override
@@ -32,16 +34,16 @@ class DockerInfo extends AbstractDockerRemoteApiTask {
             logger.quiet "Driver               : $info.driver"
             logger.quiet "Driver Statuses      : $info.driverStatuses"
             logger.quiet "Images               : $info.images"
-            logger.quiet "IPv4 Forwarding      : $info.ipv4Forwarding"
+            logger.quiet "IPv4 Forwarding      : $info.IPv4Forwarding"
             logger.quiet "Index Server Address : $info.indexServerAddress"
             logger.quiet "Init Path            : $info.initPath"
             logger.quiet "Init SHA1            : $info.initSha1"
             logger.quiet "Kernel Version       : $info.kernelVersion"
             logger.quiet "Sockets              : $info.sockets"
             logger.quiet "Memory Limit         : $info.memoryLimit"
-            logger.quiet "nEvent Listener      : $info.nEventsListener"
-            logger.quiet "NFd                  : $info.nfd"
-            logger.quiet "NGoroutines          : $info.nGoroutines"
+            logger.quiet "nEvent Listener      : $info.NEventsListener"
+            logger.quiet "NFd                  : $info.NFd"
+            logger.quiet "NGoroutines          : $info.NGoroutines"
             logger.quiet "Swap Limit           : $info.swapLimit"
             logger.quiet "Execution Driver     : $info.executionDriver"
         }
