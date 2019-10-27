@@ -165,7 +165,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     /**
      * {@inheritDoc}
      */
-    DockerRegistryCredentials registryCredentials
+    final DockerRegistryCredentials registryCredentials
 
     /**
      * Output file containing the image ID of the built image.

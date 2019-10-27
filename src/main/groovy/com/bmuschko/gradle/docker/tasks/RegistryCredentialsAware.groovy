@@ -24,11 +24,6 @@ import org.gradle.api.tasks.Nested
 @CompileStatic
 interface RegistryCredentialsAware extends Task {
     /**
-     * Sets the target Docker registry credentials for usage with a task.
-     */
-    void setRegistryCredentials(DockerRegistryCredentials registryCredentials)
-
-    /**
      * The target Docker registry credentials for usage with a task.
      */
     @Nested
