@@ -39,8 +39,6 @@ import org.gradle.api.tasks.TaskAction
 @CompileStatic
 abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
-    private static final String ENV_VAR_GDP_CONN_NETTY = "GDP_CONN_NETTY"
-
     /**
      * Docker remote API server URL. Defaults to "http://localhost:2375".
      */
@@ -162,15 +160,27 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
         DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
 
-        boolean useNettyExecFactory = Boolean.valueOf(System.getenv(ENV_VAR_GDP_CONN_NETTY))
-        DockerCmdExecFactory execFactory = useNettyExecFactory ? new NettyDockerCmdExecFactory() : null
-        DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).withDockerCmdExecFactory(execFactory).build()
+        DockerClient dockerClient = DockerClientBuilder
+            .getInstance(dockerClientConfig)
+            .withDockerCmdExecFactory(getDockerCmdExecFactory())
+            .build()
 
         // register buildFinished-hook to close docker client.
         project.gradle.buildFinished {
             dockerClient.close()
         }
         dockerClient
+    }
+
+    private DockerCmdExecFactory getDockerCmdExecFactory() {
+        boolean useNettyExecFactory = Boolean.valueOf(getProject().findProperty('gdpNettyExecFactory').toString())
+            ?: Boolean.valueOf(System.getProperty('gdp.netty.exec.factory'))
+            ?: Boolean.valueOf(System.getenv('GDP_NETTY_EXEC_FACTORY'))
+
+        if (useNettyExecFactory) {
+            this.logger.debug("Using " + NettyDockerCmdExecFactory.class.simpleName + " as driver for " + DockerClient.class.simpleName)
+        }
+        return useNettyExecFactory ? new NettyDockerCmdExecFactory() : null
     }
 
     private DockerClientConfiguration createDockerClientConfig() {
