@@ -45,7 +45,6 @@ class ShadedArtifactsPlugin: Plugin<Project> {
                 "org.scijava",
                 "com.google",
                 "javax.annotation",
-                "javax.inject",
                 "javax.ws",
                 "net.sf",
                 "org.objectweb",

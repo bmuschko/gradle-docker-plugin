@@ -192,7 +192,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         pull.set(false)
         cacheFrom.empty()
         String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
-        registryCredentials = project.objects.newInstance(DockerRegistryCredentials)
+        registryCredentials = project.objects.newInstance(DockerRegistryCredentials, project.objects)
         imageIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
 
         outputs.upToDateWhen {
@@ -326,10 +326,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     }
 
     /**
-     * Configures the target Docker registry credentials.
-     *
-     * @param action The action against the Docker registry credentials
-     * @since 6.0.0
+     * {@inheritDoc}
      */
     @Override
     void registryCredentials(Action<? super DockerRegistryCredentials> action) {
