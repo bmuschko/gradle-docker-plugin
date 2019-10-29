@@ -136,7 +136,6 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Internal
     @Memoized
     DockerClient getDockerClient() {
-
         DockerClientConfiguration dockerClientConfiguration = createDockerClientConfig()
         DockerExtension dockerExtension = (DockerExtension) project.extensions.getByName(DockerRemoteApiPlugin.EXTENSION_NAME)
         String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
@@ -173,12 +172,12 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     }
 
     private DockerCmdExecFactory getDockerCmdExecFactory() {
-        boolean useNettyExecFactory = Boolean.valueOf(getProject().findProperty('gdpNettyExecFactory').toString())
+        boolean useNettyExecFactory = Boolean.valueOf(getProject().findProperty('gdpNettyExecFactory')?.toString())
             ?: Boolean.valueOf(System.getProperty('gdp.netty.exec.factory'))
             ?: Boolean.valueOf(System.getenv('GDP_NETTY_EXEC_FACTORY'))
 
         if (useNettyExecFactory) {
-            this.logger.debug("Using " + NettyDockerCmdExecFactory.class.simpleName + " as driver for " + DockerClient.class.simpleName)
+            logger.debug("Using " + NettyDockerCmdExecFactory.class.simpleName + " as driver for " + DockerClient.class.simpleName)
         }
         return useNettyExecFactory ? new NettyDockerCmdExecFactory() : null
     }

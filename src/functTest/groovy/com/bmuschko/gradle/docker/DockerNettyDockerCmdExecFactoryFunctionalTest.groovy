@@ -9,6 +9,21 @@ class DockerNettyDockerCmdExecFactoryFunctionalTest extends AbstractGroovyDslFun
 
     private static final String NETTY_DRIVER_IN_USE = "Using " + NettyDockerCmdExecFactory.class.simpleName + " as driver for " + DockerClient.class.simpleName
 
+    def "By default NettyDockerCmdExecFactory is not in use"() {
+        given:
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.DockerInfo
+
+            task dockerInfo(type: DockerInfo)
+        """
+
+        when:
+        BuildResult result = build('--debug', 'dockerInfo')
+
+        then:
+        !result.output.contains(NETTY_DRIVER_IN_USE)
+    }
+
     def "Can use NettyDockerCmdExecFactory via Project Property"() {
         given:
         buildFile << """
