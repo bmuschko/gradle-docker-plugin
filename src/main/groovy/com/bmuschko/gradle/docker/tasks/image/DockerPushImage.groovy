@@ -93,10 +93,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     }
 
     /**
-     * Configures the target Docker registry credentials.
-     *
-     * @param action The action against the Docker registry credentials
-     * @since 6.0.0
+     * {@inheritDoc}
      */
     @Override
     void registryCredentials(Action<? super DockerRegistryCredentials> action) {
