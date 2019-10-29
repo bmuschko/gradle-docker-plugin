@@ -17,7 +17,9 @@ package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+import com.bmuschko.gradle.docker.utils.RegistryAuthLocator
 import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
 import groovy.transform.CompileStatic
@@ -165,6 +167,16 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
             dockerClient.close()
         }
         dockerClient
+    }
+
+    /**
+     * Factory method to create the instance of RegistryAuthLocator
+     * Unless other credentials information provided,
+     * the instance returns authConfig object provided by DockerClient
+     * @return new RegistryAuthLocator instance
+     */
+    protected static RegistryAuthLocator authLocator() {
+        return new RegistryAuthLocator()
     }
 
     private DockerClientConfiguration createDockerClientConfig() {
