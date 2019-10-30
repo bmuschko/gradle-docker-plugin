@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v5.3.0 (October 30, 2019)
+
+* Expose project-prop/sys-prop/env-var to optionally use netty-exec-cmd-factory - {uri-github}/pull/876[PR 876]
+
+[discrete]
 === v5.2.0 (October 5, 2019)
 
 * **Potentially Breaking Change!** Remove duplicated code in convention plugins - {uri-github}/pull/864[PR 864]
