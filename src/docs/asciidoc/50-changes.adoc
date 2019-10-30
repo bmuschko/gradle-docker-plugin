@@ -14,6 +14,7 @@
 * Plugin resolves and uses Docker credential helper
 - {uri-github}/pull/865[PR 865]
 * Upgrade of Docker Java library to version 3.1.5
+* Expose project-prop/sys-prop/env-var to optionally use netty-exec-cmd-factory - {uri-github}/pull/876[PR 876]
 
 [discrete]
 === v5.2.0 (October 5, 2019)
