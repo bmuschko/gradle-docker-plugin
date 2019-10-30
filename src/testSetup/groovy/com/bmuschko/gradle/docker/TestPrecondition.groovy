@@ -1,14 +1,23 @@
 package com.bmuschko.gradle.docker
 
+import java.nio.charset.StandardCharsets
+
 final class TestPrecondition {
+
+    public static final String USER = "testuser"
+    public static final String PASSWD = "testpassword"
+
     public static final List<String> ALLOWED_PING_PROTOCOLS = ['tcp', 'http', 'https', 'unix']
-    public static final boolean DOCKER_PRIVATE_REGISTRY_REACHABLE = isPrivateDockerRegistryReachable()
+    public static final boolean DOCKER_PRIVATE_REGISTRY_REACHABLE =
+        isPrivateDockerRegistryReachable(TestConfiguration.dockerPrivateRegistryUrl)
+    public static final boolean DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE =
+        isPrivateDockerRegistryReachable(TestConfiguration.dockerPrivateSecureRegistryUrl)
     public static final boolean DOCKER_HUB_CREDENTIALS_AVAILABLE = hasDockerHubCredentials()
 
     private TestPrecondition() {}
 
-    private static boolean isPrivateDockerRegistryReachable() {
-        isUriReachable(new URI("${TestConfiguration.dockerPrivateRegistryUrl}".replaceFirst('tcp', 'http')), 'v2')
+    private static boolean isPrivateDockerRegistryReachable(String config) {
+        isUriReachable(new URI("${config}".replaceFirst('tcp', 'http')), 'v2')
     }
 
     private static boolean isUriReachable(URI dockerUri, String extraPath) {
@@ -21,6 +30,8 @@ final class TestPrecondition {
                 HttpURLConnection connection = ((extraPath != null) ? new URL(dockerUri.toString() + "/" + extraPath) : dockerUri).openConnection()
                 connection.requestMethod = 'GET'
                 connection.connectTimeout = 3000
+                String encoded = Base64.getEncoder().encodeToString(("$USER:$PASSWD").getBytes(StandardCharsets.UTF_8));
+                connection.setRequestProperty("Authorization", "Basic $encoded")
                 return (connection.responseCode >= 200 && connection.responseCode <= 399)
             } catch(Exception e) {
                 return false

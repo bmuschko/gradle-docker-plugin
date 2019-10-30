@@ -22,6 +22,7 @@ import com.github.dockerjava.api.command.PullImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PullResponseItem
 import com.github.dockerjava.core.command.PullImageResultCallback
+import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
@@ -38,31 +39,19 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     /**
      * {@inheritDoc}
      */
-    DockerRegistryCredentials registryCredentials
+    final DockerRegistryCredentials registryCredentials
+
+    DockerPullImage() {
+        registryCredentials = project.objects.newInstance(DockerRegistryCredentials, project.objects)
+    }
 
     @Override
     void runRemoteCommand() {
         logger.quiet "Pulling image '${image.get()}'."
         PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image.get())
 
-        if(registryCredentials) {
-            AuthConfig authConfig = new AuthConfig()
-            authConfig.registryAddress = registryCredentials.url.get()
-
-            if (registryCredentials.username.isPresent()) {
-                authConfig.withUsername(registryCredentials.username.get())
-            }
-
-            if (registryCredentials.password.isPresent()) {
-                authConfig.withPassword(registryCredentials.password.get())
-            }
-
-            if (registryCredentials.email.isPresent()) {
-                authConfig.withEmail(registryCredentials.email.get())
-            }
-
-            pullImageCmd.withAuthConfig(authConfig)
-        }
+        AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image.get(), registryCredentials)
+        pullImageCmd.withAuthConfig(authConfig)
 
         PullImageResultCallback callback = new PullImageResultCallback() {
             @Override
@@ -80,5 +69,13 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
         }
 
         pullImageCmd.exec(callback).awaitCompletion()
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
+        action.execute(registryCredentials)
     }
 }

@@ -17,10 +17,12 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.StopContainerCmd
+import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+@CompileStatic
 class DockerStopContainer extends DockerExistingContainer {
 
     /**

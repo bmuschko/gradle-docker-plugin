@@ -15,6 +15,9 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class DockerKillContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand() {

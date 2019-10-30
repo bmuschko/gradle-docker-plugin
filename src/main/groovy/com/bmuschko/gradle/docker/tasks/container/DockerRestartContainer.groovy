@@ -16,10 +16,12 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.github.dockerjava.api.command.RestartContainerCmd
+import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+@CompileStatic
 class DockerRestartContainer extends DockerExistingContainer {
     /**
      * Restart timeout in seconds.

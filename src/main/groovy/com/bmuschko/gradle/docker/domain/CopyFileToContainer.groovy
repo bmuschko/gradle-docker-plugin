@@ -16,12 +16,14 @@
 
 package com.bmuschko.gradle.docker.domain
 
+import groovy.transform.CompileStatic
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 
 /**
  *  Class holding metadata for an arbitrary copy-file-to-container invocation
  */
+@CompileStatic
 class CopyFileToContainer {
 
     @Input

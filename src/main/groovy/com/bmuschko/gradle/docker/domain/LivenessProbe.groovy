@@ -16,12 +16,14 @@
 
 package com.bmuschko.gradle.docker.domain
 
+import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 
 /**
  *  Class holding metadata for an arbitrary livenessProbe.
  */
+@CompileStatic
 class LivenessProbe {
 
     @Input

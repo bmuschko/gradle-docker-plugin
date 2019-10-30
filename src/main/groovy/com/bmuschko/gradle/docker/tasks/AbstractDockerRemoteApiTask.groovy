@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+import com.bmuschko.gradle.docker.utils.RegistryAuthLocator
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.DockerCmdExecFactory
 import com.github.dockerjava.core.DefaultDockerClientConfig
@@ -62,7 +63,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     final Property<String> apiVersion = project.objects.property(String)
 
     private Action<? super Throwable> errorHandler
-    protected Action<? super Object> nextHandler
+    protected Action nextHandler
     private Runnable completeHandler
 
     @TaskAction
@@ -180,6 +181,19 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
             logger.debug("Using " + NettyDockerCmdExecFactory.class.simpleName + " as driver for " + DockerClient.class.simpleName)
         }
         return useNettyExecFactory ? new NettyDockerCmdExecFactory() : null
+    }
+
+    /**
+     * Returns the instance of {@link RegistryAuthLocator}.
+     * <p>
+     * Unless other credentials information provided, the instance returns authConfig object provided by the Docker client.
+     *
+     * @return The registry authentication locator
+     */
+    @Internal
+    @Memoized
+    protected RegistryAuthLocator getRegistryAuthLocator() {
+        new RegistryAuthLocator()
     }
 
     private DockerClientConfiguration createDockerClientConfig() {

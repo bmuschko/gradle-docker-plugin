@@ -10,6 +10,10 @@
 * **Breaking Change!** Host-related configuration properties in `DockerCreateContainer` have been moved to nested property for better maintainability - {uri-github}/pull/873[PR 873]
 * Add properties `ipcMode` and `sysctls` to `DockerCreateContainer` - {uri-github}/pull/862[PR 862]
 * Gradle 6.0 compatibility fixes - {uri-github}/pull/869[PR 869]
+* Improve DSL for configuring registry credentials for custom tasks - {uri-github}/pull/879[PR 879]
+* Plugin resolves and uses Docker credential helper
+- {uri-github}/pull/865[PR 865]
+* Upgrade of Docker Java library to version 3.1.5
 
 [discrete]
 === v5.2.0 (October 5, 2019)

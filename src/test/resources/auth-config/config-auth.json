@@ -1,0 +1,7 @@
+{
+    "auths": {
+        "container-registry.cloud.yandex.net": {
+            "auth": "authkey"
+        }
+    }
+}

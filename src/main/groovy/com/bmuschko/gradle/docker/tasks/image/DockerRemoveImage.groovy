@@ -16,10 +16,12 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.github.dockerjava.api.command.RemoveImageCmd
+import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+@CompileStatic
 class DockerRemoveImage extends DockerExistingImage {
 
     @Input

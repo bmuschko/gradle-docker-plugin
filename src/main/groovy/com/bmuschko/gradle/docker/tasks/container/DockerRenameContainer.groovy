@@ -15,9 +15,11 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
+@CompileStatic
 class DockerRenameContainer extends DockerExistingContainer {
 
     @Input

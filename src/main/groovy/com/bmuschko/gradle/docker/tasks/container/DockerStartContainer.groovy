@@ -16,7 +16,9 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.github.dockerjava.api.command.StartContainerCmd
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class DockerStartContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand() {

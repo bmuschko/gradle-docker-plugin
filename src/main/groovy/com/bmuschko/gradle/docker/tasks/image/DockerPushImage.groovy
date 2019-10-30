@@ -22,6 +22,7 @@ import com.github.dockerjava.api.command.PushImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PushResponseItem
 import com.github.dockerjava.core.command.PushImageResultCallback
+import org.gradle.api.Action
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
@@ -38,19 +39,19 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     /**
      * {@inheritDoc}
      */
-    DockerRegistryCredentials registryCredentials
+    final DockerRegistryCredentials registryCredentials
+
+    DockerPushImage() {
+        registryCredentials = project.objects.newInstance(DockerRegistryCredentials, project.objects)
+    }
 
     @Override
     void runRemoteCommand() {
-        AuthConfig authConfig = registryCredentials ? createAuthConfig() : null
-
         images.get().each { image ->
             logger.quiet "Pushing image '${image}'."
             PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
-
-            if(authConfig) {
-                pushImageCmd.withAuthConfig(authConfig)
-            }
+            AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image, registryCredentials)
+            pushImageCmd.withAuthConfig(authConfig)
 
             PushImageResultCallback callback = new PushImageResultCallback() {
                 @Override
@@ -71,22 +72,11 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
         }
     }
 
-    private AuthConfig createAuthConfig() {
-        AuthConfig authConfig = new AuthConfig()
-        authConfig.withRegistryAddress(registryCredentials.url.get())
-
-        if (registryCredentials.username.isPresent()) {
-            authConfig.withUsername(registryCredentials.username.get())
-        }
-
-        if (registryCredentials.password.isPresent()) {
-            authConfig.withPassword(registryCredentials.password.get())
-        }
-
-        if (registryCredentials.email.isPresent()) {
-            authConfig.withEmail(registryCredentials.email.get())
-        }
-
-        authConfig
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
+        action.execute(registryCredentials)
     }
 }
