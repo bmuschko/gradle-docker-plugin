@@ -1,7 +1,7 @@
 == Remote API Plugin
 
 The plugin `com.bmuschko.docker-remote-api` allows for interacting with Docker via its remote API.
-You can model any workflow imaginable by creating enhanced task of the custom task provided by the plugin.
+If no additional configuration has been provided by the build script, the plugin will try to resolve and use the credentials for registry authentication available from previous `login` operations (usually in `$HOME/.docker/config.json`). You can model any workflow imaginable by creating enhanced task of the custom task provided by the plugin.
 
 include::11-usage.adoc[]
 

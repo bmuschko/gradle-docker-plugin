@@ -264,7 +264,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         AuthConfigurations authConfigurations = new AuthConfigurations()
-        authConfigurations.addConfig(createAuthConfig())
+        AuthConfig authConfig = getRegistryAuthLocator().createAuthConfig(registryCredentials)
+        authConfigurations.addConfig(authConfig)
         buildImageCmd.withBuildAuthConfigs(authConfigurations)
 
         if (buildArgs.getOrNull()) {
@@ -331,24 +332,5 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     @Override
     void registryCredentials(Action<? super DockerRegistryCredentials> action) {
         action.execute(registryCredentials)
-    }
-
-    private AuthConfig createAuthConfig() {
-        AuthConfig authConfig = new AuthConfig()
-        authConfig.withRegistryAddress(registryCredentials.url.get())
-
-        if (registryCredentials.username.isPresent()) {
-            authConfig.withUsername(registryCredentials.username.get())
-        }
-
-        if (registryCredentials.password.isPresent()) {
-            authConfig.withPassword(registryCredentials.password.get())
-        }
-
-        if (registryCredentials.email.isPresent()) {
-            authConfig.withEmail(registryCredentials.email.get())
-        }
-
-        authConfig
     }
 }

@@ -9,15 +9,11 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 /**
- * Utility class to get credentials information
- * from extension of type registryCredentials or
- * from $DOCKER_CONFIG/.docker/config.json file
- * Supports auth token, credentials store and credentials helpers
- * Only linux OS is supported at the moment.
- * Returns default auth object if called on windows
- * The class is ported from the
- * <a href="https://github.com/testcontainers/testcontainers-java">testcontainers-java</a>
- * project (PR <a href="https://github.com/testcontainers/testcontainers-java/pull/729">729</a>)
+ * Utility class to get credentials information from extension of type {@see DockerRegistryCredentials} or from {@code $DOCKER_CONFIG/.docker/config.json} file.
+ * <p>
+ * Supports auth token, credentials store and credentials helpers. Only Linux OS is supported at the moment. Returns default auth object if called on Windows.
+ * <p>
+ * The class is ported from the <a href="https://github.com/testcontainers/testcontainers-java">testcontainers-java</a> project (PR <a href="https://github.com/testcontainers/testcontainers-java/pull/729">729</a>).
  */
 @CompileStatic
 class RegistryAuthLocator {
@@ -140,7 +136,7 @@ class RegistryAuthLocator {
         defaultAuthConfig
     }
 
-    private static AuthConfig createAuthConfig(DockerRegistryCredentials registryCredentials) {
+    AuthConfig createAuthConfig(DockerRegistryCredentials registryCredentials) {
         AuthConfig authConfig = new AuthConfig()
         authConfig.withRegistryAddress(registryCredentials.url.get())
 
