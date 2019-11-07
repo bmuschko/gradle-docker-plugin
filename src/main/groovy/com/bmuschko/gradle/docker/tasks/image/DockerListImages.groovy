@@ -89,6 +89,6 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
             }
         }
 
-        nextHandler = action
+        onNext(action)
     }
 }

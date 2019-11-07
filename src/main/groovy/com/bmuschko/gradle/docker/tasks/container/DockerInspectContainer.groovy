@@ -16,8 +16,13 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.github.dockerjava.api.command.InspectContainerResponse
+import com.github.dockerjava.api.model.ExposedPort
+import com.github.dockerjava.api.model.VolumeBind
+import com.github.dockerjava.api.model.VolumesFrom
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 
+@CompileStatic
 class DockerInspectContainer extends DockerExistingContainer {
 
     DockerInspectContainer() {
@@ -41,23 +46,23 @@ class DockerInspectContainer extends DockerExistingContainer {
                 logger.quiet "Image ID    : $container.imageId"
                 logger.quiet "Name        : $container.name"
                 logger.quiet "Links       : $container.hostConfig.links"
-                def volumes = container.@volumes ? container.volumes : '[]'
+                VolumeBind[] volumes = container.volumes ? container.volumes : new VolumeBind[0]
                 logger.quiet "Volumes     : $volumes"
-                def volumesFrom = container.hostConfig.@volumesFrom ? container.hostConfig.volumesFrom : '[]'
+                VolumesFrom[] volumesFrom = container.hostConfig.volumesFrom ? container.hostConfig.volumesFrom : new VolumesFrom[0]
                 logger.quiet "VolumesFrom : $volumesFrom"
-                String exposedPorts = container.config.exposedPorts ? container.config.exposedPorts.toString() : '[]'
+                ExposedPort[] exposedPorts = container.config.exposedPorts ? container.config.exposedPorts : new ExposedPort[0]
                 logger.quiet "ExposedPorts : $exposedPorts"
                 logger.quiet "LogConfig : $container.hostConfig.logConfig.type.type"
                 logger.quiet "RestartPolicy : $container.hostConfig.restartPolicy"
                 logger.quiet "PidMode : $container.hostConfig.pidMode"
-                def devices = container.hostConfig.@devices ?
+                List<String> devices = container.hostConfig.devices ?
                     container.hostConfig.devices.collect {
-                        "${it.pathOnHost}:${it.pathInContainer}:${it.cGroupPermissions}"
-                    } : '[]'
+                        "${it.pathOnHost}:${it.pathInContainer}:${it.cGroupPermissions}".toString()
+                    } : []
                 logger.quiet "Devices : $devices"
             }
         }
 
-        nextHandler = action
+        onNext(action)
     }
 }

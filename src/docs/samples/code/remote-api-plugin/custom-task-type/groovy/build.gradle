@@ -33,9 +33,9 @@ class DockerImageIdForName extends AbstractDockerRemoteApiTask {
     final Property<String> imageId = project.objects.property(String)
 
     DockerImageIdForName() {
-        nextHandler = { image ->
+        onNext({ image ->
             imageId.set(image.id)
-        }
+        })
     }
 
     @Override

@@ -53,6 +53,6 @@ class DockerInspectImage extends DockerExistingImage {
             }
         }
 
-        nextHandler = action
+        onNext(action)
     }
 }
