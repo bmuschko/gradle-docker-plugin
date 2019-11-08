@@ -49,7 +49,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand() {
-        images.get().each { image ->
+        for (String image : images.get()) {
             logger.quiet "Pushing image '${image}'."
             PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
             AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image, registryCredentials)
