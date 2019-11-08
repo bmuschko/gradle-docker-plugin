@@ -22,10 +22,12 @@ import com.github.dockerjava.api.command.PushImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PushResponseItem
 import com.github.dockerjava.core.command.PushImageResultCallback
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
+@CompileStatic
 class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
@@ -52,22 +54,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
             PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
             AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image, registryCredentials)
             pushImageCmd.withAuthConfig(authConfig)
-
-            PushImageResultCallback callback = new PushImageResultCallback() {
-                @Override
-                void onNext(PushResponseItem item) {
-                    if (nextHandler) {
-                        try {
-                            nextHandler.execute(item)
-                        } catch (Exception e) {
-                            logger.error('Failed to handle push response', e)
-                            return
-                        }
-                    }
-                    super.onNext(item)
-                }
-            }
-
+            PushImageResultCallback callback = createCallback(nextHandler)
             pushImageCmd.exec(callback).awaitCompletion()
         }
     }
@@ -78,5 +65,22 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
     @Override
     void registryCredentials(Action<? super DockerRegistryCredentials> action) {
         action.execute(registryCredentials)
+    }
+
+    private PushImageResultCallback createCallback(Action nextHandler) {
+        new PushImageResultCallback() {
+            @Override
+            void onNext(PushResponseItem item) {
+                if (nextHandler) {
+                    try {
+                        nextHandler.execute(item)
+                    } catch (Exception e) {
+                        logger.error('Failed to handle push response', e)
+                        return
+                    }
+                }
+                super.onNext(item)
+            }
+        }
     }
 }

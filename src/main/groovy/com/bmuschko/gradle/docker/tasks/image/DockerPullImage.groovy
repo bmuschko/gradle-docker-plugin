@@ -22,10 +22,12 @@ import com.github.dockerjava.api.command.PullImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PullResponseItem
 import com.github.dockerjava.core.command.PullImageResultCallback
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
+@CompileStatic
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
@@ -52,8 +54,20 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
         AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image.get(), registryCredentials)
         pullImageCmd.withAuthConfig(authConfig)
+        PullImageResultCallback callback = createCallback(nextHandler)
+        pullImageCmd.exec(callback).awaitCompletion()
+    }
 
-        PullImageResultCallback callback = new PullImageResultCallback() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
+        action.execute(registryCredentials)
+    }
+
+    private PullImageResultCallback createCallback(Action nextHandler) {
+        new PullImageResultCallback() {
             @Override
             void onNext(PullResponseItem item) {
                 if (nextHandler) {
@@ -67,15 +81,5 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
                 super.onNext(item)
             }
         }
-
-        pullImageCmd.exec(callback).awaitCompletion()
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
-        action.execute(registryCredentials)
     }
 }
