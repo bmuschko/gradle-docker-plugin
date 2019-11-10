@@ -20,6 +20,8 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.ExecCreateCmd
 import com.github.dockerjava.api.model.Frame
 import com.github.dockerjava.core.command.ExecStartResultCallback
+import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -32,6 +34,7 @@ import java.util.concurrent.TimeUnit
 
 import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
 
+@CompileStatic
 class DockerExecContainer extends DockerExistingContainer {
 
     @Input
@@ -86,7 +89,7 @@ class DockerExecContainer extends DockerExistingContainer {
     }
 
     protected void doRunRemoteCommand(DockerClient dockerClient) {
-        def execCallback = createCallback()
+        def execCallback = createCallback(nextHandler)
 
         List<String[]> localCommands = commands.get()
         for (int i = 0; i < commands.get().size(); i++) {
@@ -190,7 +193,7 @@ class DockerExecContainer extends DockerExistingContainer {
         this.execProbe = new ExecProbe(pollTime, pollInterval)
     }
 
-    private ExecStartResultCallback createCallback() {
+    private ExecStartResultCallback createCallback(Action nextHandler) {
         if (nextHandler) {
             return new ExecStartResultCallback() {
                 @Override

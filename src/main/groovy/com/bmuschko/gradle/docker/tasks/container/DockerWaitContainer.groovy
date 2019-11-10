@@ -19,6 +19,8 @@ import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.command.WaitContainerCmd
 import com.github.dockerjava.api.model.WaitResponse
 import com.github.dockerjava.core.command.WaitContainerResultCallback
+import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -26,6 +28,7 @@ import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
 
+@CompileStatic
 class DockerWaitContainer extends DockerExistingContainer {
 
     private int exitCode
@@ -42,7 +45,7 @@ class DockerWaitContainer extends DockerExistingContainer {
         String possibleTimeout = awaitStatusTimeout.getOrNull() ? " for ${awaitStatusTimeout.get()} seconds" : ''
         logger.quiet "Waiting for container with ID '${containerId.get()}'${possibleTimeout}."
         WaitContainerCmd containerCommand = dockerClient.waitContainerCmd(containerId.get())
-        ResultCallback<WaitResponse> callback = containerCommand.exec(createCallback())
+        ResultCallback<WaitResponse> callback = containerCommand.exec(createCallback(nextHandler))
         exitCode = awaitStatusTimeout.getOrNull() ? callback.awaitStatusCode(awaitStatusTimeout.get(), TimeUnit.SECONDS) : callback.awaitStatusCode()
         logger.quiet "Container exited with code ${exitCode}"
     }
@@ -52,7 +55,7 @@ class DockerWaitContainer extends DockerExistingContainer {
         exitCode
     }
 
-    private WaitContainerResultCallback createCallback() {
+    private WaitContainerResultCallback createCallback(Action nextHandler) {
         new WaitContainerResultCallback() {
             @Override
             void onNext(WaitResponse waitResponse) {

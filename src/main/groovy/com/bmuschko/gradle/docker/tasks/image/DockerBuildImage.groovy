@@ -25,6 +25,7 @@ import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.api.model.BuildResponseItem
 import com.github.dockerjava.core.command.BuildImageResultCallback
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -40,6 +41,9 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 
+import java.util.function.Consumer
+
+@CompileStatic
 class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
@@ -226,9 +230,9 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (images.getOrNull()) {
-            def tagListString = images.get().collect {"'${it}'"}.join(", ")
+            String tagListString = images.get().collect {"'${it}'"}.join(", ")
             logger.quiet "Using images ${tagListString}."
-            buildImageCmd.withTags(images.get())
+            buildImageCmd.withTags(images.get() as Set<String>)
         }
 
         if (noCache.getOrNull()) {
@@ -269,22 +273,22 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         buildImageCmd.withBuildAuthConfigs(authConfigurations)
 
         if (buildArgs.getOrNull()) {
-            buildArgs.get().each { arg, value ->
-                buildImageCmd = buildImageCmd.withBuildArg(arg, value)
+            for (Map.Entry<String, String> entry : buildArgs.get().entrySet()) {
+                buildImageCmd.withBuildArg(entry.key, entry.value)
             }
         }
 
         if (cacheFrom.getOrNull()) {
-            buildImageCmd = buildImageCmd.withCacheFrom(cacheFrom.get())
+            buildImageCmd.withCacheFrom(cacheFrom.get() as Set<String>)
         }
 
-        String createdImageId = buildImageCmd.exec(createCallback()).awaitImageId()
+        String createdImageId = buildImageCmd.exec(createCallback(nextHandler)).awaitImageId()
         imageId.set(createdImageId)
         imageIdFile.get().asFile.text = createdImageId
         logger.quiet "Created image with ID '$createdImageId'."
     }
 
-    private BuildImageResultCallback createCallback() {
+    private BuildImageResultCallback createCallback(Action nextHandler) {
         if (nextHandler) {
             return new BuildImageResultCallback() {
                 @Override
@@ -301,8 +305,12 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         new BuildImageResultCallback() {
-
-            OutputCollector collector = new OutputCollector({ s -> logger.quiet(s) })
+            OutputCollector collector = new OutputCollector(new Consumer<String>() {
+                @Override
+                void accept(String s) {
+                    logger.quiet(s)
+                }
+            })
 
             @Override
             void onNext(BuildResponseItem item) {
