@@ -19,6 +19,8 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.LogContainerCmd
 import com.github.dockerjava.api.model.Frame
 import com.github.dockerjava.core.command.LogContainerResultCallback
+import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.provider.Property
@@ -30,6 +32,7 @@ import org.gradle.api.tasks.Optional
  * Copies the container logs into standard out/err, the same as the `docker logs` command. The container output
  * to standard out will go to standard out, and standard err to standard err.
  */
+@CompileStatic
 class DockerLogsContainer extends DockerExistingContainer {
 
     /**
@@ -121,10 +124,10 @@ class DockerLogsContainer extends DockerExistingContainer {
     void _runRemoteCommand(DockerClient dockerClient) {
         LogContainerCmd logCommand = dockerClient.logContainerCmd(containerId.get())
         setContainerCommandConfig(logCommand)
-        logCommand.exec(createCallback())?.awaitCompletion()
+        logCommand.exec(createCallback(nextHandler))?.awaitCompletion()
     }
 
-    private LogContainerResultCallback createCallback() {
+    private LogContainerResultCallback createCallback(Action nextHandler) {
         if(sink && nextHandler) {
             throw new GradleException("Define either sink or onNext")
         }
