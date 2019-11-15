@@ -28,6 +28,7 @@ refer to the library's documentation for more information on the supported Docke
 
 == Documentation
 
-* Read the https://bmuschko.github.io/gradle-docker-plugin/[user guide]!
-* Inspect classes and methods of the plugin in the https://bmuschko.github.io/gradle-docker-plugin/[API documentation]!
-* Anything unclear? Ask a question on the https://gitter.im/gradle-docker-plugin/Lobby[Gitter channel]!
+* Read the https://bmuschko.github.io/gradle-docker-plugin/[user guide].
+* Check out the full-fledged https://github.com/bmuschko/gradle-docker-plugin/tree/master/src/docs/samples/code[sample projects] using the Groovy and the Kotlin DSL.
+* Inspect classes and methods of the plugin in the https://bmuschko.github.io/gradle-docker-plugin/[API documentation].
+* Anything unclear? Ask a question on the https://gitter.im/gradle-docker-plugin/Lobby[Gitter channel].
