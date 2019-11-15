@@ -1,6 +1,7 @@
 image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
 image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/images/download.svg["Download", link="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/_latestVersion"]
-image:https://img.shields.io/badge/stack%20overflow-gradle%20docker%20plugin-blue.svg["Stackoverflow", link="https://stackoverflow.com/questions/tagged/gradle-docker-plugin"]
+image:https://img.shields.io/badge/groovydoc-latest-9cf["Groovydoc", link="https://bmuschko.github.io/gradle-docker-plugin/api"]
+image:https://img.shields.io/badge/stackoverflow-gradle--docker--plugin-orange["Stackoverflow", link="https://stackoverflow.com/questions/tagged/gradle-docker-plugin"]
 image:https://badges.gitter.im/Join%20Chat.svg["Gitter", link="https://gitter.im/gradle-docker-plugin/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge"]
 
 = Gradle Docker plugin
