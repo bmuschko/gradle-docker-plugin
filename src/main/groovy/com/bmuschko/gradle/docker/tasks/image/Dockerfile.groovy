@@ -1234,6 +1234,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code RUN} instruction.
      */
     static class RunCommandInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = 'RUN'
+
         RunCommandInstruction(String command) {
             super(command)
         }
@@ -1247,7 +1249,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "RUN"
+            KEYWORD
         }
     }
 
@@ -1255,6 +1257,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code CMD} instruction.
      */
     static class DefaultCommandInstruction extends StringArrayInstruction {
+        public static final String KEYWORD = 'CMD'
+
         DefaultCommandInstruction(String... command) {
             super(command)
         }
@@ -1268,7 +1272,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "CMD"
+            KEYWORD
         }
     }
 
@@ -1276,6 +1280,7 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code EXPOSE} instruction.
      */
     static class ExposePortInstruction implements Instruction {
+        public static final String KEYWORD = 'EXPOSE'
         private final Integer[] ports
         private final Provider<List<Integer>> provider
 
@@ -1292,7 +1297,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "EXPOSE"
+            KEYWORD
         }
 
         /**
@@ -1320,6 +1325,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code ENV} instruction.
      */
     static class EnvironmentVariableInstruction extends MapInstruction {
+        public static final String KEYWORD = 'ENV'
+
         EnvironmentVariableInstruction(String key, String value) {
             super([(key): value])
         }
@@ -1337,7 +1344,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "ENV"
+            KEYWORD
         }
     }
 
@@ -1345,6 +1352,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code ADD} instruction.
      */
     static class AddFileInstruction extends FileInstruction<File> {
+        public static final String KEYWORD = 'ADD'
+
         AddFileInstruction(File file) {
             super(file)
         }
@@ -1358,7 +1367,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "ADD"
+            KEYWORD
         }
     }
 
@@ -1366,6 +1375,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code COPY} instruction.
      */
     static class CopyFileInstruction extends FileInstruction<CopyFile> {
+        public static final String KEYWORD = 'COPY'
+
         CopyFileInstruction(CopyFile file) {
             super(file)
         }
@@ -1391,7 +1402,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "COPY"
+            KEYWORD
         }
     }
 
@@ -1399,6 +1410,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code ENTRYPOINT} instruction.
      */
     static class EntryPointInstruction extends StringArrayInstruction {
+        public static final String KEYWORD = 'ENTRYPOINT'
+
         EntryPointInstruction(String... entryPoint) {
             super(entryPoint)
         }
@@ -1412,11 +1425,13 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "ENTRYPOINT"
+            KEYWORD
         }
     }
 
     static class VolumeInstruction extends StringArrayInstruction {
+        public static final String KEYWORD = 'VOLUME'
+
         VolumeInstruction(String... volume) {
             super(volume)
         }
@@ -1430,7 +1445,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "VOLUME"
+            KEYWORD
         }
     }
 
@@ -1438,6 +1453,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code USER} instruction.
      */
     static class UserInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = 'USER'
+
         UserInstruction(String user) {
             super(user)
         }
@@ -1451,7 +1468,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "USER"
+            KEYWORD
         }
     }
 
@@ -1459,6 +1476,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code WORKDIR} instruction.
      */
     static class WorkDirInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = 'WORKDIR'
+
         WorkDirInstruction(String dir) {
             super(dir)
         }
@@ -1472,7 +1491,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "WORKDIR"
+            KEYWORD
         }
     }
 
@@ -1480,6 +1499,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code ONBUILD} instruction.
      */
     static class OnBuildInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = 'ONBUILD'
+
         OnBuildInstruction(String instruction) {
             super(instruction)
         }
@@ -1493,7 +1514,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "ONBUILD"
+            KEYWORD
         }
     }
 
@@ -1501,6 +1522,8 @@ class Dockerfile extends DefaultTask {
      * Represents a {@code LABEL} instruction.
      */
     static class LabelInstruction extends MapInstruction {
+        public static final String KEYWORD = 'LABEL'
+
         LabelInstruction(Map labels) {
             super(labels)
         }
@@ -1514,7 +1537,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            "LABEL"
+            KEYWORD
         }
     }
 
