@@ -25,7 +25,7 @@ import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
 
-import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
+import static com.bmuschko.gradle.docker.internal.IOUtils.getProgressLogger
 
 /**
  *  Poll a given running container for an arbitrary log message to confirm liveness. If a livenessProbe is

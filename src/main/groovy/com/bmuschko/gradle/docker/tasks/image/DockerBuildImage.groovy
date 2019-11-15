@@ -18,7 +18,7 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
-import com.bmuschko.gradle.docker.utils.OutputCollector
+import com.bmuschko.gradle.docker.internal.OutputCollector
 import com.github.dockerjava.api.command.BuildImageCmd
 import com.github.dockerjava.api.exception.DockerException
 import com.github.dockerjava.api.model.AuthConfig

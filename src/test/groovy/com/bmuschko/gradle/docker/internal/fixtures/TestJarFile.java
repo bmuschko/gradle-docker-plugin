@@ -1,4 +1,4 @@
-package com.bmuschko.gradle.docker.utils.fixtures;
+package com.bmuschko.gradle.docker.internal.fixtures;
 
 import org.junit.rules.TemporaryFolder;
 import org.zeroturnaround.zip.FileSource;

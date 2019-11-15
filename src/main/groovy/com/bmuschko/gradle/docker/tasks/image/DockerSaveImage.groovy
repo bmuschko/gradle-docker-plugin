@@ -1,7 +1,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.bmuschko.gradle.docker.utils.IOUtils
+import com.bmuschko.gradle.docker.internal.IOUtils
 import com.github.dockerjava.api.command.SaveImageCmd
 import groovy.transform.CompileStatic
 import org.gradle.api.GradleException

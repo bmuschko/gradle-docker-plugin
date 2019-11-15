@@ -1,4 +1,4 @@
-package com.bmuschko.gradle.docker.utils.fixtures;
+package com.bmuschko.gradle.docker.internal.fixtures;
 
 @SomeApplication
 public class AnnotatedClassWithMainMethod {

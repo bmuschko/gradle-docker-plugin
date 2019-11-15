@@ -29,8 +29,8 @@ import org.gradle.api.tasks.Sync
 
 import java.util.concurrent.Callable
 
-import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.createAppFilesCopySpec
-import static com.bmuschko.gradle.docker.utils.ConventionPluginHelper.getMainJavaSourceSetOutput
+import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.createAppFilesCopySpec
+import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.getMainJavaSourceSetOutput
 
 /**
  * The abstract class for all conventional application plugin.

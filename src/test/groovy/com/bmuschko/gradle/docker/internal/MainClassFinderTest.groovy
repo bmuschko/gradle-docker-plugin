@@ -1,15 +1,16 @@
-package com.bmuschko.gradle.docker.utils
+package com.bmuschko.gradle.docker.internal
 
-import com.bmuschko.gradle.docker.utils.fixtures.AnnotatedClassWithMainMethod
-import com.bmuschko.gradle.docker.utils.fixtures.ClassWithMainMethod
-import com.bmuschko.gradle.docker.utils.fixtures.ClassWithoutMainMethod
-import com.bmuschko.gradle.docker.utils.fixtures.TestJarFile
+
+import com.bmuschko.gradle.docker.internal.fixtures.AnnotatedClassWithMainMethod
+import com.bmuschko.gradle.docker.internal.fixtures.ClassWithMainMethod
+import com.bmuschko.gradle.docker.internal.fixtures.ClassWithoutMainMethod
+import com.bmuschko.gradle.docker.internal.fixtures.TestJarFile
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class MainClassFinderTest extends Specification {
-    private static final String ANNOTATION_CLASS_NAME = "com.bmuschko.gradle.docker.utils.fixtures.SomeApplication"
+    private static final String ANNOTATION_CLASS_NAME = "com.bmuschko.gradle.docker.internal.fixtures.SomeApplication"
 
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()

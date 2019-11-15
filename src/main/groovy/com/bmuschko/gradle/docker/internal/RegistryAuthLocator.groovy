@@ -1,4 +1,4 @@
-package com.bmuschko.gradle.docker.utils
+package com.bmuschko.gradle.docker.internal
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.github.dockerjava.api.model.AuthConfig

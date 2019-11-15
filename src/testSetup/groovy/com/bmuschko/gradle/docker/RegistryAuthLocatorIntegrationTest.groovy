@@ -1,6 +1,6 @@
 package com.bmuschko.gradle.docker
 
-import com.bmuschko.gradle.docker.utils.RegistryAuthLocator
+import com.bmuschko.gradle.docker.internal.RegistryAuthLocator
 import com.github.dockerjava.api.model.AuthConfig
 import spock.lang.Requires
 

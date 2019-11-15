@@ -32,7 +32,7 @@ import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
 
-import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
+import static com.bmuschko.gradle.docker.internal.IOUtils.getProgressLogger
 
 @CompileStatic
 class DockerExecContainer extends DockerExistingContainer {

@@ -1,4 +1,4 @@
-package com.bmuschko.gradle.docker.utils
+package com.bmuschko.gradle.docker.internal
 
 import groovy.transform.CompileStatic
 import org.objectweb.asm.AnnotationVisitor

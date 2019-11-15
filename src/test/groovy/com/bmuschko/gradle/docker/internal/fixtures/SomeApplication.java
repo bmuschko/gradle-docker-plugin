@@ -1,4 +1,4 @@
-package com.bmuschko.gradle.docker.utils.fixtures;
+package com.bmuschko.gradle.docker.internal.fixtures;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

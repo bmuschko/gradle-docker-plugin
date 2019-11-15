@@ -28,7 +28,7 @@ import org.gradle.api.tasks.Optional
 
 import java.util.concurrent.TimeUnit
 
-import static com.bmuschko.gradle.docker.utils.IOUtils.getProgressLogger
+import static com.bmuschko.gradle.docker.internal.IOUtils.getProgressLogger
 
 /**
  *  Run an "exec" command on a container with the intent that it will gracefully

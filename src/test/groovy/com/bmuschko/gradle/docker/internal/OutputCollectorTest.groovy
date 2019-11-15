@@ -1,5 +1,6 @@
-package com.bmuschko.gradle.docker.utils
+package com.bmuschko.gradle.docker.internal
 
+import com.bmuschko.gradle.docker.internal.OutputCollector
 import spock.lang.Specification
 
 class OutputCollectorTest extends Specification {

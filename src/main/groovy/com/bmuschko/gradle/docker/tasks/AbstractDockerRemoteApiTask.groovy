@@ -17,7 +17,7 @@ package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-import com.bmuschko.gradle.docker.utils.RegistryAuthLocator
+import com.bmuschko.gradle.docker.internal.RegistryAuthLocator
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.DockerCmdExecFactory
 import com.github.dockerjava.core.DefaultDockerClientConfig
