@@ -1,5 +1,6 @@
 image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
 image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/images/download.svg["Download", link="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/_latestVersion"]
+image:https://img.shields.io/badge/user%20guide-latest-red["User Guide", link="https://bmuschko.github.io/gradle-docker-plugin/"]
 image:https://img.shields.io/badge/groovydoc-latest-9cf["Groovydoc", link="https://bmuschko.github.io/gradle-docker-plugin/api"]
 image:https://badges.gitter.im/Join%20Chat.svg["Gitter", link="https://gitter.im/gradle-docker-plugin/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge"]
 
@@ -27,4 +28,5 @@ refer to the library's documentation for more information on the supported Docke
 
 == Documentation
 
-Read the https://bmuschko.github.io/gradle-docker-plugin/[user guide]!
+* Read the https://bmuschko.github.io/gradle-docker-plugin/[user guide]!
+* Inspect classes and methods of the plugin in the https://bmuschko.github.io/gradle-docker-plugin/[API documentation]!
