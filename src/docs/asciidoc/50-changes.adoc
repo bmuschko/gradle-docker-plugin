@@ -1,7 +1,7 @@
 == Change Log
 
 [discrete]
-=== v6.0.0 (TBA)
+=== v6.0.0 (November 16, 2019)
 
 * **Breaking Change!** Multi-tag support for push operation and convention plugins - {uri-github}/pull/867[PR 867]
 * **Breaking Change!** Renamed property `tags` to `images` for extensions `DockerJavaApplication` and `DockerSpringBootApplication`.
