@@ -577,7 +577,7 @@ Please refer to the library&#8217;s documentation for more information on the su
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-This plugin requires Gradle &gt;= 5.1 to work properly.
+This plugin requires Gradle &gt;= 5.1 to work properly. Due to an incompatibility in Docker Java, running the plugin with Java 11 or higher does currently not work.
 </td>
 </tr>
 </table>
@@ -711,7 +711,7 @@ See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle 
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:5.3.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:6.0.0'
     }
 }
 
@@ -726,7 +726,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'</code></pre>
         gradlePluginPortal()
     }
     dependencies {
-        classpath("com.bmuschko:gradle-docker-plugin:5.3.0")
+        classpath("com.bmuschko:gradle-docker-plugin:6.0.0")
     }
 }
 
@@ -740,7 +740,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '5.3.0'
+    id 'com.bmuschko.docker-remote-api' version '6.0.0'
 }</code></pre>
 </div>
 </div>
@@ -748,7 +748,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "5.3.0"
+    id("com.bmuschko.docker-remote-api") version "6.0.0"
 }</code></pre>
 </div>
 </div>
@@ -778,7 +778,7 @@ When used with the Kotlin DSL, it is recommended to move your implementation int
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:5.3.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:6.0.0'
     }
 }
 
@@ -800,7 +800,7 @@ apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin</code></pre>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The plugin <code>com.bmuschko.docker-remote-api</code> allows for interacting with Docker via its remote API.
-You can model any workflow imaginable by creating enhanced task of the custom task provided by the plugin.</p>
+If no additional configuration has been provided by the build script, the plugin will try to resolve and use the credentials for registry authentication available from previous <code>login</code> operations (usually in <code>$HOME/.docker/config.json</code>). You can model any workflow imaginable by creating enhanced task of the custom task provided by the plugin.</p>
 </div>
 <div class="sect2">
 <h3 id="usage"><a class="anchor" href="#usage"></a>2.1. Usage</h3>
@@ -808,7 +808,7 @@ You can model any workflow imaginable by creating enhanced task of the custom ta
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '5.3.0'
+    id 'com.bmuschko.docker-remote-api' version '6.0.0'
 }
 
 // Import task types
@@ -817,7 +817,7 @@ import com.bmuschko.gradle.docker.tasks.image.*
 // Use task types
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('docker/myapp')
-    tags.add('test/myapp:latest')
+    images.add('test/myapp:latest')
 }</code></pre>
 </div>
 </div>
@@ -825,7 +825,7 @@ task buildMyAppImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "5.3.0"
+    id("com.bmuschko.docker-remote-api") version "6.0.0"
 }
 
 // Import task types
@@ -834,7 +834,7 @@ import com.bmuschko.gradle.docker.tasks.image.*
 // Use task types
 tasks.create("buildMyAppImage", DockerBuildImage::class) {
     inputDir.set(file("docker/myapp"))
-    tags.add("test/myapp:latest")
+    images.add("test/myapp:latest")
 }</code></pre>
 </div>
 </div>
@@ -903,8 +903,7 @@ The following properties can be configured:</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Image pull or push operations against the public Docker Hub registry or a private registry may require authentication.
-You can provide those credentials in the <code>registryCredentials</code> closure:</p>
+<p>Image pull or push operations against the public Docker Hub registry or a private registry may require authentication. By default, existing credentials are read from <code>$HOME/.docker/config.json</code> and reused for authentication purposes. You can overwrite those credentials with the help of the <code>registryCredentials</code> closure. The credentials provided in the extension automatically become available to all custom tasks that implement the interface <a href="https://bmuschko.github.io/gradle-docker-plugin/api/com/bmuschko/gradle/docker/tasks/RegistryCredentialsAware.html">RegistryCredentialsAware</a>.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1513,7 +1512,7 @@ order.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '5.3.0'
+    id 'com.bmuschko.docker-remote-api' version '6.0.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1526,7 +1525,7 @@ task createDockerfile(type: Dockerfile) {
 
 task buildImage(type: DockerBuildImage) {
     dependsOn createDockerfile
-    tags.add('bmuschko/myimage:latest')
+    images.add('bmuschko/myimage:latest')
 }</code></pre>
 </div>
 </div>
@@ -1534,7 +1533,7 @@ task buildImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "5.3.0"
+    id("com.bmuschko.docker-remote-api") version "6.0.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1547,7 +1546,7 @@ val createDockerfile by tasks.creating(Dockerfile::class) {
 
 tasks.create("buildImage", DockerBuildImage::class) {
     dependsOn(createDockerfile)
-    tags.add("bmuschko/myimage:latest")
+    images.add("bmuschko/myimage:latest")
 }</code></pre>
 </div>
 </div>
@@ -1562,7 +1561,7 @@ At the end of this operation, the container is stopped.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '5.3.0'
+    id 'com.bmuschko.docker-remote-api' version '6.0.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1570,14 +1569,14 @@ import com.bmuschko.gradle.docker.tasks.image.*
 
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('docker/myapp')
-    tags.add('test/myapp:latest')
+    images.add('test/myapp:latest')
 }
 
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage
     targetImageId buildMyAppImage.getImageId()
-    portBindings = ['8080:8080']
-    autoRemove = true
+    hostConfig.portBindings = ['8080:8080']
+    hostConfig.autoRemove = true
 }
 
 task startMyAppContainer(type: DockerStartContainer) {
@@ -1599,7 +1598,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "5.3.0"
+    id("com.bmuschko.docker-remote-api") version "6.0.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1607,14 +1606,14 @@ import com.bmuschko.gradle.docker.tasks.image.*
 
 val buildMyAppImage by tasks.creating(DockerBuildImage::class) {
     inputDir.set(file("docker/myapp"))
-    tags.add("test/myapp:latest")
+    images.add("test/myapp:latest")
 }
 
 val createMyAppContainer by tasks.creating(DockerCreateContainer::class) {
     dependsOn(buildMyAppImage)
     targetImageId(buildMyAppImage.getImageId())
-    portBindings.set(listOf("8080:8080"))
-    autoRemove.set(true)
+    hostConfig.portBindings.set(listOf("8080:8080"))
+    hostConfig.autoRemove.set(true)
 }
 
 val startMyAppContainer by tasks.creating(DockerStartContainer::class) {
@@ -1643,7 +1642,7 @@ In that case you may wish using traditional linking:</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '5.3.0'
+    id 'com.bmuschko.docker-remote-api' version '6.0.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1651,24 +1650,24 @@ import com.bmuschko.gradle.docker.tasks.image.*
 
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('docker/myapp')
-    tags.add('test/myapp')
+    images.add('test/myapp')
 }
 
 task createDBContainer(type: DockerCreateContainer) {
     targetImageId 'postgres:latest'
     containerName = 'docker_auto'
-    autoRemove = true
+    hostConfig.autoRemove = true
 }
 
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage, createDBContainer
     targetImageId buildMyAppImage.getImageId()
-    portBindings = ['8080:8080']
-    autoRemove = true
-    links = ["docker_auto:database"]
+    hostConfig.portBindings = ['8080:8080']
+    hostConfig.autoRemove = true
+    hostConfig.links = ["docker_auto:database"]
 
     // If you use Systemd in containers you should also add lines. #320
-    binds = ['/sys/fs/cgroup': '/sys/fs/cgroup']
+    hostConfig.binds = ['/sys/fs/cgroup': '/sys/fs/cgroup']
     tty = true
 }
 
@@ -1691,7 +1690,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "5.3.0"
+    id("com.bmuschko.docker-remote-api") version "6.0.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1699,24 +1698,24 @@ import com.bmuschko.gradle.docker.tasks.image.*
 
 val buildMyAppImage by tasks.creating(DockerBuildImage::class) {
     inputDir.set(file("docker/myapp"))
-    tags.add("test/myapp")
+    images.add("test/myapp")
 }
 
 val createDBContainer by tasks.creating(DockerCreateContainer::class) {
     targetImageId("postgres:latest")
     containerName.set("docker_auto")
-    autoRemove.set(true)
+    hostConfig.autoRemove.set(true)
 }
 
 val createMyAppContainer by tasks.creating(DockerCreateContainer::class) {
     dependsOn(buildMyAppImage, createDBContainer)
     targetImageId(buildMyAppImage.getImageId())
-    portBindings.set(listOf("8080:8080"))
-    autoRemove.set(true)
-    links.set(listOf("docker_auto:database"))
+    hostConfig.portBindings.set(listOf("8080:8080"))
+    hostConfig.autoRemove.set(true)
+    hostConfig.links.set(listOf("docker_auto:database"))
 
     // If you use Systemd in containers you should also add lines. #320
-    binds.set(mapOf("/sys/fs/cgroup" to "/sys/fs/cgroup"))
+    hostConfig.binds.set(mapOf("/sys/fs/cgroup" to "/sys/fs/cgroup"))
     tty.set(true)
 }
 
@@ -1755,9 +1754,9 @@ The following example shows how to implement such a custom task:</p>
     final Property&lt;String&gt; imageId = project.objects.property(String)
 
     DockerImageIdForName() {
-        nextHandler = { image -&gt;
+        onNext({ image -&gt;
             imageId.set(image.id)
-        }
+        })
     }
 
     @Override
@@ -1856,7 +1855,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'application'
-    id 'com.bmuschko.docker-java-application' version '5.3.0'
+    id 'com.bmuschko.docker-java-application' version '6.0.0'
 }</code></pre>
 </div>
 </div>
@@ -1866,7 +1865,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     application
-    id("com.bmuschko.docker-java-application") version "5.3.0"
+    id("com.bmuschko.docker-java-application") version "6.0.0"
 }</code></pre>
 </div>
 </div>
@@ -1911,10 +1910,10 @@ The default configuration is tweakable via an exposed extension.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The Docker image exposed ports.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tag</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Property&lt;String&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;project.group&gt;/&lt;applicationName&gt;:&lt;project.version&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The tag used for the Docker image.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>images</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SetProperty&lt;String&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[&lt;project.group&gt;/&lt;applicationName&gt;:&lt;project.version&gt;]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The images used for the build and push operation.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>jvmArgs</code></p></td>
@@ -1932,7 +1931,7 @@ The default configuration is tweakable via an exposed extension.</p>
         baseImage = 'dockerfile/java:openjdk-7-jre'
         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
         ports = [9090, 5701]
-        tag = 'jettyapp:1.115'
+        images = ['jettyapp:1.115', 'jettyapp:latest']
         jvmArgs = ['-Xms256m', '-Xmx2048m']
     }
 }</code></pre>
@@ -1946,7 +1945,7 @@ The default configuration is tweakable via an exposed extension.</p>
         baseImage.set("dockerfile/java:openjdk-7-jre")
         maintainer.set("Benjamin Muschko 'benjamin.muschko@gmail.com'")
         ports.set(listOf(9090, 5701))
-        tag.set("jettyapp:1.115")
+        images.set(setOf("jettyapp:1.115", "jettyapp:latest"))
         jvmArgs.set(listOf("-Xms256m", "-Xmx2048m"))
     }
 }</code></pre>
@@ -2015,7 +2014,7 @@ More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-d
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'application'
-    id 'com.bmuschko.docker-java-application' version '5.3.0'
+    id 'com.bmuschko.docker-java-application' version '6.0.0'
 }
 
 version = '1.0'
@@ -2044,7 +2043,7 @@ docker {
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     application
-    id("com.bmuschko.docker-java-application") version "5.3.0"
+    id("com.bmuschko.docker-java-application") version "6.0.0"
 }
 
 version = "1.0"
@@ -2146,7 +2145,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '5.3.0'
+    id 'com.bmuschko.docker-spring-boot-application' version '6.0.0'
 }</code></pre>
 </div>
 </div>
@@ -2156,7 +2155,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     id("org.springframework.boot") version "2.0.3.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "5.3.0"
+    id("com.bmuschko.docker-spring-boot-application") version "6.0.0"
 }</code></pre>
 </div>
 </div>
@@ -2202,10 +2201,10 @@ The following properties can be configured:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The Docker image exposed ports.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tag</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Property&lt;String&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;project.group&gt;/&lt;project.name&gt;:&lt;project.version&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The tag used for the Docker image.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>images</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SetProperty&lt;String&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[&lt;project.group&gt;/&lt;applicationName&gt;:&lt;project.version&gt;]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The images used for the build and push operation.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>jvmArgs</code></p></td>
@@ -2222,7 +2221,7 @@ The following properties can be configured:</p>
     springBootApplication {
         baseImage = 'openjdk:8-alpine'
         ports = [9090, 8080]
-        tag = 'awesome-spring-boot:1.115'
+        images = ['awesome-spring-boot:1.115', 'awesome-spring-boot:latest']
         jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
     }
 }</code></pre>
@@ -2235,7 +2234,7 @@ The following properties can be configured:</p>
     springBootApplication {
         baseImage.set("openjdk:8-alpine")
         ports.set(listOf(9090, 8080))
-        tag.set("awesome-spring-boot:1.115")
+        images.set(setOf("awesome-spring-boot:1.115", "awesome-spring-boot:latest"))
         jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
     }
 }</code></pre>
@@ -2307,7 +2306,7 @@ The following properties can be configured:</p>
     id 'war'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '5.3.0'
+    id 'com.bmuschko.docker-spring-boot-application' version '6.0.0'
 }
 
 version = '1.0'
@@ -2338,7 +2337,7 @@ docker {
     war
     id("org.springframework.boot") version "2.0.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.5.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "5.3.0"
+    id("com.bmuschko.docker-spring-boot-application") version "6.0.0"
 }
 
 version = "1.0"
@@ -2623,6 +2622,48 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div class="sect1">
 <h2 id="change_log"><a class="anchor" href="#change_log"></a>6. Change Log</h2>
 <div class="sectionbody">
+<h3 id="v6_0_0_november_16_2019" class="discrete">v6.0.0 (November 16, 2019)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Breaking Change!</strong> Multi-tag support for push operation and convention plugins - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/867">PR 867</a></p>
+</li>
+<li>
+<p><strong>Breaking Change!</strong> Renamed property <code>tags</code> to <code>images</code> for extensions <code>DockerJavaApplication</code> and <code>DockerSpringBootApplication</code>.</p>
+</li>
+<li>
+<p><strong>Breaking Change!</strong> Renamed property <code>tag</code> to <code>image</code> for custom tasks <code>DockerBuildImage</code>, <code>DockerCommitImage</code>, <code>DockerPullImage</code>, <code>DockerSaveImage</code>, <code>DockerListImages</code>,<code>DockerCreateContainer</code>.</p>
+</li>
+<li>
+<p><strong>Breaking Change!</strong> Removal of method <code>DockerPullImage.getImageId()</code>. Use <code>DockerPullImage.getImage()</code> instead.</p>
+</li>
+<li>
+<p><strong>Breaking Change!</strong> Host-related configuration properties in <code>DockerCreateContainer</code> have been moved to nested property for better maintainability - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/873">PR 873</a></p>
+</li>
+<li>
+<p>Add properties <code>ipcMode</code> and <code>sysctls</code> to <code>DockerCreateContainer</code> - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/862">PR 862</a></p>
+</li>
+<li>
+<p>Gradle 6.0 compatibility fixes - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/869">PR 869</a></p>
+</li>
+<li>
+<p>Improve DSL for configuring registry credentials for custom tasks - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/879">PR 879</a></p>
+</li>
+<li>
+<p>Plugin resolves and uses Docker credential helper</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/bmuschko/gradle-docker-plugin/pull/865">PR 865</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Upgrade of Docker Java library to version 3.1.5</p>
+</li>
+</ul>
+</div>
 <h3 id="v5_3_0_october_30_2019" class="discrete">v5.3.0 (October 30, 2019)</h3>
 <div class="ulist">
 <ul>
@@ -3933,7 +3974,7 @@ setting port bindings for task <code>DockerStartContainer</code> anymore. Needs 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-10-30 19:29:20 UTC
+Last updated 2019-11-16 14:28:19 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
