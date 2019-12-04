@@ -1,6 +1,5 @@
 package com.bmuschko.gradle.docker.internal
 
-
 import com.bmuschko.gradle.docker.internal.fixtures.AnnotatedClassWithMainMethod
 import com.bmuschko.gradle.docker.internal.fixtures.ClassWithMainMethod
 import com.bmuschko.gradle.docker.internal.fixtures.ClassWithoutMainMethod
@@ -31,6 +30,20 @@ class MainClassFinderTest extends Specification {
 
         then:
         mainClass == 'a.B'
+    }
+
+    def "can select main class among multiple"() {
+        given:
+        testJarFile.addClass('a/B.class', ClassWithMainMethod)
+        testJarFile.addClass('a/C.class', ClassWithMainMethod)
+        testJarFile.addClass('a/D.class', ClassWithMainMethod)
+
+        when:
+        MainClassFinder.findSingleMainClass(testJarFile.getJarSource())
+
+        then:
+        def e = thrown(IllegalStateException)
+        e.message == 'Unable to find a single main class from the following candidates [a.B, a.C, a.D]'
     }
 
     def "can find annotated main class"() {
