@@ -1,15 +1,18 @@
 === Extension
 
-The plugin defines an extension with the namespace `javaApplication` as a child of the `docker` namespace. The following properties can be configured:
+The plugin defines an extension with the namespace `javaApplication` as a child of the `docker` namespace. By default, the main class will be configured automatically by looking for a class with a `public static void main(String[])` method available in the classpath of the main source set.
+
+The following properties can be configured:
 
 [options="header"]
 |=======
-|Property name   |Type                               |Default value                                            |Description
-|`baseImage`     |`Property<String>`                 |`openjdk:jre-alpine`                                     |The Docker base image used for Java application.
-|`maintainer`    |`Property<String>`                 |Value of system property `user.name`                     |The maintainer of the image.
-|`ports`         |`ListProperty<Integer>`            |`[8080]`                                                 |The Docker image exposed ports.
-|`images`        |`SetProperty<String>`              |`[<project.group>/<applicationName>:<project.version>]`  |The images used for the build and push operation.
-|`jvmArgs`       |`ListProperty<String>`             |`[]`                                                     |The JVM arguments passed to the `java` command.
+|Property name   |Type                               |Default value                                                 |Description
+|`baseImage`     |`Property<String>`                 |`openjdk:jre-alpine`                                          |The Docker base image used for Java application.
+|`maintainer`    |`Property<String>`                 |Value of system property `user.name`                          |The maintainer of the image.
+|`ports`         |`ListProperty<Integer>`            |`[8080]`                                                      |The Docker image exposed ports.
+|`images`        |`SetProperty<String>`              |`[<project.group>/<applicationName>:<project.version>]`       |The images used for the build and push operation.
+|`jvmArgs`       |`ListProperty<String>`             |`[]`                                                          |The JVM arguments passed to the `java` command.
+|`mainClassName` |`Property<String>`                 |A unique main class name discovered by scanning the classpath |The main class name to use for starting the application. Setting an explicit value for this option is useful if your source code contains multiple main class files.
 |=======
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]

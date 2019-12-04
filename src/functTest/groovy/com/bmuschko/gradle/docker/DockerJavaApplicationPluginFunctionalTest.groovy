@@ -103,6 +103,25 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         assertBuildContextClasses()
     }
 
+    def "Can provide a specific main class name"() {
+        given:
+        buildFile << """
+            docker {
+                javaApplication {
+                    mainClassName = 'com.bmuschko.custom.Main'
+                }
+            }
+        """
+
+        when:
+        build('buildAndRemoveImage')
+
+        then:
+        assertGeneratedDockerfile(new ExpectedDockerfile(mainClassName: 'com.bmuschko.custom.Main'))
+        assertBuildContextLibs()
+        assertBuildContextClasses()
+    }
+
     def "Can create image for Java application with additional files"() {
         given:
         temporaryFolder.newFile('file1.txt')
@@ -165,7 +184,7 @@ ADD file2.txt /other/dir/file2.txt
 
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
-                    images = ["\${docker.registryCredentials.username.get()}/javaapp:1.2.3".toString(), "\${docker.registryCredentials.username.get()}/javaapp:latest".toString()] 
+                    images = ["\${docker.registryCredentials.username.get()}/javaapp:1.2.3".toString(), "\${docker.registryCredentials.username.get()}/javaapp:latest".toString()]
                 }
             }
         """
@@ -208,7 +227,7 @@ ADD file2.txt /other/dir/file2.txt
                 javaApplication {
                     baseImage = '$CUSTOM_BASE_IMAGE'
                     images = [
-                        '${TestConfiguration.dockerPrivateSecureRegistryDomain}/javaapp:1.2.3', 
+                        '${TestConfiguration.dockerPrivateSecureRegistryDomain}/javaapp:1.2.3',
                         '${TestConfiguration.dockerPrivateSecureRegistryDomain}/javaapp:latest'
                     ]
                 }
@@ -288,7 +307,7 @@ WORKDIR /app
         }
 
         dockerfileContent += """COPY classes classes/
-ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs).collect { '"' + it + '"'}}
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.mainClassName).collect { '"' + it + '"'}}
 """
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
@@ -299,14 +318,14 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs).collect { '"' + it + '"
         dockerfileContent
     }
 
-    private static List<String> buildEntrypoint(List<String> jvmArgs) {
+    private static List<String> buildEntrypoint(List<String> jvmArgs, String mainClassName) {
         List<String> entrypoint = ["java"]
 
         if (!jvmArgs.empty) {
             entrypoint.addAll(jvmArgs)
         }
 
-        entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.application.JettyMain"])
+        entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", mainClassName])
         entrypoint
     }
 
@@ -335,5 +354,6 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs).collect { '"' + it + '"
         boolean copyResources = false
         List<String> exposedPorts = [8080]
         List<String> jmvArgs = []
+        String mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
     }
 }
