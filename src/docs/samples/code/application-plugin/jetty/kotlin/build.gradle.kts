@@ -1,6 +1,5 @@
 plugins {
     java
-    application
     id("com.bmuschko.docker-java-application") version "{project-version}"
 }
 
@@ -17,10 +16,6 @@ repositories {
 
 dependencies {
     implementation("org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112")
-}
-
-application {
-    mainClassName = "com.bmuschko.gradle.docker.application.JettyMain"
 }
 
 docker {

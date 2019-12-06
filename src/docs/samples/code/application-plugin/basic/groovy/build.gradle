@@ -1,7 +1,6 @@
 // tag::plugins[]
 plugins {
     id 'java'
-    id 'application'
     id 'com.bmuschko.docker-java-application' version '{project-version}'
 }
 // end::plugins[]
