@@ -5,6 +5,7 @@ import com.github.dockerjava.api.model.AuthConfig
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -28,7 +29,7 @@ class RegistryAuthLocator {
 
     private static final String DEFAULT_HELPER_PREFIX = 'docker-credential-'
 
-    private static final Logger log = Logging.getLogger(RegistryAuthLocator)
+    private Logger logger = Logging.getLogger(RegistryAuthLocator)
     private final JsonSlurper slurper = new JsonSlurper()
 
     private final File configFile
@@ -89,7 +90,7 @@ class RegistryAuthLocator {
      */
     AuthConfig lookupAuthConfig(String image, AuthConfig defaultAuthConfig) {
         if (isWindows()) {
-            log.debug('RegistryAuthLocator is not supported on Windows. ' +
+            logger.debug('RegistryAuthLocator is not supported on Windows. ' +
                 'Please help test or improve it and update ' +
                 'https://github.com/bmuschko/gradle-docker-plugin/')
             return defaultAuthConfig
@@ -97,9 +98,9 @@ class RegistryAuthLocator {
 
         String repository = getRepository(image)
 
-        log.debug('Looking up auth config for repository: {}', repository)
+        logger.debug('Looking up auth config for repository: {}', repository)
 
-        log.debug('RegistryAuthLocator has configFile: {} ({}) and ' +
+        logger.debug('RegistryAuthLocator has configFile: {} ({}) and ' +
             'commandPathPrefix: {}',
             configFile,
             configFile.exists() ? 'exists' : 'does not exist',
@@ -126,7 +127,7 @@ class RegistryAuthLocator {
             }
 
         } catch(Exception ex) {
-            log.error('Failure when attempting to lookup auth config ' +
+            logger.error('Failure when attempting to lookup auth config ' +
                 '(docker repository: {}, configFile: {}. ' +
                 'Falling back to docker-java default behaviour',
                 repository,
@@ -187,7 +188,7 @@ class RegistryAuthLocator {
      * @param repository the name of the docker repository
      * @return auth object with a token if present or null otherwise
      */
-    private static AuthConfig findExistingAuthConfig(Map<String, Object> config, String repository) {
+    private AuthConfig findExistingAuthConfig(Map<String, Object> config, String repository) {
         Map.Entry<String, Object> entry = findAuthNode(config, repository)
         if (entry != null && entry.getValue() != null && entry.getValue() instanceof Map) {
             Map authMap = entry.getValue() as Map
@@ -197,7 +198,7 @@ class RegistryAuthLocator {
                 return authCfg.withRegistryAddress(entry.getKey())
             }
         }
-        log.debug('No existing AuthConfig found')
+        logger.debug('No existing AuthConfig found')
         return null
     }
 
@@ -235,7 +236,7 @@ class RegistryAuthLocator {
                 return runCredentialProvider(repository, helper)
             }
         }
-        log.debug('No helper found in the {} section', HELPERS_SECTION)
+        logger.debug('No helper found in the {} section', HELPERS_SECTION)
         return null
     }
 
@@ -250,7 +251,7 @@ class RegistryAuthLocator {
 
         String data = runCommand(hostName, credentialHelperName)
         Map<String, String> helperResponse = slurper.parseText(data) as Map<String, String>
-        log.debug('Credential helper provided auth config for: {}', hostName)
+        logger.debug('Credential helper provided auth config for: {}', hostName)
 
         return new AuthConfig()
             .withRegistryAddress(helperResponse.ServerURL)
@@ -270,12 +271,12 @@ class RegistryAuthLocator {
             String credsStore = credsStoreNode as String
             return runCredentialProvider(repository, credsStore)
         }
-        log.debug('No helper found in the {} section', CREDS_STORE_SECTION)
+        logger.debug('No helper found in the {} section', CREDS_STORE_SECTION)
         return null
     }
 
-    private static String runCommand(String hostName, String credentialHelperName) {
-        log.debug('Executing docker credential helper: {} to locate auth config for: {}',
+    private String runCommand(String hostName, String credentialHelperName) {
+        logger.debug('Executing docker credential helper: {} to locate auth config for: {}',
             credentialHelperName, hostName)
         try {
             StringBuilder sOut = new StringBuilder()
@@ -285,11 +286,11 @@ class RegistryAuthLocator {
             proc.waitFor()
             proc.waitForProcessOutput(sOut, sErr)
             if (sErr.length() > 0) {
-                log.error("{} get: {}", credentialHelperName, sErr.toString())
+                logger.error("{} get: {}", credentialHelperName, sErr.toString())
             }
             return sOut.toString()
         } catch (Exception e) {
-            log.error('Failure running docker credential helper ({})', credentialHelperName)
+            logger.error('Failure running docker credential helper ({})', credentialHelperName)
             throw e
         }
     }
@@ -297,5 +298,10 @@ class RegistryAuthLocator {
     private static boolean isWindows() {
         String osName = System.getProperty('os.name')
         return osName != null && osName.startsWith('Windows')
+    }
+
+    @PackageScope
+    void setLogger(Logger logger) {
+        this.logger = logger
     }
 }

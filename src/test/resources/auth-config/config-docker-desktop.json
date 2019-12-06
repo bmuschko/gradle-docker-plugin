@@ -1,0 +1,13 @@
+{
+  "HttpHeaders" : {
+    "User-Agent" : "Docker-Client/19.03.4 (darwin)"
+  },
+  "auths" : {
+    "https://index.docker.io/v1/" : {
+
+    }
+  },
+  "experimental" : "disabled",
+  "stackOrchestrator" : "swarm",
+  "credsStore" : "desktop"
+}
