@@ -22,7 +22,7 @@ class RegistryAuthLocatorTest extends Specification {
         config.getRegistryAddress() == 'https://index.docker.io/v1/'
         !config.getUsername()
         !config.getPassword()
-        0 * logger.error(*_)
+        0 * logger.warn(*_)
     }
 
     def "AuthLocator works using store"() {
@@ -36,7 +36,7 @@ class RegistryAuthLocatorTest extends Specification {
         config.getRegistryAddress() == 'url'
         config.getUsername() == 'username'
         config.getPassword() == 'secret'
-        0 * logger.error(*_)
+        0 * logger.warn(*_)
     }
 
     def "AuthLocator works using helper and empty auth"() {
@@ -50,7 +50,7 @@ class RegistryAuthLocatorTest extends Specification {
         config.getRegistryAddress() == 'url'
         config.getUsername() == 'username'
         config.getPassword() == 'secret'
-        0 * logger.error(*_)
+        0 * logger.warn(*_)
     }
 
     def "AuthLocator works using auth"() {
@@ -63,7 +63,7 @@ class RegistryAuthLocatorTest extends Specification {
         then:
         config.getUsername() == null
         config.getAuth() == 'authkey'
-        0 * logger.error(*_)
+        0 * logger.warn(*_)
     }
 
     def "AuthLocator works using helper and existing auth"() {
@@ -78,7 +78,7 @@ class RegistryAuthLocatorTest extends Specification {
         !config.getUsername()
         config.getEmail() == 'not@val.id'
         config.getAuth() == 'encoded auth token'
-        0 * logger.error(*_)
+        0 * logger.warn(*_)
     }
 
     @PendingFeature
@@ -91,21 +91,21 @@ class RegistryAuthLocatorTest extends Specification {
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        0 * logger.error(*_)
+        0 * logger.warn(*_)
     }
 
     def "AuthLocator returns default config when the file does not exist"() {
         given:
         RegistryAuthLocator locator = createAuthLocatorForMissingConfigFile('missing-file.json')
-        locator.setLogger(logger)
 
         when:
         AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        1 * logger.error(*_)
+        0 * logger.warn(*_)
     }
+
 
     def "AuthLocator returns default config when the file is invalid"() {
         given:
@@ -117,7 +117,8 @@ class RegistryAuthLocatorTest extends Specification {
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        1 * logger.error(*_)
+        0 * logger.error(*_)
+        1 * logger.warn(*_)
     }
 
     def "AuthLocator returns default config when the credentials tool is missing"() {
@@ -129,7 +130,8 @@ class RegistryAuthLocatorTest extends Specification {
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        2 * logger.error(*_)
+        1 * logger.error(*_)
+        1 * logger.warn(*_)
     }
 
     private RegistryAuthLocator createAuthLocatorForExistingConfigFile(String configName){

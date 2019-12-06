@@ -106,6 +106,9 @@ class RegistryAuthLocator {
             configFile.exists() ? 'exists' : 'does not exist',
             commandPathPrefix)
 
+        if (!(configFile.exists())) {
+            return defaultAuthConfig
+        }
         try {
             Map<String, Object> config = slurper.parse(configFile) as Map<String, Object>
 
@@ -127,7 +130,8 @@ class RegistryAuthLocator {
             }
 
         } catch(Exception ex) {
-            logger.error('Failure when attempting to lookup auth config ' +
+            logger.warn('Failure when attempting to lookup auth config ' +
+                // logger.warn('Failure when attempting to lookup auth config ' +
                 '(docker repository: {}, configFile: {}. ' +
                 'Falling back to docker-java default behaviour',
                 repository,
