@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v6.1.0 (TBA)
+
+* Allow configuring the main class name for convention plugins - {uri-github}/pull/892[PR 892]
+
+[discrete]
 === v6.0.0 (November 16, 2019)
 
 * **Breaking Change!** Multi-tag support for push operation and convention plugins - {uri-github}/pull/867[PR 867]
