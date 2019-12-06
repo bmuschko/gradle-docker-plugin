@@ -122,7 +122,7 @@ abstract class DockerConventionApplicationPlugin<EXT extends DockerConventionApp
                                 entrypoint.addAll(jvmArgs)
                             }
 
-                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationMainClassName(project)])
+                            entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationMainClassName(project, extension)])
                             entrypoint
                         }
                     }))
@@ -190,7 +190,11 @@ abstract class DockerConventionApplicationPlugin<EXT extends DockerConventionApp
         })
     }
 
-    private String getApplicationMainClassName(Project project) {
+    private String getApplicationMainClassName(Project project, EXT extension) {
+        if (extension.mainClassName.isPresent()) {
+            return extension.mainClassName.get()
+        }
+
         for (File classesDir : getMainJavaSourceSetOutput(project).classesDirs) {
             String mainClassName = findMainClassName(classesDir)
 

@@ -92,6 +92,31 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         plugin << REACTED_PLUGINS
     }
 
+    @Unroll
+    def "Can provide a specific main class name [#plugin.identifier plugin]"() {
+        given:
+        setupSpringBootBuild(plugin.identifier)
+
+        buildFile << """
+            docker {
+                springBootApplication {
+                    mainClassName = 'com.bmuschko.custom.Main'
+                }
+            }
+        """
+
+        when:
+        build('buildAndRemoveImage')
+
+        then:
+        File dockerfile = dockerFile()
+        dockerfile.exists()
+        dockerfile.text == expectedDockerFileContent(new ExpectedDockerfile(mainClassName: 'com.bmuschko.custom.Main'))
+
+        where:
+        plugin << REACTED_PLUGINS
+    }
+
     @Requires({ TestPrecondition.DOCKER_HUB_CREDENTIALS_AVAILABLE })
     @Unroll
     def "Can create image for a Spring Boot application and push it to DockerHub [#plugin.identifier plugin]"() {
@@ -175,7 +200,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
             version = '1.0'
             sourceCompatibility = 8
             targetCompatibility = 8
-            
+
             repositories {
                 jcenter()
             }
@@ -216,7 +241,7 @@ LABEL maintainer=$expectedDockerfile.maintainer
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs).collect { '"' + it + '"'} }
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.mainClassName).collect { '"' + it + '"'} }
 """
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
@@ -227,14 +252,14 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs).collect { '"' + it + '"
         dockerFileContent
     }
 
-    private static List<String> buildEntrypoint(List<String> jvmArgs) {
+    private static List<String> buildEntrypoint(List<String> jvmArgs, String mainClassName) {
         List<String> entrypoint = ["java"]
 
         if (!jvmArgs.empty) {
             entrypoint.addAll(jvmArgs)
         }
 
-        entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.springboot.Application"])
+        entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", mainClassName])
         entrypoint
     }
 
@@ -243,5 +268,6 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs).collect { '"' + it + '"
         String maintainer = System.getProperty('user.name')
         List<String> exposedPorts = [8080]
         List<String> jvmArgs = []
+        String mainClassName = 'com.bmuschko.gradle.docker.springboot.Application'
     }
 }

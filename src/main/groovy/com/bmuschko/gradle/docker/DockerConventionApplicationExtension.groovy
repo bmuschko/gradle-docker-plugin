@@ -68,6 +68,16 @@ class DockerConventionApplicationExtension {
      */
     final ListProperty<String> jvmArgs
 
+    /**
+     * The main class name to use for starting the application e.g. {@code com.bmuschko.app.Main}.
+     * <p>
+     * By default tries to automatically find the main class by scanning the classpath.
+     * The value of this property takes precedence and circumvents classpath scanning.
+     *
+     * @since 6.1.0
+     */
+    final Property<String> mainClassName
+
     DockerConventionApplicationExtension(ObjectFactory objectFactory) {
         baseImage = objectFactory.property(String)
         baseImage.set('openjdk:jre-alpine')
@@ -77,5 +87,6 @@ class DockerConventionApplicationExtension {
         ports.set([8080])
         images = objectFactory.setProperty(String).empty()
         jvmArgs = objectFactory.listProperty(String).empty()
+        mainClassName = objectFactory.property(String)
     }
 }
