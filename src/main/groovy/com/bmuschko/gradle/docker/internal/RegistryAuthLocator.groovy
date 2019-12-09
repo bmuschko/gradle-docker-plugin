@@ -98,13 +98,12 @@ class RegistryAuthLocator {
 
         String repository = getRepository(image)
 
-        logger.debug('Looking up auth config for repository: {}', repository)
+        logger.debug("Looking up auth config for repository: $repository")
+        logger.debug("RegistryAuthLocator has configFile: $configFile.absolutePath (${configFile.exists() ? 'exists' : 'does not exist'}) and commandPathPrefix: $commandPathPrefix")
 
-        logger.debug('RegistryAuthLocator has configFile: {} ({}) and ' +
-            'commandPathPrefix: {}',
-            configFile,
-            configFile.exists() ? 'exists' : 'does not exist',
-            commandPathPrefix)
+        if (!configFile.isFile()) {
+            return defaultAuthConfig
+        }
 
         try {
             Map<String, Object> config = slurper.parse(configFile) as Map<String, Object>

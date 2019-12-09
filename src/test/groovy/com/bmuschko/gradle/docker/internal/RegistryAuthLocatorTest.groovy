@@ -104,7 +104,9 @@ class RegistryAuthLocatorTest extends Specification {
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        1 * logger.error(*_)
+        1 * logger.debug('Looking up auth config for repository: registry.example.com')
+        1 * logger.debug("RegistryAuthLocator has configFile: ${new File('missing-file.json').absolutePath} (does not exist) and commandPathPrefix: docker-credential-")
+        0 * logger.error(*_)
     }
 
     def "AuthLocator returns default config when the file is invalid"() {
