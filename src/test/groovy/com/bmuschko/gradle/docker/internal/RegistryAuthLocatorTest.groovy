@@ -2,7 +2,6 @@ package com.bmuschko.gradle.docker.internal
 
 import com.github.dockerjava.api.model.AuthConfig
 import org.gradle.api.logging.Logger
-import spock.lang.PendingFeature
 import spock.lang.Specification
 
 class RegistryAuthLocatorTest extends Specification {
@@ -81,8 +80,7 @@ class RegistryAuthLocatorTest extends Specification {
         0 * logger.error(*_)
     }
 
-    @PendingFeature
-    def "AuthLocator works for Docker Desktop config without existing credentials"() {
+    def "AuthLocator returns default config for Docker Desktop config without existing credentials"() {
         given:
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')
 
@@ -91,7 +89,7 @@ class RegistryAuthLocatorTest extends Specification {
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        0 * logger.error(*_)
+        2 * logger.error(*_)
     }
 
     def "AuthLocator returns default config when the file does not exist"() {
