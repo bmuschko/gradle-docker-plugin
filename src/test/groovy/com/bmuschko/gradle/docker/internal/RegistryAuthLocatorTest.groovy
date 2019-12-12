@@ -2,7 +2,6 @@ package com.bmuschko.gradle.docker.internal
 
 import com.github.dockerjava.api.model.AuthConfig
 import org.gradle.api.logging.Logger
-import spock.lang.PendingFeature
 import spock.lang.Specification
 
 class RegistryAuthLocatorTest extends Specification {
