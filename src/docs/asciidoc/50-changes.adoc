@@ -1,9 +1,10 @@
 == Change Log
 
 [discrete]
-=== v6.1.0 (TBA)
+=== v6.1.0 (December 12, 2019)
 
 * Allow configuring the main class name for convention plugins - {uri-github}/pull/892[PR 892]
+* Do not parse config file if it doesn't exist - {uri-github}/issues/887[Issue 887]
 
 [discrete]
 === v6.0.0 (November 16, 2019)
