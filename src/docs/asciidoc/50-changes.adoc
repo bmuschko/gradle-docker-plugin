@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v6.1.1 (December 12, 2019)
+
+* Add debug logging in Docker configuration parsing - {uri-github}/pull/898[PR 898]
+
+[discrete]
 === v6.1.0 (December 12, 2019)
 
 * Allow configuring the main class name for convention plugins - {uri-github}/pull/892[PR 892]
