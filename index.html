@@ -711,7 +711,7 @@ See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle 
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:6.0.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:6.1.0'
     }
 }
 
@@ -726,7 +726,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'</code></pre>
         gradlePluginPortal()
     }
     dependencies {
-        classpath("com.bmuschko:gradle-docker-plugin:6.0.0")
+        classpath("com.bmuschko:gradle-docker-plugin:6.1.0")
     }
 }
 
@@ -740,7 +740,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.0.0'
+    id 'com.bmuschko.docker-remote-api' version '6.1.0'
 }</code></pre>
 </div>
 </div>
@@ -748,7 +748,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.0.0"
+    id("com.bmuschko.docker-remote-api") version "6.1.0"
 }</code></pre>
 </div>
 </div>
@@ -778,7 +778,7 @@ When used with the Kotlin DSL, it is recommended to move your implementation int
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:6.0.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:6.1.0'
     }
 }
 
@@ -808,7 +808,7 @@ If no additional configuration has been provided by the build script, the plugin
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.0.0'
+    id 'com.bmuschko.docker-remote-api' version '6.1.0'
 }
 
 // Import task types
@@ -825,7 +825,7 @@ task buildMyAppImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.0.0"
+    id("com.bmuschko.docker-remote-api") version "6.1.0"
 }
 
 // Import task types
@@ -1512,7 +1512,7 @@ order.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.0.0'
+    id 'com.bmuschko.docker-remote-api' version '6.1.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1533,7 +1533,7 @@ task buildImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.0.0"
+    id("com.bmuschko.docker-remote-api") version "6.1.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1561,7 +1561,7 @@ At the end of this operation, the container is stopped.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.0.0'
+    id 'com.bmuschko.docker-remote-api' version '6.1.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1598,7 +1598,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.0.0"
+    id("com.bmuschko.docker-remote-api") version "6.1.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1642,7 +1642,7 @@ In that case you may wish using traditional linking:</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.0.0'
+    id 'com.bmuschko.docker-remote-api' version '6.1.0'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1690,7 +1690,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.0.0"
+    id("com.bmuschko.docker-remote-api") version "6.1.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1854,8 +1854,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
-    id 'application'
-    id 'com.bmuschko.docker-java-application' version '6.0.0'
+    id 'com.bmuschko.docker-java-application' version '6.1.0'
 }</code></pre>
 </div>
 </div>
@@ -1864,8 +1863,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
-    application
-    id("com.bmuschko.docker-java-application") version "6.0.0"
+    id("com.bmuschko.docker-java-application") version "6.1.0"
 }</code></pre>
 </div>
 </div>
@@ -1873,7 +1871,10 @@ The default configuration is tweakable via an exposed extension.</p>
 <div class="sect2">
 <h3 id="extension_2"><a class="anchor" href="#extension_2"></a>3.2. Extension</h3>
 <div class="paragraph">
-<p>The plugin defines an extension with the namespace <code>javaApplication</code> as a child of the <code>docker</code> namespace. The following properties can be configured:</p>
+<p>The plugin defines an extension with the namespace <code>javaApplication</code> as a child of the <code>docker</code> namespace. By default, the main class will be configured automatically by looking for a class with a <code>public static void main(String[])</code> method available in the classpath of the main source set.</p>
+</div>
+<div class="paragraph">
+<p>The following properties can be configured:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1920,6 +1921,12 @@ The default configuration is tweakable via an exposed extension.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListProperty&lt;String&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The JVM arguments passed to the <code>java</code> command.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mainClassName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Property&lt;String&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A unique main class name discovered by scanning the classpath</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The main class name to use for starting the application. Setting an explicit value for this option is useful if your source code contains multiple main class files.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2013,8 +2020,7 @@ More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-d
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
-    id 'application'
-    id 'com.bmuschko.docker-java-application' version '6.0.0'
+    id 'com.bmuschko.docker-java-application' version '6.1.0'
 }
 
 version = '1.0'
@@ -2028,8 +2034,6 @@ dependencies {
     implementation 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
 }
 
-mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
-
 docker {
     javaApplication {
         maintainer = 'Jon Doe "jon.doe@gmail.com"'
@@ -2042,8 +2046,7 @@ docker {
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
-    application
-    id("com.bmuschko.docker-java-application") version "6.0.0"
+    id("com.bmuschko.docker-java-application") version "6.1.0"
 }
 
 version = "1.0"
@@ -2059,10 +2062,6 @@ repositories {
 
 dependencies {
     implementation("org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112")
-}
-
-application {
-    mainClassName = "com.bmuschko.gradle.docker.application.JettyMain"
 }
 
 docker {
@@ -2145,7 +2144,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '6.0.0'
+    id 'com.bmuschko.docker-spring-boot-application' version '6.1.0'
 }</code></pre>
 </div>
 </div>
@@ -2155,7 +2154,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     id("org.springframework.boot") version "2.0.3.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "6.0.0"
+    id("com.bmuschko.docker-spring-boot-application") version "6.1.0"
 }</code></pre>
 </div>
 </div>
@@ -2163,8 +2162,10 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <div class="sect2">
 <h3 id="spring-boot-plugin-extension"><a class="anchor" href="#spring-boot-plugin-extension"></a>4.2. Extension</h3>
 <div class="paragraph">
-<p>The plugin defines an extension with the namespace <code>springBootApplication</code> as a child of the <code>docker</code> namespace.
-The following properties can be configured:</p>
+<p>The plugin defines an extension with the namespace <code>springBootApplication</code> as a child of the <code>docker</code> namespace. By default, the main class will be configured automatically by looking for a class with a <code>public static void main(String[])</code> method available in the classpath of the main source set. The main class needs to use the <a href="https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/SpringBootApplication.html"><code>org.springframework.boot.autoconfigure.SpringBootApplication</code></a> annotation to be discoverable.</p>
+</div>
+<div class="paragraph">
+<p>The following properties can be configured:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -2211,6 +2212,12 @@ The following properties can be configured:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ListProperty&lt;String&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The JVM arguments passed to the <code>java</code> command.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mainClassName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Property&lt;String&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A unique main class name discovered by scanning the classpath</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The main class name to use for starting the application. Setting an explicit value for this option is useful if your source code contains multiple main class files.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2306,7 +2313,7 @@ The following properties can be configured:</p>
     id 'war'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '6.0.0'
+    id 'com.bmuschko.docker-spring-boot-application' version '6.1.0'
 }
 
 version = '1.0'
@@ -2337,7 +2344,7 @@ docker {
     war
     id("org.springframework.boot") version "2.0.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.5.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "6.0.0"
+    id("com.bmuschko.docker-spring-boot-application") version "6.1.0"
 }
 
 version = "1.0"
@@ -2622,6 +2629,17 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div class="sect1">
 <h2 id="change_log"><a class="anchor" href="#change_log"></a>6. Change Log</h2>
 <div class="sectionbody">
+<h3 id="v6_1_0_december_12_2019" class="discrete">v6.1.0 (December 12, 2019)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Allow configuring the main class name for convention plugins - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/892">PR 892</a></p>
+</li>
+<li>
+<p>Do not parse config file if it doesn&#8217;t exist - <a href="https://github.com/bmuschko/gradle-docker-plugin/issues/887">Issue 887</a></p>
+</li>
+</ul>
+</div>
 <h3 id="v6_0_0_november_16_2019" class="discrete">v6.0.0 (November 16, 2019)</h3>
 <div class="ulist">
 <ul>
@@ -2650,14 +2668,7 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <p>Improve DSL for configuring registry credentials for custom tasks - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/879">PR 879</a></p>
 </li>
 <li>
-<p>Plugin resolves and uses Docker credential helper</p>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://github.com/bmuschko/gradle-docker-plugin/pull/865">PR 865</a></p>
-</li>
-</ul>
-</div>
+<p>Plugin resolves and uses Docker credential helper - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/865">PR 865</a></p>
 </li>
 <li>
 <p>Upgrade of Docker Java library to version 3.1.5</p>
@@ -3974,7 +3985,7 @@ setting port bindings for task <code>DockerStartContainer</code> anymore. Needs 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-11-16 14:28:19 UTC
+Last updated 2019-12-12 15:22:19 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
