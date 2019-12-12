@@ -82,7 +82,8 @@ class RegistryAuthLocatorTest extends Specification {
 
     def "AuthLocator returns default config for Docker Desktop config without existing credentials"() {
         given:
-        RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')
+        RegistryAuthLocator locator =
+            createAuthLocatorForExistingConfigFile('config-docker-desktop.json', false)
 
         when:
         AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
@@ -90,6 +91,20 @@ class RegistryAuthLocatorTest extends Specification {
         then:
         config == DEFAULT_AUTH_CONFIG
         2 * logger.error(*_)
+    }
+
+    def "AuthLocator works for Docker Desktop config without existing credentials"() {
+        given:
+        RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')
+
+        when:
+        AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+
+        then:
+        config.getRegistryAddress() == 'https://index.docker.io/v1/'
+        config.getUsername() == 'mac_user'
+        config.getPassword() == 'XXX'
+        0 * logger.error(*_)
     }
 
     def "AuthLocator returns default config when the file does not exist"() {
@@ -132,10 +147,15 @@ class RegistryAuthLocatorTest extends Specification {
         2 * logger.error(*_)
     }
 
-    private RegistryAuthLocator createAuthLocatorForExistingConfigFile(String configName){
+    private RegistryAuthLocator createAuthLocatorForExistingConfigFile(String configName, Boolean mockHelper = true){
         File configFile = new File(getClass().getResource(CONFIG_LOCATION + configName).toURI())
-        String command = configFile.getParentFile().getAbsolutePath() + '/docker-credential-'
-        RegistryAuthLocator locator = new RegistryAuthLocator(configFile, command)
+        RegistryAuthLocator locator
+        if (mockHelper) {
+            String command = configFile.getParentFile().getAbsolutePath() + '/docker-credential-'
+            locator = new RegistryAuthLocator(configFile, command)
+        } else {
+            locator = new RegistryAuthLocator(configFile)
+        }
         locator.setLogger(logger)
         locator
     }
