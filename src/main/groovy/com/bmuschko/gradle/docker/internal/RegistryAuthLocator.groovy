@@ -249,6 +249,7 @@ class RegistryAuthLocator {
         String credentialHelperName = commandPathPrefix + credHelper
 
         String data = runCommand(hostName, credentialHelperName)
+        logger.debug('Credential helper response: {}', data)
         Map<String, String> helperResponse = slurper.parseText(data) as Map<String, String>
         logger.debug('Credential helper provided auth config for: {}', hostName)
 

@@ -81,7 +81,6 @@ class RegistryAuthLocatorTest extends Specification {
         0 * logger.error(*_)
     }
 
-    @PendingFeature
     def "AuthLocator works for Docker Desktop config without existing credentials"() {
         given:
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')
@@ -90,7 +89,9 @@ class RegistryAuthLocatorTest extends Specification {
         AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
 
         then:
-        config == DEFAULT_AUTH_CONFIG
+        config.getRegistryAddress() == 'https://index.docker.io/v1/'
+        config.getUsername() == 'mac_user'
+        config.getPassword() == 'XXX'
         0 * logger.error(*_)
     }
 
