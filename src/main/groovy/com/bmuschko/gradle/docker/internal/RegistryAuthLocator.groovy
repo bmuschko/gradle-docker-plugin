@@ -6,8 +6,11 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
+import org.apache.commons.codec.binary.Base64
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+
+import java.nio.charset.StandardCharsets
 
 /**
  * Utility class to get credentials information from extension of type {@see DockerRegistryCredentials} or from {@code $DOCKER_CONFIG/.docker/config.json} file.
@@ -110,19 +113,19 @@ class RegistryAuthLocator {
 
             AuthConfig existingAuthConfig = findExistingAuthConfig(config, repository)
             if (existingAuthConfig != null) {
-                return existingAuthConfig
+                return decodeAuth(existingAuthConfig)
             }
 
             // auths is empty, using helper:
             AuthConfig helperAuthConfig = authConfigUsingHelper(config, repository)
             if (helperAuthConfig != null) {
-                return helperAuthConfig
+                return decodeAuth(helperAuthConfig)
             }
 
             // no credsHelper to use, using credsStore:
             final AuthConfig storeAuthConfig = authConfigUsingStore(config, repository)
             if (storeAuthConfig != null) {
-                return storeAuthConfig
+                return decodeAuth(storeAuthConfig)
             }
 
         } catch(Exception ex) {
@@ -298,6 +301,22 @@ class RegistryAuthLocator {
     private static boolean isWindows() {
         String osName = System.getProperty('os.name')
         return osName != null && osName.startsWith('Windows')
+    }
+
+    private static AuthConfig decodeAuth(AuthConfig config) {
+        if (config.getAuth() == null) {
+            return config
+        }
+
+        String str = new String(Base64.decodeBase64(config.getAuth()), StandardCharsets.UTF_8)
+        String[] parts = str.split(":", 2)
+        if (parts.length != 2) {
+            throw new IOException("Invalid auth configuration file")
+        }
+        config.withUsername(parts[0])
+        config.withPassword(parts[1])
+        config.withAuth(null)
+        return config
     }
 
     @PackageScope

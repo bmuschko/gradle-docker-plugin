@@ -8,6 +8,10 @@ import static com.bmuschko.gradle.docker.fixtures.DockerJavaApplicationPluginFix
 
 class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
+    public static final String DOCKER_CONFIG = 'DOCKER_CONFIG'
+    public static final String USER_PASS_CONFIG = 'src/functTest/resources/username_password'
+    public static final String BASIC_AUTH_CONFIG = 'src/functTest/resources/basic_auth'
+
     def setup() {
         setupProjectUnderTest()
     }
@@ -220,7 +224,7 @@ ADD file2.txt /other/dir/file2.txt
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE })
-    def "Can create image for Java application and push to secure registry"() {
+    def "Can create image for Java application and push to secure registry using username password"() {
         given:
         buildFile << """
             docker {
@@ -233,6 +237,30 @@ ADD file2.txt /other/dir/file2.txt
                 }
             }
         """
+        addEnvVar(DOCKER_CONFIG, USER_PASS_CONFIG)
+
+        when:
+        build('pushAndRemoveImage')
+
+        then:
+        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE))
+        assertBuildContextLibs()
+    }
+
+    def "Can create image for Java application and push to secure registry using basic auth"() {
+        given:
+        buildFile << """
+            docker {
+                javaApplication {
+                    baseImage = '$CUSTOM_BASE_IMAGE'
+                    images = [
+                        '${TestConfiguration.dockerPrivateSecureRegistryDomain}/javaapp:1.2.3',
+                        '${TestConfiguration.dockerPrivateSecureRegistryDomain}/javaapp:latest'
+                    ]
+                }
+            }
+        """
+        addEnvVar(DOCKER_CONFIG, BASIC_AUTH_CONFIG)
 
         when:
         build('pushAndRemoveImage')

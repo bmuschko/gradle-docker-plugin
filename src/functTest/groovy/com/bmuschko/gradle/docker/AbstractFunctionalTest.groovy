@@ -18,11 +18,21 @@ abstract class AbstractFunctionalTest extends Specification {
     File projectDir
     File buildFile
     File settingsFile
+    Map<String, String> envVars = new HashMap<>()
 
     def setup() {
         projectDir = temporaryFolder.root
         buildFile = temporaryFolder.newFile(getBuildFileName())
         settingsFile = temporaryFolder.newFile(getSettingsFileName())
+    }
+
+    /**
+     * Adds an environment variable for gradle runner
+     * @param variable variable name
+     * @param value variable value
+     */
+    protected void addEnvVar(String variable, String value) {
+        envVars.put(variable, value)
     }
 
     protected BuildResult build(String... arguments) {
@@ -38,6 +48,7 @@ abstract class AbstractFunctionalTest extends Specification {
             .withProjectDir(projectDir)
             .withArguments(arguments + '-s' as List<String>)
             .withPluginClasspath()
+            .withEnvironment(envVars)
     }
 
     protected File file(String relativePath) {
