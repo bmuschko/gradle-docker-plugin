@@ -17,6 +17,8 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
+import spock.lang.Ignore
+import spock.lang.PendingFeature
 
 class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -107,6 +109,7 @@ class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunction
         build('waitContainer')
     }
 
+    @Ignore
     def "Invoke onNext periodically passing the health status"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.*

@@ -3,10 +3,6 @@ jdk: openjdk8
 install: true
 sudo: required
 
-env:
-  global:
-    - DOCKER_CONFIG="${TRAVIS_BUILD_DIR}/src/functTest/resources"
-
 jobs:
   include:
     - stage: Compilation

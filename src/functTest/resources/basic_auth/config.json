@@ -1,0 +1,7 @@
+{
+  "auths": {
+    "localhost:5001": {
+      "auth": "dGVzdHVzZXI6dGVzdHBhc3N3b3Jk"
+    }
+  }
+}

@@ -60,8 +60,9 @@ class RegistryAuthLocatorTest extends Specification {
         AuthConfig config = locator.lookupAuthConfig('container-registry.cloud.yandex.net/org/repo')
 
         then:
-        config.getUsername() == null
-        config.getAuth() == 'authkey'
+        config.getUsername() == 'username'
+        config.getPassword() == 'secret'
+        !config.getAuth()
         0 * logger.error(*_)
     }
 
@@ -74,9 +75,10 @@ class RegistryAuthLocatorTest extends Specification {
 
         then:
         config.getRegistryAddress() == 'https://registry.example.com'
-        !config.getUsername()
+        config.getUsername() == "username"
+        config.getPassword() == "secret"
         config.getEmail() == 'not@val.id'
-        config.getAuth() == 'encoded auth token'
+        !config.getAuth()
         0 * logger.error(*_)
     }
 
