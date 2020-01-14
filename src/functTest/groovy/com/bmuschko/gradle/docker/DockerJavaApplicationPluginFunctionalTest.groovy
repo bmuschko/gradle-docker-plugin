@@ -247,6 +247,7 @@ ADD file2.txt /other/dir/file2.txt
         assertBuildContextLibs()
     }
 
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE })
     def "Can create image for Java application and push to secure registry using basic auth"() {
         given:
         buildFile << """
