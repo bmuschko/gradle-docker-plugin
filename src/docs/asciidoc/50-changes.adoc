@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v6.1.2 (January 14, 2020)
+
+* Decode base64 auth header - {uri-github}/pull/902[PR 902]
+
+[discrete]
 === v6.1.1 (December 12, 2019)
 
 * Add debug logging in Docker configuration parsing - {uri-github}/pull/898[PR 898]
