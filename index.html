@@ -577,7 +577,7 @@ Please refer to the library&#8217;s documentation for more information on the su
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-This plugin requires Gradle &gt;= 5.1 to work properly. Due to an incompatibility in Docker Java, running the plugin with Java 11 or higher does currently not work.
+This plugin requires Gradle &gt;= 5.2 to work properly. Due to an incompatibility in Docker Java, running the plugin with Java 11 or higher does currently not work.
 </td>
 </tr>
 </table>
@@ -711,7 +711,7 @@ See the <a href="https://docs.gradle.org/current/userguide/plugins.html">Gradle 
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:6.1.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:6.1.2'
     }
 }
 
@@ -726,7 +726,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'</code></pre>
         gradlePluginPortal()
     }
     dependencies {
-        classpath("com.bmuschko:gradle-docker-plugin:6.1.1")
+        classpath("com.bmuschko:gradle-docker-plugin:6.1.2")
     }
 }
 
@@ -740,7 +740,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.1.1'
+    id 'com.bmuschko.docker-remote-api' version '6.1.2'
 }</code></pre>
 </div>
 </div>
@@ -748,7 +748,7 @@ apply(plugin = "com.bmuschko.docker-remote-api")</code></pre>
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.1.1"
+    id("com.bmuschko.docker-remote-api") version "6.1.2"
 }</code></pre>
 </div>
 </div>
@@ -778,7 +778,7 @@ When used with the Kotlin DSL, it is recommended to move your implementation int
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:6.1.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:6.1.2'
     }
 }
 
@@ -808,7 +808,7 @@ If no additional configuration has been provided by the build script, the plugin
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.1.1'
+    id 'com.bmuschko.docker-remote-api' version '6.1.2'
 }
 
 // Import task types
@@ -825,7 +825,7 @@ task buildMyAppImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.1.1"
+    id("com.bmuschko.docker-remote-api") version "6.1.2"
 }
 
 // Import task types
@@ -1512,7 +1512,7 @@ order.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.1.1'
+    id 'com.bmuschko.docker-remote-api' version '6.1.2'
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1533,7 +1533,7 @@ task buildImage(type: DockerBuildImage) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.1.1"
+    id("com.bmuschko.docker-remote-api") version "6.1.2"
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -1561,7 +1561,7 @@ At the end of this operation, the container is stopped.</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.1.1'
+    id 'com.bmuschko.docker-remote-api' version '6.1.2'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1598,7 +1598,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.1.1"
+    id("com.bmuschko.docker-remote-api") version "6.1.2"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1642,7 +1642,7 @@ In that case you may wish using traditional linking:</p>
 <div class="title">Groovy</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
-    id 'com.bmuschko.docker-remote-api' version '6.1.1'
+    id 'com.bmuschko.docker-remote-api' version '6.1.2'
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1690,7 +1690,7 @@ task functionalTestMyApp(type: Test) {
 <div class="title">Kotlin</div>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
-    id("com.bmuschko.docker-remote-api") version "6.1.1"
+    id("com.bmuschko.docker-remote-api") version "6.1.2"
 }
 
 import com.bmuschko.gradle.docker.tasks.container.*
@@ -1854,7 +1854,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
-    id 'com.bmuschko.docker-java-application' version '6.1.1'
+    id 'com.bmuschko.docker-java-application' version '6.1.2'
 }</code></pre>
 </div>
 </div>
@@ -1863,7 +1863,7 @@ The default configuration is tweakable via an exposed extension.</p>
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
-    id("com.bmuschko.docker-java-application") version "6.1.1"
+    id("com.bmuschko.docker-java-application") version "6.1.2"
 }</code></pre>
 </div>
 </div>
@@ -2020,7 +2020,7 @@ More scenarios can be found in the <a href="https://github.com/bmuschko/gradle-d
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
-    id 'com.bmuschko.docker-java-application' version '6.1.1'
+    id 'com.bmuschko.docker-java-application' version '6.1.2'
 }
 
 version = '1.0'
@@ -2046,7 +2046,7 @@ docker {
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
-    id("com.bmuschko.docker-java-application") version "6.1.1"
+    id("com.bmuschko.docker-java-application") version "6.1.2"
 }
 
 version = "1.0"
@@ -2144,7 +2144,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-groovy" data-lang="groovy">plugins {
     id 'java'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '6.1.1'
+    id 'com.bmuschko.docker-spring-boot-application' version '6.1.2'
 }</code></pre>
 </div>
 </div>
@@ -2154,7 +2154,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
 <pre class="prettyprint highlight"><code class="language-kotlin" data-lang="kotlin">plugins {
     java
     id("org.springframework.boot") version "2.0.3.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "6.1.1"
+    id("com.bmuschko.docker-spring-boot-application") version "6.1.2"
 }</code></pre>
 </div>
 </div>
@@ -2313,7 +2313,7 @@ The plugin only supports projects that use a 2.x version of the Spring Boot plug
     id 'war'
     id 'org.springframework.boot' version '2.0.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-    id 'com.bmuschko.docker-spring-boot-application' version '6.1.1'
+    id 'com.bmuschko.docker-spring-boot-application' version '6.1.2'
 }
 
 version = '1.0'
@@ -2344,7 +2344,7 @@ docker {
     war
     id("org.springframework.boot") version "2.0.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.5.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "6.1.1"
+    id("com.bmuschko.docker-spring-boot-application") version "6.1.2"
 }
 
 version = "1.0"
@@ -2629,6 +2629,14 @@ Have a look at the <a href="https://github.com/bmuschko/gradle-docker-plugin/blo
 <div class="sect1">
 <h2 id="change_log"><a class="anchor" href="#change_log"></a>6. Change Log</h2>
 <div class="sectionbody">
+<h3 id="v6_1_2_january_14_2020" class="discrete">v6.1.2 (January 14, 2020)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Decode base64 auth header - <a href="https://github.com/bmuschko/gradle-docker-plugin/pull/902">PR 902</a></p>
+</li>
+</ul>
+</div>
 <h3 id="v6_1_1_december_12_2019" class="discrete">v6.1.1 (December 12, 2019)</h3>
 <div class="ulist">
 <ul>
@@ -3993,7 +4001,7 @@ setting port bindings for task <code>DockerStartContainer</code> anymore. Needs 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-12-12 23:15:58 UTC
+Last updated 2020-01-15 00:51:08 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
