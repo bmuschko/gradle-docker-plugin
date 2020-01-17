@@ -23,8 +23,13 @@ repositories {
     jcenter()
 }
 
+configurations.all {
+    resolutionStrategy.force("com.kohlschutter.junixsocket:junixsocket-core:2.2.1")
+}
+
 dependencies {
     shaded("com.github.docker-java:docker-java:3.1.5")
+    shaded("com.kohlschutter.junixsocket:junixsocket-core:2.2.1")
     shaded("javax.activation:activation:1.1.1")
     shaded("org.ow2.asm:asm:7.0")
     testImplementation("org.spockframework:spock-core:1.2-groovy-2.5") {
