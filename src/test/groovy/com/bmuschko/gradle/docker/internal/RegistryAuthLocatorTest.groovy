@@ -149,6 +149,20 @@ class RegistryAuthLocatorTest extends Specification {
         2 * logger.error(*_)
     }
 
+    def "AuthLocator uses default config then store does not contain the credentials"() {
+        given:
+        RegistryAuthLocator locator =
+            createAuthLocatorForExistingConfigFile('config-auth-store.json')
+
+        when:
+        AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+
+        then:
+        config == DEFAULT_AUTH_CONFIG
+        0 * logger.error(*_)
+        7 * logger.debug(*_)
+    }
+
     private RegistryAuthLocator createAuthLocatorForExistingConfigFile(String configName, Boolean mockHelper = true){
         File configFile = new File(getClass().getResource(CONFIG_LOCATION + configName).toURI())
         RegistryAuthLocator locator

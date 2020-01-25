@@ -196,7 +196,10 @@ class RegistryAuthLocator {
             Map authMap = entry.getValue() as Map
             if (authMap.size() > 0) {
                 String authJson = JsonOutput.toJson(entry.getValue())
-                AuthConfig authCfg = new JsonSlurper().parseText(authJson) as AuthConfig
+                AuthConfig authCfg = parseText(authJson) as AuthConfig
+                if (authCfg == null) {
+                    return null
+                }
                 return authCfg.withRegistryAddress(entry.getKey())
             }
         }
@@ -253,7 +256,10 @@ class RegistryAuthLocator {
 
         String data = runCommand(hostName, credentialHelperName)
         logger.debug('Credential helper response: {}', data)
-        Map<String, String> helperResponse = slurper.parseText(data) as Map<String, String>
+        Map<String, String> helperResponse = parseText(data) as Map<String, String>
+        if (helperResponse == null) {
+            return null
+        }
         logger.debug('Credential helper provided auth config for: {}', hostName)
 
         return new AuthConfig()
@@ -317,6 +323,15 @@ class RegistryAuthLocator {
         config.withPassword(parts[1])
         config.withAuth(null)
         return config
+    }
+
+    private Object parseText(String data) {
+        try {
+            return slurper.parseText(data)
+        } catch (Exception e) {
+            logger.debug('Failure parsing the json response {}', data, e)
+            return null
+        }
     }
 
     @PackageScope

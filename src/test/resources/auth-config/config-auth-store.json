@@ -1,0 +1,9 @@
+{
+    "auths": {
+        "https://index.docker.io/v1/": {}
+    },
+    "HttpHeaders": {
+        "User-Agent": "Docker-Client/18.09.7 (linux)"
+    },
+    "credsStore": "secretservice"
+}
