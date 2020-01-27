@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v6.1.3 (January 26, 2020)
+
+* Credentials helper JSON output parsing falls back to default if it cannot be read properly - {uri-github}/pull/909[PR 909]
+
+[discrete]
 === v6.1.2 (January 14, 2020)
 
 * Decode base64 auth header - {uri-github}/pull/902[PR 902]
