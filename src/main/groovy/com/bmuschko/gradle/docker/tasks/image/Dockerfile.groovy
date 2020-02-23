@@ -1132,6 +1132,7 @@ class Dockerfile extends DefaultTask {
             this.provider = provider
         }
 
+        @Internal
         T getFile() {
             provider ? provider.getOrNull() : file
         }
