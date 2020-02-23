@@ -99,7 +99,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    StringWriter sink
+    Writer sink
 
     // Allows subclasses to carry their own logic
     @Internal
@@ -115,13 +115,13 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Override
     void runRemoteCommand() {
         logger.quiet "Logs for container with ID '${containerId.get()}'."
-        _runRemoteCommand(dockerClient)
+        logAndProcessResponse(dockerClient)
     }
 
     // method used for sub-classes who wish to invoke this task
     // multiple times but don't want the logging message to be
     // printed for every iteration.
-    void _runRemoteCommand(DockerClient dockerClient) {
+    void logAndProcessResponse(DockerClient dockerClient) {
         LogContainerCmd logCommand = dockerClient.logContainerCmd(containerId.get())
         setContainerCommandConfig(logCommand)
         logCommand.exec(createCallback(nextHandler))?.awaitCompletion()

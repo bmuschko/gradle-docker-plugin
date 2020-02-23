@@ -92,7 +92,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
                     // 3.) execute our "special" version of `runRemoteCommand` to
                     //     check if next log line has the message we're interested in
                     //     which in turn will have its output written into the sink.
-                    _runRemoteCommand(dockerClient)
+                    logAndProcessResponse(dockerClient)
 
                     lastDate = justBeforeLastExecutionDate
 

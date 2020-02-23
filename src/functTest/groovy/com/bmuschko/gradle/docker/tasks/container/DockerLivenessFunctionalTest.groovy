@@ -75,7 +75,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         then:
         result.output.contains('Starting liveness')
-        result.output.contains("is not running and so can't perform liveness")
+        result.output.contains("is not running")
     }
 
     @Unroll
