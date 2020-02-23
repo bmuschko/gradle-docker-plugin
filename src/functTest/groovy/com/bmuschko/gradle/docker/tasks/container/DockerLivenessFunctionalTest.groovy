@@ -16,9 +16,6 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 onComplete {
                     println 'Container is now live'
                 }
-                doLast {
-                    println 'doLast container state is ' + lastInspection()
-                }
             }
 
             task execStopContainer(type: DockerExecStopContainer) {
@@ -41,7 +38,6 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         then:
         result.output.contains('Starting liveness')
-        result.output.contains('doLast container state is')
         result.output.contains('Container is now live')
         result.output.contains('Container has been exec-stopped')
     }
