@@ -139,9 +139,8 @@ class DockerLivenessContainer extends DockerLogsContainer {
      * probing for 10 minutes with 30 second intervals between each livenessProbe.
      *
      * @param logContains content within container log we will search for
-     * @return instance of LivenessProbe
      */
-    def livenessProbe(final String logContains) {
+    void livenessProbe(String logContains) {
         livenessProbe(600000, 30000, logContains)
     }
 
@@ -152,7 +151,7 @@ class DockerLivenessContainer extends DockerLogsContainer {
      * @param pollInterval interval between poll requests
      * @param logContains content within container log we will search for
      */
-    void livenessProbe(final long pollTime, final long pollInterval, final String logContains) {
+    void livenessProbe(long pollTime, long pollInterval, String logContains) {
         this.livenessProbe = new LivenessProbe(pollTime, pollInterval, logContains)
     }
 
