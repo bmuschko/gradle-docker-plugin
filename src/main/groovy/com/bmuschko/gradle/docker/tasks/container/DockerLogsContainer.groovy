@@ -95,11 +95,11 @@ class DockerLogsContainer extends DockerExistingContainer {
     final Property<Date> since = project.objects.property(Date)
 
     /**
-     * Sink to write log output into
+     * Sink to write log output into.
      */
     @Input
     @Optional
-    Writer sink
+    StringWriter sink
 
     // Allows subclasses to carry their own logic
     @Internal
