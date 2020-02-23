@@ -151,9 +151,8 @@ class DockerLivenessContainer extends DockerLogsContainer {
      * @param pollTime how long we will poll for
      * @param pollInterval interval between poll requests
      * @param logContains content within container log we will search for
-     * @return instance of LivenessProbe
      */
-    def livenessProbe(final long pollTime, final long pollInterval, final String logContains) {
+    void livenessProbe(final long pollTime, final long pollInterval, final String logContains) {
         this.livenessProbe = new LivenessProbe(pollTime, pollInterval, logContains)
     }
 
