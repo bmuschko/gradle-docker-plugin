@@ -22,6 +22,7 @@ import com.github.dockerjava.api.command.InspectContainerResponse
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+import org.gradle.internal.logging.progress.ProgressLogger
 
 import java.util.concurrent.TimeUnit
 
@@ -61,77 +62,82 @@ class DockerLivenessContainer extends DockerLogsContainer {
         // if livenessProbe was defined proceed as expected otherwise just
         // check if the container is up and running
         if (livenessProbe) {
-
             // create progressLogger for pretty printing of terminal log progression
-            final def progressLogger = getProgressLogger(project, DockerLivenessContainer)
+            ProgressLogger progressLogger = getProgressLogger(project, DockerLivenessContainer)
             progressLogger.started()
 
             boolean matchFound = false
-            long localPollTime = livenessProbe.pollTime
-            int pollTimes = 0
 
-            // 1.) Write the content of the logs into a StringWriter which we zero-out
-            //     below after each successive log grab.
-            setSink(new StringWriter())
+            try {
+                long localPollTime = livenessProbe.pollTime
+                int pollTimes = 0
 
-            Date lastDate = since.getOrNull()
+                // 1.) Write the content of the logs into a StringWriter which we zero-out
+                //     below after each successive log grab.
+                setSink(new StringWriter())
 
-            while (localPollTime > 0) {
-                pollTimes += 1
+                Date lastDate = since.getOrNull()
 
-                // 2.) check if container is actually running
-                lastInspection = dockerClient.inspectContainerCmd(containerId.get()).exec()
-                if (lastInspection.getState().getRunning() == false) {
-                    throw new GradleException("Container with ID '${containerId.get()}' is not running and so can't perform liveness probe.");
-                }
+                while (localPollTime > 0) {
+                    pollTimes += 1
 
-                if (lastDate) {
-                    this.internalSince = lastDate
-                }
-                final Date justBeforeLastExecutionDate = Calendar.getInstance().getTime()
+                    // 2.) check if container is actually running
+                    lastInspection = inspectContainer()
 
-                // 3.) execute our "special" version of `runRemoteCommand` to
-                //     check if next log line has the message we're interested in
-                //     which in turn will have its output written into the sink.
-                _runRemoteCommand(dockerClient)
+                    if (lastDate) {
+                        this.internalSince = lastDate
+                    }
+                    final Date justBeforeLastExecutionDate = Calendar.getInstance().getTime()
 
-                lastDate = justBeforeLastExecutionDate
+                    // 3.) execute our "special" version of `runRemoteCommand` to
+                    //     check if next log line has the message we're interested in
+                    //     which in turn will have its output written into the sink.
+                    _runRemoteCommand(dockerClient)
 
-                // 4.) check if log contains expected message otherwise sleep
-                String logLine = getSink().toString()
-                if (logLine && logLine.contains(livenessProbe.logContains)) {
-                    matchFound = true
-                    break
-                } else {
+                    lastDate = justBeforeLastExecutionDate
 
-                    long totalMillis = pollTimes * livenessProbe.pollInterval
-                    long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis)
-                    progressLogger.progress("Probing for ${totalMinutes}m...")
-                    try {
+                    // 4.) check if log contains expected message otherwise sleep
+                    String logLine = getSink().toString()
+                    if (logLine && logLine.contains(livenessProbe.logContains)) {
+                        matchFound = true
+                        break
+                    } else {
+                        long totalMillis = pollTimes * livenessProbe.pollInterval
+                        long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis)
+                        progressLogger.progress("Probing for ${totalMinutes}m...")
+                        try {
+                            // zero'ing out the below so as to save on memory for potentially
+                            // big logs returned from container.
+                            logLine = null
+                            getSink().getBuffer().setLength(0)
 
-                        // zero'ing out the below so as to save on memory for potentially
-                        // big logs returned from container.
-                        logLine = null
-                        getSink().getBuffer().setLength(0)
-
-                        localPollTime -= livenessProbe.pollInterval
-                        sleep(livenessProbe.pollInterval)
-                    } catch (Exception e) {
-                        throw e
+                            localPollTime -= livenessProbe.pollInterval
+                            sleep(livenessProbe.pollInterval)
+                        } catch (Exception e) {
+                            throw e
+                        }
                     }
                 }
+            } finally {
+                progressLogger.completed()
             }
-            progressLogger.completed()
 
             if (!matchFound) {
                 throw new GradleException("Liveness probe failed to find a match: ${livenessProbe.toString()}")
             }
         } else {
-            lastInspection = dockerClient.inspectContainerCmd(containerId.get()).exec()
-            if (lastInspection.getState().getRunning() == false) {
-                throw new GradleException("Container with ID '${containerId.get()}' is not running.");
-            }
+            lastInspection = inspectContainer()
         }
+    }
+
+    private InspectContainerResponse inspectContainer() {
+        InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId.get()).exec()
+
+        if (!inspectContainerResponse.getState().getRunning()) {
+            throw new GradleException("Container with ID '${containerId.get()}' is not running.");
+        }
+
+        inspectContainerResponse
     }
 
     /**
