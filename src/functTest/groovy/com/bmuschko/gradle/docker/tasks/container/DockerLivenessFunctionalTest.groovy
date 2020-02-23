@@ -8,7 +8,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Can start a container and probe it for liveness"() {
         given:
-        String additionalTasks = """
+        String livenessContainerTask = """
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
@@ -17,21 +17,10 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                     println 'Container is now live'
                 }
             }
-
-            task execStopContainer(type: DockerExecStopContainer) {
-                dependsOn livenessProbe
-                finalizedBy removeContainer
-                targetContainerId startContainer.getContainerId()
-                withCommand(['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"])
-                successOnExitCodes = [0, 137]
-                awaitStatusTimeout = 60000
-                execStopProbe(60000, 5000)
-                onComplete {
-                    println 'Container has been exec-stopped'
-                }
-            }
         """
-        buildFile << containerUsage(additionalTasks)
+        buildFile << containerUsage()
+        buildFile << livenessContainerTask
+        buildFile << execStopContainerTask([0, 137])
 
         when:
         BuildResult result = build('execStopContainer')
@@ -44,45 +33,30 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Can start a container and use probe task but not define a probe"() {
         given:
-        String additionalTasks = """
+        String livenessContainerTask = """
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
                 onComplete {
                     println 'Container is now in a running state'
                 }
-                doLast {
-                    println 'doLast container state is ' + lastInspection()
-                }
-            }
-
-            task execStopContainer(type: DockerExecStopContainer) {
-                dependsOn livenessProbe
-                finalizedBy removeContainer
-                targetContainerId startContainer.getContainerId()
-                withCommand(['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"])
-                successOnExitCodes = [0, 1, 137]
-                awaitStatusTimeout = 60000
-                execStopProbe(60000, 5000)
-                onComplete {
-                    println 'Container has been exec-stopped'
-                }
             }
         """
-        buildFile << containerUsage(additionalTasks)
+        buildFile << containerUsage()
+        buildFile << livenessContainerTask
+        buildFile << execStopContainerTask([0, 1, 137])
 
         when:
         BuildResult result = build('execStopContainer')
 
         then:
         result.output.contains('Starting liveness')
-        result.output.contains('doLast container state is')
         result.output.contains('Container is now in a running state')
         result.output.contains('Container has been exec-stopped')
     }
 
     def "Probe will fail if container is not running"() {
-        String additionalTasks = """
+        String livenessContainerTask = """
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn createContainer
                 finalizedBy removeContainer
@@ -93,7 +67,8 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 }
             }
         """
-        buildFile << containerUsage(additionalTasks)
+        buildFile << containerUsage()
+        buildFile << livenessContainerTask
 
         when:
         BuildResult result = buildAndFail('livenessProbe')
@@ -105,12 +80,13 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     @Unroll
     def "Probe cannot configure all fields from DockerLogsContainer"() {
-        String additionalTasks = """
+        String livenessContainerTask = """
             task livenessProbe(type: DockerLivenessContainer) {
                 $property = $value
             }
         """
-        buildFile << containerUsage(additionalTasks)
+        buildFile << containerUsage()
+        buildFile << livenessContainerTask
 
         when:
         BuildResult result = buildAndFail('livenessProbe')
@@ -125,7 +101,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
         'follow'    | true
     }
 
-    static String containerUsage(String additionalTasks) {
+    static String containerUsage() {
         """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -136,7 +112,7 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
-                image = 'postgres:alpine'
+                image = 'postgres:9.6.15-alpine'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -154,8 +130,23 @@ class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 force = true
                 targetContainerId startContainer.getContainerId()
             }
+        """
+    }
 
-            ${additionalTasks}
+    static String execStopContainerTask(List<Integer> successOnExitCodes) {
+        """
+            task execStopContainer(type: DockerExecStopContainer) {
+                dependsOn livenessProbe
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+                withCommand(['su', 'postgres', "-c", "/usr/local/bin/pg_ctl stop -m fast"])
+                successOnExitCodes = [${successOnExitCodes.join(', ')}]
+                awaitStatusTimeout = 60000
+                execStopProbe(60000, 5000)
+                onComplete {
+                    println 'Container has been exec-stopped'
+                }
+            }
         """
     }
 }

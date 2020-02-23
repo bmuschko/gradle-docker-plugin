@@ -86,7 +86,7 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.extras.DockerExecStopContainer
 
             task pullImage(type: DockerPullImage) {
-                image = 'postgres:alpine'
+                image = 'postgres:9.6.15-alpine'
             }
 
             task createContainer(type: DockerCreateContainer) {
@@ -104,7 +104,7 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 force = true
                 targetContainerId startContainer.getContainerId()
             }
-            
+
             task livenessProbe(type: DockerLivenessContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
@@ -113,7 +113,7 @@ class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
                     println 'Container is now live'
                 }
             }
-            
+
             ${containerExecutionStopTask}
         """
     }
