@@ -267,9 +267,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withTarget(target.get())
         }
 
-        AuthConfigurations authConfigurations = new AuthConfigurations()
-        AuthConfig authConfig = getRegistryAuthLocator().createAuthConfig(registryCredentials)
-        authConfigurations.addConfig(authConfig)
+        AuthConfigurations authConfigurations = getRegistryAuthLocator().lookupAllAuthConfigs(registryCredentials);
         buildImageCmd.withBuildAuthConfigs(authConfigurations)
 
         if (buildArgs.getOrNull()) {

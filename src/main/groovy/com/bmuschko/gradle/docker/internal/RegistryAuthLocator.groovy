@@ -2,11 +2,13 @@ package com.bmuschko.gradle.docker.internal
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.github.dockerjava.api.model.AuthConfig
+import com.github.dockerjava.api.model.AuthConfigurations
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.apache.commons.codec.binary.Base64
+import org.gradle.api.Action
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -92,20 +94,26 @@ class RegistryAuthLocator {
      * no credentials found
      */
     AuthConfig lookupAuthConfig(String image, AuthConfig defaultAuthConfig) {
+        AuthConfig authConfigForRepository = lookupAuthConfigForRepository(getRepository(image))
+        if (authConfigForRepository != null) {
+            return authConfigForRepository
+        }
+        return defaultAuthConfig
+    }
+
+    private AuthConfig lookupAuthConfigForRepository(String repository) {
         if (isWindows()) {
             logger.debug('RegistryAuthLocator is not supported on Windows. ' +
                 'Please help test or improve it and update ' +
                 'https://github.com/bmuschko/gradle-docker-plugin/')
-            return defaultAuthConfig
+            return null
         }
-
-        String repository = getRepository(image)
 
         logger.debug("Looking up auth config for repository: $repository")
         logger.debug("RegistryAuthLocator has configFile: $configFile.absolutePath (${configFile.exists() ? 'exists' : 'does not exist'}) and commandPathPrefix: $commandPathPrefix")
 
         if (!configFile.isFile()) {
-            return defaultAuthConfig
+            return null
         }
 
         try {
@@ -130,16 +138,108 @@ class RegistryAuthLocator {
 
         } catch(Exception ex) {
             logger.error('Failure when attempting to lookup auth config ' +
-                '(docker repository: {}, configFile: {}. ' +
+                '(docker repository: {}, configFile: {}). ' +
                 'Falling back to docker-java default behaviour',
                 repository,
                 configFile,
                 ex)
         }
-        defaultAuthConfig
+        return null
     }
 
-    AuthConfig createAuthConfig(DockerRegistryCredentials registryCredentials) {
+    /**
+     * Gets all authorization information
+     * using $DOCKER_CONFIG/.docker/config.json file
+     * If missing, an empty AuthConfigurations object is returned
+     * @return AuthConfigurations object containing all authorization information,
+     * or an empty object if not available
+     */
+    AuthConfigurations lookupAllAuthConfigs() {
+        AuthConfigurations authConfigurations = new AuthConfigurations()
+        if (isWindows()) {
+            logger.debug('RegistryAuthLocator is not supported on Windows. ' +
+                'Please help test or improve it and update ' +
+                'https://github.com/bmuschko/gradle-docker-plugin/')
+            return authConfigurations
+        }
+
+        logger.debug("RegistryAuthLocator has configFile: $configFile.absolutePath (${configFile.exists() ? 'exists' : 'does not exist'}) and commandPathPrefix: $commandPathPrefix")
+
+        if (!configFile.isFile()) {
+            return authConfigurations
+        }
+
+        try {
+            Set<String> registryAddresses = new HashSet<>()
+            Map<String, Object> config = slurper.parse(configFile) as Map<String, Object>
+
+            // Discover registry addresses from `auths` section
+            Map<String, Object> authSectionRegistries = config.getOrDefault(AUTH_SECTION, new HashMap()) as Map<String, Object>
+            logger.debug("Found registries in docker auths section: {}", authSectionRegistries.keySet())
+            registryAddresses.addAll(authSectionRegistries.keySet())
+
+            // Discover registry addresses from `credHelpers` section
+            Map<String, Object> credHelperSectionRegistries = config.getOrDefault(HELPERS_SECTION, new HashMap()) as Map<String, Object>
+            logger.debug("Found registries in docker credHelpers section: {}", credHelperSectionRegistries.keySet())
+            registryAddresses.addAll(credHelperSectionRegistries.keySet())
+
+            // Discover registry addresses from credentials helper
+            Object credStoreSection = config.get(CREDS_STORE_SECTION)
+            if (credStoreSection != null && credStoreSection instanceof String) {
+                String credStoreCommand = commandPathPrefix + credStoreSection
+
+                logger.debug('Executing docker credential helper: {} to locate auth configs', credStoreCommand)
+                String credStoreResponse = runCommand("$credStoreCommand list")
+                logger.debug('Credential helper response: {}', credStoreResponse)
+                Map<String, String> helperResponse = parseText(credStoreResponse) as Map<String, String>
+                if (helperResponse != null) {
+                    logger.debug("Found registries in docker credential helper: {}", helperResponse.keySet())
+                    registryAddresses.addAll(helperResponse.keySet())
+                }
+            }
+
+            // Lookup authentication information for all discovered registry addresses
+            for (String registryAddress : registryAddresses) {
+                AuthConfig registryAuthConfig = lookupAuthConfigForRepository(registryAddress)
+                if (registryAuthConfig != null) {
+                    authConfigurations.addConfig(registryAuthConfig)
+                }
+            }
+        } catch (Exception ex) {
+            logger.error('Failure when attempting to lookup auth config ' +
+                '(configFile: {}). ' +
+                'Falling back to docker-java default behaviour',
+                configFile,
+                ex)
+        }
+        return authConfigurations
+    }
+
+    /**
+     * Gets all authorization information
+     * using $DOCKER_CONFIG/.docker/config.json file
+     * If missing, an AuthConfigurations object containing only the passed registryCredentials is returned
+     * @param registryCredentials extension of type registryCredentials
+     * @return AuthConfigurations object containing all authorization information (if available), and the registryCredentials
+     */
+    AuthConfigurations lookupAllAuthConfigs(DockerRegistryCredentials registryCredentials) {
+        return lookupAllAuthConfigs(createAuthConfig(registryCredentials))
+    }
+
+    /**
+     * Gets all authorization information
+     * using $DOCKER_CONFIG/.docker/config.json file
+     * If missing, an AuthConfigurations object containing only the passed additionalAuthConfig is returned
+     * @param additionalAuthConfig An additional AuthConfig object to add to the discovered authorization information.
+     * @return AuthConfigurations object containing all authorization information (if available), and the additionalAuthConfig
+     */
+    AuthConfigurations lookupAllAuthConfigs(AuthConfig additionalAuthConfig) {
+        AuthConfigurations allAuthConfigs = lookupAllAuthConfigs()
+        allAuthConfigs.addConfig(additionalAuthConfig)
+        return allAuthConfigs
+    }
+
+    private AuthConfig createAuthConfig(DockerRegistryCredentials registryCredentials) {
         AuthConfig authConfig = new AuthConfig()
         authConfig.withRegistryAddress(registryCredentials.url.get())
 
@@ -254,7 +354,9 @@ class RegistryAuthLocator {
     private AuthConfig runCredentialProvider(String hostName, String credHelper) {
         String credentialHelperName = commandPathPrefix + credHelper
 
-        String data = runCommand(hostName, credentialHelperName)
+        logger.debug('Executing docker credential helper: {} to locate auth config for: {}',
+            credentialHelperName, hostName)
+        String data = runCommand("$credentialHelperName get", { Writer writer -> writer << hostName })
         logger.debug('Credential helper response: {}', data)
         Map<String, String> helperResponse = parseText(data) as Map<String, String>
         if (helperResponse == null) {
@@ -284,24 +386,29 @@ class RegistryAuthLocator {
         return null
     }
 
-    private String runCommand(String hostName, String credentialHelperName) {
-        logger.debug('Executing docker credential helper: {} to locate auth config for: {}',
-            credentialHelperName, hostName)
+    private String runCommand(String command) {
+        runCommand(command, null);
+    }
+
+    private String runCommand(String command, Action<Writer> writerAction) {
         try {
             StringBuilder sOut = new StringBuilder()
             StringBuilder sErr = new StringBuilder()
-            Process proc = "$credentialHelperName get".execute()
-            proc.withWriter { Writer writer -> writer << hostName }
+            Process proc = "$command".execute()
+            if (writerAction != null) {
+                proc.withWriter { Writer writer -> writerAction.execute(writer) }
+            }
             proc.waitFor()
             proc.waitForProcessOutput(sOut, sErr)
             if (sErr.length() > 0) {
-                logger.error("{} get: {}", credentialHelperName, sErr.toString())
+                logger.error("{}: {}", command, sErr.toString())
             }
             return sOut.toString()
         } catch (Exception e) {
-            logger.error('Failure running docker credential helper ({})', credentialHelperName)
+            logger.error('Failure running command ({})', command)
             throw e
         }
+
     }
 
     private static boolean isWindows() {

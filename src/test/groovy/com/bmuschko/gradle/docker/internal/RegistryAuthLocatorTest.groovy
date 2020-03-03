@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker.internal
 
 import com.github.dockerjava.api.model.AuthConfig
+import com.github.dockerjava.api.model.AuthConfigurations
 import org.gradle.api.logging.Logger
 import spock.lang.Specification
 
@@ -16,11 +17,13 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('unauthenticated.registry.org/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config.getRegistryAddress() == 'https://index.docker.io/v1/'
         !config.getUsername()
         !config.getPassword()
+        allConfigs.configs.isEmpty()
         0 * logger.error(*_)
     }
 
@@ -30,11 +33,14 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config.getRegistryAddress() == 'url'
         config.getUsername() == 'username'
         config.getPassword() == 'secret'
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get("url") == config
         0 * logger.error(*_)
     }
 
@@ -44,11 +50,14 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config.getRegistryAddress() == 'url'
         config.getUsername() == 'username'
         config.getPassword() == 'secret'
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get("url") == config
         0 * logger.error(*_)
     }
 
@@ -58,11 +67,14 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('container-registry.cloud.yandex.net/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config.getUsername() == 'username'
         config.getPassword() == 'secret'
         !config.getAuth()
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get("container-registry.cloud.yandex.net") == config
         0 * logger.error(*_)
     }
 
@@ -72,6 +84,7 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config.getRegistryAddress() == 'https://registry.example.com'
@@ -79,6 +92,8 @@ class RegistryAuthLocatorTest extends Specification {
         config.getPassword() == "secret"
         config.getEmail() == 'not@val.id'
         !config.getAuth()
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get(config.registryAddress) == config
         0 * logger.error(*_)
     }
 
@@ -89,10 +104,12 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        2 * logger.error(*_)
+        allConfigs.configs.isEmpty()
+        4 * logger.error(*_)
     }
 
     def "AuthLocator works for Docker Desktop config without existing credentials"() {
@@ -101,11 +118,14 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config.getRegistryAddress() == 'https://index.docker.io/v1/'
         config.getUsername() == 'mac_user'
         config.getPassword() == 'XXX'
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get(config.registryAddress) == config
         0 * logger.error(*_)
     }
 
@@ -116,11 +136,13 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config == DEFAULT_AUTH_CONFIG
+        allConfigs.configs.isEmpty()
         1 * logger.debug('Looking up auth config for repository: registry.example.com')
-        1 * logger.debug("RegistryAuthLocator has configFile: ${new File('missing-file.json').absolutePath} (does not exist) and commandPathPrefix: docker-credential-")
+        2 * logger.debug("RegistryAuthLocator has configFile: ${new File('missing-file.json').absolutePath} (does not exist) and commandPathPrefix: docker-credential-")
         0 * logger.error(*_)
     }
 
@@ -131,10 +153,12 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        1 * logger.error(*_)
+        allConfigs.configs.isEmpty()
+        2 * logger.error(*_)
     }
 
     def "AuthLocator returns default config when the credentials tool is missing"() {
@@ -143,10 +167,12 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config == DEFAULT_AUTH_CONFIG
-        2 * logger.error(*_)
+        allConfigs.configs.isEmpty()
+        4 * logger.error(*_)
     }
 
     def "AuthLocator uses default config then store does not contain the credentials"() {
@@ -156,14 +182,16 @@ class RegistryAuthLocatorTest extends Specification {
 
         when:
         AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
         config == DEFAULT_AUTH_CONFIG
+        allConfigs.configs.isEmpty()
         0 * logger.error(*_)
-        7 * logger.debug(*_)
+        20 * logger.debug(*_)
     }
 
-    private RegistryAuthLocator createAuthLocatorForExistingConfigFile(String configName, Boolean mockHelper = true){
+    private RegistryAuthLocator createAuthLocatorForExistingConfigFile(String configName, Boolean mockHelper = true) {
         File configFile = new File(getClass().getResource(CONFIG_LOCATION + configName).toURI())
         RegistryAuthLocator locator
         if (mockHelper) {
