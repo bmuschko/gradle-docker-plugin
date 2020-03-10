@@ -1,9 +1,14 @@
 == Change Log
 
 [discrete]
+=== v6.2.0 (March 10, 2020)
+
+* Upgrade Docker Java to next minor version - {uri-github}/pull/925[PR 925]
+
+[discrete]
 === v6.1.4 (February 23, 2020)
 
-* Nested property FileInstruction.getFile() renders warning as it doesn't provide input or output annotation - {uri-github}/issues/919[Issue 919]
+* Nested property `FileInstruction.getFile()` renders warning as it doesn't provide input or output annotation - {uri-github}/issues/919[Issue 919]
 
 [discrete]
 === v6.1.3 (January 26, 2020)
