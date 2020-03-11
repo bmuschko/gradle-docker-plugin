@@ -292,7 +292,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         }
 
         if (extraHosts.getOrNull()) {
-            buildImageCmd.withExtraHosts(extraHosts.get())
+            buildImageCmd.withExtraHosts(extraHosts.get() as Set<String>)
         }
 
         String createdImageId = buildImageCmd.exec(createCallback(nextHandler)).awaitImageId()
