@@ -7,7 +7,7 @@ Docker remote API is handled by the https://github.com/docker-java/docker-java[D
 Please refer to the library's documentation for more information on the supported Docker's client API and Docker server version.
 
 [IMPORTANT]
-This plugin requires Gradle >= 5.2 to work properly. Due to an incompatibility in Docker Java, running the plugin with Java 11 or higher does currently not work.
+This plugin requires Gradle >= 5.2 to work properly.
 
 === Benefits
 
