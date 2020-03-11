@@ -167,6 +167,15 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final Property<String> target = project.objects.property(String)
 
     /**
+     * Build-time additional host list to pass to the image build in the format {@code host:ip}.
+     *
+     * @since 6.2.0
+     */
+    @Input
+    @Optional
+    final SetProperty<String> extraHosts = project.objects.setProperty(String)
+
+    /**
      * {@inheritDoc}
      */
     final DockerRegistryCredentials registryCredentials
@@ -280,6 +289,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         if (cacheFrom.getOrNull()) {
             buildImageCmd.withCacheFrom(cacheFrom.get() as Set<String>)
+        }
+
+        if (extraHosts.getOrNull()) {
+            buildImageCmd.withExtraHosts(extraHosts.get())
         }
 
         String createdImageId = buildImageCmd.exec(createCallback(nextHandler)).awaitImageId()
