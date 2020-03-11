@@ -4,6 +4,7 @@
 === v6.2.0 (March 10, 2020)
 
 * Upgrade Docker Java to next minor version - {uri-github}/pull/925[PR 925]
+* Expose property for providing extra hosts - {uri-github}/pull/926[PR 926]
 
 [discrete]
 === v6.1.4 (February 23, 2020)
