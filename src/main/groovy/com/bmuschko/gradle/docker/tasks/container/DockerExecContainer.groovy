@@ -59,6 +59,16 @@ class DockerExecContainer extends DockerExistingContainer {
     @Optional
     final Property<String> user = project.objects.property(String)
 
+    /**
+     * Working directory in which the command is going to be executed.
+     * Defaults to the WORKDIR set in docker file.
+     *
+     * @since 6.3.0
+     */
+    @Input
+    @Optional
+    final Property<String> workingDir = project.objects.property(String)
+
     // if set will check exit code of exec to ensure it's
     // within this list of allowed values otherwise through exception
     @Input
@@ -179,6 +189,10 @@ class DockerExecContainer extends DockerExistingContainer {
 
         if (user.getOrNull()) {
             containerCommand.withUser(user.get())
+        }
+
+        if (workingDir.getOrNull()) {
+            containerCommand.withWorkingDir(workingDir.get())
         }
     }
 
