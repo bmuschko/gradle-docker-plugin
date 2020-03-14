@@ -1,6 +1,12 @@
 == Change Log
 
 [discrete]
+=== v6.3.0 (March 14, 2020)
+
+* Retrieve all known credentials for `DockerBuildImage` custom task - {uri-github}/pull/913[PR 913]
+* Add support for setting custom workingDir in `DockerExecContainer` task - {uri-github}/pull/927[PR 927]
+
+[discrete]
 === v6.2.0 (March 10, 2020)
 
 * Upgrade Docker Java to next minor version - {uri-github}/pull/925[PR 925]
