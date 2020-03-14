@@ -105,17 +105,14 @@ class DockerLivenessContainer extends DockerLogsContainer {
                         long totalMillis = pollTimes * livenessProbe.pollInterval
                         long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis)
                         progressLogger.progress("Probing for ${totalMinutes}m...")
-                        try {
-                            // zero'ing out the below so as to save on memory for potentially
-                            // big logs returned from container.
-                            logLine = null
-                            getSink().getBuffer().setLength(0)
 
-                            localPollTime -= livenessProbe.pollInterval
-                            sleep(livenessProbe.pollInterval)
-                        } catch (Exception e) {
-                            throw e
-                        }
+                        // zero'ing out the below so as to save on memory for potentially
+                        // big logs returned from container.
+                        logLine = null
+                        getSink().getBuffer().setLength(0)
+
+                        localPollTime -= livenessProbe.pollInterval
+                        sleep(livenessProbe.pollInterval)
                     }
                 }
             } finally {
