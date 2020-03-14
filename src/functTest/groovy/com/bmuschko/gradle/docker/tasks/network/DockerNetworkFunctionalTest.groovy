@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker.tasks.network
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
+import org.gradle.testkit.runner.BuildResult
 
 class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
     /**
@@ -10,10 +11,12 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
         given:
         final uniqueNetworkName = createUniqueNetworkName()
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.network.*;
+            import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
+            import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
+            import com.bmuschko.gradle.docker.tasks.network.DockerInspectNetwork
 
             task createNetwork(type: DockerCreateNetwork) {
-                networkId = "${uniqueNetworkName}"
+                networkName = '$uniqueNetworkName'
             }
 
             task removeNetwork(type: DockerRemoveNetwork) {
@@ -43,10 +46,10 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
 
         when:
-        final result = build('inspectNetwork', 'inspectNoNetwork')
+        BuildResult result = build('inspectNetwork', 'inspectNoNetwork')
 
         then:
         result.output.contains("inspectNetwork $uniqueNetworkName")
-        result.output.find(/inspectNoNetwork.*network $uniqueNetworkName not found/)
+        result.output.find(/inspectNoNetwork.*network [a-z0-9]+ not found/)
     }
 }

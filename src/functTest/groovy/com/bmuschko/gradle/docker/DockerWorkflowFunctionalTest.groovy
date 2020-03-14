@@ -507,7 +507,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
 
             task createNetwork(type: DockerCreateNetwork) {
-                networkId = "${uniqueNetworkName}"
+                networkName = '$uniqueNetworkName'
             }
 
             task removeNetwork(type: DockerRemoveNetwork) {
@@ -532,7 +532,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
                 onNext { container ->
-                    println container.networkSettings.networks[createNetwork.getNetworkId().get()].aliases
+                    println container.networkSettings.networks['$uniqueNetworkName'].aliases
                 }
             }
 
