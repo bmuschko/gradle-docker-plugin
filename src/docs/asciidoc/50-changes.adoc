@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v6.4.0 (TBD)
+
+* Keep the network name and network ID separate in `DockerCreateNetwork` - {uri-github}/issues/920[Issue 920]
+
+[discrete]
 === v6.3.0 (March 14, 2020)
 
 * Retrieve all known credentials for `DockerBuildImage` custom task - {uri-github}/pull/913[PR 913]
