@@ -33,12 +33,12 @@ import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.createA
 import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.getMainJavaSourceSetOutput
 
 /**
- * The abstract class for all conventional application plugin.
+ * The abstract class for all conventional JVM application plugins.
  *
  * @since 5.2.0
  */
 @CompileStatic
-abstract class DockerConventionApplicationPlugin<EXT extends DockerConventionApplicationExtension> implements Plugin<Project> {
+abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConventionJvmApplicationExtension> implements Plugin<Project> {
 
     /**
      * The task name that copies the application files to a temporary directory for image creation.

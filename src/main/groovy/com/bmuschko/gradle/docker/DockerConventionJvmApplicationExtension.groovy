@@ -22,12 +22,12 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 
 /**
- * The extension for configuring a conventional Docker plugin.
+ * The extension for configuring a conventional JVM Docker plugin.
  *
  * @since 5.2.0
  */
 @CompileStatic
-class DockerConventionApplicationExtension {
+class DockerConventionJvmApplicationExtension {
 
     /**
      * The Docker base image used for Java application.
@@ -78,7 +78,7 @@ class DockerConventionApplicationExtension {
      */
     final Property<String> mainClassName
 
-    DockerConventionApplicationExtension(ObjectFactory objectFactory) {
+    DockerConventionJvmApplicationExtension(ObjectFactory objectFactory) {
         baseImage = objectFactory.property(String)
         baseImage.set('openjdk:jre-alpine')
         maintainer = objectFactory.property(String)

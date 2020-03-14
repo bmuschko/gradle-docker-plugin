@@ -24,7 +24,7 @@ import org.gradle.api.model.ObjectFactory
  * @since 3.4.5
  */
 @CompileStatic
-class DockerSpringBootApplication extends DockerConventionApplicationExtension {
+class DockerSpringBootApplication extends DockerConventionJvmApplicationExtension {
 
     DockerSpringBootApplication(ObjectFactory objectFactory) {
         super(objectFactory)

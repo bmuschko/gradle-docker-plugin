@@ -26,7 +26,7 @@ import org.gradle.api.plugins.ExtensionAware
  * This plugin can be configured with the help of {@link DockerJavaApplication}.
  */
 @CompileStatic
-class DockerJavaApplicationPlugin extends DockerConventionApplicationPlugin<DockerJavaApplication> {
+class DockerJavaApplicationPlugin extends DockerConventionJvmApplicationPlugin<DockerJavaApplication> {
 
     /**
      * The name of extension registered with type {@link DockerJavaApplication}.

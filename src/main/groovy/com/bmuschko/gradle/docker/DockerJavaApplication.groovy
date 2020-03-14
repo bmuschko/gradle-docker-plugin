@@ -37,7 +37,7 @@ import org.gradle.api.model.ObjectFactory
  * </pre>
  */
 @CompileStatic
-class DockerJavaApplication extends DockerConventionApplicationExtension {
+class DockerJavaApplication extends DockerConventionJvmApplicationExtension {
 
     DockerJavaApplication(ObjectFactory objectFactory) {
         super(objectFactory)

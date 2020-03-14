@@ -13,7 +13,7 @@ import org.gradle.api.plugins.ExtensionAware
  * @since 3.4.5
  */
 @CompileStatic
-class DockerSpringBootApplicationPlugin extends DockerConventionApplicationPlugin<DockerSpringBootApplication> {
+class DockerSpringBootApplicationPlugin extends DockerConventionJvmApplicationPlugin<DockerSpringBootApplication> {
 
     private static final String SPRING_BOOT_APP_ANNOTATION = 'org.springframework.boot.autoconfigure.SpringBootApplication'
 
