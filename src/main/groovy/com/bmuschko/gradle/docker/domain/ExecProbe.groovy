@@ -21,16 +21,22 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 
 /**
- *  Class holding metadata for an arbitrary exec livenessProbe.
+ * Class holding metadata for an arbitrary exec livenessProbe.
  */
 @CompileStatic
 class ExecProbe {
 
+    /**
+     * Indicates how long we poll until match is found.
+     */
     @Input
-    long pollTime // how long we poll until match is found
+    long pollTime
 
+    /**
+     * Indicates how long we wait until next poll.
+     */
     @Input
-    long pollInterval // how long we wait until next poll
+    long pollInterval
 
     ExecProbe(long pollTime, long pollInterval) {
         if (pollInterval > pollTime) {

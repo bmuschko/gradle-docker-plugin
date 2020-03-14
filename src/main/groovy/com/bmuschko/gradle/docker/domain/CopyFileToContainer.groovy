@@ -21,17 +21,30 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 
 /**
- *  Class holding metadata for an arbitrary copy-file-to-container invocation
+ * Class holding metadata for an arbitrary copy-file-to-container invocation.
  */
 @CompileStatic
 class CopyFileToContainer {
 
+    /**
+     * The host path.
+     * <p>
+     * Can take the form of {@code String}, {@code GString}, {@code File}, or {@code Closure} which returns any of the previous.
+     */
     @Input
-    def hostPath // can take the form of String, GString, File, or Closure which returns any of the previous.
+    def hostPath
 
+    /**
+     * The remote path.
+     * <p>
+     * Can take the form of {@code String}, {@code GString}, {@code File}, or {@code Closure} which returns any of the previous.
+     */
     @Input
-    def remotePath // can take the form of String, GString, File, or Closure which returns any of the previous.
+    def remotePath
 
+    /**
+     * Indicates if copied file is a TAR file.
+     */
     @Internal
     boolean isTar = false
 }

@@ -21,19 +21,28 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 
 /**
- *  Class holding metadata for an arbitrary livenessProbe.
+ * Class holding metadata for an arbitrary liveness probe.
  */
 @CompileStatic
 class LivenessProbe {
 
+    /**
+     * Indicates how long we poll until match is found.
+     */
     @Input
-    long pollTime // how long we poll until match is found
+    long pollTime
 
+    /**
+     * Indicates how long we wait until next poll.
+     */
     @Input
-    long pollInterval // how long we wait until next poll
+    long pollInterval
 
+    /**
+     * Halts polling on logs containing this String.
+     */
     @Input
-    String logContains // halt polling on logs containing this String
+    String logContains
 
     LivenessProbe(long pollTime, long pollInterval, String logContains) {
         if (pollInterval > pollTime) {
