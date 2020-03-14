@@ -124,6 +124,26 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         result.output.contains('10000\n10001')
     }
 
+    def "Execute command with custom working directory within a running container"() {
+        given:
+        String containerExecutionTask = """
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+                withCommand(['pwd'])
+                workingDir = '/usr/local/bin/'
+            }
+        """
+        buildFile << containerUsage(containerExecutionTask)
+
+        when:
+        BuildResult result = build('execContainer')
+
+        then:
+        result.output.contains('/usr/local/bin')
+    }
+
     def "Fail if exitCode is not within allowed bounds"() {
         given:
         String containerExecutionTask = """
@@ -191,7 +211,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
-            
+
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
