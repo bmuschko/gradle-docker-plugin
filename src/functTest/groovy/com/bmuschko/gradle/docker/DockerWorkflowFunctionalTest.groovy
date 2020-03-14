@@ -491,64 +491,6 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
         build('workflow')
     }
 
-    def "Can build an image, create a container and assign a network and alias"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
-        File dockerFile = createDockerfile(imageDir)
-
-        String uniqueContainerName = createUniqueContainerName()
-        String uniqueNetworkName = createUniqueNetworkName()
-
-        buildFile << """
-            import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-            import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
-            import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
-            import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
-
-            task createNetwork(type: DockerCreateNetwork) {
-                networkName = '$uniqueNetworkName'
-            }
-
-            task removeNetwork(type: DockerRemoveNetwork) {
-                targetNetworkId createNetwork.getNetworkId()
-            }
-
-            task buildImage(type: DockerBuildImage) {
-                inputDir = file("${dockerFile.parentFile.path}")
-                images.add("${createUniqueImageId()}")
-            }
-
-            task createContainer(type: DockerCreateContainer) {
-                dependsOn buildImage, createNetwork
-                targetImageId buildImage.getImageId()
-                containerName = "${uniqueContainerName}"
-                hostConfig.network = createNetwork.getNetworkId()
-                networkAliases = ["some-alias"]
-                cmd = ['/bin/sh']
-            }
-
-            task inspectContainer(type: DockerInspectContainer) {
-                dependsOn createContainer
-                targetContainerId createContainer.getContainerId()
-                onNext { container ->
-                    println container.networkSettings.networks['$uniqueNetworkName'].aliases
-                }
-            }
-
-            task workflow {
-                dependsOn inspectContainer
-            }
-
-            removeNetwork.mustRunAfter workflow
-            createNetwork.finalizedBy removeNetwork
-        """
-
-        expect:
-        BuildResult result = build('workflow')
-        result.output.contains('[some-alias]')
-    }
-
     def "Can build an image, create a container and assign an entrypoint"() {
         File imageDir = temporaryFolder.newFolder('images', 'minimal')
         File dockerFile = createDockerfile(imageDir)
