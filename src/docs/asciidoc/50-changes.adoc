@@ -1,9 +1,10 @@
 == Change Log
 
 [discrete]
-=== v6.4.0 (TBD)
+=== v6.4.0 (March 23, 2020)
 
 * Keep the network name and network ID separate in `DockerCreateNetwork` - {uri-github}/issues/920[Issue 920]
+* Upgrade ASM dependency to Java 13/14-compatible version - {uri-github}/issues/929[Issue 929]
 
 [discrete]
 === v6.3.0 (March 14, 2020)
