@@ -271,7 +271,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
 
         if(hostConfig.volumesFrom.getOrNull()) {
-            List<VolumesFrom> createdVolumes = hostConfig.volumesFrom.get().collect { new VolumesFrom(it) }
+            List<VolumesFrom> createdVolumes = hostConfig.volumesFrom.get().collect { VolumesFrom.parse([it.key, it.value].join(':')) }
             containerCommand.hostConfig.withVolumesFrom(createdVolumes)
         }
 
@@ -405,7 +405,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
         @Input
         @Optional
-        final ListProperty<String> volumesFrom
+        final MapProperty<String, String> volumesFrom
 
         @Input
         @Optional
@@ -498,8 +498,7 @@ class DockerCreateContainer extends DockerExistingImage {
             network = objectFactory.property(String)
             links = objectFactory.listProperty(String)
             links.empty()
-            volumesFrom = objectFactory.listProperty(String)
-            volumesFrom.empty()
+            volumesFrom = objectFactory.mapProperty(String, String)
             portBindings = objectFactory.listProperty(String)
             portBindings.empty()
             publishAll = objectFactory.property(Boolean)
