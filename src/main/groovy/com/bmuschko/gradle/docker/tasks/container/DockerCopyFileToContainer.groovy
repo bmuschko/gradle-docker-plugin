@@ -82,14 +82,12 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
             localHostPath = project.file(copyFileToContainer.hostPath)
         }
 
-        def localRemotePath
         if (copyFileToContainer.remotePath instanceof Closure) {
-            localRemotePath = project.file(copyFileToContainer.remotePath.call())
+            containerCommand.withRemotePath(copyFileToContainer.remotePath.call())
         } else {
-            localRemotePath = project.file(copyFileToContainer.remotePath)
+            containerCommand.withRemotePath(copyFileToContainer.remotePath)
         }
 
-        containerCommand.withRemotePath(localRemotePath.path)
         if (copyFileToContainer.isTar) {
             containerCommand.withTarInputStream(localHostPath.newInputStream())
         } else {
