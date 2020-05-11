@@ -32,8 +32,16 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: docTest
-      - name: Release
-        if: startsWith(github.ref, 'refs/tags/v')
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload binaries
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: -s assemble bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }}
+          arguments: assemble bintrayUpload
+      - name: Publish documentation
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: gitPublishPush -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }} -s
