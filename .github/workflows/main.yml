@@ -8,7 +8,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v1
         with:
           java-version: 8
@@ -16,19 +16,24 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: classes
-      - name: Unit Tests
+      - name: Unit tests
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: test
-      - name: Integration Tests
+      - name: Integration tests
         uses: eskatos/gradle-command-action@v1
         with:
          arguments: integrationTest
-      - name: Functional Tests
+      - name: Functional tests
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: functionalTest
-      - name: Documentation Tests
+      - name: Documentation tests
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: docTest
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: eskatos/gradle-command-action@v1
+          with:
+            arguments: -s assemble bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }}
