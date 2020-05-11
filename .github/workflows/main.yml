@@ -18,6 +18,7 @@ jobs:
           arguments: classes
   test:
     name: Test
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Unit tests
@@ -38,6 +39,7 @@ jobs:
           arguments: docTest
   release:
     name: Release
+    needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
