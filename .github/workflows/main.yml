@@ -16,6 +16,10 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: classes
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
       - name: Unit tests
         uses: eskatos/gradle-command-action@v1
         with:
@@ -40,7 +44,7 @@ jobs:
       - name: Upload binaries
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: assemble bintrayUpload
+          arguments: assemble bintrayUpload -s
       - name: Publish documentation
         uses: eskatos/gradle-command-action@v1
         with:
