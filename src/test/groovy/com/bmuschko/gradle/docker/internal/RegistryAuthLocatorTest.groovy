@@ -3,8 +3,10 @@ package com.bmuschko.gradle.docker.internal
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import org.gradle.api.logging.Logger
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
+@IgnoreIf({ os.windows })
 class RegistryAuthLocatorTest extends Specification {
 
     private static final String CONFIG_LOCATION = '/auth-config/'
