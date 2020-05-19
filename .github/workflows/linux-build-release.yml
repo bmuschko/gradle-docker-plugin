@@ -49,4 +49,4 @@ jobs:
         if: env.BRANCH == 'master' && startsWith(github.ref, 'refs/tags/v')
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: assemble bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }} -s
+          arguments: bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }} -s
