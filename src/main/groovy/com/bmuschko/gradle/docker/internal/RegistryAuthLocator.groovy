@@ -94,14 +94,14 @@ class RegistryAuthLocator {
      * no credentials found
      */
     AuthConfig lookupAuthConfig(String image, AuthConfig defaultAuthConfig) {
-        AuthConfig authConfigForRepository = lookupAuthConfigForRepository(getRepository(image))
-        if (authConfigForRepository != null) {
-            return authConfigForRepository
+        AuthConfig authConfigForRegistry = lookupAuthConfigForRegistry(getRegistry(image))
+        if (authConfigForRegistry != null) {
+            return authConfigForRegistry
         }
         return defaultAuthConfig
     }
 
-    private AuthConfig lookupAuthConfigForRepository(String repository) {
+    private AuthConfig lookupAuthConfigForRegistry(String registry) {
         if (isWindows()) {
             logger.debug('RegistryAuthLocator is not supported on Windows. ' +
                 'Please help test or improve it and update ' +
@@ -109,7 +109,7 @@ class RegistryAuthLocator {
             return null
         }
 
-        logger.debug("Looking up auth config for repository: $repository")
+        logger.debug("Looking up auth config for registry: $registry")
         logger.debug("RegistryAuthLocator has configFile: $configFile.absolutePath (${configFile.exists() ? 'exists' : 'does not exist'}) and commandPathPrefix: $commandPathPrefix")
 
         if (!configFile.isFile()) {
@@ -119,28 +119,28 @@ class RegistryAuthLocator {
         try {
             Map<String, Object> config = slurper.parse(configFile) as Map<String, Object>
 
-            AuthConfig existingAuthConfig = findExistingAuthConfig(config, repository)
+            AuthConfig existingAuthConfig = findExistingAuthConfig(config, registry)
             if (existingAuthConfig != null) {
                 return decodeAuth(existingAuthConfig)
             }
 
             // auths is empty, using helper:
-            AuthConfig helperAuthConfig = authConfigUsingHelper(config, repository)
+            AuthConfig helperAuthConfig = authConfigUsingHelper(config, registry)
             if (helperAuthConfig != null) {
                 return decodeAuth(helperAuthConfig)
             }
 
             // no credsHelper to use, using credsStore:
-            final AuthConfig storeAuthConfig = authConfigUsingStore(config, repository)
+            final AuthConfig storeAuthConfig = authConfigUsingStore(config, registry)
             if (storeAuthConfig != null) {
                 return decodeAuth(storeAuthConfig)
             }
 
         } catch(Exception ex) {
             logger.error('Failure when attempting to lookup auth config ' +
-                '(docker repository: {}, configFile: {}). ' +
+                '(docker registry: {}, configFile: {}). ' +
                 'Falling back to docker-java default behaviour',
-                repository,
+                registry,
                 configFile,
                 ex)
         }
@@ -200,7 +200,7 @@ class RegistryAuthLocator {
 
             // Lookup authentication information for all discovered registry addresses
             for (String registryAddress : registryAddresses) {
-                AuthConfig registryAuthConfig = lookupAuthConfigForRepository(registryAddress)
+                AuthConfig registryAuthConfig = lookupAuthConfigForRegistry(registryAddress)
                 if (registryAuthConfig != null) {
                     authConfigurations.addConfig(registryAuthConfig)
                 }
@@ -267,11 +267,11 @@ class RegistryAuthLocator {
     }
 
     /**
-     * Extract repository name from the image name
+     * Extract registry name from the image name
      * @param image the name of the docker image
-     * @return docker repository name
+     * @return docker registry name
      */
-    private static String getRepository(String image) {
+    private static String getRegistry(String image) {
         final int slashIndex = image.indexOf('/');
 
         if (slashIndex == -1 ||
