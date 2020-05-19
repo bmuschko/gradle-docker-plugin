@@ -105,7 +105,7 @@ class RegistryAuthLocatorTest extends Specification {
             createAuthLocatorForExistingConfigFile('config-docker-desktop.json', false)
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfig config = locator.lookupAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -119,7 +119,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfig config = locator.lookupAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -183,7 +183,7 @@ class RegistryAuthLocatorTest extends Specification {
             createAuthLocatorForExistingConfigFile('config-auth-store.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfig config = locator.lookupAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
