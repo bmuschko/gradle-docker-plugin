@@ -193,6 +193,23 @@ class RegistryAuthLocatorTest extends Specification {
         20 * logger.debug(*_)
     }
 
+    def "AuthLocator defaults to Docker Hub auth if no registry is explicitly given"() {
+        given:
+        RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-hub-auth.json')
+
+        when:
+        AuthConfig config = locator.lookupAuthConfig('org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
+
+        then:
+        config.getRegistryAddress() == 'https://index.docker.io/v1/'
+        config.getUsername() == 'username'
+        config.getPassword() == 'secret'
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get(config.registryAddress) == config
+        0 * logger.error(*_)
+    }
+
     private RegistryAuthLocator createAuthLocatorForExistingConfigFile(String configName, Boolean mockHelper = true) {
         File configFile = new File(getClass().getResource(CONFIG_LOCATION + configName).toURI())
         RegistryAuthLocator locator
