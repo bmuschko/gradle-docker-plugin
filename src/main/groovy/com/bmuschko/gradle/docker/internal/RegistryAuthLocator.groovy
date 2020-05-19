@@ -3,6 +3,7 @@ package com.bmuschko.gradle.docker.internal
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
+import com.github.dockerjava.core.NameParser
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
@@ -272,16 +273,9 @@ class RegistryAuthLocator {
      * @return docker registry name
      */
     private static String getRegistry(String image) {
-        final int slashIndex = image.indexOf('/');
-
-        if (slashIndex == -1 ||
-            (!image.substring(0, slashIndex).contains('.') &&
-                !image.substring(0, slashIndex).contains(':') &&
-                !image.substring(0, slashIndex).equals('localhost'))) {
-            return ''
-        } else {
-            return image.substring(0, slashIndex);
-        }
+        final NameParser.ReposTag tag = NameParser.parseRepositoryTag(image)
+        final NameParser.HostnameReposName repository = NameParser.resolveRepositoryName(tag.repos)
+        return repository.hostname
     }
 
     /**
