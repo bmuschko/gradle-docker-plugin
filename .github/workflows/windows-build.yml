@@ -35,3 +35,12 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: docTest
+      - name: Assemble artifact
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: assemble
+      - name: Store artifact
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: gradle-docker-plugin.jar
+          path: build/libs/*.jar
