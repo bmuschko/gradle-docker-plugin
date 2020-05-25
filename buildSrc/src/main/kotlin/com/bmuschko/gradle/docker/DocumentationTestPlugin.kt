@@ -26,6 +26,7 @@ class DocumentationTestPlugin : Plugin<Project> {
             group = "verification"
             testClassesDirs = docTestSourceSet.output.classesDirs
             classpath = docTestSourceSet.runtimeClasspath
+            inputs.dir(file("src/docs/samples"))
             mustRunAfter("test", "integrationTest", "functionalTest")
             systemProperty("samples.code.dir", file("src/docs/samples"))
         }
