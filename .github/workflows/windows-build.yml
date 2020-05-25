@@ -28,6 +28,10 @@ jobs:
         with:
           arguments: integrationTest
       - name: Functional tests
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.dockerHubUsername }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.dockerHubPassword }}
+          DOCKER_HUB_EMAIL: ${{ secrets.dockerHubEmail }}
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: functionalTest
