@@ -183,7 +183,6 @@ ADD file2.txt /other/dir/file2.txt
                 registryCredentials {
                     username = '$credentials.username'
                     password = '$credentials.password'
-                    email = '$credentials.email'
                 }
 
                 javaApplication {

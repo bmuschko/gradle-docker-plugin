@@ -129,7 +129,6 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
                 registryCredentials {
                     username = '$credentials.username'
                     password = '$credentials.password'
-                    email = '$credentials.email'
                 }
 
                 springBootApplication {

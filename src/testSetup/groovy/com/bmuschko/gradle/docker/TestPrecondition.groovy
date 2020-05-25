@@ -63,10 +63,8 @@ final class TestPrecondition {
         DockerHubCredentials credentials = new DockerHubCredentials()
         String username = System.getenv('DOCKER_HUB_USERNAME')
         String password = System.getenv('DOCKER_HUB_PASSWORD')
-        String email = System.getenv('DOCKER_HUB_EMAIL')
         credentials.username = username
         credentials.password = password
-        credentials.email = email
         credentials
     }
 
@@ -83,7 +81,6 @@ final class TestPrecondition {
 
             credentials.username = properties['dockerHubUsername']
             credentials.password = properties['dockerHubPassword']
-            credentials.email = properties['dockerHubEmail']
         }
 
         credentials
