@@ -60,7 +60,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     @Unroll
-    def "can build image with labels"(String gradleTaskDefinition) {
+    def "can build image with labels #gradleTaskDefinition"() {
         buildFile << gradleTaskDefinition
 
         when:
