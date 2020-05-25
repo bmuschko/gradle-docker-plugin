@@ -295,7 +295,7 @@ ADD file2.txt /other/dir/file2.txt
             }
 
             dependencies {
-                compile 'org.eclipse.jetty.aggregate:jetty-all:9.2.5.v20141112'
+                compile 'org.eclipse.jetty.aggregate:jetty-all:9.4.29.v20200521'
             }
         """
     }
@@ -361,7 +361,7 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.main
     private void assertBuildContextLibs() {
         File libsDir = new File(buildContextDir(), 'libs')
         assert libsDir.isDirectory()
-        assert libsDir.listFiles()*.name.containsAll(['javax.websocket-api-1.0.jar', 'jetty-all-9.2.5.v20141112.jar', 'javax.servlet-api-3.1.0.jar'])
+        assert libsDir.listFiles()*.name.containsAll(['javax.websocket-api-1.0.jar', 'jetty-servlet-9.4.29.v20200521.jar', 'javax.servlet-api-3.1.0.jar'])
     }
 
     private void assertBuildContextResources() {
