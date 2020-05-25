@@ -60,7 +60,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     @Unroll
-    def "can build image with labels #gradleTaskDefinition"() {
+    def "can build image with labels for #description"() {
         buildFile << gradleTaskDefinition
 
         when:
@@ -70,7 +70,9 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         result.output.contains("label1:test1, label2:test2")
 
         where:
-        gradleTaskDefinition << [imageCreationWithBuildArgs(), imageCreationWithLabelParameter()]
+        description        | gradleTaskDefinition
+        'build arguments'  | imageCreationWithBuildArgs()
+        'label parameters' | imageCreationWithLabelParameter()
     }
 
     def "labels can be excluded from up-to-date check"() {
