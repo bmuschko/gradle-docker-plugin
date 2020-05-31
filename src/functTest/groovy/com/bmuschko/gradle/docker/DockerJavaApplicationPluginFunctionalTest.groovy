@@ -287,14 +287,11 @@ ADD file2.txt /other/dir/file2.txt
             apply plugin: com.bmuschko.gradle.docker.DockerJavaApplicationPlugin
 
             version = '1.0'
-            sourceCompatibility = 1.7
-
-            repositories {
-                mavenCentral()
-            }
+            sourceCompatibility = 8
+            targetCompatibility = 8
 
             dependencies {
-                compile 'org.eclipse.jetty.aggregate:jetty-all:9.4.29.v20200521'
+                implementation 'org.eclipse.jetty.aggregate:jetty-all:9.4.29.v20200521'
             }
         """
     }
