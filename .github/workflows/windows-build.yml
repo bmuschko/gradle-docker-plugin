@@ -1,5 +1,5 @@
 name: Build [Windows]
-on: [push, pull_request]
+#on: [push, pull_request]
 
 jobs:
   build:
@@ -42,4 +42,5 @@ jobs:
       - name: Store artifact
         uses: actions/upload-artifact@v2
         with:
-          path: build/libs
+          name: gradle-docker-plugin.jar
+          path: build/libs/*.jar
