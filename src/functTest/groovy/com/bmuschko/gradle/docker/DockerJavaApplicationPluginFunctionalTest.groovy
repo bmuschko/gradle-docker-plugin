@@ -1,11 +1,13 @@
 package com.bmuschko.gradle.docker
 
+import spock.lang.Ignore
 import spock.lang.Requires
 
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.*
 import static com.bmuschko.gradle.docker.fixtures.DockerJavaApplicationPluginFixture.writeJettyMainClass
 import static com.bmuschko.gradle.docker.fixtures.DockerJavaApplicationPluginFixture.writePropertiesFile
 
+@Ignore
 class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     public static final String DOCKER_CONFIG = 'DOCKER_CONFIG'
