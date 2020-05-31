@@ -12,9 +12,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Set up Docker private registry
-        run: |
-          docker run -d -p 5000:5000 --restart=always --name registry stefanscherer/registry-windows:2.6.2
       - name: Compilation
         uses: eskatos/gradle-command-action@v1
         with:
