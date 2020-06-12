@@ -181,6 +181,10 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             task createContainer(type: DockerCreateContainer) {
                 dependsOn pullImage
                 targetImageId pullImage.getImage()
+
+                // The sleep is to keep the container around to avoid the
+                // stopContainer task failing due to the container not existing.
+                cmd = ['sleep', '2']
             }
         """
 
