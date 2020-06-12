@@ -36,7 +36,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         BuildResult result = build('logContainer')
 
         then:
-        result.output =~ /.*[\n\r]Hello World[\n\r]  indent[\n\r].*/
+        result.output =~ /.*[\n\r]+Hello World[\n\r]+  indent[\n\r]+.*/
     }
 
     def "Can limit container logs by the since parameter"() {

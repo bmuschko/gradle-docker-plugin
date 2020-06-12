@@ -1,5 +1,7 @@
 package com.bmuschko.gradle.docker
 
+import com.bmuschko.gradle.docker.TextUtils
+
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Ignore
 import spock.lang.Unroll
@@ -104,7 +106,7 @@ class RemoteApiPluginDocumentationTest extends AbstractDocumentationTest {
         BuildResult result = build('printDockerfileInstructions')
 
         then:
-        result.output.contains("""FROM openjdk:8-alpine
+        TextUtils.containsIgnoreLineEndings(result.output, """FROM openjdk:8-alpine
 COPY my-app-1.0.jar /app/my-app-1.0.jar
 ENTRYPOINT ["java"]
 CMD ["-jar", "/app/my-app-1.0.jar"]

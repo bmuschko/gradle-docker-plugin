@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
+import com.bmuschko.gradle.docker.TextUtils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
@@ -335,7 +336,7 @@ COPY --from=builder /opt/h2.jar /opt/h2.jar
     private void assertDockerfileContent(String expectedContent) {
         File dockerfile = defaultDockerfile()
         assert dockerfile.isFile()
-        assert dockerfile.text == expectedContent
+        assert TextUtils.equalsIgnoreLineEndings(dockerfile.text, expectedContent)
     }
 
     private File defaultDockerfile() {

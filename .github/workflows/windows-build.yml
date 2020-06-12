@@ -24,17 +24,6 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: integrationTest
-      - name: Functional tests
-        env:
-          DOCKER_HUB_USERNAME: bmuschko
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: functionalTest -Djava.net.preferIPv4Stack=true
-      - name: Documentation tests
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: docTest
       - name: Assemble artifact
         uses: eskatos/gradle-command-action@v1
         with:

@@ -5,6 +5,7 @@ import spock.lang.Requires
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.*
 import static com.bmuschko.gradle.docker.fixtures.DockerJavaApplicationPluginFixture.writeJettyMainClass
 import static com.bmuschko.gradle.docker.fixtures.DockerJavaApplicationPluginFixture.writePropertiesFile
+import com.bmuschko.gradle.docker.TextUtils
 
 class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -158,7 +159,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        dockerfile.text == """FROM $CUSTOM_BASE_IMAGE
+        TextUtils.equalsIgnoreLineEndings(dockerfile.text, """FROM $CUSTOM_BASE_IMAGE
 LABEL maintainer=benjamin.muschko@gmail.com
 WORKDIR /app
 COPY libs libs/
@@ -167,7 +168,7 @@ ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmusc
 EXPOSE 9090
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
-"""
+""")
         new File(buildContextDir(), 'file1.txt').exists()
         new File(buildContextDir(), 'file2.txt').exists()
         assertBuildContextLibs()
@@ -350,7 +351,7 @@ ADD file2.txt /other/dir/file2.txt
     private void assertGeneratedDockerfile(ExpectedDockerfile expectedDockerfile = new ExpectedDockerfile()) {
         File dockerfile = dockerFile()
         assert dockerfile.exists()
-        assert dockerfile.text == generatedDockerfile(expectedDockerfile)
+        assert TextUtils.equalsIgnoreLineEndings(dockerfile.text, generatedDockerfile(expectedDockerfile))
     }
 
     private String generatedDockerfile(ExpectedDockerfile expectedDockerfile) {
