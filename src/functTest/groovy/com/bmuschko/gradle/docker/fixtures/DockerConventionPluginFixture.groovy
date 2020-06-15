@@ -45,22 +45,22 @@ final class DockerConventionPluginFixture {
 
             def createContainer = tasks.register('createContainer', DockerCreateContainer) {
                 dependsOn dockerBuildImage
-                targetImageId dockerBuildImage.getImageId()
+                targetImageId dockerBuildImage.get().getImageId()
             }
 
             def startContainer = tasks.register('startContainer', DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId createContainer.getContainerId()
+                targetContainerId createContainer.get().getContainerId()
             }
 
             def stopContainer = tasks.register('stopContainer', DockerStopContainer) {
                 dependsOn startContainer
-                targetContainerId startContainer.getContainerId()
+                targetContainerId startContainer.get().getContainerId()
             }
 
             def removeContainer = tasks.register('removeContainer', DockerRemoveContainer) {
                 dependsOn stopContainer
-                targetContainerId stopContainer.getContainerId()
+                targetContainerId stopContainer.get().getContainerId()
             }
 
             def startAndRemoveContainer = tasks.register('startAndRemoveContainer') {
