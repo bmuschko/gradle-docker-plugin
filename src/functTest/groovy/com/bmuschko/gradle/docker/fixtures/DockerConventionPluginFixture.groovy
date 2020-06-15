@@ -45,7 +45,7 @@ final class DockerConventionPluginFixture {
 
             def createContainer = tasks.register('createContainer', DockerCreateContainer) {
                 dependsOn dockerBuildImage
-                targetImageId dockerBuildImage.get().getImageId()
+                targetImageId dockerBuildImage.getImageId()
             }
 
             def startContainer = tasks.register('startContainer', DockerStartContainer) {
