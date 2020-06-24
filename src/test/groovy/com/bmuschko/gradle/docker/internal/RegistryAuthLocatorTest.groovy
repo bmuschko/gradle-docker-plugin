@@ -105,7 +105,7 @@ class RegistryAuthLocatorTest extends Specification {
             createAuthLocatorForExistingConfigFile('config-docker-desktop.json', false)
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfig config = locator.lookupAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -119,7 +119,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfig config = locator.lookupAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -143,7 +143,7 @@ class RegistryAuthLocatorTest extends Specification {
         then:
         config == DEFAULT_AUTH_CONFIG
         allConfigs.configs.isEmpty()
-        1 * logger.debug('Looking up auth config for repository: registry.example.com')
+        1 * logger.debug('Looking up auth config for registry: registry.example.com')
         2 * logger.debug("RegistryAuthLocator has configFile: ${new File('missing-file.json').absolutePath} (does not exist) and commandPathPrefix: docker-credential-")
         0 * logger.error(*_)
     }
@@ -183,7 +183,7 @@ class RegistryAuthLocatorTest extends Specification {
             createAuthLocatorForExistingConfigFile('config-auth-store.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('https://index.docker.io/v1/org/repo')
+        AuthConfig config = locator.lookupAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -191,6 +191,23 @@ class RegistryAuthLocatorTest extends Specification {
         allConfigs.configs.isEmpty()
         0 * logger.error(*_)
         20 * logger.debug(*_)
+    }
+
+    def "AuthLocator defaults to Docker Hub auth if no registry is explicitly given"() {
+        given:
+        RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-hub-auth.json')
+
+        when:
+        AuthConfig config = locator.lookupAuthConfig('org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
+
+        then:
+        config.getRegistryAddress() == 'https://index.docker.io/v1/'
+        config.getUsername() == 'username'
+        config.getPassword() == 'secret'
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get(config.registryAddress) == config
+        0 * logger.error(*_)
     }
 
     private RegistryAuthLocator createAuthLocatorForExistingConfigFile(String configName, Boolean mockHelper = true) {
