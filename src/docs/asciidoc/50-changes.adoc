@@ -4,7 +4,7 @@
 === v6.5.0 (TBA)
 
 * Default to Docker Hub when no registry is explicitly given - {uri-github}/issues/942[Issue 942]
-* Upgrade of Docker Java library to version 3.2.2 and default to communication transport to Apache HttpClient 5 - {uri-github}/issues/942[Issue 942]
+* Upgrade of Docker Java library to version 3.2.5 and default to communication transport to Apache HttpClient 5 - {uri-github}/issues/942[Issue 942]
 
 [discrete]
 === v6.4.0 (March 23, 2020)

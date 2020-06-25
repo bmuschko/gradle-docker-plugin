@@ -24,8 +24,8 @@ repositories {
 }
 
 dependencies {
-    shaded("com.github.docker-java:docker-java:3.2.2")
-    shaded("com.github.docker-java:docker-java-transport-httpclient5:3.2.2")
+    shaded("com.github.docker-java:docker-java:3.2.5")
+    shaded("com.github.docker-java:docker-java-transport-httpclient5:3.2.5")
     shaded("javax.activation:activation:1.1.1")
     shaded("org.ow2.asm:asm:7.3.1")
     testImplementation("org.spockframework:spock-core:1.2-groovy-2.5") {
