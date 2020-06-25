@@ -97,13 +97,7 @@ class DockerExtension {
                 dockerUrl = 'unix:///var/run/docker.sock'
             } else {
                 if (isWindows && new File("\\\\.\\pipe\\docker_engine").exists()) {
-                    // TODO: re-enable once docker-java supports named pipes. Relevant links:
-                    //
-                    //     https://github.com/bmuschko/gradle-docker-plugin/pull/313
-                    //     https://github.com/docker-java/docker-java/issues/765
-                    //
-                    // dockerUrl = 'npipe:////./pipe/docker_engine'
-                    dockerUrl = 'tcp://127.0.0.1:2375'
+                    dockerUrl = 'npipe:////./pipe/docker_engine'
                 } else {
                     dockerUrl = 'tcp://127.0.0.1:2375'
                 }

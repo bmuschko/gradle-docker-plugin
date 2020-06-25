@@ -73,5 +73,5 @@ include::{samplesCodeDir}/remote-api-plugin/basic/kotlin/build.gradle.kts[tags=e
 
 On Unix the Docker daemon listens by default on `unix:///var/run/docker.sock`.
 
-On Windows the Docker daemon listens by default on `npipe:////./pipe/docker_engine` though this is not currently supported.
-We instead fall back to `tcp://127.0.0.1:2375`.
+On Windows the Docker daemon listens by default on `npipe:////./pipe/docker_engine` if this exists.
+We fall back to `tcp://127.0.0.1:2375` where the pipe does not exist.
