@@ -1,4 +1,3 @@
-image:https://travis-ci.org/bmuschko/gradle-docker-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/bmuschko/gradle-docker-plugin"]
 image:https://github.com/bmuschko/gradle-docker-plugin/workflows/Build%20and%20Release%20Workflow/badge.svg?branch=master["Build Status", link="https://github.com/bmuschko/gradle-docker-plugin/actions?query=workflow%3A%22Build+and+Release+Workflow%22"]
 image:https://api.bintray.com/packages/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/images/download.svg["Download", link="https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin/_latestVersion"]
 image:https://img.shields.io/badge/user%20guide-latest-red["User Guide", link="https://bmuschko.github.io/gradle-docker-plugin/"]
