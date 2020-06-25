@@ -32,7 +32,7 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         env:
           DOCKER_HUB_USERNAME: bmuschko
-          DOCKER_HUB_PASSWORD: ${{ secrets.dockerHubPassword }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         with:
           arguments: functionalTest
       - name: Documentation tests
@@ -51,5 +51,11 @@ jobs:
       - name: Release
         if: env.BRANCH == 'master' && startsWith(github.ref, 'refs/tags/v')
         uses: eskatos/gradle-command-action@v1
+        env:
+          BINTRAY_USER: bmuschko
+          BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
+          MAVEN_CENTRAL_USER_TOKEN: ${{ secrets.MAVEN_CENTRAL_USER_TOKEN }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         with:
           arguments: bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }} -s
