@@ -27,7 +27,7 @@ jobs:
       - name: Functional tests
         env:
           DOCKER_HUB_USERNAME: bmuschko
-          DOCKER_HUB_PASSWORD: ${{ secrets.dockerHubPassword }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: functionalTest -Djava.net.preferIPv4Stack=true
