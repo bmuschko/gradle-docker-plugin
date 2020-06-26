@@ -65,25 +65,6 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         result.output.contains('FOUND EXEC-IDS: 3')
     }
 
-
-    def "Execute command within running container and not specify cmd arg"() {
-        given:
-        String containerExecutionTask = """
-            task execContainer(type: DockerExecContainer) {
-                dependsOn startContainer
-                targetContainerId startContainer.getContainerId()
-                withCommand(['echo', 'Hello World'])
-            }
-        """
-        buildFile << containerUsage(containerExecutionTask)
-
-        when:
-        BuildResult result = build('logContainer')
-
-        then:
-        result.output.contains('Hello World')
-    }
-
     def "Execute command within stopped container"() {
         given:
         String containerExecutionTask = """
