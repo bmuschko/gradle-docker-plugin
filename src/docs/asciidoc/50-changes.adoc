@@ -1,7 +1,7 @@
 == Change Log
 
 [discrete]
-=== v6.5.0 (June 25, 2020)
+=== v6.5.0 (June 26, 2020)
 
 * Default to Docker Hub when no registry is explicitly given - {uri-github}/issues/942[Issue 942]
 * Upgrade of Docker Java library to version 3.2.5 and default to communication transport to OkHttp - {uri-github}/issues/942[Issue 942]
