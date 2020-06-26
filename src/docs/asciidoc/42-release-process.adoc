@@ -14,9 +14,9 @@ The https://github.com/ajoberstar/gradle-git[gradle-git] plugin is used to autom
 
 The https://github.com/ajoberstar/gradle-git-publish[gradle-git-publish] Gradle plugin is used to publish the documentation to `gh-pages` branch. It is applied and configured in the {uri-github}/blob/master/buildSrc/src/main/kotlin/com/bmuschko/gradle/docker/DocumentationPlugin.kt[DocumentationPlugin.kt] file.
 
-===== Travis CI
+===== GitHub Actions
 
-https://travis-ci.com[Travis CI] service is used as our current https://en.wikipedia.org/wiki/CI/CD[CI/CD] server. Build and deploy jobs are configured in {uri-github}/blob/master/.travis.yml[.travis.yml] file. Please refer its https://docs.travis-ci.com/[documentation] for more details.
+https://github.com/features/actions[GitHub Actions] service is used as our current https://en.wikipedia.org/wiki/CI/CD[CI/CD] server. Build and deploy jobs are configured in the {uri-github}/blob/master/.github/workflows[.github/workflows] directory. Please refer its https://help.github.com/en/actions[documentation] for more details.
 
 ===== Bintray's JCenter
 
@@ -31,13 +31,12 @@ The release process is automated to some extent. The following steps describe th
 3. Developer triggers new version release using the following command: `./gradlew release -Prelease.stage=final -Prelease.scope=[SCOPE]` where `[SCOPE]` can be one of `major`, `minor` or `patch`, and determines which part of the version string `<major>.<minor>.<patch>` will be incremented.
 4. Gradle executes a build on developer's machine which calculates new version string, creates new tag with it and pushes to the `origin`.
 5. When Gradle build is finished, developer's work is done and the rest of the release process is automated.
-6. After push to the `origin`, Travis detects new tag and triggers a build.
-7. Travis {uri-github}/blob/master/.travis.yml#L23[is instructed] to execute https://docs.travis-ci.com/user/build-stages/[release stage] when on Git tag.
-8. In this stage {uri-github}/blob/master/.travis.yml#L21[Gradle script] assembles plugin binaries (with new version) and uploads them to Bintray (credentials are stored as https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings[secure variables] in Travis). Furthermore, the API docs and the user guide are published to `gh-pages` branch (the https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/[access token] is stored as secure variable).
+6. After push to the `origin`, GitHub Actions detects new tag and triggers a build.
+7. Executes a release stage if the commit also points to a Git tag.
+8. This stage assembles plugin binaries (with new version) and uploads them to Bintray (credentials are stored as https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets[encrypted secrets] in GitHub). Furthermore, the API docs and the user guide are published to `gh-pages` branch (the https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/[access token] is stored as secure variable).
 
 ==== Useful Links
 
 * https://bmuschko.com/blog/gradle-release-strategy/[Implementing an intuitive versioning and release strategy]
 * http://semver.org/[Semantic Versioning]
 * https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins#version-inference[gradle-git version inference]
-* https://docs.travis-ci.com/user/deployment/script/[Travis script deployment]
