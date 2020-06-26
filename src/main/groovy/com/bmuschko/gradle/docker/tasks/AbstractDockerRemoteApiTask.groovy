@@ -19,7 +19,6 @@ import com.bmuschko.gradle.docker.DockerExtension
 import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.internal.RegistryAuthLocator
 import com.github.dockerjava.api.DockerClient
-import com.github.dockerjava.api.command.DockerCmdExecFactory
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
 import com.github.dockerjava.core.DockerClientConfig
@@ -182,20 +181,22 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
         if (useNettyExecFactory) {
             logger.debug("Using " + NettyDockerCmdExecFactory.class.simpleName + " as driver for " + DockerClient.class.simpleName)
-            DockerClientBuilder
-                .getInstance(config)
-                .withDockerCmdExecFactory(new NettyDockerCmdExecFactory())
-                .build()
+            return DockerClientBuilder.getInstance(config)
+                    .withDockerCmdExecFactory(new NettyDockerCmdExecFactory())
+                    .build()
         }
-        else {
-            DockerClientBuilder
-                .getInstance(config)
-                .withDockerHttpClient(new ApacheDockerHttpClient.Builder()
-                    .dockerHost(config.getDockerHost())
-                    .sslConfig(config.getSSLConfig())
-                    .build())
+
+        createDefaultDockerClient(config)
+    }
+
+    private DockerClient createDefaultDockerClient(DockerClientConfig config) {
+        ApacheDockerHttpClient dockerClient = new ApacheDockerHttpClient.Builder()
+                .dockerHost(config.getDockerHost())
+                .sslConfig(config.getSSLConfig())
                 .build()
-        }
+        DockerClientBuilder.getInstance(config)
+                .withDockerHttpClient(dockerClient)
+                .build()
     }
 
     /**
