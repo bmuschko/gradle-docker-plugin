@@ -146,10 +146,10 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = "Copies the distribution resources to a temporary directory for image creation."
                     dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
-                    into(project.provider(new Callable<Provider<Directory>>() {
+                    into(project.provider(new Callable<Directory>() {
                         @Override
-                        Provider<Directory> call() throws Exception {
-                            createDockerfileTask.get().destDir
+                        Directory call() throws Exception {
+                            createDockerfileTask.get().destDir.get()
                         }
                     }))
                     with(createAppFilesCopySpec(project))
@@ -195,7 +195,12 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    images.set(dockerBuildImageTask.get().getImages())
+                    images.convention(project.provider(new Callable<Set<String>>() {
+                        @Override
+                        Set<String> call() throws Exception {
+                            dockerBuildImageTask.get().getImages().get()
+                        }
+                    }))
                 }
             }
         })
