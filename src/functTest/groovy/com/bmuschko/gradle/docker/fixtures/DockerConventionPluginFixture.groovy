@@ -38,32 +38,34 @@ final class DockerConventionPluginFixture {
 
     static String containerTasks() {
         """
+            import org.gradle.api.Task
+            import org.gradle.api.tasks.TaskProvider
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
-            def createContainer = tasks.register('createContainer', DockerCreateContainer) {
+            TaskProvider<DockerCreateContainer> createContainer = tasks.register('createContainer', DockerCreateContainer) {
                 dependsOn dockerBuildImage
                 targetImageId dockerBuildImage.getImageId()
             }
 
-            def startContainer = tasks.register('startContainer', DockerStartContainer) {
+            TaskProvider<DockerStartContainer> startContainer = tasks.register('startContainer', DockerStartContainer) {
                 dependsOn createContainer
                 targetContainerId createContainer.get().getContainerId()
             }
 
-            def stopContainer = tasks.register('stopContainer', DockerStopContainer) {
+            TaskProvider<DockerStopContainer> stopContainer = tasks.register('stopContainer', DockerStopContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.get().getContainerId()
             }
 
-            def removeContainer = tasks.register('removeContainer', DockerRemoveContainer) {
+            TaskProvider<DockerRemoveContainer> removeContainer = tasks.register('removeContainer', DockerRemoveContainer) {
                 dependsOn stopContainer
                 targetContainerId stopContainer.get().getContainerId()
             }
 
-            def startAndRemoveContainer = tasks.register('startAndRemoveContainer') {
+            TaskProvider<Task> startAndRemoveContainer = tasks.register('startAndRemoveContainer') {
                 dependsOn startContainer
                 finalizedBy removeContainer
             }
