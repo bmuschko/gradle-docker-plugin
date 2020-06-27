@@ -17,9 +17,10 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.domain.ExecProbe
 import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.command.ExecCreateCmd
 import com.github.dockerjava.api.model.Frame
-import com.github.dockerjava.core.command.ExecStartResultCallback
+import com.github.dockerjava.api.model.StreamType
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.GradleException
@@ -116,7 +117,7 @@ class DockerExecContainer extends DockerExistingContainer {
             progressLogger.started()
 
             // if no livenessProbe defined then create a default
-            final ExecProbe localProbe = execProbe ?: new ExecProbe(60000, 5000)
+            final ExecProbe localProbe = execProbe ?: new ExecProbe(60000, 2000)
 
             long localPollTime = localProbe.pollTime
             int pollTimes = 0
@@ -128,7 +129,7 @@ class DockerExecContainer extends DockerExistingContainer {
                 pollTimes += 1
 
                 lastExecResponse = dockerClient.inspectExecCmd(localExecId).exec()
-                isRunning = Boolean.valueOf(lastExecResponse.running)
+                isRunning = lastExecResponse.running
                 if (isRunning) {
 
                     long totalMillis = pollTimes * localProbe.pollInterval
@@ -207,24 +208,41 @@ class DockerExecContainer extends DockerExistingContainer {
         this.execProbe = new ExecProbe(pollTime, pollInterval)
     }
 
-    private ExecStartResultCallback createCallback(Action nextHandler) {
+    private ResultCallback.Adapter<Frame> createCallback(Action nextHandler) {
         if (nextHandler) {
-            return new ExecStartResultCallback() {
+            return new ResultCallback.Adapter<Frame>() {
                 @Override
                 void onNext(Frame frame) {
-                    if (nextHandler) {
-                        try {
-                            nextHandler.execute(frame)
-                        } catch (Exception e) {
-                            logger.error('Failed to handle frame', e)
-                            return
-                        }
+                    try {
+                        nextHandler.execute(frame)
+                    } catch (Exception e) {
+                        logger.error('Failed to handle frame', e)
+                        return
                     }
                     super.onNext(frame)
                 }
             }
         }
 
-        new ExecStartResultCallback(System.out, System.err)
+        new ResultCallback.Adapter<Frame>() {
+            @Override
+            void onNext(Frame frame) {
+                if (frame != null) {
+                    switch (frame.getStreamType()) {
+                        case StreamType.STDOUT:
+                        case StreamType.RAW:
+                            System.out.write(frame.getPayload())
+                            System.out.flush()
+                            break
+                        case StreamType.STDERR:
+                            System.err.write(frame.getPayload())
+                            System.err.flush()
+                            break
+                        default:
+                            getLogger().error("unknown stream type:" + frame.getStreamType())
+                    }
+                }
+            }
+        }
     }
 }
