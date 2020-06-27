@@ -27,12 +27,12 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
-
 /**
  * The abstract class for all conventional JVM application plugins.
  *
@@ -146,7 +146,12 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = "Copies the distribution resources to a temporary directory for image creation."
                     dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
-                    into(createDockerfileTask.get().destDir)
+                    into(project.provider(new Callable<Provider<Directory>>() {
+                        @Override
+                        Provider<Directory> call() throws Exception {
+                            createDockerfileTask.get().destDir
+                        }
+                    }))
                     with(createAppFilesCopySpec(project))
                 }
             }
