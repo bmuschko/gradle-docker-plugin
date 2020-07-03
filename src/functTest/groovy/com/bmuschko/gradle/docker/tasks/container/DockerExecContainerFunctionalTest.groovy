@@ -169,7 +169,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         result.output.contains('Finished Probing Exec')
     }
 
-    static String containerUsage(String containerExecutionTask, int sleep = 10) {
+    static String containerUsage(String containerExecutionTask, int sleep = 30) {
         """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
