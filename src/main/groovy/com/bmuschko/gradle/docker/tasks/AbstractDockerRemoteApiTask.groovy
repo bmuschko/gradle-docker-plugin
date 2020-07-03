@@ -22,8 +22,8 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
 import com.github.dockerjava.core.DockerClientConfig
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient
 import com.github.dockerjava.netty.NettyDockerCmdExecFactory
-import com.github.dockerjava.okhttp.OkDockerHttpClient
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import org.gradle.api.Action
@@ -190,7 +190,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     }
 
     private DockerClient createDefaultDockerClient(DockerClientConfig config) {
-        OkDockerHttpClient dockerClient = new OkDockerHttpClient.Builder()
+        ApacheDockerHttpClient dockerClient = new ApacheDockerHttpClient.Builder()
                 .dockerHost(config.getDockerHost())
                 .sslConfig(config.getSSLConfig())
                 .build()
