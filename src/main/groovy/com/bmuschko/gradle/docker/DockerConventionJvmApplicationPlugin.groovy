@@ -15,6 +15,11 @@
  */
 package com.bmuschko.gradle.docker
 
+import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.createAppFilesCopySpec
+import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.getMainJavaSourceSetOutput
+
+import java.util.concurrent.Callable
+
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -22,16 +27,12 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
-
-import java.util.concurrent.Callable
-
-import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.createAppFilesCopySpec
-import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.getMainJavaSourceSetOutput
-
+import org.gradle.api.tasks.TaskProvider
 /**
  * The abstract class for all conventional JVM application plugins.
  *
@@ -67,16 +68,21 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
         EXT extension = configureExtension(project.objects, dockerExtension)
 
         project.plugins.withType(JavaPlugin) {
-            Dockerfile createDockerfileTask = createDockerfileTask(project, extension)
-            Sync syncBuildContextTask = createSyncBuildContextTask(project, createDockerfileTask)
-            createDockerfileTask.dependsOn syncBuildContextTask
-            DockerBuildImage dockerBuildImageTask = createBuildImageTask(project, createDockerfileTask, extension)
-            createPushImageTask(project, dockerBuildImageTask)
+            TaskProvider<Dockerfile> createDockerfileTask = registerDockerfileTask(project, extension)
+            TaskProvider<Sync> syncBuildContextTask = registerSyncBuildContextTask(project, createDockerfileTask)
+            createDockerfileTask.configure(new Action<Dockerfile>() {
+                @Override
+                void execute(Dockerfile dockerfile) {
+                    dockerfile.dependsOn(syncBuildContextTask)
+                }
+            })
+            TaskProvider<DockerBuildImage> dockerBuildImageTask = registerBuildImageTask(project, createDockerfileTask, extension)
+            registerPushImageTask(project, dockerBuildImageTask)
         }
     }
 
-    private Dockerfile createDockerfileTask(Project project, EXT extension) {
-        project.tasks.create(DOCKERFILE_TASK_NAME, Dockerfile, new Action<Dockerfile>() {
+    private TaskProvider<Dockerfile> registerDockerfileTask(Project project, EXT extension) {
+        project.tasks.register(DOCKERFILE_TASK_NAME, Dockerfile, new Action<Dockerfile>() {
             @Override
             void execute(Dockerfile dockerfile) {
                 dockerfile.with {
@@ -132,23 +138,28 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
         })
     }
 
-    private static Sync createSyncBuildContextTask(Project project, Dockerfile createDockerfileTask) {
-        project.tasks.create(SYNC_BUILD_CONTEXT_TASK_NAME, Sync, new Action<Sync>() {
+    private static TaskProvider<Sync> registerSyncBuildContextTask(Project project, TaskProvider<Dockerfile> createDockerfileTask) {
+        project.tasks.register(SYNC_BUILD_CONTEXT_TASK_NAME, Sync, new Action<Sync>() {
             @Override
             void execute(Sync sync) {
                 sync.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = "Copies the distribution resources to a temporary directory for image creation."
                     dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
-                    into(createDockerfileTask.destDir)
+                    into(project.provider(new Callable<Directory>() {
+                        @Override
+                        Directory call() throws Exception {
+                            createDockerfileTask.get().destDir.get()
+                        }
+                    }))
                     with(createAppFilesCopySpec(project))
                 }
             }
         })
     }
 
-    private DockerBuildImage createBuildImageTask(Project project, Dockerfile createDockerfileTask, EXT extension) {
-        project.tasks.create(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
+    private TaskProvider<DockerBuildImage> registerBuildImageTask(Project project, TaskProvider<Dockerfile> createDockerfileTask, EXT extension) {
+        project.tasks.register(BUILD_IMAGE_TASK_NAME, DockerBuildImage, new Action<DockerBuildImage>() {
             @Override
             void execute(DockerBuildImage dockerBuildImage) {
                 dockerBuildImage.with {
@@ -176,15 +187,20 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
         })
     }
 
-    private static void createPushImageTask(Project project, DockerBuildImage dockerBuildImageTask) {
-        project.tasks.create(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
+    private static void registerPushImageTask(Project project, TaskProvider<DockerBuildImage> dockerBuildImageTask) {
+        project.tasks.register(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
             @Override
             void execute(DockerPushImage pushImage) {
                 pushImage.with {
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    images.set(dockerBuildImageTask.getImages())
+                    images.convention(project.provider(new Callable<Set<String>>() {
+                        @Override
+                        Set<String> call() throws Exception {
+                            dockerBuildImageTask.get().getImages().get()
+                        }
+                    }))
                 }
             }
         })

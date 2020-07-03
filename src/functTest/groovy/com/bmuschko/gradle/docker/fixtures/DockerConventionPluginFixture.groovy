@@ -17,19 +17,19 @@ final class DockerConventionPluginFixture {
     static String imageTasks() {
         """
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
-            
-            task removeImage(type: DockerRemoveImage) {
+
+            def removeImage = tasks.register('removeImage', DockerRemoveImage) {
                 dependsOn dockerBuildImage
                 targetImageId dockerBuildImage.getImageId()
                 force = true
             }
-            
-            task buildAndRemoveImage {
+
+            def buildAndRemoveImage = tasks.register('buildAndRemoveImage') {
                 dependsOn dockerBuildImage
                 finalizedBy removeImage
             }
-            
-            task pushAndRemoveImage {
+
+            def pushAndRemoveImage = tasks.register('pushAndRemoveImage') {
                 dependsOn dockerPushImage
                 finalizedBy removeImage
             }
@@ -38,32 +38,34 @@ final class DockerConventionPluginFixture {
 
     static String containerTasks() {
         """
+            import org.gradle.api.Task
+            import org.gradle.api.tasks.TaskProvider
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
-            task createContainer(type: DockerCreateContainer) {
+            TaskProvider<DockerCreateContainer> createContainer = tasks.register('createContainer', DockerCreateContainer) {
                 dependsOn dockerBuildImage
                 targetImageId dockerBuildImage.getImageId()
             }
 
-            task startContainer(type: DockerStartContainer) {
+            TaskProvider<DockerStartContainer> startContainer = tasks.register('startContainer', DockerStartContainer) {
                 dependsOn createContainer
-                targetContainerId createContainer.getContainerId()
+                targetContainerId createContainer.get().getContainerId()
             }
-            
-            task stopContainer(type: DockerStopContainer) {
+
+            TaskProvider<DockerStopContainer> stopContainer = tasks.register('stopContainer', DockerStopContainer) {
                 dependsOn startContainer
-                targetContainerId startContainer.getContainerId()
+                targetContainerId startContainer.get().getContainerId()
             }
-            
-            task removeContainer(type: DockerRemoveContainer) {
+
+            TaskProvider<DockerRemoveContainer> removeContainer = tasks.register('removeContainer', DockerRemoveContainer) {
                 dependsOn stopContainer
-                targetContainerId stopContainer.getContainerId()
+                targetContainerId stopContainer.get().getContainerId()
             }
-            
-            task startAndRemoveContainer {
+
+            TaskProvider<Task> startAndRemoveContainer = tasks.register('startAndRemoveContainer') {
                 dependsOn startContainer
                 finalizedBy removeContainer
             }
@@ -72,9 +74,11 @@ final class DockerConventionPluginFixture {
 
     static String lifecycleTask() {
         """
-            removeImage.mustRunAfter removeContainer
+            removeImage.configure {
+                mustRunAfter removeContainer
+            }
 
-            task buildAndCleanResources {
+            tasks.register('buildAndCleanResources') {
                 dependsOn startAndRemoveContainer
                 finalizedBy removeImage
             }

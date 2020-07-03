@@ -270,6 +270,28 @@ ADD file2.txt /other/dir/file2.txt
         assertBuildContextLibs()
     }
 
+    def "does not realize all possible tasks"() {
+        when:
+        writeNoTasksRealizedAssertionToBuildFile()
+
+        then:
+        build('help')
+    }
+
+    def "does not realize all RegistryCredentialsAware tasks"() {
+        when:
+        writeNoTasksRealizedAssertionToBuildFile()
+
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+            tasks.register('customBuildImage', DockerBuildImage)
+        """
+
+        then:
+        build('help')
+    }
+
     private void setupProjectUnderTest() {
         writeSettingsFile()
         writeBasicSetupToBuildFile()
@@ -300,6 +322,21 @@ ADD file2.txt /other/dir/file2.txt
         buildFile << imageTasks()
         buildFile << containerTasks()
         buildFile << lifecycleTask()
+    }
+
+    private void writeNoTasksRealizedAssertionToBuildFile() {
+        buildFile << """
+            def configuredTasks = []
+            tasks.configureEach {
+                configuredTasks << it
+            }
+
+            gradle.buildFinished {
+                def configuredTaskPaths = configuredTasks*.path
+
+                assert configuredTaskPaths == [':help']
+            }
+        """
     }
 
     private File dockerFile() {

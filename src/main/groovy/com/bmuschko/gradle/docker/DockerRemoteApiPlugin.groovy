@@ -46,7 +46,7 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     }
 
     private void configureRegistryCredentialsAwareTasks(Project project, DockerRegistryCredentials extensionRegistryCredentials) {
-        project.tasks.withType(RegistryCredentialsAware, new Action<RegistryCredentialsAware>() {
+        project.tasks.withType(RegistryCredentialsAware).configureEach(new Action<RegistryCredentialsAware>() {
             @Override
             void execute(RegistryCredentialsAware task) {
                 task.registryCredentials.url.set(extensionRegistryCredentials.url)
