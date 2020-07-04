@@ -15,11 +15,6 @@
  */
 package com.bmuschko.gradle.docker
 
-import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.createAppFilesCopySpec
-import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.getMainJavaSourceSetOutput
-
-import java.util.concurrent.Callable
-
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -27,12 +22,17 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.Directory
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
+
+import java.util.concurrent.Callable
+
+import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.createAppFilesCopySpec
+import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.getMainJavaSourceSetOutput
+
 /**
  * The abstract class for all conventional JVM application plugins.
  *
@@ -146,12 +146,7 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = "Copies the distribution resources to a temporary directory for image creation."
                     dependsOn project.tasks.getByName(JavaPlugin.CLASSES_TASK_NAME)
-                    into(project.provider(new Callable<Directory>() {
-                        @Override
-                        Directory call() throws Exception {
-                            createDockerfileTask.get().destDir.get()
-                        }
-                    }))
+                    into(createDockerfileTask.get().destDir)
                     with(createAppFilesCopySpec(project))
                 }
             }
@@ -187,7 +182,7 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
         })
     }
 
-    private static void registerPushImageTask(Project project, TaskProvider<DockerBuildImage> dockerBuildImageTask) {
+    private static TaskProvider<DockerPushImage> registerPushImageTask(Project project, TaskProvider<DockerBuildImage> dockerBuildImageTask) {
         project.tasks.register(PUSH_IMAGE_TASK_NAME, DockerPushImage, new Action<DockerPushImage>() {
             @Override
             void execute(DockerPushImage pushImage) {
@@ -195,12 +190,7 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    images.convention(project.provider(new Callable<Set<String>>() {
-                        @Override
-                        Set<String> call() throws Exception {
-                            dockerBuildImageTask.get().getImages().get()
-                        }
-                    }))
+                    images.convention(dockerBuildImageTask.get().getImages())
                 }
             }
         })
