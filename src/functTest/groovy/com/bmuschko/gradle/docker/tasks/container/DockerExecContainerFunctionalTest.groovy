@@ -53,7 +53,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 }
             }
         """
-        buildFile << containerUsage(containerExecutionTask, 60)
+        buildFile << containerUsage(containerExecutionTask, 120)
 
         when:
         BuildResult result = build('logContainer')
