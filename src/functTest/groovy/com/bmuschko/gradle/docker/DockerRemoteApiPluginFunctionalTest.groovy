@@ -1,5 +1,7 @@
 package com.bmuschko.gradle.docker
 
+import spock.lang.Requires
+
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.groovySettingsFile
 
 class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTest {
@@ -8,6 +10,12 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
     public static final String DEFAULT_PASSWORD = 'pwd'
     public static final String CUSTOM_USERNAME = 'Sally Wash'
     public static final String CUSTOM_PASSWORD = 'secret'
+    public static final String DOCKER_CONFIG = 'DOCKER_CONFIG'
+    public static final String WRONG_USER_PASS_CONFIG = 'src/functTest/resources/wrong_username_password'
+    public static final String SECURE_REGISTRY_USER = "testuser"
+    public static final String SECURE_REGISTRY_PASSWD = "testpassword"
+    public static final String TEST_DOCKER_IMAGE_WITH_TAG = "gradle-docker-test:latest"
+
 
     def setup() {
         settingsFile << groovySettingsFile()
@@ -72,6 +80,120 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         expect:
         build('verify')
+    }
+
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE })
+    def "can push and pull images overriding wrong registryCredentials in task"() {
+        given:
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                runCommand("echo ${UUID.randomUUID()}")
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                finalizedBy { removeImage }
+                images = [
+                    '${TestConfiguration.dockerPrivateSecureRegistryDomain}/${TEST_DOCKER_IMAGE_WITH_TAG}'
+                ]
+            }
+
+            task pushImage(type: DockerPushImage) {
+                dependsOn buildImage
+                images = buildImage.images
+                registryCredentials {
+                    url = '${TestConfiguration.dockerPrivateSecureRegistryDomain}'
+                    username = '$SECURE_REGISTRY_USER'
+                    password = '$SECURE_REGISTRY_PASSWD'
+                }
+            }
+
+            task pullImage(type: DockerPullImage) {
+                dependsOn pushImage
+                image = '${TestConfiguration.dockerPrivateSecureRegistryDomain}/${TEST_DOCKER_IMAGE_WITH_TAG}'
+                registryCredentials {
+                    url = '${TestConfiguration.dockerPrivateSecureRegistryDomain}'
+                    username = '$SECURE_REGISTRY_USER'
+                    password = '$SECURE_REGISTRY_PASSWD'
+                }
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn buildImage
+                mustRunAfter pushImage, pullImage
+                targetImageId buildImage.getImageId()
+                force = true
+            }
+        """
+
+        addEnvVar(DOCKER_CONFIG, WRONG_USER_PASS_CONFIG)
+
+        expect:
+        build('pullImage')
+    }
+
+    @Requires({ TestPrecondition.DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE })
+    def "can push and pull images overriding wrong registryCredentials with docker extension"() {
+        given:
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+            docker {
+                registryCredentials {
+                    url = '${TestConfiguration.dockerPrivateSecureRegistryDomain}'
+                    username = '$SECURE_REGISTRY_USER'
+                    password = '$SECURE_REGISTRY_PASSWD'
+                }
+            }
+
+            task dockerfile(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                runCommand("echo ${UUID.randomUUID()}")
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                finalizedBy { removeImage }
+                images = [
+                    '${TestConfiguration.dockerPrivateSecureRegistryDomain}/${TEST_DOCKER_IMAGE_WITH_TAG}'
+                ]
+            }
+
+            task pushImage(type: DockerPushImage) {
+                dependsOn buildImage
+                images = buildImage.images
+            }
+
+            task pullImage(type: DockerPullImage) {
+                dependsOn pushImage
+                image = '${TestConfiguration.dockerPrivateSecureRegistryDomain}/${TEST_DOCKER_IMAGE_WITH_TAG}'
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                dependsOn buildImage
+                mustRunAfter pushImage, pullImage
+                targetImageId buildImage.getImageId()
+                force = true
+            }
+        """
+
+        addEnvVar(DOCKER_CONFIG, WRONG_USER_PASS_CONFIG)
+
+        expect:
+        build('pullImage')
     }
 
     def "can convert credentials into PasswordCredentials type and retrieve values"() {
