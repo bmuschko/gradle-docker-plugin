@@ -19,9 +19,9 @@ import com.bmuschko.gradle.docker.DockerRegistryCredentials
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.github.dockerjava.api.command.PullImageCmd
+import com.github.dockerjava.api.command.PullImageResultCallback
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PullResponseItem
-import com.github.dockerjava.core.command.PullImageResultCallback
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.provider.Property

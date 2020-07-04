@@ -17,8 +17,8 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.command.WaitContainerCmd
+import com.github.dockerjava.api.command.WaitContainerResultCallback
 import com.github.dockerjava.api.model.WaitResponse
-import com.github.dockerjava.core.command.WaitContainerResultCallback
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.provider.Property

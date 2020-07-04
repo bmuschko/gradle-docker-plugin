@@ -20,10 +20,10 @@ import com.bmuschko.gradle.docker.internal.OutputCollector
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.github.dockerjava.api.command.BuildImageCmd
+import com.github.dockerjava.api.command.BuildImageResultCallback
 import com.github.dockerjava.api.exception.DockerException
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.api.model.BuildResponseItem
-import com.github.dockerjava.core.command.BuildImageResultCallback
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
