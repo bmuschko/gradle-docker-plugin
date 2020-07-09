@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
+import com.bmuschko.gradle.docker.TextUtils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
@@ -30,7 +31,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
                 dependsOn createContainer
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
-                hostPath = "$projectDir/HelloWorld.txt"
+                hostPath = "${TextUtils.escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}"
                 remotePath = "/root"
             }
         """
@@ -48,9 +49,9 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
                 dependsOn createContainer
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
-                withFile("$projectDir/HelloWorld.txt", '/root')
-                withFile("$projectDir/HelloWorld.txt", '/tmp')
-                withFile({ "$projectDir/HelloWorld.txt" }, { '/' })
+                withFile("${TextUtils.escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}", '/root')
+                withFile("${TextUtils.escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}", '/tmp')
+                withFile({ "${TextUtils.escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}" }, { '/' })
             }
         """
 
@@ -68,7 +69,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
                 dependsOn createContainer, createTarFile
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
-                tarFile = new File("$projectDir/HelloWorld.tgz")
+                tarFile = new File("${TextUtils.escapeFilePath(projectDir)}", 'HelloWorld.tgz')
                 remotePath = "/root"
             }
         """
@@ -87,8 +88,8 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
                 dependsOn createContainer, createTarFile
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
-                withTarFile({ new File("$projectDir/HelloWorld.tgz") }, '/root')
-                withTarFile({ new File("$projectDir/HelloWorld.tgz") }, {'/'} )
+                withTarFile({ new File("${TextUtils.escapeFilePath(projectDir)}", 'HelloWorld.tgz') }, '/root')
+                withTarFile({ new File("${TextUtils.escapeFilePath(projectDir)}", 'HelloWorld.tgz') }, {'/'} )
             }
         """
 
@@ -105,8 +106,8 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
                 dependsOn createContainer
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
-                hostPath = "$projectDir/HelloWorld.txt"
-                tarFile = new File("$projectDir/HelloWorld.txt")
+                hostPath = "${TextUtils.escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}"
+                tarFile = new File("${TextUtils.escapeFilePath(projectDir)}", 'HelloWorld.txt')
                 remotePath = "/root"
             }
         """
@@ -154,7 +155,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
     private String tarTask() {
         """
             task createTarFile(type: Tar) {
-                from "$projectDir/HelloWorld.txt"
+                from "${TextUtils.escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}"
                 baseName = 'HelloWorld'
                 destinationDir = projectDir
                 extension = 'tgz'

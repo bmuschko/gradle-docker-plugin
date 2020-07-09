@@ -5,6 +5,7 @@ import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Requires
 import spock.lang.Unroll
@@ -43,6 +44,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         result.output.contains("Created image with ID")
     }
 
+    @IgnoreIf({ os.windows })
     def "can build image in a parent context"() {
         buildFile << imageCreation()
         buildFile << """

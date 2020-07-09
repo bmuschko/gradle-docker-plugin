@@ -24,6 +24,9 @@ abstract class AbstractFunctionalTest extends Specification {
         projectDir = temporaryFolder.root
         buildFile = temporaryFolder.newFile(getBuildFileName())
         settingsFile = temporaryFolder.newFile(getSettingsFileName())
+        if (OsUtils.isWindows()) {
+            envVars.put("PATH", System.getenv("PATH"))
+        }
     }
 
     /**
