@@ -15,10 +15,11 @@
  */
 package com.bmuschko.gradle.docker
 
-import com.bmuschko.gradle.docker.TextUtils
 import org.gradle.api.GradleException
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
+
+import static com.bmuschko.gradle.docker.TextUtils.escapeFilePath
 
 class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -184,7 +185,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task copyFileFromContainerToHostFile(type: DockerCopyFileFromContainer) {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
-                hostPath = "${TextUtils.escapeFilePath(new File(projectDir, '/copy-file-host-file/shebang.tar'))}"
+                hostPath = "${escapeFilePath(new File(projectDir, '/copy-file-host-file/shebang.tar'))}"
                 remotePath = "/bin/sh"
                 compressed = true
             }
@@ -192,14 +193,14 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task copyFileFromContainerToHostDir(type: DockerCopyFileFromContainer) {
                 dependsOn copyFileFromContainerToHostFile
                 targetContainerId createContainer.getContainerId()
-                hostPath = "${TextUtils.escapeFilePath(new File(projectDir, 'copy-file-host-dir'))}"
+                hostPath = "${escapeFilePath(new File(projectDir, 'copy-file-host-dir'))}"
                 remotePath = "/bin/sh"
             }
 
             task copyDirFromContainerToHostDir(type: DockerCopyFileFromContainer) {
                 dependsOn copyFileFromContainerToHostDir
                 targetContainerId createContainer.getContainerId()
-                hostPath = "${TextUtils.escapeFilePath(new File(projectDir, 'copy-dir'))}"
+                hostPath = "${escapeFilePath(new File(projectDir, 'copy-dir'))}"
                 remotePath = "/var/spool"
             }
 
@@ -229,7 +230,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file("${TextUtils.escapeFilePath(dockerFile.parentFile)}")
+                inputDir = file("${escapeFilePath(dockerFile.parentFile)}")
                 images.add("${createUniqueImageId()}")
             }
 
@@ -268,7 +269,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file("${TextUtils.escapeFilePath(dockerFile.parentFile)}")
+                inputDir = file("${escapeFilePath(dockerFile.parentFile)}")
                 images.add("${createUniqueImageId()}")
             }
 
@@ -307,7 +308,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file("${TextUtils.escapeFilePath(dockerFile.parentFile)}")
+                inputDir = file("${escapeFilePath(dockerFile.parentFile)}")
                 images.add("${createUniqueImageId()}")
             }
 
@@ -346,7 +347,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file("${TextUtils.escapeFilePath(dockerFile.parentFile)}")
+                inputDir = file("${escapeFilePath(dockerFile.parentFile)}")
                 images.add("${createUniqueImageId()}")
             }
 
@@ -385,7 +386,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file("${TextUtils.escapeFilePath(dockerFile.parentFile)}")
+                inputDir = file("${escapeFilePath(dockerFile.parentFile)}")
                 images.add("${createUniqueImageId()}")
             }
 
@@ -433,7 +434,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file("${TextUtils.escapeFilePath(dockerFile.parentFile)}")
+                inputDir = file("${escapeFilePath(dockerFile.parentFile)}")
                 images.add("${createUniqueImageId()}")
             }
 
@@ -477,7 +478,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
 
             task buildImage(type: DockerBuildImage) {
-                inputDir = file("${TextUtils.escapeFilePath(dockerFile.parentFile)}")
+                inputDir = file("${escapeFilePath(dockerFile.parentFile)}")
                 images.add("${createUniqueImageId()}")
             }
 
@@ -512,7 +513,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
         File dockerFile = createDockerfile(imageDir)
         dockerFile << "EXPOSE 8888" // add random instruction to be able to remove image
         String imageName = createUniqueImageId()
-        String savedImagePath = "${TextUtils.escapeFilePath(new File(temporaryFolder.getRoot(), 'someFile.tmp'))}"
+        String savedImagePath = "${escapeFilePath(new File(temporaryFolder.getRoot(), 'someFile.tmp'))}"
         String uniqueContainerName = createUniqueContainerName()
 
         buildFile << """
@@ -523,7 +524,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             
             task buildImage(type: DockerBuildImage) {
-                inputDir = file("${TextUtils.escapeFilePath(dockerFile.parentFile)}")
+                inputDir = file("${escapeFilePath(dockerFile.parentFile)}")
                 images.add("${imageName}")
             }
 

@@ -1,9 +1,10 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
-import com.bmuschko.gradle.docker.TextUtils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+
+import static com.bmuschko.gradle.docker.TextUtils.equalsIgnoreLineEndings
 
 class DockerfileFunctionalTest extends AbstractGroovyDslFunctionalTest {
     private static final String DOCKERFILE_TASK_NAME = 'dockerfile'
@@ -336,7 +337,7 @@ COPY --from=builder /opt/h2.jar /opt/h2.jar
     private void assertDockerfileContent(String expectedContent) {
         File dockerfile = defaultDockerfile()
         assert dockerfile.isFile()
-        assert TextUtils.equalsIgnoreLineEndings(dockerfile.text, expectedContent)
+        assert equalsIgnoreLineEndings(dockerfile.text, expectedContent)
     }
 
     private File defaultDockerfile() {

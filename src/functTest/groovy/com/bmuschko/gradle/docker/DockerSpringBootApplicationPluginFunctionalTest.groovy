@@ -3,9 +3,9 @@ package com.bmuschko.gradle.docker
 import spock.lang.Requires
 import spock.lang.Unroll
 
+import static com.bmuschko.gradle.docker.TextUtils.equalsIgnoreLineEndings
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.*
 import static com.bmuschko.gradle.docker.fixtures.DockerSpringBootApplicationPluginFixture.writeSpringBootApplicationClasses
-import com.bmuschko.gradle.docker.TextUtils
 
 class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -31,7 +31,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        TextUtils.equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile()))
+        equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile()))
 
         where:
         plugin << REACTED_PLUGINS
@@ -60,7 +60,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        TextUtils.equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080], jvmArgs: ['-Dspring.profiles.active=production', '-Xmx2048m'])))
+        equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080], jvmArgs: ['-Dspring.profiles.active=production', '-Xmx2048m'])))
 
         where:
         plugin << REACTED_PLUGINS
@@ -87,7 +87,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        TextUtils.equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, exposedPorts: [])))
+        equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, exposedPorts: [])))
 
         where:
         plugin << REACTED_PLUGINS
@@ -112,7 +112,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        TextUtils.equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(mainClassName: 'com.bmuschko.custom.Main')))
+        equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(mainClassName: 'com.bmuschko.custom.Main')))
 
         where:
         plugin << REACTED_PLUGINS
@@ -145,7 +145,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        TextUtils.equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE)))
+        equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE)))
 
         where:
         plugin << REACTED_PLUGINS
@@ -172,7 +172,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        TextUtils.equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE)))
+        equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE)))
 
         where:
         plugin << REACTED_PLUGINS

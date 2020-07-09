@@ -1,17 +1,19 @@
 package com.bmuschko.gradle.docker
 
-class TextUtils {
+final class TextUtils {
+    private TextUtils() {}
+
     /**
-     * Escape backslashes in windows in docker files
+     * Escape backslashes in windows in Docker files.
      */
     static String escapeFilePath(File file) {
         if (file.separatorChar == '\\') {
-            file.toString().replace('\\', '\\\\')
+            return file.toString().replace('\\', '\\\\')
         }
-        else {
-            file.toString()
-        }
+
+        file.toString()
     }
+
     static Boolean equalsIgnoreLineEndings(String a, String b) {
         a.replace("\r", "") == b.replace("\r", "")
     }

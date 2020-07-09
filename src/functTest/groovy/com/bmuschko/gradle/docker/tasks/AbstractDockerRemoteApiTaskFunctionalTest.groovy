@@ -2,10 +2,11 @@ package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
-import com.bmuschko.gradle.docker.TextUtils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Shared
+
+import static com.bmuschko.gradle.docker.TextUtils.escapeFilePath
 
 class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctionalTest {
     public static final String USERNAME_SYSTEM_PROPERTY_KEY = 'registry.username'
@@ -50,7 +51,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
         buildFile << """
             docker {
                 url = 'tcp://remote.docker.com:2375'
-                certPath = new File('${TextUtils.escapeFilePath(customCertPath.getCanonicalFile())}')
+                certPath = new File('${escapeFilePath(customCertPath.getCanonicalFile())}')
 
                 registryCredentials {
                     url = 'https://some.registryCredentials.com/'
