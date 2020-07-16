@@ -1,16 +1,22 @@
 == Change Log
 
 [discrete]
+=== v6.6.0 (July 16, 2020)
+
+* Use configuration avoidance API in convention plugins - {uri-github}/pull/940[PR 940]
+* Configured registry credentials in build script should take precedence over Docker credential helper - {uri-github}/pull/945[PR 945]
+
+[discrete]
 === v6.5.0 (July 3, 2020)
 
-* Default to Docker Hub when no registry is explicitly given - {uri-github}/issues/942[Issue 942]
-* Upgrade of Docker Java library to version 3.2.5 and default to communication transport to Apache HttpClient 5 - {uri-github}/issues/942[Issue 942]
+* Default to Docker Hub when no registry is explicitly given - {uri-github}/pull/942[PR 942]
+* Upgrade of Docker Java library to version 3.2.5 and default to communication transport to Apache HttpClient 5 - {uri-github}/pull/942[PR 942]
 
 [discrete]
 === v6.4.0 (March 23, 2020)
 
-* Keep the network name and network ID separate in `DockerCreateNetwork` - {uri-github}/issues/920[Issue 920]
-* Upgrade ASM dependency to Java 13/14-compatible version - {uri-github}/issues/929[Issue 929]
+* Keep the network name and network ID separate in `DockerCreateNetwork` - {uri-github}/pull/920[PR 920]
+* Upgrade ASM dependency to Java 13/14-compatible version - {uri-github}/pull/929[PR 929]
 
 [discrete]
 === v6.3.0 (March 14, 2020)
