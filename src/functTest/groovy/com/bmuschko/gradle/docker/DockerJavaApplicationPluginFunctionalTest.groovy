@@ -271,6 +271,29 @@ ADD file2.txt /other/dir/file2.txt
         assertBuildContextLibs()
     }
 
+    def "Can map images from to build and push tasks"() {
+        given:
+        buildFile << """
+            def expectedImages = ['javaapp:1.2.3', 'javaapp:latest'] as Set<String>
+
+            docker {
+                javaApplication {
+                    images = expectedImages
+                }
+            }
+            
+            task verify {
+                doLast {
+                    assert dockerBuildImage.images.get() == expectedImages
+                    assert dockerPushImage.images.get() == expectedImages
+                }
+            }
+        """
+
+        expect:
+        build('verify')
+    }
+
     def "does not realize all possible tasks"() {
         when:
         writeNoTasksRealizedAssertionToBuildFile()

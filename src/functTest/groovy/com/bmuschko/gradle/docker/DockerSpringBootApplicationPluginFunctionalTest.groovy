@@ -178,6 +178,31 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         plugin << REACTED_PLUGINS
     }
 
+    def "Can map images from to build and push tasks"() {
+        given:
+        setupSpringBootBuild(ReactedPlugin.JAVA.identifier)
+
+        buildFile << """
+            def expectedImages = ['bmuschko/springbootapp:1.2.3', 'bmuschko/springbootapp:latest'] as Set<String>
+
+            docker {
+                springBootApplication {
+                    images = expectedImages
+                }
+            }
+            
+            task verify {
+                doLast {
+                    assert dockerBuildImage.images.get() == expectedImages
+                    assert dockerPushImage.images.get() == expectedImages
+                }
+            }
+        """
+
+        expect:
+        build('verify')
+    }
+
     private void writeSettingsFile() {
         settingsFile << groovySettingsFile()
     }
