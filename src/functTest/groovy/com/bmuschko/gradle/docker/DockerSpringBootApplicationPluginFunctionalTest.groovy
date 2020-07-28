@@ -1,5 +1,6 @@
 package com.bmuschko.gradle.docker
 
+import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 import spock.lang.Unroll
 
@@ -140,12 +141,14 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         """
 
         when:
-        build('pushAndRemoveImage')
+        BuildResult result = build('pushAndRemoveImage')
 
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
         equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE)))
+        result.output.contains("Pushing image '$credentials.username/springbootapp:1.2.3'.")
+        result.output.contains("Pushing image '$credentials.username/springbootapp:latest'.")
 
         where:
         plugin << REACTED_PLUGINS
@@ -176,6 +179,31 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
 
         where:
         plugin << REACTED_PLUGINS
+    }
+
+    def "Can map images from to build and push tasks"() {
+        given:
+        setupSpringBootBuild(ReactedPlugin.JAVA.identifier)
+
+        buildFile << """
+            def expectedImages = ['bmuschko/springbootapp:1.2.3', 'bmuschko/springbootapp:latest'] as Set<String>
+
+            docker {
+                springBootApplication {
+                    images = expectedImages
+                }
+            }
+            
+            task verify {
+                doLast {
+                    assert dockerBuildImage.images.get() == expectedImages
+                    assert dockerPushImage.images.get() == expectedImages
+                }
+            }
+        """
+
+        expect:
+        build('verify')
     }
 
     private void writeSettingsFile() {

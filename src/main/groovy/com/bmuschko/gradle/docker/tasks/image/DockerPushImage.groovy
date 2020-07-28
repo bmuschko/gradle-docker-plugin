@@ -24,6 +24,7 @@ import com.github.dockerjava.api.model.PushResponseItem
 import com.github.dockerjava.core.command.PushImageResultCallback
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
@@ -49,8 +50,12 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
     @Override
     void runRemoteCommand() {
+        if (images.get().empty) {
+            throw new GradleException('No images configured for push operation.')
+        }
+
         for (String image : images.get()) {
-            logger.quiet "Pushing image '${image}'."
+            logger.quiet("Pushing image '${image}'.")
             PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
             AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image, registryCredentials)
             pushImageCmd.withAuthConfig(authConfig)

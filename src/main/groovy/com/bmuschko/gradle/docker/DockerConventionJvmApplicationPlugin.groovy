@@ -190,7 +190,7 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
                     group = DockerRemoteApiPlugin.DEFAULT_TASK_GROUP
                     description = 'Pushes created Docker image to the repository.'
                     dependsOn dockerBuildImageTask
-                    images.convention(dockerBuildImageTask.get().getImages())
+                    images.set(dockerBuildImageTask.get().getImages())
                 }
             }
         })
