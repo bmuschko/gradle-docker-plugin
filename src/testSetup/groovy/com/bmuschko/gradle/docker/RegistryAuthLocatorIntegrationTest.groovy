@@ -10,7 +10,7 @@ class RegistryAuthLocatorIntegrationTest {
     def "AuthLocator works with localhost"() {
         when:
         RegistryAuthLocator locator = new RegistryAuthLocator()
-        AuthConfig config = locator.lookupAuthConfig("localhost:5001/abc")
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig("localhost:5001/abc")
 
         then:
         config.username == "testuser"

@@ -63,20 +63,21 @@ class RegistryAuthLocator {
      * Gets authorization information
      * using $DOCKER_CONFIG/.docker/config.json file
      * If missing, returns empty AuthConfig object
+     * @param registryCredentials extension of type registryCredentials
      * @param image the name of docker image the action to be authorized for
      * @return AuthConfig object with a credentials info or empty object if
      * no credentials found
      */
-    AuthConfig lookupAuthConfig(String image) {
-        AuthConfig authConfigForRepository = lookupAuthConfigForRegistry(getRegistry(image))
-        return authConfigForRepository ?: new AuthConfig()
+    @PackageScope
+    AuthConfig lookupAuthConfigWithDefaultAuthConfig(String image) {
+        lookupAuthConfigWithAuthConfig(image, new AuthConfig())
     }
 
     /**
      * Gets authorization information
-     * using the registryCredentials object
+     * using $DOCKER_CONFIG/.docker/config.json file
      * If missing, gets the information from
-     * $DOCKER_CONFIG/.docker/config.json file
+     * the registryCredentials object
      * @param registryCredentials extension of type registryCredentials
      * @param image the name of docker image the action to be authorized for
      * @return AuthConfig object with a credentials info or default object if
@@ -84,19 +85,48 @@ class RegistryAuthLocator {
      */
     AuthConfig lookupAuthConfig(String image,
                                 DockerRegistryCredentials registryCredentials) {
-        String registry = getRegistry(image)
-        String registryUrl = registryCredentials.getUrl().getOrElse("")
-        if (registryUrl.endsWith('://' + registry) || registryUrl == registry) {
-            return createAuthConfig(registryCredentials)
+        AuthConfig defaultConfig = createAuthConfig(registryCredentials)
+
+        if (isProvidedByBuild(defaultConfig)) {
+            return defaultConfig
         }
-        return lookupAuthConfig(image)
+
+        return lookupAuthConfigWithAuthConfig(image, defaultConfig)
+    }
+
+    /**
+     * Checks if the complete authentication information has been configured by the build,
+     * more specifically through {@link DockerRegistryCredentials} by using the plugin DSL
+     * or the property on relevant custom tasks.
+     * <p>
+     * If configured in build, the provided credentials take precendence over Docker helper.
+     *
+     * @param defaultConfig Default config
+     * @return Flag
+     */
+    private boolean isProvidedByBuild(AuthConfig defaultConfig) {
+        defaultConfig.registryAddress && defaultConfig.username && defaultConfig.password
+    }
+
+    /**
+     * Gets authorization information using $DOCKER_CONFIG/.docker/config.json file
+     * @param image the name of docker image the action to be authorized for
+     * @return AuthConfig object with a credentials info or default object if
+     * no credentials found
+     */
+    private AuthConfig lookupAuthConfigWithAuthConfig(String image, AuthConfig defaultAuthConfig) {
+        AuthConfig authConfigForRegistry = lookupAuthConfigForRegistry(getRegistry(image))
+        if (authConfigForRegistry != null) {
+            return authConfigForRegistry
+        }
+        return defaultAuthConfig
     }
 
     private AuthConfig lookupAuthConfigForRegistry(String registry) {
         if (isWindows()) {
             logger.debug('RegistryAuthLocator is not supported on Windows. ' +
-                'Please help test or improve it and update ' +
-                'https://github.com/bmuschko/gradle-docker-plugin/')
+                    'Please help test or improve it and update ' +
+                    'https://github.com/bmuschko/gradle-docker-plugin/')
             return null
         }
 
@@ -129,11 +159,11 @@ class RegistryAuthLocator {
 
         } catch(Exception ex) {
             logger.error('Failure when attempting to lookup auth config ' +
-                '(docker registry: {}, configFile: {}). ' +
-                'Falling back to docker-java default behaviour',
-                registry,
-                configFile,
-                ex)
+                    '(docker registry: {}, configFile: {}). ' +
+                    'Falling back to docker-java default behaviour',
+                    registry,
+                    configFile,
+                    ex)
         }
         return null
     }
@@ -149,8 +179,8 @@ class RegistryAuthLocator {
         AuthConfigurations authConfigurations = new AuthConfigurations()
         if (isWindows()) {
             logger.debug('RegistryAuthLocator is not supported on Windows. ' +
-                'Please help test or improve it and update ' +
-                'https://github.com/bmuschko/gradle-docker-plugin/')
+                    'Please help test or improve it and update ' +
+                    'https://github.com/bmuschko/gradle-docker-plugin/')
             return authConfigurations
         }
 
@@ -198,10 +228,10 @@ class RegistryAuthLocator {
             }
         } catch (Exception ex) {
             logger.error('Failure when attempting to lookup auth config ' +
-                '(configFile: {}). ' +
-                'Falling back to docker-java default behaviour',
-                configFile,
-                ex)
+                    '(configFile: {}). ' +
+                    'Falling back to docker-java default behaviour',
+                    configFile,
+                    ex)
         }
         return authConfigurations
     }
@@ -298,7 +328,7 @@ class RegistryAuthLocator {
      * @return auth json node if present or null otherwise
      */
     private static Map.Entry<String, Object> findAuthNode(Map<String, Object> config,
-                                                            String repository) {
+                                                          String repository) {
         Map<String, Object> auths = config.get(AUTH_SECTION) as Map<String, Object>
         if (auths != null && auths.size() > 0) {
             for (Map.Entry<String, Object> entry: auths.entrySet() ) {
@@ -339,7 +369,7 @@ class RegistryAuthLocator {
         String credentialHelperName = commandPathPrefix + credHelper
 
         logger.debug('Executing docker credential helper: {} to locate auth config for: {}',
-            credentialHelperName, hostName)
+                credentialHelperName, hostName)
         String data = runCommand("$credentialHelperName get", { Writer writer -> writer << hostName })
         logger.debug('Credential helper response: {}', data)
         Map<String, String> helperResponse = parseText(data) as Map<String, String>
@@ -349,9 +379,9 @@ class RegistryAuthLocator {
         logger.debug('Credential helper provided auth config for: {}', hostName)
 
         return new AuthConfig()
-            .withRegistryAddress(helperResponse.ServerURL)
-            .withUsername(helperResponse.Username)
-            .withPassword(helperResponse.Secret)
+                .withRegistryAddress(helperResponse.ServerURL)
+                .withUsername(helperResponse.Username)
+                .withPassword(helperResponse.Secret)
     }
 
     /**

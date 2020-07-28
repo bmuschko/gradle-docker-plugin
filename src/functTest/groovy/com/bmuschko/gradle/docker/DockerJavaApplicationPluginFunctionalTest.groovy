@@ -1,5 +1,6 @@
 package com.bmuschko.gradle.docker
 
+import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
 import static com.bmuschko.gradle.docker.TextUtils.equalsIgnoreLineEndings
@@ -194,12 +195,14 @@ ADD file2.txt /other/dir/file2.txt
         """
 
         when:
-        build('pushAndRemoveImage')
+        BuildResult result = build('pushAndRemoveImage')
 
         then:
         assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE))
         assertBuildContextLibs()
         assertBuildContextClasses()
+        result.output.contains("Pushing image '$credentials.username/javaapp:1.2.3'.")
+        result.output.contains("Pushing image '$credentials.username/javaapp:latest'.")
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })

@@ -18,7 +18,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-empty.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('unauthenticated.registry.org/org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('unauthenticated.registry.org/org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -34,7 +34,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-with-store.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('registry.example.com/org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -51,7 +51,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-empty-auth-with-helper.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('registry.example.com/org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -68,7 +68,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-auth.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('container-registry.cloud.yandex.net/org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('container-registry.cloud.yandex.net/org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -85,7 +85,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-existing-auth-with-helper.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('registry.example.com/org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -105,7 +105,7 @@ class RegistryAuthLocatorTest extends Specification {
             createAuthLocatorForExistingConfigFile('config-docker-desktop.json', false)
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -119,7 +119,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -137,7 +137,7 @@ class RegistryAuthLocatorTest extends Specification {
         locator.setLogger(logger)
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('registry.example.com/org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -154,7 +154,7 @@ class RegistryAuthLocatorTest extends Specification {
         locator.setLogger(logger)
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('registry.example.com/org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -168,7 +168,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-missing-tool.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('registry.example.com/org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('registry.example.com/org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -183,7 +183,7 @@ class RegistryAuthLocatorTest extends Specification {
             createAuthLocatorForExistingConfigFile('config-auth-store.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
@@ -198,7 +198,7 @@ class RegistryAuthLocatorTest extends Specification {
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-hub-auth.json')
 
         when:
-        AuthConfig config = locator.lookupAuthConfig('org/repo')
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('org/repo')
         AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
 
         then:
