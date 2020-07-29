@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v6.6.1 (July 29, 2020)
+
+* Mapping of DSL property images should propagate down to build and push task in convention plugins - {uri-github}/pull/956[PR 956]
+
+[discrete]
 === v6.6.0 (July 16, 2020)
 
 * Use configuration avoidance API in convention plugins - {uri-github}/pull/940[PR 940]
