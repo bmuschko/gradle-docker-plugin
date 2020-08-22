@@ -19,6 +19,7 @@ package com.bmuschko.gradle.docker.tasks.container.extras
 import com.bmuschko.gradle.docker.domain.LivenessProbe
 import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 import com.github.dockerjava.api.command.InspectContainerResponse
+import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
@@ -32,6 +33,7 @@ import static com.bmuschko.gradle.docker.internal.IOUtils.getProgressLogger
  *  Poll a given running container for an arbitrary log message to confirm liveness. If a livenessProbe is
  *  NOT defined then we fallback to check if the container is in a running state.
  */
+@CompileStatic
 class DockerLivenessContainer extends DockerLogsContainer {
 
     @Nested

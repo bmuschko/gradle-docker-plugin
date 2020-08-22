@@ -99,7 +99,7 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    Writer sink
+    StringWriter sink
 
     // Allows subclasses to carry their own logic
     @Internal
