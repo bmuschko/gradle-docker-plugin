@@ -23,7 +23,6 @@ import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
 import com.github.dockerjava.core.DockerClientConfig
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient
-import com.github.dockerjava.netty.NettyDockerCmdExecFactory
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import org.gradle.api.Action
@@ -166,27 +165,12 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
         DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
 
-        DockerClient dockerClient = buildDockerClient(dockerClientConfig)
+        DockerClient dockerClient = createDefaultDockerClient(dockerClientConfig)
         // register buildFinished-hook to close docker client.
         project.gradle.buildFinished {
             dockerClient.close()
         }
         dockerClient
-    }
-
-    private DockerClient buildDockerClient(DockerClientConfig config) {
-        boolean useNettyExecFactory = Boolean.valueOf(getProject().findProperty('gdpNettyExecFactory')?.toString())
-            ?: Boolean.valueOf(System.getProperty('gdp.netty.exec.factory'))
-            ?: Boolean.valueOf(System.getenv('GDP_NETTY_EXEC_FACTORY'))
-
-        if (useNettyExecFactory) {
-            logger.debug("Using " + NettyDockerCmdExecFactory.class.simpleName + " as driver for " + DockerClient.class.simpleName)
-            return DockerClientBuilder.getInstance(config)
-                    .withDockerCmdExecFactory(new NettyDockerCmdExecFactory())
-                    .build()
-        }
-
-        createDefaultDockerClient(config)
     }
 
     private DockerClient createDefaultDockerClient(DockerClientConfig config) {
