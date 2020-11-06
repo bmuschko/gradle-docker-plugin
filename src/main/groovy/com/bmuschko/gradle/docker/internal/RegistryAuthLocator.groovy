@@ -123,13 +123,6 @@ class RegistryAuthLocator {
     }
 
     private AuthConfig lookupAuthConfigForRegistry(String registry) {
-        if (isWindows()) {
-            logger.debug('RegistryAuthLocator is not supported on Windows. ' +
-                    'Please help test or improve it and update ' +
-                    'https://github.com/bmuschko/gradle-docker-plugin/')
-            return null
-        }
-
         logger.debug("Looking up auth config for registry: $registry")
         logger.debug("RegistryAuthLocator has configFile: $configFile.absolutePath (${configFile.exists() ? 'exists' : 'does not exist'}) and commandPathPrefix: $commandPathPrefix")
 
@@ -177,12 +170,6 @@ class RegistryAuthLocator {
      */
     AuthConfigurations lookupAllAuthConfigs() {
         AuthConfigurations authConfigurations = new AuthConfigurations()
-        if (isWindows()) {
-            logger.debug('RegistryAuthLocator is not supported on Windows. ' +
-                    'Please help test or improve it and update ' +
-                    'https://github.com/bmuschko/gradle-docker-plugin/')
-            return authConfigurations
-        }
 
         logger.debug("RegistryAuthLocator has configFile: $configFile.absolutePath (${configFile.exists() ? 'exists' : 'does not exist'}) and commandPathPrefix: $commandPathPrefix")
 
@@ -423,11 +410,6 @@ class RegistryAuthLocator {
             throw e
         }
 
-    }
-
-    private static boolean isWindows() {
-        String osName = System.getProperty('os.name')
-        return osName != null && osName.startsWith('Windows')
     }
 
     private static AuthConfig decodeAuth(AuthConfig config) {

@@ -1,12 +1,13 @@
 package com.bmuschko.gradle.docker.internal
 
+import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows;
+
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import org.gradle.api.logging.Logger
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
-@IgnoreIf({ os.windows })
 class RegistryAuthLocatorTest extends Specification {
 
     private static final String CONFIG_LOCATION = '/auth-config/'
@@ -174,7 +175,11 @@ class RegistryAuthLocatorTest extends Specification {
         then:
         config == DEFAULT_AUTH_CONFIG
         allConfigs.configs.isEmpty()
-        4 * logger.error(*_)
+        if(isWindows()) {
+            2 * logger.error(*_)
+        } else {
+            4 * logger.error(*_)
+        }
     }
 
     def "AuthLocator uses default config then store does not contain the credentials"() {
@@ -214,7 +219,15 @@ class RegistryAuthLocatorTest extends Specification {
         File configFile = new File(getClass().getResource(CONFIG_LOCATION + configName).toURI())
         RegistryAuthLocator locator
         if (mockHelper) {
-            String command = configFile.getParentFile().getAbsolutePath() + '/docker-credential-'
+            String command = null
+            if (isWindows()) {
+                def matcher = configFile.getParentFile().getAbsolutePath() =~ /(?<drive>[A-Z]):.*/
+                matcher.matches()
+                def driveLetter = matcher.group('drive')
+                command = 'C:\\msys64\\usr\\bin\\bash /' + (configFile.getParentFile().getAbsolutePath().replace(driveLetter + ':', driveLetter.toLowerCase()).replace('\\', '/')) + '/docker-credential-'
+            } else {
+                command = new File(configFile.getParentFile(), 'docker-credential-').getAbsolutePath()
+            }
             locator = new RegistryAuthLocator(configFile, command)
         } else {
             locator = new RegistryAuthLocator(configFile)

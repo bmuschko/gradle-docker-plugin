@@ -15,6 +15,8 @@
  */
 package com.bmuschko.gradle.docker
 
+import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows;
+
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
@@ -92,7 +94,7 @@ class DockerExtension {
     private String getDefaultDockerUrl() {
         String dockerUrl = System.getenv("DOCKER_HOST")
         if (!dockerUrl) {
-            boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+            boolean isWindows = isWindows()
             if (!isWindows && new File('/var/run/docker.sock').exists()) {
                 dockerUrl = 'unix:///var/run/docker.sock'
             } else {

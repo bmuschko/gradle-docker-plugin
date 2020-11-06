@@ -1,4 +1,4 @@
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker.internal
 
 final class OsUtils {
     private OsUtils() {}
