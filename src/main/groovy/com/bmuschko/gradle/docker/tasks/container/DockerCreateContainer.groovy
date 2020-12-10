@@ -20,6 +20,7 @@ import com.github.dockerjava.api.command.CreateContainerCmd
 import com.github.dockerjava.api.command.CreateContainerResponse
 import com.github.dockerjava.api.model.Bind
 import com.github.dockerjava.api.model.Device
+import com.github.dockerjava.api.model.HealthCheck
 import com.github.dockerjava.api.model.InternetProtocol
 import com.github.dockerjava.api.model.Link
 import com.github.dockerjava.api.model.PortBinding
@@ -132,9 +133,13 @@ class DockerCreateContainer extends DockerExistingImage {
     @Nested
     final HostConfig hostConfig
 
+    @Nested
+    final HealthCheckConfig healthCheck
+
     @Inject
     DockerCreateContainer(ObjectFactory objectFactory) {
         hostConfig = objectFactory.newInstance(HostConfig, objectFactory)
+        healthCheck = objectFactory.newInstance(HealthCheckConfig, objectFactory)
         portSpecs.empty()
         stdinOpen.set(false)
         stdinOnce.set(false)
@@ -172,6 +177,13 @@ class DockerCreateContainer extends DockerExistingImage {
         } else {
             envVars.set([(key): value])
         }
+    }
+
+    private static HealthCheck getOrCreateHealthCheck(CreateContainerCmd containerCommand) {
+        if (containerCommand.healthcheck == null) {
+            containerCommand.withHealthcheck(new HealthCheck())
+        }
+        return containerCommand.healthcheck
     }
 
     private void setContainerCommandConfig(CreateContainerCmd containerCommand) {
@@ -356,6 +368,28 @@ class DockerCreateContainer extends DockerExistingImage {
         if(hostConfig.sysctls.getOrNull()) {
             containerCommand.hostConfig.withSysctls(hostConfig.sysctls.get())
         }
+
+        if (healthCheck.interval.getOrNull()) {
+            getOrCreateHealthCheck(containerCommand).withInterval(healthCheck.interval.get())
+        }
+
+        if (healthCheck.timeout.getOrNull()) {
+            getOrCreateHealthCheck(containerCommand).withTimeout(healthCheck.timeout.get())
+        }
+
+        if (healthCheck.cmd.getOrNull()) {
+            String command = healthCheck.cmd.get().size() == 1 ? 'CMD-SHELL' : 'CMD'
+            List<String> test = [command] + healthCheck.cmd.get()
+            getOrCreateHealthCheck(containerCommand).withTest(test)
+        }
+
+        if (healthCheck.retries.getOrNull()) {
+            getOrCreateHealthCheck(containerCommand).withRetries(healthCheck.retries.get())
+        }
+
+        if (healthCheck.startPeriod.getOrNull()) {
+            getOrCreateHealthCheck(containerCommand).withStartPeriod(healthCheck.startPeriod.get())
+        }
     }
 
     static class ExposedPort {
@@ -532,5 +566,53 @@ class DockerCreateContainer extends DockerExistingImage {
             Map<String, String> config = [:]
         }
     }
-}
 
+    static class HealthCheckConfig {
+        /**
+         * The time to wait between checks in nanoseconds. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
+         */
+        @Input
+        @Optional
+        final Property<Long> interval
+
+        /**
+         * The time to wait before considering the check to have hung. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
+         */
+        @Input
+        @Optional
+        final Property<Long> timeout
+
+        @Input
+        @Optional
+        final ListProperty<String> cmd
+
+        /**
+         * The number of consecutive failures needed to consider a container as unhealthy. 0 means inherit.
+         */
+        @Input
+        @Optional
+        final Property<Integer> retries
+
+        /**
+         * The time to wait for container initialization before starting health-retries countdown in nanoseconds.
+         * It should be 0 or at least 1000000 (1 ms). 0 means inherit.
+         */
+        @Input
+        @Optional
+        final Property<Long> startPeriod
+
+        @Inject
+        HealthCheckConfig(ObjectFactory objectFactory) {
+            interval = objectFactory.property(Long)
+            timeout = objectFactory.property(Long)
+            cmd = objectFactory.listProperty(String)
+            cmd.empty()
+            retries = objectFactory.property(Integer)
+            startPeriod = objectFactory.property(Long)
+        }
+
+        void cmd(String shellCommand) {
+            cmd.set([shellCommand])
+        }
+    }
+}
