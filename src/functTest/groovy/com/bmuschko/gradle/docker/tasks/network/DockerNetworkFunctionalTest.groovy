@@ -6,6 +6,7 @@ import org.gradle.testkit.runner.BuildResult
 class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     private static final String IMAGE = 'alpine:3.4'
+    private static final String TEST_SUBNET = '10.11.12.0/30'
 
     def "can create and tear down a network"() {
         given:
@@ -22,7 +23,7 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
                     println 'inspectNoNetwork ' + error
                 }
             }
-            
+
             inspectNetwork.finalizedBy removeNetwork
         """
 
@@ -32,6 +33,42 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
         then:
         result.output.contains("inspectNetwork $uniqueNetworkName")
         result.output.find(/inspectNoNetwork.*network [a-z0-9]+ not found/)
+    }
+
+    def "can create and tear down a network with a specified subnet"() {
+        given:
+        String uniqueNetworkName = createUniqueNetworkName()
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
+            import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
+            import com.bmuschko.gradle.docker.tasks.network.DockerInspectNetwork
+
+            task createNetworkWithSubnet(type: DockerCreateNetwork) {
+                networkName = '$uniqueNetworkName'
+                subnet = '$TEST_SUBNET'
+            }
+
+            task removeNetworkWithSubnet(type: DockerRemoveNetwork) {
+                targetNetworkId createNetworkWithSubnet.getNetworkId()
+            }
+
+            task inspectNetworkWithSubnet(type: DockerInspectNetwork) {
+                dependsOn createNetworkWithSubnet
+                targetNetworkId createNetworkWithSubnet.getNetworkId()
+
+                onNext { network ->
+                    println 'inspectNetworkWithSubnet subnet: ' + network.getIpam().getConfig().get(0).getSubnet()
+                }
+            }
+
+            inspectNetworkWithSubnet.finalizedBy removeNetworkWithSubnet
+        """
+
+        when:
+        BuildResult result = build('inspectNetworkWithSubnet')
+
+        then:
+        result.output.contains("inspectNetworkWithSubnet subnet: $TEST_SUBNET")
     }
 
     def "can create a container and assign a network and alias"() {
@@ -50,7 +87,7 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 networkAliases = ['some-alias']
                 cmd = ['/bin/sh']
             }
-            
+
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
@@ -58,9 +95,9 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
                     println container.networkSettings.networks['$uniqueNetworkName'].aliases
                 }
             }
-            
+
             ${containerRemoveTask()}
-            
+
             inspectContainer.finalizedBy removeContainer, removeNetwork
         """
 
@@ -84,7 +121,7 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
     static String containerRemoveTask() {
         """
             import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
-            
+
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true
