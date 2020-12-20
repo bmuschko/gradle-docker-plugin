@@ -122,6 +122,9 @@ class DockerCreateContainer extends DockerExistingImage {
     @Optional
     final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
+    /**
+     * The ID of the container created. The value of this property requires the task action to be executed.
+     */
     @Internal
     final Property<String> containerId = project.objects.property(String)
 

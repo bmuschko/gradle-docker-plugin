@@ -32,7 +32,7 @@ import org.gradle.api.tasks.Input
 class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
-     * The images including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
+     * The images including repository, image name and tag to be pushed e.g. {@code vieux/apache:2.0}.
      *
      * @since 6.0.0
      */

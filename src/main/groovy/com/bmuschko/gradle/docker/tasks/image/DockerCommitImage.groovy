@@ -60,6 +60,9 @@ class DockerCommitImage extends DockerExistingContainer {
     @Optional
     final Property<Boolean> attachStdin = project.objects.property(Boolean)
 
+    /**
+     * The ID of the image committed. The value of this property requires the task action to be executed.
+     */
     @Internal
     final Property<String> imageId = project.objects.property(String)
 

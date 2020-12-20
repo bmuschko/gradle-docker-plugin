@@ -17,7 +17,7 @@ import java.util.zip.GZIPOutputStream
 class DockerSaveImage extends AbstractDockerRemoteApiTask {
 
     /**
-     * The image including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
+     * The image including repository, image name and tag to be saved e.g. {@code vieux/apache:2.0}.
      *
      * @since 6.0.0
      */

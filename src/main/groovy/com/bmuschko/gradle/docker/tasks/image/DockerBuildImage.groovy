@@ -62,7 +62,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final RegularFileProperty dockerFile = project.objects.fileProperty()
 
     /**
-     * The images including repository, image name and tag used e.g. {@code vieux/apache:2.0}.
+     * The images including repository, image name and tag to be built e.g. {@code vieux/apache:2.0}.
      *
      * @since 6.0.0
      */
@@ -190,7 +190,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final RegularFileProperty imageIdFile = project.objects.fileProperty()
 
     /**
-     * The id of the image built.
+     * The ID of the image built. The value of this property requires the task action to be executed.
      */
     @Internal
     final Property<String> imageId = project.objects.property(String)
