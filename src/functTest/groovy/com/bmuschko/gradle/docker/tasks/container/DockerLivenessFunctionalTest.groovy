@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Unroll
 
+@Deprecated(forRemoval = true)
 class DockerLivenessFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Can start a container and probe it for liveness"() {

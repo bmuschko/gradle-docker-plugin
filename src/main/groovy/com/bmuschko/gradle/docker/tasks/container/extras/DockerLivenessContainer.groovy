@@ -31,7 +31,10 @@ import static com.bmuschko.gradle.docker.internal.IOUtils.getProgressLogger
 /**
  *  Poll a given running container for an arbitrary log message to confirm liveness. If a livenessProbe is
  *  NOT defined then we fallback to check if the container is in a running state.
+ *
+ *  @deprecated To be removed with the next major version without replacement
  */
+@Deprecated(forRemoval = true)
 class DockerLivenessContainer extends DockerLogsContainer {
 
     @Nested

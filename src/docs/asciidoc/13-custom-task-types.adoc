@@ -69,6 +69,8 @@ The plugin provides the following custom task types for managing networks:
 
 ==== Extras
 
+icon:tags[role="red"] deprecated
+
 The plugin provides the following additional tasks:
 
 [options="header"]

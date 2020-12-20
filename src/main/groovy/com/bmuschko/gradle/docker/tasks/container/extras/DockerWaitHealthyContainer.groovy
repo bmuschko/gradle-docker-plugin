@@ -24,7 +24,11 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+/**
+ * @deprecated To be removed with the next major version without replacement
+ */
 @CompileStatic
+@Deprecated(forRemoval = true)
 class DockerWaitHealthyContainer extends DockerExistingContainer {
 
     /**
