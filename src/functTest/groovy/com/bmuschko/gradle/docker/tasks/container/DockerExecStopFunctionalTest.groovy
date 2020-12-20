@@ -3,6 +3,7 @@ package com.bmuschko.gradle.docker.tasks.container
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
+@Deprecated(forRemoval = true)
 class DockerExecStopFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Can start a container and then successfully exec-stop it"() {

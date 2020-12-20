@@ -20,6 +20,7 @@ import org.gradle.testkit.runner.BuildResult
 import spock.lang.Ignore
 import spock.lang.PendingFeature
 
+@Deprecated(forRemoval = true)
 class DockerWaitHealthyContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Wait for a container to be healthy"() {

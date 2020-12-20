@@ -35,8 +35,11 @@ import static com.bmuschko.gradle.docker.internal.IOUtils.getProgressLogger
  *  stop the container from within. We will then poll for a given amount of time
  *  to check if the container is stopped and if not then attempt to issue a stop
  *  command on the container.
+ *
+ *  @deprecated To be removed with the next major version without replacement
  */
 @CompileStatic
+@Deprecated(forRemoval = true)
 class DockerExecStopContainer extends DockerExecContainer {
 
     @Nested
