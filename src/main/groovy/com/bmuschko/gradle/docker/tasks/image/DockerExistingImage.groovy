@@ -20,6 +20,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskProvider
 
 import java.util.concurrent.Callable
 
@@ -37,6 +38,7 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
      * @param imageId Image ID or name
      * @see #targetImageId(Callable)
      * @see #targetImageId(Provider)
+     * @see #targetImageId(TaskProvider)
      */
     void targetImageId(String imageId) {
         this.imageId.set(imageId)
@@ -48,6 +50,7 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
      * @param imageId Image ID or name as Callable
      * @see #targetImageId(String)
      * @see #targetImageId(Provider)
+     * @see #targetImageId(TaskProvider)
      */
     void targetImageId(Callable<String> imageId) {
         targetImageId(project.provider(imageId))
@@ -59,8 +62,27 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
      * @param imageId Image ID or name as Provider
      * @see #targetImageId(String)
      * @see #targetImageId(Callable)
+     * @see #targetImageId(TaskProvider)
      */
     void targetImageId(Provider<String> imageId) {
         this.imageId.set(imageId)
+    }
+
+    /**
+     * Sets the target image ID or name lazily as derived from the given build task.
+     *
+     * The image ID will be used if available, otherwise the first image name.
+     *
+     * @param buildImageTask a DockerBuildImage task as a TaskProvider
+     * @see #targetImageId(String)
+     * @see #targetImageId(Callable)
+     * @see #targetImageId(Provider)
+     */
+    void targetImageId(TaskProvider<DockerBuildImage> buildImageTask) {
+        targetImageId(buildImageTask.flatMap { DockerBuildImage buildTask ->
+            project.provider({
+                buildTask.imageId.getOrNull() ?: buildTask.images.get().first()
+            } as Callable<String>)
+        })
     }
 }
