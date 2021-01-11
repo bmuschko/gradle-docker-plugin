@@ -1,6 +1,15 @@
 == Change Log
 
 [discrete]
+=== v6.7.0 (January 10, 2021)
+
+* Turn on RegistryAuthLocator for Windows - {uri-github}/pull/974[PR 974]
+* Handle missing ServerURL from auth helper response - {uri-github}/pull/959[PR 959]
+* Add support for health check in DockerCreateContainer custom task - {uri-github}/pull/978[PR 978]
+* Deprecate extra tasks - {uri-github}/pull/981[PR 981]
+* Remove Netty exec factory support - {uri-github}/pull/963[PR 963]
+
+[discrete]
 === v6.6.1 (July 29, 2020)
 
 * Mapping of DSL property images should propagate down to build and push task in convention plugins - {uri-github}/pull/956[PR 956]
