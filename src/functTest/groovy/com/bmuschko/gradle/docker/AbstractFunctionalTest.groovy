@@ -1,5 +1,7 @@
 package com.bmuschko.gradle.docker
 
+import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows;
+
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
@@ -24,8 +26,7 @@ abstract class AbstractFunctionalTest extends Specification {
         projectDir = temporaryFolder.root
         buildFile = temporaryFolder.newFile(getBuildFileName())
         settingsFile = temporaryFolder.newFile(getSettingsFileName())
-        if (
-        OsUtils.isWindows()) {
+        if (isWindows()) {
             envVars.put("PATH", System.getenv("PATH"))
         }
     }
