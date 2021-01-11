@@ -378,8 +378,11 @@ class RegistryAuthLocator {
         }
         logger.debug('Credential helper provided auth config for: {}', hostName)
 
+        // If the ServerURL field is not returned by the helper, fall back to the provided hostname
+        String registryAddress = helperResponse.ServerURL ?: hostName
+
         return new AuthConfig()
-                .withRegistryAddress(helperResponse.ServerURL)
+                .withRegistryAddress(registryAddress)
                 .withUsername(helperResponse.Username)
                 .withPassword(helperResponse.Secret)
     }

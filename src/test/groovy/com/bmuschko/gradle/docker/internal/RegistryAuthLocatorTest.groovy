@@ -63,6 +63,23 @@ class RegistryAuthLocatorTest extends Specification {
         0 * logger.error(*_)
     }
 
+    def "AuthLocator works when helper returns no server URL (#955)"() {
+        given:
+        RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-with-store-no-server-url.json')
+
+        when:
+        AuthConfig config = locator.lookupAuthConfigWithDefaultAuthConfig('registry.example.com/org/repo')
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs()
+
+        then:
+        config.getRegistryAddress() == 'registry.example.com'
+        config.getUsername() == 'username'
+        config.getPassword() == 'secret'
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get("registry.example.com") == config
+        0 * logger.error(*_)
+    }
+
     def "AuthLocator works using auth"() {
         given:
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-auth.json')
