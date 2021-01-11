@@ -4,6 +4,7 @@ import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import org.gradle.api.logging.Logger
 import spock.lang.IgnoreIf
+import spock.lang.Issue
 import spock.lang.Specification
 
 @IgnoreIf({ os.windows })
@@ -63,7 +64,8 @@ class RegistryAuthLocatorTest extends Specification {
         0 * logger.error(*_)
     }
 
-    def "AuthLocator works when helper returns no server URL (#955)"() {
+    @Issue('https://github.com/bmuschko/gradle-docker-plugin/issues/955')
+    def "AuthLocator works when helper returns no server URL"() {
         given:
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-with-store-no-server-url.json')
 
