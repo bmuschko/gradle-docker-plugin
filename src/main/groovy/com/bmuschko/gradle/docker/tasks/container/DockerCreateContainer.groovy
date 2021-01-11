@@ -570,6 +570,9 @@ class DockerCreateContainer extends DockerExistingImage {
         }
     }
 
+    /**
+     * @since 6.7.0
+     */
     static class HealthCheckConfig {
         /**
          * The time to wait between checks in nanoseconds. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
