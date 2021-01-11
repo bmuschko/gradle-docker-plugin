@@ -43,7 +43,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 onNext { info ->
                     if (info.hostConfig.groupAdd != ['postgres']) {
                         throw new GradleException("Additional group not found!")
-                    } 
+                    }
                 }
             }
         """
@@ -73,7 +73,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 onNext { info ->
                     if (!info.hostConfig.binds.find { it.path == '/tmp' && it.volume.path == '/testdata' }) {
                         throw new GradleException("Bind not found")
-                    } 
+                    }
                 }
             }
         """
@@ -112,10 +112,10 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn pullImage
                 targetImageId pullImage.getImage()
                 cmd = ['env']
-                
+
                 // add by appending new map to current map
                 envVars.set(['one' : 'two', 'three' : 'four'])
-                
+
                 // add by calling helper method N number of times
                 withEnvVar('five', 'six')
                 withEnvVar('seven', 'eight')
@@ -157,7 +157,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 targetContainerId startContainer.getContainerId()
                 onError { err -> throw err }
                 doFirst {
-                    // Presumably removing a stopped container doesn't happen immediately  
+                    // Presumably removing a stopped container doesn't happen immediately
                     Thread.sleep(2000)
                 }
             }
@@ -226,7 +226,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 finalizedBy stopContainer
 
                 targetContainerId startContainer.getContainerId()
-                
+
                 onNext { container ->
                     container.networkSettings.ports.bindings.forEach { exposedPort, bindings ->
                         logger.quiet "$exposedPort.port -> ${bindings.first().hostPortSpec}"
@@ -246,6 +246,72 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         exposedPorts.every {
             buildResult.output.find(/$it -> \d+/) != null
         }
+    }
+
+    def "with health check command set as one string, CMD-SHELL should be used"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImage()
+
+                healthCheck.cmd('exit 0')
+            }
+        """
+
+        String containerInspect = '''
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+
+                onNext { container ->
+                    if (container.config.healthcheck.test.first() != 'CMD-SHELL') {
+                        throw new GradleException("Test does not start with CMD-SHELL: $container.config.healthcheck.test")
+                    }
+                }
+            }
+        '''
+
+        buildFile << containerStart(containerCreationTask)
+        buildFile << containerRemove()
+        buildFile << containerInspect
+
+        expect:
+        build('inspectContainer')
+    }
+
+    def "with health check command set as array, CMD should be used"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImage()
+
+                healthCheck.cmd.set(['exit', '0'])
+            }
+        """
+
+        String containerInspect = '''
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+
+                onNext { container ->
+                    if (container.config.healthcheck.test.first() != 'CMD') {
+                        throw new GradleException("Test does not start with CMD: $container.config.healthcheck.test")
+                    }
+                }
+            }
+        '''
+
+        buildFile << containerStart(containerCreationTask)
+        buildFile << containerRemove()
+        buildFile << containerInspect
+
+        expect:
+        build('inspectContainer')
     }
 
     static String containerStart(String containerCreationTask) {
