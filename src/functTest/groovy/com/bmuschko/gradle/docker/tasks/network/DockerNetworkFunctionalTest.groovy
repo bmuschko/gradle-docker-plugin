@@ -45,7 +45,9 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task createNetworkWithSubnet(type: DockerCreateNetwork) {
                 networkName = '$uniqueNetworkName'
-                subnet = '$TEST_SUBNET'
+                ipam.config = [
+                    [subnet : '$TEST_SUBNET']
+                ]
             }
 
             task removeNetworkWithSubnet(type: DockerRemoveNetwork) {
