@@ -52,6 +52,7 @@ class DockerListImagesFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         expect:
         build('listImages')
+
     }
 
     def "can list images with image name filter"() {
@@ -63,6 +64,7 @@ class DockerListImagesFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
                 onNext { images ->
                     if(!images.every { image -> image.repoTags.contains("${IMAGE_ID}:latest") }) {
+                        logger.error("Retuned images: {}", images)
                         throw new GradleException("should only find the image from setup")
                     }
                 }
@@ -109,11 +111,11 @@ class DockerListImagesFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 images.add("${IMAGE_ID}")
                 labels = ["setup":"${IMAGE_ID}"]
             }
-            
+
             task removeImage(type: DockerRemoveImage) {
                 targetImageId buildImage.imageId
             }
-            
+
             task listImages(type: DockerListImages) {
                 dependsOn buildImage
                 finalizedBy removeImage
