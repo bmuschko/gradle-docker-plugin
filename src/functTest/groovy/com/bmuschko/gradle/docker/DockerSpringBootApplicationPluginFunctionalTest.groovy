@@ -193,7 +193,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
                     images = expectedImages
                 }
             }
-            
+
             task verify {
                 doLast {
                     assert dockerBuildImage.images.get() == expectedImages
@@ -230,7 +230,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
             targetCompatibility = 8
 
             repositories {
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {

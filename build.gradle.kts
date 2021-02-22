@@ -19,10 +19,6 @@ plugins {
 
 group = "com.bmuschko"
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     shaded("com.github.docker-java:docker-java:3.2.5")
     shaded("com.github.docker-java:docker-java-transport-httpclient5:3.2.5")
