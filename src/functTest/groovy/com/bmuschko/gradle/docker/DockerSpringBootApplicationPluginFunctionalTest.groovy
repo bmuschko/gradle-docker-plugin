@@ -230,7 +230,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
             targetCompatibility = 8
 
             repositories {
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {

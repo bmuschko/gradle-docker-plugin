@@ -20,7 +20,7 @@ plugins {
 group = "com.bmuschko"
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {

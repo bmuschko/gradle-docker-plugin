@@ -30,7 +30,7 @@ abstract class AbstractGroovyDslFunctionalTest extends AbstractFunctionalTest {
             }
 
             repositories {
-                jcenter()
+                mavenCentral()
             }
         """
 
