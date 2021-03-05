@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v7.0.0 (TBA)
+
+* Change source and target compatibility of plugin to Java 11
+
+[discrete]
 === v6.7.0 (January 10, 2021)
 
 * Turn on RegistryAuthLocator for Windows - {uri-github}/pull/974[PR 974]
