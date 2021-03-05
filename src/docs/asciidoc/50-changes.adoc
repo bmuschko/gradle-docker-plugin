@@ -4,6 +4,7 @@
 === v7.0.0 (TBA)
 
 * Change source and target compatibility of plugin to Java 11
+* Correct method signature of `Dockerfile.addFile(Dockerfile.File file)` - {uri-github}/issues/990[Issue 990]
 
 [discrete]
 === v6.7.0 (January 10, 2021)
