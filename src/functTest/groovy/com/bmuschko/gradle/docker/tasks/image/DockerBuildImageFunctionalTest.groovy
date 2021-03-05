@@ -31,7 +31,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         def result = buildAndFail('buildImage')
 
         then:
-        result.output.contains("aaa: no such file or directory")
+        result.output.contains("ADD failed: file not found in build context or excluded by .dockerignore: stat aaa: file does not exist")
     }
 
     def "can build image"() {
