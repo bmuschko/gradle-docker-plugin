@@ -543,7 +543,7 @@ class Dockerfile extends DefaultTask {
      * @see #addFile(String, String)
      * @see #addFile(Provider)
      */
-    void addFile(File file) {
+    void addFile(Dockerfile.File file) {
         instructions.add(new AddFileInstruction(file))
     }
 
