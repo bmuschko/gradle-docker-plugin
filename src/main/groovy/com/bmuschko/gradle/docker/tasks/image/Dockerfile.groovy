@@ -187,7 +187,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     instruction(project.provider(new Callable<String>() {
+     *     instruction(project.provider(new Callable&#60;String&#62;() {
      *         {@literal @}Override
      *         String call() throws Exception {
      *             'FROM ubuntu:14.04'
@@ -252,7 +252,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     from(project.provider(new Callable<Dockerfile.From>() {
+     *     from(project.provider(new Callable&#60;Dockerfile.From&#62;() {
      *         {@literal @}Override
      *         Dockerfile.From call() throws Exception {
      *             new Dockerfile.From('ubuntu:14.04')
@@ -295,7 +295,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     arg(project.provider(new Callable<String>() {
+     *     arg(project.provider(new Callable&#60;String&#62;() {
      *         {@literal @}Override
      *         String call() throws Exception {
      *             'user1=someuser'
@@ -338,7 +338,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     runCommand(project.provider(new Callable<String>() {
+     *     runCommand(project.provider(new Callable&#60;String&#62;() {
      *         {@literal @}Override
      *         String call() throws Exception {
      *             '/bin/bash -c echo hello'
@@ -381,9 +381,9 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     defaultCommand(project.provider(new Callable<List<String>>() {
+     *     defaultCommand(project.provider(new Callable&#60;List&#60;String&#62;&#62;() {
      *         {@literal @}Override
-     *         List<String> call() throws Exception {
+     *         List&#60;String&#62; call() throws Exception {
      *             ['/usr/bin/wc', '--help']
      *         }
      *     }))
@@ -424,9 +424,9 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     exposePort(project.provider(new Callable<List<Integer>>() {
+     *     exposePort(project.provider(new Callable&#60;List&#60;Integer&#62;&#62;() {
      *         {@literal @}Override
-     *         List<Integer> call() throws Exception {
+     *         List&#60;Integer&#62; call() throws Exception {
      *             [8080, 9090]
      *         }
      *     }))
@@ -488,9 +488,9 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     environmentVariable(project.provider(new Callable<Map<String, String>>() {
+     *     environmentVariable(project.provider(new Callable&#60;Map&#60;String, String&#62;&#62;() {
      *         {@literal @}Override
-     *         Map<String, String> call() throws Exception {
+     *         Map&#60;String, String&#62; call() throws Exception {
      *             ['myName': 'John Doe']
      *         }
      *     }))
@@ -554,7 +554,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     addFile(project.provider(new Callable<Dockerfile.File>() {
+     *     addFile(project.provider(new Callable&#60;Dockerfile.File&#62;() {
      *         {@literal @}Override
      *         Dockerfile.File call() throws Exception {
      *             new Dockerfile.File('test', '/absoluteDir/')
@@ -620,7 +620,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     copyFile(project.provider(new Callable<Dockerfile.CopyFile>() {
+     *     copyFile(project.provider(new Callable&#60;Dockerfile.CopyFile&#62;() {
      *         {@literal @}Override
      *         Dockerfile.CopyFile call() throws Exception {
      *             new Dockerfile.CopyFile('test', '/absoluteDir/')
@@ -664,9 +664,9 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     entryPoint(project.provider(new Callable<List<String>>() {
+     *     entryPoint(project.provider(new Callable&#60;List&#60;String&#62;&#62;() {
      *         {@literal @}Override
-     *         List<String> call() throws Exception {
+     *         List&#60;String&#62; call() throws Exception {
      *             ['top', '-b']
      *         }
      *     }))
@@ -707,9 +707,9 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     volume(project.provider(new Callable<List<String>>() {
+     *     volume(project.provider(new Callable&#60;List&#60;String&#62;&#62;() {
      *         {@literal @}Override
-     *         List<String> call() throws Exception {
+     *         List&#60;String&#62; call() throws Exception {
      *             ['/myvol']
      *         }
      *     }))
@@ -750,7 +750,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     user(project.provider(new Callable<String>() {
+     *     user(project.provider(new Callable&#60;String&#62;() {
      *         {@literal @}Override
      *         String call() throws Exception {
      *             'patrick'
@@ -793,7 +793,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     workingDir(project.provider(new Callable<String>() {
+     *     workingDir(project.provider(new Callable&#60;String&#62;() {
      *         {@literal @}Override
      *         String call() throws Exception {
      *             '/path/to/workdir'
@@ -836,7 +836,7 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     onBuild(project.provider(new Callable<String>() {
+     *     onBuild(project.provider(new Callable&#60;String&#62;() {
      *         {@literal @}Override
      *         String call() throws Exception {
      *             'ADD . /app/src'
@@ -878,9 +878,9 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     label(project.provider(new Callable<Map<String, String>>() {
+     *     label(project.provider(new Callable&#60;Map&#60;String, String&#62;&#62;() {
      *         {@literal @}Override
-     *         Map<String, String> call() throws Exception {
+     *         Map&#60;String, String&#62; call() throws Exception {
      *             ['version': '1.0']
      *         }
      *     }))
