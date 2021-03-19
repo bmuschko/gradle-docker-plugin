@@ -520,7 +520,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param src The source path
      * @param dest The destination path
-     * @see #addFile(File)
+     * @see #addFile(Dockerfile.File)
      * @see #addFile(Provider)
      */
     void addFile(String src, String dest) {
@@ -539,7 +539,7 @@ class Dockerfile extends DefaultTask {
      * }
      * </pre>
      *
-     * @param file File definition
+     * @param file Dockerfile.File definition
      * @see #addFile(String, String)
      * @see #addFile(Provider)
      */
@@ -565,7 +565,7 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Add instruction as Provider
      * @see #addFile(String, String)
-     * @see #addFile(File)
+     * @see #addFile(Dockerfile.File)
      * @since 4.0.0
      */
     void addFile(Provider<Dockerfile.File> provider) {
@@ -605,7 +605,7 @@ class Dockerfile extends DefaultTask {
      * }
      * </pre>
      *
-     * @param file File definition
+     * @param file CopyFile definition
      * @see #copyFile(String, String)
      * @see #copyFile(Provider)
      */
@@ -1118,9 +1118,9 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * An instruction whose value is a File.
+     * An instruction whose value is a Dockerfile.File.
      */
-    static abstract class FileInstruction<T extends File> implements Instruction {
+    static abstract class FileInstruction<T extends Dockerfile.File> implements Instruction {
         private final T file
         private final Provider<T> provider
 
@@ -1352,14 +1352,14 @@ class Dockerfile extends DefaultTask {
     /**
      * Represents a {@code ADD} instruction.
      */
-    static class AddFileInstruction extends FileInstruction<File> {
+    static class AddFileInstruction extends FileInstruction<Dockerfile.File> {
         public static final String KEYWORD = 'ADD'
 
-        AddFileInstruction(File file) {
+        AddFileInstruction(Dockerfile.File file) {
             super(file)
         }
 
-        AddFileInstruction(Provider<File> provider) {
+        AddFileInstruction(Provider<Dockerfile.File> provider) {
             super(provider)
         }
 
@@ -1630,7 +1630,7 @@ class Dockerfile extends DefaultTask {
      *
      * @since 5.0.0
      */
-    static class CopyFile extends File {
+    static class CopyFile extends Dockerfile.File {
         @Nullable
         private String stage
 
