@@ -1,6 +1,6 @@
 === Provided Plugins
 
-The binary distribution is available on the https://plugins.gradle.org/search?term=com.bmuschko.docker[Gradle plugin portal], https://bintray.com/bmuschko/gradle-plugins/com.bmuschko%3Agradle-docker-plugin[Bintray's JCenter] and https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.bmuschko%22%20AND%20a%3A%22gradle-docker-plugin%22[Maven Central].
+The binary distribution is available on the https://plugins.gradle.org/search?term=com.bmuschko.docker[Gradle plugin portal], and https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.bmuschko%22%20AND%20a%3A%22gradle-docker-plugin%22[Maven Central].
 It contains the following plugins:
 
 [options="header"]
