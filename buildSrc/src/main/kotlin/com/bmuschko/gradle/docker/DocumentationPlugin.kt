@@ -25,7 +25,7 @@ class DocumentationPlugin : Plugin<Project> {
 
     private
     fun Project.addLinks() {
-        val javaApiUrl = "https://docs.oracle.com/javase/8/docs/api/"
+        val javaApiUrl = "https://docs.oracle.com/en/java/javase/11/docs/api"
         val groovyApiUrl = "http://docs.groovy-lang.org/2.5.4/html/gapi/"
         val gradleApiUrl = "https://docs.gradle.org/${project.gradle.gradleVersion}/javadoc/"
 
@@ -50,10 +50,21 @@ class DocumentationPlugin : Plugin<Project> {
             branch = "gh-pages"
 
             contents {
-                from(groovydoc) {
-                    into("api")
+                preserve {
+                    include("**/*")
                 }
-                from("${asciidoctor.outputDir}/html5")
+                from(groovydoc) {
+                    into("current/api")
+                }
+                from(groovydoc) {
+                    into("${version.toString()}/api")
+                }
+                from("${asciidoctor.outputDir}/html5") {
+                    into("current/user-guide")
+                }
+                from("${asciidoctor.outputDir}/html5") {
+                    into("${version.toString()}/user-guide")
+                }
             }
         }
     }
