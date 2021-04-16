@@ -59,10 +59,6 @@ gradlePlugin {
             id = "com.bmuschko.gradle.docker.documentation"
             implementationClass = "com.bmuschko.gradle.docker.DocumentationPlugin"
         }
-        register("publishing-plugin") {
-            id = "com.bmuschko.gradle.docker.publishing"
-            implementationClass = "com.bmuschko.gradle.docker.PublishingPlugin"
-        }
         register("release-plugin") {
             id = "com.bmuschko.gradle.docker.release"
             implementationClass = "com.bmuschko.gradle.docker.ReleasePlugin"

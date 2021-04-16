@@ -18,9 +18,9 @@ The https://github.com/ajoberstar/gradle-git-publish[gradle-git-publish] Gradle 
 
 https://github.com/features/actions[GitHub Actions] service is used as our current https://en.wikipedia.org/wiki/CI/CD[CI/CD] server. Build and deploy jobs are configured in the {uri-github}/blob/master/.github/workflows[.github/workflows] directory. Please refer its https://help.github.com/en/actions[documentation] for more details.
 
-===== Bintray's JCenter
+===== Gradle Plugin Portal
 
-https://bintray.com[Bintray's JCenter] service is used to publish plugin versions. The https://github.com/bintray/gradle-bintray-plugin[Bintray plugin] uploads artifacts to a remote repository. The plugin configuration can be found in the {uri-github}/blob/master/buildSrc/src/main/kotlin/com/bmuschko/gradle/docker/PublishingPlugin.kt[PublishingPlugin.kt] file.
+https://plugins.gradle.org/[The Gradle Plugin Portal] service is used to publish plugin versions. The https://plugins.gradle.org/plugin/com.gradle.plugin-publish[Plugin Publishing Plugin] uploads artifacts to a remote repository.
 
 ==== Workflow
 

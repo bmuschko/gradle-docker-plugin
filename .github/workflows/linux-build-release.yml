@@ -52,10 +52,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: eskatos/gradle-command-action@v1
         env:
-          BINTRAY_USER: bmuschko
-          BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
-          MAVEN_CENTRAL_USER_TOKEN: ${{ secrets.MAVEN_CENTRAL_USER_TOKEN }}
-          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          PLUGIN_PORTAL_KEY: ${{ secrets.PLUGIN_PORTAL_KEY }}
+          PLUGIN_PORTAL_SECRET: ${{ secrets.PLUGIN_PORTAL_SECRET }}
         with:
-          arguments: bintrayUpload gitPublishPush -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GH_TOKEN }} -is
+          arguments: publishPlugins gitPublishPush -Pgradle.publish.key=${{ secrets.PLUGIN_PORTAL_KEY }} -Pgradle.publish.secret=${{ secrets.PLUGIN_PORTAL_SECRET }} -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GH_TOKEN }} -is
