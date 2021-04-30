@@ -11,6 +11,7 @@
 * **Breaking Change!** Upgrade to Docker Java 3.2.8 - {uri-github}/pull/1006[PR 1005]
 * **Breaking Change!** Remove extra tasks - {uri-github}/pull/1004[PR 1004]
 * Publish plugin artifacts Gradle Plugin Portal instead of Bintray JCenter - {uri-github}/pull/1001[PR 1001]
+* Explicitly spell out fully qualified class references to inner classes `Dockerfile.File` and `Dockerfile.CopyFile` - {uri-github}/pull/997[PR 997]
 
 [discrete]
 === v6.7.0 (January 10, 2021)
