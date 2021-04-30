@@ -54,20 +54,20 @@ gradlePlugin {
     plugins {
         create("docker-remote-api") {
             id = "com.bmuschko.docker-remote-api"
-            displayName = 'Gradle Docker Remote API Plugin'
-            description = 'Plugin that provides tasks for interacting with Docker via its remote API.'
+            displayName = "Gradle Docker Remote API Plugin"
+            description = "Plugin that provides tasks for interacting with Docker via its remote API."
             implementationClass = "com.bmuschko.gradle.docker.DockerRemoteApiPlugin"
         }
         create("docker-java-application") {
             id = "com.bmuschko.docker-java-application"
-            displayName = 'Gradle Docker Java Application Plugin'
-            description = 'Plugin that provides conventions for building and publishing Docker images for Java applications.'
+            displayName = "Gradle Docker Java Application Plugin"
+            description = "Plugin that provides conventions for building and publishing Docker images for Java applications."
             implementationClass = "com.bmuschko.gradle.docker.DockerJavaApplicationPlugin"
         }
         create("docker-spring-boot-application") {
             id = "com.bmuschko.docker-spring-boot-application"
-            displayName = 'Gradle Docker Spring Boot Application Plugin'
-            description = 'Plugin that provides conventions for building and publishing Docker images for Spring Boot applications.'
+            displayName = "Gradle Docker Spring Boot Application Plugin"
+            description = "Plugin that provides conventions for building and publishing Docker images for Spring Boot applications."
             implementationClass = "com.bmuschko.gradle.docker.DockerSpringBootApplicationPlugin"
         }
     }
