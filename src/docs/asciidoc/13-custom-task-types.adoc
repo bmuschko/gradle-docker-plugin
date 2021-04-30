@@ -66,17 +66,3 @@ The plugin provides the following custom task types for managing networks:
 |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/network/DockerInspectNetwork.html[DockerInspectNetwork] |Returns low-level information on the network.
 |{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/network/DockerRemoveNetwork.html[DockerRemoveNetwork]   |Removes the network.
 |=======
-
-==== Extras
-
-icon:tags[role="red"] deprecated
-
-The plugin provides the following additional tasks:
-
-[options="header"]
-|=======
-|Type                                                                                                                                                                             |Description
-|{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/container/extras/DockerExecStopContainer.html[DockerExecStopContainer] |Shut down container with cmd, polling for it to enter a non-running state, and if that does not succeed in time issue stop request.
-|{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/container/extras/DockerLivenessContainer.html[DockerLivenessContainer] |Polls an arbitrary containers logs for a message indicating liveness.
-|{uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/container/extras/DockerWaitHealthyContainer.html[DockerWaitHealthyContainer] |Blocks until the container for a given id becomes https://docs.docker.com/engine/reference/builder/#healthcheck[healthy].
-|=======
