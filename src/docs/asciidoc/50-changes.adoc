@@ -3,10 +3,14 @@
 [discrete]
 === v7.0.0 (TBA)
 
-* Change source and target compatibility of plugin to Java 11
-* Correct method signature of `Dockerfile.addFile(Dockerfile.File file)` - {uri-github}/issues/990[Issue 990]
+* **Breaking Change!** Change source and target compatibility of plugin to Java 11
+* **Breaking Change!** Correct method signature of `Dockerfile.addFile(Dockerfile.File file)` - {uri-github}/issues/990[Issue 990]
 * Preserve documentation per version - {uri-github}/pull/998[PR 998]
 * Upgrade ASM for JDK 16 support - {uri-github}/pull/1002[PR 1002]
+* **Breaking Change!** Upgrade image to Java 11 for convention plugins - {uri-github}/pull/1006[PR 1005]
+* **Breaking Change!** Upgrade to Docker Java 3.2.8 - {uri-github}/pull/1006[PR 1005]
+* **Breaking Change!** Remove extra tasks - {uri-github}/pull/1004[PR 1004]
+* Publish plugin artifacts Gradle Plugin Portal instead of Bintray JCenter - {uri-github}/pull/1001[PR 1001]
 
 [discrete]
 === v6.7.0 (January 10, 2021)
