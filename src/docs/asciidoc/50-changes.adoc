@@ -1,7 +1,7 @@
 == Change Log
 
 [discrete]
-=== v7.0.0 (TBA)
+=== v7.0.0 (May 2, 2021)
 
 * **Breaking Change!** Change source and target compatibility of plugin to Java 11
 * **Breaking Change!** Correct method signature of `Dockerfile.addFile(Dockerfile.File file)` - {uri-github}/issues/990[Issue 990]
