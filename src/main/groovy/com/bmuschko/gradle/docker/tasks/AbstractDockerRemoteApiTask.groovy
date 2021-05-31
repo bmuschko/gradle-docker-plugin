@@ -20,8 +20,8 @@ import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.internal.RegistryAuthLocator
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.core.DefaultDockerClientConfig
-import com.github.dockerjava.core.DockerClientBuilder
 import com.github.dockerjava.core.DockerClientConfig
+import com.github.dockerjava.core.DockerClientImpl
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
@@ -178,9 +178,10 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
                 .dockerHost(config.getDockerHost())
                 .sslConfig(config.getSSLConfig())
                 .build()
-        DockerClientBuilder.getInstance(config)
-                .withDockerHttpClient(dockerClient)
-                .build()
+        DockerClientImpl.getInstance(
+            config,
+            dockerClient
+        )
     }
 
     /**
