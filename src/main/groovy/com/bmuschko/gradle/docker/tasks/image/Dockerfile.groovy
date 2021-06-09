@@ -172,6 +172,12 @@ class Dockerfile extends DefaultTask {
      *     instruction('LABEL maintainer=benjamin.muschko@gmail.com')
      * }
      * </pre>
+     * The produced instructions look as follows:
+     * <p>
+     * <pre>
+     * FROM ubuntu:14.04
+     * LABEL maintainer=benjamin.muschko{@literal @}gmail.com
+     * </pre>
      *
      * @param instruction Instruction as String
      * @see #instruction(Provider)
@@ -195,6 +201,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * FROM ubuntu:14.04
+     * </pre>
      *
      * @param provider Instruction as Provider
      * @see #instruction(String)
@@ -215,6 +226,11 @@ class Dockerfile extends DefaultTask {
      *     from('ubuntu:14.04')
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * FROM ubuntu:14.04
+     * </pre>
      *
      * @param from From definition
      * @see #from(From)
@@ -234,6 +250,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     from(new From('ubuntu:14.04'))
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * FROM ubuntu:14.04
      * </pre>
      *
      * @param from From definition
@@ -260,6 +281,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * FROM ubuntu:14.04
+     * </pre>
      *
      * @param provider From information as Provider
      * @see #from(From)
@@ -280,6 +306,11 @@ class Dockerfile extends DefaultTask {
      *     arg('user1=someuser')
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ARG user1=someuser
+     * </pre>
      *
      * @param arg Argument to pass, possibly with default value.
      * @see #arg(Provider)
@@ -289,7 +320,7 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * A <a href="https://docs.docker.com/engine/reference/builder/#arg">ARG instruction</a> as Provider.
+     * An <a href="https://docs.docker.com/engine/reference/builder/#arg">ARG instruction</a> as Provider.
      * <p>
      * Example in Groovy DSL:
      * <p>
@@ -302,6 +333,11 @@ class Dockerfile extends DefaultTask {
      *         }
      *     }))
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ARG user1=someuser
      * </pre>
      *
      * @param provider Argument to pass as Provider
@@ -322,6 +358,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     runCommand('/bin/bash -c echo hello')
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * RUN /bin/bash -c echo hello
      * </pre>
      *
      * @param command Command
@@ -346,6 +387,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * RUN /bin/bash -c echo hello
+     * </pre>
      *
      * @param provider Command as Provider
      * @see #runCommand(String)
@@ -365,6 +411,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     defaultCommand('/usr/bin/wc', '--help')
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * CMD ["/usr/bin/wc", "--help"]
      * </pre>
      *
      * @param command Command
@@ -389,6 +440,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * CMD ["/usr/bin/wc", "--help"]
+     * </pre>
      *
      * @param provider Command as Provider
      * @see #defaultCommand(String...)
@@ -408,6 +464,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     exposePort(8080, 9090)
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * EXPOSE 8080 9090
      * </pre>
      *
      * @param ports Ports
@@ -432,6 +493,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * EXPOSE 8080 9090
+     * </pre>
      *
      * @param ports Ports as Provider
      * @see #exposePort(Integer...)
@@ -449,8 +515,13 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     environmentVariable('myName', 'John Doe')
+     *     environmentVariable('MY_NAME', 'John Doe')
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ENV MY_NAME=John Doe
      * </pre>
      *
      * @param key Key
@@ -469,8 +540,13 @@ class Dockerfile extends DefaultTask {
      * <p>
      * <pre>
      * task createDockerfile(type: Dockerfile) {
-     *     environmentVariable(['myName': 'John Doe'])
+     *     environmentVariable(['MY_NAME': 'John Doe'])
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ENV MY_NAME=John Doe
      * </pre>
      *
      * @param envVars Environment variables
@@ -491,10 +567,15 @@ class Dockerfile extends DefaultTask {
      *     environmentVariable(project.provider(new Callable&#60;Map&#60;String, String&#62;&#62;() {
      *         {@literal @}Override
      *         Map&#60;String, String&#62; call() throws Exception {
-     *             ['myName': 'John Doe']
+     *             ['MY_NAME': 'John Doe']
      *         }
      *     }))
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ENV MY_NAME=John Doe
      * </pre>
      *
      * @param provider Environment variables as Provider
@@ -517,6 +598,11 @@ class Dockerfile extends DefaultTask {
      *     addFile('test', '/absoluteDir/')
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ADD test /absoluteDir/
+     * </pre>
      *
      * @param src The source path
      * @param dest The destination path
@@ -538,6 +624,11 @@ class Dockerfile extends DefaultTask {
      *     addFile(new Dockerfile.File('test', '/absoluteDir/'))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ADD test /absoluteDir/
+     * </pre>
      *
      * @param file Dockerfile.File definition
      * @see #addFile(String, String)
@@ -548,7 +639,7 @@ class Dockerfile extends DefaultTask {
     }
 
     /**
-     * A <a href="https://docs.docker.com/engine/reference/builder/#add">ADD instruction</a> as Provider.
+     * An <a href="https://docs.docker.com/engine/reference/builder/#add">ADD instruction</a> as Provider.
      * <p>
      * Example in Groovy DSL:
      * <p>
@@ -561,6 +652,11 @@ class Dockerfile extends DefaultTask {
      *         }
      *     }))
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ADD test /absoluteDir/
      * </pre>
      *
      * @param provider Add instruction as Provider
@@ -583,6 +679,11 @@ class Dockerfile extends DefaultTask {
      *     copyFile('test', '/absoluteDir/')
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * COPY test /absoluteDir/
+     * </pre>
      *
      * @param src The source path
      * @param dest The destination path
@@ -603,6 +704,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     copyFile(new Dockerfile.CopyFile('test', '/absoluteDir/'))
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * COPY test /absoluteDir/
      * </pre>
      *
      * @param file CopyFile definition
@@ -628,6 +734,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * COPY test /absoluteDir/
+     * </pre>
      *
      * @param provider Copy instruction as Provider
      * @see #copyFile(String, String)
@@ -648,6 +759,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     entryPoint('top', '-b')
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ENTRYPOINT ["top", "-b"]
      * </pre>
      *
      * @param entryPoint Entry point
@@ -672,6 +788,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ENTRYPOINT ["top", "-b"]
+     * </pre>
      *
      * @param entryPoint Entry point
      * @see #entryPoint(String...)
@@ -691,6 +812,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     volume('/myvol')
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * VOLUME ["/myvol"]
      * </pre>
      *
      * @param volume Volume
@@ -715,6 +841,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * VOLUME ["/myvol"]
+     * </pre>
      *
      * @param volume Volume
      * @see #volume(String...)
@@ -734,6 +865,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     user('patrick')
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * USER patrick
      * </pre>
      *
      * @param user User
@@ -758,6 +894,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * USER patrick
+     * </pre>
      *
      * @param provider User as Provider
      * @see #user(String)
@@ -777,6 +918,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     workingDir('/path/to/workdir')
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * WORKDIR /path/to/workdir
      * </pre>
      *
      * @param dir Directory
@@ -801,6 +947,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * WORKDIR /path/to/workdir
+     * </pre>
      *
      * @param dir Directory
      * @see #workingDir(String)
@@ -820,6 +971,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     onBuild('ADD . /app/src')
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ONBUILD ADD . /app/src
      * </pre>
      *
      * @param instruction Instruction
@@ -844,6 +1000,11 @@ class Dockerfile extends DefaultTask {
      *     }))
      * }
      * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * ONBUILD ADD . /app/src
+     * </pre>
      *
      * @param instruction Instruction
      * @see #onBuild(String)
@@ -862,6 +1023,11 @@ class Dockerfile extends DefaultTask {
      * task createDockerfile(type: Dockerfile) {
      *     label(['version': '1.0'])
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * LABEL version=1.0
      * </pre>
      *
      * @param labels Labels
@@ -885,6 +1051,11 @@ class Dockerfile extends DefaultTask {
      *         }
      *     }))
      * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * LABEL version=1.0
      * </pre>
      *
      * @param provider Labels as Provider
@@ -1352,14 +1523,14 @@ class Dockerfile extends DefaultTask {
     /**
      * Represents a {@code ADD} instruction.
      */
-    static class AddFileInstruction extends FileInstruction<Dockerfile.File> {
+    static class AddFileInstruction extends FileInstruction<File> {
         public static final String KEYWORD = 'ADD'
 
-        AddFileInstruction(Dockerfile.File file) {
+        AddFileInstruction(File file) {
             super(file)
         }
 
-        AddFileInstruction(Provider<Dockerfile.File> provider) {
+        AddFileInstruction(Provider<File> provider) {
             super(provider)
         }
 
@@ -1630,7 +1801,7 @@ class Dockerfile extends DefaultTask {
      *
      * @since 5.0.0
      */
-    static class CopyFile extends Dockerfile.File {
+    static class CopyFile extends File {
         @Nullable
         private String stage
 

@@ -137,23 +137,24 @@ LABEL maintainer=benjamin.muschko@gmail.com
         given:
         buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                from '$TEST_IMAGE_WITH_TAG'
-                arg 'user1=someuser'
+                from('$TEST_IMAGE_WITH_TAG')
+                arg('user1=someuser')
+                label(version: '1.0')
                 label(['maintainer': 'benjamin.muschko@gmail.com'])
-                runCommand 'echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list'
-                defaultCommand 'echo', 'some', 'command'
-                exposePort 8080, 14500
-                environmentVariable 'ENV_VAR_KEY', 'envVarVal'
-                environmentVariable ENV_VAR_A: 'val_a'
-                environmentVariable ENV_VAR_B: 'val_b', ENV_VAR_C: 'val_c'
-                addFile new Dockerfile.File('http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war')
-                copyFile new Dockerfile.CopyFile('http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar')
-                entryPoint 'java', '-jar', '/opt/jenkins.war'
-                volume '/jenkins', '/myApp'
-                user 'root'
-                workingDir '/tmp'
-                onBuild 'RUN echo "Hello World"'
-                label version: '1.0'
+                runCommand('echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list')
+                defaultCommand('echo', 'some', 'command')
+                exposePort(8080, 14500)
+                environmentVariable('ENV_VAR_KEY', 'envVarVal')
+                environmentVariable(ENV_VAR_A: 'val_a')
+                environmentVariable(ENV_VAR_B: 'val_b', ENV_VAR_C: 'val_c')
+                addFile(new Dockerfile.File('http://mirrors.jenkins-ci.org/war/1.563/jenkins.war', '/opt/jenkins.war'))
+                copyFile(new Dockerfile.CopyFile('http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar', '/opt/h2.jar'))
+                entryPoint('java', '-jar', '/opt/jenkins.war')
+                volume('/jenkins', '/myApp')
+                user('root')
+                workingDir('/tmp')
+                onBuild('RUN echo "Hello World"')
+                instruction('LABEL env=prod')
             }
         """
 
@@ -163,6 +164,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
         then:
         assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
 ARG user1=someuser
+LABEL version=1.0
 LABEL maintainer=benjamin.muschko@gmail.com
 RUN echo deb http://archive.ubuntu.com/ubuntu precise universe >> /etc/apt/sources.list
 CMD ["echo", "some", "command"]
@@ -177,7 +179,7 @@ VOLUME ["/jenkins", "/myApp"]
 USER root
 WORKDIR /tmp
 ONBUILD RUN echo "Hello World"
-LABEL version=1.0
+LABEL env=prod
 """)
     }
 
@@ -185,20 +187,21 @@ LABEL version=1.0
         given:
         buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
-                from project.provider { new Dockerfile.From('$TEST_IMAGE_WITH_TAG') }
-                arg project.provider { 'user1=someuser' }
-                runCommand project.provider { '/bin/bash -c echo hello' }
-                defaultCommand project.provider { ['/usr/bin/wc', '--help'] }
-                exposePort project.provider { [8080, 9090] }
-                environmentVariable project.provider { ['MY': 'value'] }
-                addFile project.provider { new Dockerfile.File('test', '/absoluteDir/') }
-                copyFile project.provider { new Dockerfile.CopyFile('test', '/absoluteDir/') }
-                entryPoint project.provider { ['top', '-b'] }
-                volume project.provider { ['/myvol'] }
-                user project.provider { 'patrick' }
-                workingDir project.provider { '/path/to/workdir' }
-                onBuild project.provider { 'ADD . /app/src' }
-                label project.provider { ['version': '1.0'] }
+                from(project.provider { new Dockerfile.From('$TEST_IMAGE_WITH_TAG') })
+                arg(project.provider { 'user1=someuser' })
+                label(project.provider { ['maintainer': 'benjamin.muschko@gmail.com'] })
+                runCommand(project.provider { '/bin/bash -c echo hello' })
+                defaultCommand(project.provider { ['/usr/bin/wc', '--help'] })
+                exposePort(project.provider { [8080, 9090] })
+                environmentVariable(project.provider { ['MY': 'value'] })
+                addFile(project.provider { new Dockerfile.File('test', '/absoluteDir/') })
+                copyFile(project.provider { new Dockerfile.CopyFile('test', '/absoluteDir/') })
+                entryPoint(project.provider { ['top', '-b'] })
+                volume(project.provider { ['/myvol'] })
+                user(project.provider { 'patrick' })
+                workingDir(project.provider { '/path/to/workdir' })
+                onBuild(project.provider { 'ADD . /app/src' })
+                instruction(project.provider { 'LABEL env=prod' })
             }
         """
 
@@ -208,6 +211,7 @@ LABEL version=1.0
         then:
         assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
 ARG user1=someuser
+LABEL maintainer=benjamin.muschko@gmail.com
 RUN /bin/bash -c echo hello
 CMD ["/usr/bin/wc", "--help"]
 EXPOSE 8080 9090
@@ -219,7 +223,7 @@ VOLUME ["/myvol"]
 USER patrick
 WORKDIR /path/to/workdir
 ONBUILD ADD . /app/src
-LABEL version=1.0
+LABEL env=prod
 """)
     }
 
