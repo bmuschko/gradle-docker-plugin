@@ -1,6 +1,13 @@
 == Change Log
 
 [discrete]
+=== v7.0.1 (June 9, 2021)
+
+* Reduce Docker Java dependency size - {uri-github}/pull/1016[PR 1016]
+* Bump ASM opcode version for JVM convention plugins - {uri-github}/pull/1012[PR 1012]
+* Improve Groovydoc documentation of Dockerfile task - {uri-github}/pull/1017[PR 1017]
+
+[discrete]
 === v7.0.0 (May 2, 2021)
 
 * **Breaking Change!** Change source and target compatibility of plugin to Java 11
