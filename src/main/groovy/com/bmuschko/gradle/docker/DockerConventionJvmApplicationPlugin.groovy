@@ -129,7 +129,7 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
                             }
 
                             entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationMainClassName(project, extension)])
-                            entrypoint
+                            ["sh", "-c", entrypoint.join(" ")]
                         }
                     }))
                     exposePort(extension.ports)

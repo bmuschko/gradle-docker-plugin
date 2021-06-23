@@ -165,7 +165,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.application.JettyMain"]
+ENTRYPOINT ["sh", "-c", "java -cp /app/resources:/app/classes:/app/libs/* com.bmuschko.gradle.docker.application.JettyMain"]
 EXPOSE 9090
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
@@ -415,7 +415,7 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.main
         }
 
         entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", mainClassName])
-        entrypoint
+        ["sh", "-c", entrypoint.join(" ")]
     }
 
     private void assertBuildContextLibs() {
