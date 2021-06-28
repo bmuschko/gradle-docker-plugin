@@ -26,6 +26,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 @CompileStatic
 class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
@@ -37,6 +38,15 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
      */
     @Input
     final Property<String> image = project.objects.property(String)
+
+    /**
+     * The target platform in the format os[/arch[/variant]] e.g. {@code linux/s390x} or {@code darwin}.
+     *
+     * @since 7.1.0
+     */
+    @Input
+    @Optional
+    final Property<String> platform = project.objects.property(String)
 
     /**
      * {@inheritDoc}
@@ -51,6 +61,10 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
     void runRemoteCommand() {
         logger.quiet "Pulling image '${image.get()}'."
         PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image.get())
+
+        if(platform.getOrNull()) {
+            pullImageCmd.withPlatform(platform.get())
+        }
 
         AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image.get(), registryCredentials)
         pullImageCmd.withAuthConfig(authConfig)
