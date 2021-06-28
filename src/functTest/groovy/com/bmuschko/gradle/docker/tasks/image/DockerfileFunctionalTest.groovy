@@ -266,7 +266,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
     def "Can create Dockerfile from template file"() {
         given:
         File dockerDir = temporaryFolder.newFolder('src', 'main', 'docker')
-        new File(dockerDir, 'Dockerfile.template') << """FROM alpine:3.4
+        new File(dockerDir, 'Dockerfile.template') << """FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com"""
         buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
@@ -333,7 +333,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
         assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG AS builder
 LABEL maintainer=benjamin.muschko@gmail.com
 COPY http://hsql.sourceforge.net/m2-repo/com/h2database/h2/1.4.184/h2-1.4.184.jar /opt/h2.jar
-FROM alpine:3.4 AS prod
+FROM $TEST_IMAGE_WITH_TAG AS prod
 COPY --from=builder /opt/h2.jar /opt/h2.jar
 """)
     }
