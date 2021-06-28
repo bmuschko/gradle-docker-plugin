@@ -176,6 +176,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     /**
      * The target platform in the format os[/arch[/variant]] e.g. {@code linux/s390x} or {@code darwin}.
+     *
+     * @since 7.1.0
      */
     @Input
     @Optional
