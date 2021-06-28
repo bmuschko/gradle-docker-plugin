@@ -266,7 +266,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
     def "Can create Dockerfile from template file"() {
         given:
         File dockerDir = temporaryFolder.newFolder('src', 'main', 'docker')
-        new File(dockerDir, 'Dockerfile.template') << """FROM alpine:3.4
+        new File(dockerDir, 'Dockerfile.template') << """FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com"""
         buildFile << """
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
