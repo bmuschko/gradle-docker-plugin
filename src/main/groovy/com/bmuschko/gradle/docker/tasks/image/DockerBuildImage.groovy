@@ -175,6 +175,13 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final SetProperty<String> extraHosts = project.objects.setProperty(String)
 
     /**
+     * The target platform in the format os[/arch[/variant]] e.g. {@code linux/s390x} or {@code darwin}.
+     */
+    @Input
+    @Optional
+    final Property<String> platform = project.objects.property(String)
+
+    /**
      * {@inheritDoc}
      */
     final DockerRegistryCredentials registryCredentials
@@ -275,7 +282,11 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
             buildImageCmd.withTarget(target.get())
         }
 
-        AuthConfigurations authConfigurations = getRegistryAuthLocator().lookupAllAuthConfigs(registryCredentials);
+        if(platform.getOrNull() != null) {
+            buildImageCmd.withPlatform(platform.get())
+        }
+
+        AuthConfigurations authConfigurations = getRegistryAuthLocator().lookupAllAuthConfigs(registryCredentials)
         buildImageCmd.withBuildAuthConfigs(authConfigurations)
 
         if (buildArgs.getOrNull()) {
