@@ -133,6 +133,15 @@ class DockerCreateContainer extends DockerExistingImage {
     @Optional
     final Property<String> macAddress = project.objects.property(String)
 
+    /**
+     * The target platform in the format os[/arch[/variant]] e.g. {@code linux/s390x} or {@code darwin}.
+     *
+     * @since 7.1.0
+     */
+    @Input
+    @Optional
+    final Property<String> platform = project.objects.property(String)
+
     @Nested
     final HostConfig hostConfig
 
@@ -362,6 +371,10 @@ class DockerCreateContainer extends DockerExistingImage {
 
         if(macAddress.getOrNull()) {
             containerCommand.withMacAddress(macAddress.get())
+        }
+
+        if(platform.getOrNull()) {
+            containerCommand.withPlatform(platform.get())
         }
 
         if(hostConfig.ipcMode.getOrNull()) {
