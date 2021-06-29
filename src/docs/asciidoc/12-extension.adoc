@@ -9,6 +9,8 @@ The following properties can be configured:
 |`url`              |`Property<String>`  |`unix:///var/run/docker.sock` (Unix), `tcp://127.0.0.1:2375` (Windows)                  |The server URL to connect to via Docker's remote API.
 |`certPath`         |`DirectoryProperty` |Value of environment variable `DOCKER_CERT_PATH` if set                     |The path to certificates for communicating with https://docs.docker.com/articles/https/[Docker over SSL].
 |`apiVersion`       |`Property<String>`            |`null`                     |The https://docs.docker.com/develop/sdk/#view-the-api-reference[remote API version]. For most cases this can be left null.
+| `httpConnectionTimeout`   | `Property<Long>`|`null` | Determines the timeout until a new connection is fully established, 0 means infinite (if the HTTP transport is used)
+| `httpResponseTimeout`     | `Property<Long>`|`null` | Determines the timeout until arrival of a response from the opposite endpoint, 0 means infinite (if the HTTP transport is used)
 |=======
 
 Image pull or push operations against the public Docker Hub registry or a private registry may require authentication. By default, existing credentials are read from `$HOME/.docker/config.json` and reused for authentication purposes. You can overwrite those credentials with the help of the `registryCredentials` closure. The credentials provided in the extension automatically become available to all custom tasks that implement the interface {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/RegistryCredentialsAware.html[RegistryCredentialsAware].

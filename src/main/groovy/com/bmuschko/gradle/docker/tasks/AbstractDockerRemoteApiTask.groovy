@@ -36,6 +36,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import java.time.Duration
 
 @CompileStatic
 abstract class AbstractDockerRemoteApiTask extends DefaultTask {
@@ -61,6 +62,42 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Input
     @Optional
     final Property<String> apiVersion = project.objects.property(String)
+
+    /**
+     * Determines the timeout until a new connection is fully established.
+     *
+     * <b>Only used if HTTP is used as the transport.</b>
+     *
+     * This may also include transport security negotiation exchanges
+     * such as {@code SSL} or {@code TLS} protocol negotiation).
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * </p>
+     * <p>
+     * Default: 3 minutes
+     * </p>
+     */
+    @Input
+    @Optional
+    final Property<Long> httpConnectionTimeout = project.objects.property(Long)
+
+    /**
+     * Determines the timeout until arrival of a response from the opposite
+     * endpoint. <b>Only used if HTTP is used as the transport.</b>
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * </p>
+     * <p>
+     * Please note that response timeout may be unsupported by
+     * HTTP transports with message multiplexing.
+     * </p>
+     * <p>
+     * Default: 3 minutes
+     * </p>
+     */
+    @Input
+    @Optional
+    final Property<Long> httpResponseTimeout = project.objects.property(Long)
 
     private Action<? super Throwable> errorHandler
     private Action nextHandler
@@ -147,6 +184,8 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         String dockerUrl = getDockerHostUrl(dockerClientConfiguration, dockerExtension)
         File dockerCertPath = dockerClientConfiguration.certPath?.asFile ?: dockerExtension.certPath.getOrNull()?.asFile
         String apiVersion = dockerClientConfiguration.apiVersion ?: dockerExtension.apiVersion.getOrNull()
+        Long httpConnectionTimeout = dockerClientConfiguration.httpConnectionTimeout != null ? dockerClientConfiguration.httpConnectionTimeout : dockerExtension.httpConnectionTimeout.getOrNull()
+        Long httpResponseTimeout = dockerClientConfiguration.httpResponseTimeout != null ? dockerClientConfiguration.httpResponseTimeout : dockerExtension.httpResponseTimeout.getOrNull()
 
         // Create configuration
         DefaultDockerClientConfig.Builder dockerClientConfigBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -165,7 +204,7 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
         DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build()
 
-        DockerClient dockerClient = createDefaultDockerClient(dockerClientConfig)
+        DockerClient dockerClient = createDefaultDockerClient(dockerClientConfig, httpConnectionTimeout, httpResponseTimeout)
         // register buildFinished-hook to close docker client.
         project.gradle.buildFinished {
             dockerClient.close()
@@ -173,11 +212,17 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         dockerClient
     }
 
-    private DockerClient createDefaultDockerClient(DockerClientConfig config) {
-        ApacheDockerHttpClient dockerClient = new ApacheDockerHttpClient.Builder()
+    private DockerClient createDefaultDockerClient(DockerClientConfig config, Long httpConnectionTimeout, Long httpResponseTimeout) {
+        ApacheDockerHttpClient.Builder builder = new ApacheDockerHttpClient.Builder()
                 .dockerHost(config.getDockerHost())
                 .sslConfig(config.getSSLConfig())
-                .build()
+        if (httpResponseTimeout != null) {
+            builder.responseTimeout(httpResponseTimeout == 0L ? Duration.ZERO : Duration.ofMinutes(httpResponseTimeout))
+        }
+        if (httpConnectionTimeout != null) {
+            builder.connectionTimeout(httpConnectionTimeout == 0L ? Duration.ZERO : Duration.ofMinutes(httpConnectionTimeout))
+        }
+        ApacheDockerHttpClient dockerClient = builder.build()
         DockerClientImpl.getInstance(
             config,
             dockerClient
@@ -202,6 +247,8 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         dockerClientConfig.url = url.getOrNull()
         dockerClientConfig.certPath = certPath.getOrNull()
         dockerClientConfig.apiVersion = apiVersion.getOrNull()
+        dockerClientConfig.httpConnectionTimeout = httpConnectionTimeout.getOrNull()
+        dockerClientConfig.httpResponseTimeout = httpResponseTimeout.getOrNull()
         dockerClientConfig
     }
 
