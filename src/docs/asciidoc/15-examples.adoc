@@ -1,3 +1,4 @@
+[[remote-api-plugin-examples]]
 === Examples
 
 The following usage examples demonstrate code for common use cases.
