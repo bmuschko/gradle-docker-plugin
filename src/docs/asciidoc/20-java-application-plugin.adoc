@@ -11,4 +11,6 @@ include::22-extension.adoc[]
 
 include::23-tasks.adoc[]
 
-include::24-examples.adoc[]
+include::24-dockerfile.adoc[]
+
+include::25-examples.adoc[]
