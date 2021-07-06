@@ -404,8 +404,6 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.main
 """
         }
 
-        println "java: " + dockerfileContent
-
         dockerfileContent
     }
 

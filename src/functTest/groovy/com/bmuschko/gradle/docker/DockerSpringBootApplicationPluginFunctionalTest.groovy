@@ -277,7 +277,6 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.main
 """
         }
 
-        println "spring: " + dockerFileContent
         dockerFileContent
     }
 
