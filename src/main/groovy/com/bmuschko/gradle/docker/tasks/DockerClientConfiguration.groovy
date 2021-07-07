@@ -10,4 +10,6 @@ class DockerClientConfiguration {
     String url
     Directory certPath
     String apiVersion
+    Long httpConnectionTimeout;
+    Long httpResponseTimeout;
 }

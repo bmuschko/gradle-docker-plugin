@@ -62,6 +62,38 @@ class DockerExtension {
     final Property<String> apiVersion
 
     /**
+     * Determines the timeout until a new connection is fully established.
+     *
+     * <b>Only used if HTTP is used as the transport.</b>
+     *
+     * This may also include transport security negotiation exchanges
+     * such as {@code SSL} or {@code TLS} protocol negotiation).
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * </p>
+     * <p>
+     * Default: 3 minutes
+     * </p>
+     */
+    final Property<Long> httpConnectionTimeout
+
+    /**
+     * Determines the timeout until arrival of a response from the opposite
+     * endpoint. <b>Only used if HTTP is used as the transport.</b>
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * </p>
+     * <p>
+     * Please note that response timeout may be unsupported by
+     * HTTP transports with message multiplexing.
+     * </p>
+     * <p>
+     * Default: 3 minutes
+     * </p>
+     */
+    final Property<Long> httpResponseTimeout
+
+    /**
      * The target Docker registry credentials.
      */
     final DockerRegistryCredentials registryCredentials
@@ -78,6 +110,8 @@ class DockerExtension {
         }
 
         apiVersion = objectFactory.property(String)
+        httpConnectionTimeout = objectFactory.property(Long)
+        httpResponseTimeout = objectFactory.property(Long)
         registryCredentials = objectFactory.newInstance(DockerRegistryCredentials, objectFactory)
     }
 
