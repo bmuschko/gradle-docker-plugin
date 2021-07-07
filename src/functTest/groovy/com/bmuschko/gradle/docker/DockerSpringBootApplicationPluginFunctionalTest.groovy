@@ -288,7 +288,7 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.main
         }
 
         entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", mainClassName])
-        entrypoint
+        ["sh", "-c", entrypoint.join(" ")]
     }
 
     private static class ExpectedDockerfile {
