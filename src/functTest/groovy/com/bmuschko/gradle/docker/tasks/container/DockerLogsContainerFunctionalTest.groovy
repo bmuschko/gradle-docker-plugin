@@ -17,8 +17,11 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.TaskOutcome
 
+// gradle command for convinience:
+// gradlew functionalTest --tests com.bmuschko.gradle.docker.tasks.container.DockerLogsContainerFunctionalTest
 class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Can start a container and watch logs"() {
@@ -178,6 +181,72 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         then:
         result.task(':logContainer').outcome == TaskOutcome.FAILED
         result.output.contains("No such container: not_existing_container")
+    }
+
+    def "Throwing StopExecutionException does not stop the whole gradle buid"() {
+        given:
+        String tasks = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId startContainer.getContainerId()
+                tailAll = true
+                onNext { message ->
+                    def foundMessage = message.toString()
+                    if (foundMessage.contains("Hello World")) {
+                        throw new StopExecutionException("This should not stop gradle")
+                    }
+                }
+            }
+            task dummyTask {
+                dependsOn logContainer
+            }
+        """
+        buildFile << containerUsage(tasks)
+
+        when:
+        BuildResult result = buildAndFail('dummyTask')
+
+        then:
+        BuildTask logContainer = result.task(':logContainer');
+        BuildTask dummyTask = result.task(':dummyTask');
+        if (logContainer != null) {
+            logContainer.outcome == TaskOutcome.FAILED
+        }
+        if (dummyTask != null) {
+            dummyTask.outcome == TaskOutcome.SUCCESS
+        }
+    }
+
+    def "Throwing a custom exception does stop the whole gradle buid"() {
+        given:
+        String tasks = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId startContainer.getContainerId()
+                tailAll = true
+                onNext { message ->
+                    def foundMessage = message.toString()
+                    if (foundMessage.contains("Hello World")) {
+                        throw new IllegalStateException("This should stop gradle")
+                    }
+                }
+            }
+            task dummyTask {
+                dependsOn logContainer
+            }
+        """
+        buildFile << containerUsage(tasks)
+
+        when:
+        BuildResult result = buildAndFail('dummyTask')
+
+        then:
+        BuildTask logContainer = result.task(':logContainer');
+        BuildTask dummyTask = result.task(':dummyTask');
+        if (logContainer != null) {
+            logContainer.outcome == TaskOutcome.FAILED
+        }
+        if (dummyTask != null) {
+            dummyTask.outcome == null
+        }
     }
 
     static String containerUsage(String logContainerTask) {

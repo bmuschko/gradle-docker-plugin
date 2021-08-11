@@ -22,6 +22,7 @@ import com.github.dockerjava.core.command.LogContainerResultCallback
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -144,6 +145,9 @@ class DockerLogsContainer extends DockerExistingContainer {
                                 sink.flush()
                                 break
                         }
+                    } catch (GradleException | StopExecutionException e) {
+                        logger.quiet('Handling normal Gradle Exception by throwing it', e)
+                        throw e;
                     } catch (Exception e) {
                         logger.error('Failed to handle frame', e)
                         return
@@ -158,6 +162,9 @@ class DockerLogsContainer extends DockerExistingContainer {
                 void onNext(Frame frame) {
                     try {
                         nextHandler.execute(frame)
+                    } catch (GradleException | StopExecutionException e) {
+                        logger.quiet('Handling normal Gradle Exception by throwing it', e)
+                        throw e;
                     } catch (Exception e) {
                         logger.error('Failed to handle frame', e)
                         return
@@ -180,6 +187,9 @@ class DockerLogsContainer extends DockerExistingContainer {
                             logger.error(new String(frame.payload).replaceFirst(/\s+$/, ''))
                             break
                     }
+                } catch (GradleException | StopExecutionException e) {
+                    logger.quiet('Handling normal Gradle Exception by throwing it', e)
+                    throw e;
                 } catch(Exception e) {
                     logger.error('Failed to handle frame', e)
                     return
