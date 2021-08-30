@@ -326,6 +326,10 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.hostConfig.withBinds(createdBinds)
         }
 
+        if(hostConfig.tmpFs.getOrNull()) {
+            containerCommand.hostConfig.withTmpFs(hostConfig.tmpFs.get())
+        }
+
         if(hostConfig.extraHosts.getOrNull()) {
             containerCommand.hostConfig.withExtraHosts(hostConfig.extraHosts.get() as String[])
         }
@@ -469,6 +473,20 @@ class DockerCreateContainer extends DockerExistingImage {
         @Optional
         final MapProperty<String, String> binds
 
+        /**
+         * Docker container tmpfs support.
+         * The <code>key</code> of this map is the container target path, the <code>value</code> stores
+         * the tmpfs comma seperated options.
+         * For example, to create a temporary 50MB writeable non executable filesystem mounted under /data
+         * in the container: {@code tmpFs = ['/data': 'rw,noexec,size=50m']}
+         *
+         * Original documentation: https://docs.docker.com/storage/tmpfs/
+         *
+         */
+        @Input
+        @Optional
+        final MapProperty<String, String> tmpFs
+
         @Input
         @Optional
         final ListProperty<String> extraHosts
@@ -555,6 +573,7 @@ class DockerCreateContainer extends DockerExistingImage {
             publishAll = objectFactory.property(Boolean)
             publishAll.set(false)
             binds = objectFactory.mapProperty(String, String)
+            tmpFs = objectFactory.mapProperty(String, String)
             extraHosts = objectFactory.listProperty(String)
             extraHosts.empty()
             logConfig = objectFactory.property(LogConfig)

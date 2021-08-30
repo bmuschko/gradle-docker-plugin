@@ -60,6 +60,7 @@ class DockerInspectContainer extends DockerExistingContainer {
                         "${it.pathOnHost}:${it.pathInContainer}:${it.cGroupPermissions}".toString()
                     } : []
                 logger.quiet "Devices : $devices"
+                logger.quiet "TmpFs : $container.hostConfig.tmpFs"
             }
         }
 
