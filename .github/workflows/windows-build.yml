@@ -13,19 +13,19 @@ jobs:
         with:
           java-version: 11
       - name: Compilation
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: classes
       - name: Unit tests
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: test
       - name: Integration tests
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: integrationTest
       - name: Assemble artifact
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: assemble
       - name: Store artifact
