@@ -17,30 +17,30 @@ jobs:
           docker run -d -p 5000:5000 --restart=always --name registry registry:2
           docker run -d -p 5001:5000 --restart=always --name secure_registry -v "$(pwd)"/src/functTest/resources/auth:/auth:rw -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" registry:2
       - name: Compilation
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: classes
       - name: Unit tests
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: test
       - name: Integration tests
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: integrationTest
       - name: Functional tests
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         env:
           DOCKER_HUB_USERNAME: bmuschko
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         with:
           arguments: functionalTest
       - name: Documentation tests
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: docTest
       - name: Assemble artifact
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: assemble
       - name: Store artifact
@@ -50,7 +50,7 @@ jobs:
           path: build/libs/*.jar
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v2
         env:
           PLUGIN_PORTAL_KEY: ${{ secrets.PLUGIN_PORTAL_KEY }}
           PLUGIN_PORTAL_SECRET: ${{ secrets.PLUGIN_PORTAL_SECRET }}
