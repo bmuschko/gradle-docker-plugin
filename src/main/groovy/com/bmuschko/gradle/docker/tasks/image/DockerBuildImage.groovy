@@ -155,6 +155,13 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final Property<Long> shmSize = project.objects.property(Long)
 
     /**
+     * Memory allocated for build specified in bytes (no suffix is needed)
+     */
+    @Input
+    @Optional
+    final Property<Long> memory = project.objects.property(Long)
+
+    /**
      * With this parameter it is possible to build a special stage in a multi-stage Docker file.
      * <p>
      * This feature is only available for use with Docker 17.05 and higher.
@@ -278,6 +285,10 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         if(shmSize.getOrNull() != null) { // 0 is valid input
             buildImageCmd.withShmsize(shmSize.get())
+        }
+
+        if(memory.getOrNull() != null) {
+            buildImageCmd.withMemory(memory.get())
         }
 
         if(target.getOrNull() != null) {

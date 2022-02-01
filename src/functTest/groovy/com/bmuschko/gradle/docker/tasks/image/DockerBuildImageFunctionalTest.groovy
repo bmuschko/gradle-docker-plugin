@@ -55,6 +55,17 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         result.output.contains("Created image with ID")
     }
 
+    def "can build image with the specified amount allocated memory"() {
+        buildFile << imageCreationTask()
+        buildFile << "buildImage.memory = 1073741824L"
+
+        when:
+        BuildResult result = build('buildImage')
+
+        then:
+        result.output.contains("Created image with ID")
+    }
+
     @IgnoreIf({ os.windows })
     def "can build image in a parent context"() {
         buildFile << imageCreationTask()
