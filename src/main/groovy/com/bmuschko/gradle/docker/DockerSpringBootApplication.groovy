@@ -15,7 +15,7 @@ import org.gradle.api.model.ObjectFactory
  *         baseImage = 'openjdk:8-alpine'
  *         maintainer = 'Benjamin Muschko "benjamin.muschko@gmail.com"'
  *         ports = [9090, 8080]
- *         tag = 'awesome-spring-boot:1.115'
+ *         images = ['awesome-spring-boot:1.115', 'awesome-spring-boot:latest']
  *         jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
  *     }
  * }
