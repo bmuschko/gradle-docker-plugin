@@ -44,6 +44,56 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         result.output.contains("Created image with ID")
     }
 
+    def "can build image using an argument"() {
+        new File(projectDir, 'Dockerfile') << """FROM '$TEST_IMAGE_WITH_TAG'
+ARG user
+USER \$user"""
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+
+            task buildImage(type: DockerBuildImage) {
+                inputDir = projectDir
+                dockerFile = file('Dockerfile')
+                buildArgs = ['user': 'what_user']
+            }
+            
+            task inspectImage(type: DockerInspectImageUser) {
+                dependsOn buildImage
+                imageId = buildImage.imageId
+            }
+            
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                imageId = buildImage.imageId
+            }
+
+            inspectImage.finalizedBy tasks.removeImage
+            
+            class DockerInspectImageUser extends DockerExistingImage {
+                DockerInspectImageUser() {
+                    onNext({ image ->
+                        project.logger.quiet "user: \$image.containerConfig.user"
+                    })
+                }
+            
+                @Override
+                void runRemoteCommand() {
+                    def image = dockerClient.inspectImageCmd(imageId.get()).exec()
+                    nextHandler.execute(image)
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('inspectImage')
+
+        then:
+        result.output.contains("Created image with ID")
+        result.output.contains("user: what_user")
+    }
+
     def "can build image for a specific platform"() {
         buildFile << imageCreationTask()
         buildFile << "buildImage.platform = 'linux/s390x'"
