@@ -11,7 +11,7 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
             task dockerClient1(type: DockerOperation) {
                 onNext { client ->
                     if (client != null) {
-                        logger.quiet "config: " + client.dockerClientConfig.toString()
+                        logger.quiet "dockerHost: " + client.dockerClientConfig.dockerHost
                     }
                 }
             }
@@ -19,7 +19,7 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
                 url = 'tcp://docker.corp.com:2375'
                 onNext { client ->
                     if (client != null) {
-                        logger.quiet "config: " + client.dockerClientConfig.toString()
+                        logger.quiet "dockerHost: " + client.dockerClientConfig.dockerHost
                     }
                 }
             }
@@ -28,7 +28,7 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
                 certPath = new File('/tmp')
                 onNext { client ->
                     if (client != null) {
-                        logger.quiet "config: " + client.dockerClientConfig.toString()
+                        logger.quiet "dockerHost: " + client.dockerClientConfig.dockerHost
                     }
                 }
             }
@@ -38,9 +38,9 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
         BuildResult result = build('dockerClient1', 'dockerClient2', 'dockerClient3')
 
         then:
-        result.output.contains('config: DefaultDockerClientConfig[dockerHost=unix:///var/run/docker.sock')
-        result.output.contains('config: DefaultDockerClientConfig[dockerHost=tcp://docker.corp.com')
-        result.output.contains('config: DefaultDockerClientConfig[dockerHost=tcp://docker.school.edu')
+        result.output.contains('dockerHost: unix:///var/run/docker.sock')
+        result.output.contains('dockerHost: tcp://docker.corp.com')
+        result.output.contains('dockerHost: tcp://docker.school.edu')
     }
 
 }
