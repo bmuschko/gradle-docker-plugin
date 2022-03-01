@@ -156,6 +156,8 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
     /**
      * Memory allocated for build specified in bytes (no suffix is needed)
+     *
+     * @since 7.3.0
      */
     @Input
     @Optional
