@@ -25,7 +25,7 @@ class UserGuidePlugin : Plugin<Project> {
     private
     fun Project.configureAsciidoctorExtension() {
         configure<AsciidoctorExtension> {
-            setVersion("1.6.0")
+            setVersion("1.6.2")
         }
     }
 
