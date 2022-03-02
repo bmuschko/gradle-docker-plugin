@@ -201,8 +201,8 @@ ADD file2.txt /other/dir/file2.txt
         assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE))
         assertBuildContextLibs()
         assertBuildContextClasses()
-        result.output.contains("Pushing image '$credentials.username/javaapp:1.2.3'.")
-        result.output.contains("Pushing image '$credentials.username/javaapp:latest'.")
+        result.output.contains("Pushing image '$credentials.username/javaapp:1.2.3'")
+        result.output.contains("Pushing image '$credentials.username/javaapp:latest'")
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_REGISTRY_REACHABLE })
