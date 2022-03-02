@@ -41,7 +41,6 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                     assert registryCredentialsAwareTasks.size() == 3
 
                     registryCredentialsAwareTasks.each { task ->
-                        assert task.registryCredentials.url.get() == '$DockerRegistryCredentials.DEFAULT_URL'
                         assert task.registryCredentials.username.get() == '$DEFAULT_USERNAME'
                         assert task.registryCredentials.password.get() == '$DEFAULT_PASSWORD'
                     }
