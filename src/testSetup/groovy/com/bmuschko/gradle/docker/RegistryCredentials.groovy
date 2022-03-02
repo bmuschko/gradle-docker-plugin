@@ -1,6 +1,6 @@
 package com.bmuschko.gradle.docker
 
-class DockerHubCredentials {
+class RegistryCredentials {
     String username
     String password
 

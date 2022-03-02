@@ -125,7 +125,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         given:
         setupSpringBootBuild(plugin.identifier)
 
-        DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
+        RegistryCredentials credentials = TestPrecondition.readDockerHubCredentials()
         buildFile << """
             docker {
                 registryCredentials {
@@ -147,8 +147,8 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         File dockerfile = dockerFile()
         dockerfile.exists()
         equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE)))
-        result.output.contains("Pushing image '$credentials.username/springbootapp:1.2.3'.")
-        result.output.contains("Pushing image '$credentials.username/springbootapp:latest'.")
+        result.output.contains("Pushing image '$credentials.username/springbootapp:1.2.3'")
+        result.output.contains("Pushing image '$credentials.username/springbootapp:latest'")
 
         where:
         plugin << REACTED_PLUGINS

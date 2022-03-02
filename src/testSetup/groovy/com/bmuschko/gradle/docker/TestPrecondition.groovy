@@ -13,6 +13,7 @@ final class TestPrecondition {
     public static final boolean DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE =
         isPrivateDockerRegistryReachable(TestConfiguration.dockerPrivateSecureRegistryUrl)
     public static final boolean DOCKER_HUB_CREDENTIALS_AVAILABLE = hasDockerHubCredentials()
+    public static final boolean HARBOR_CREDENTIALS_AVAILABLE = hasHarborCredentials()
 
     private TestPrecondition() {}
 
@@ -45,31 +46,46 @@ final class TestPrecondition {
     }
 
     private static boolean hasDockerHubCredentials() {
-        DockerHubCredentials credentials = readDockerHubCredentials()
+        RegistryCredentials credentials = readDockerHubCredentials()
         credentials.available
     }
 
-    static DockerHubCredentials readDockerHubCredentials() {
-        DockerHubCredentials credentials = readDockerHubCredentialsFromEnvVars()
+    static RegistryCredentials readDockerHubCredentials() {
+        RegistryCredentials credentials = readCredentialsFromEnvVars('DOCKER_HUB_USERNAME', 'DOCKER_HUB_PASSWORD')
 
         if (credentials.available) {
             return credentials
         }
 
-        readDockerHubCredentialsFromGradleProperties()
+        readCredentialsFromGradleProperties('dockerHubUsername', 'dockerHubPassword')
     }
 
-    private static DockerHubCredentials readDockerHubCredentialsFromEnvVars() {
-        DockerHubCredentials credentials = new DockerHubCredentials()
-        String username = System.getenv('DOCKER_HUB_USERNAME')
-        String password = System.getenv('DOCKER_HUB_PASSWORD')
+    private static boolean hasHarborCredentials() {
+        RegistryCredentials credentials = readHarborCredentials()
+        credentials.available
+    }
+
+    static RegistryCredentials readHarborCredentials() {
+        RegistryCredentials credentials = readCredentialsFromEnvVars('HARBOR_USERNAME', 'HARBOR_PASSWORD')
+
+        if (credentials.available) {
+            return credentials
+        }
+
+        readCredentialsFromGradleProperties('harborUsername', 'harborPassword')
+    }
+
+    private static RegistryCredentials readCredentialsFromEnvVars(String usernameKey, String passwordKey) {
+        RegistryCredentials credentials = new RegistryCredentials()
+        String username = System.getenv(usernameKey)
+        String password = System.getenv(passwordKey)
         credentials.username = username
         credentials.password = password
         credentials
     }
 
-    private static DockerHubCredentials readDockerHubCredentialsFromGradleProperties() {
-        DockerHubCredentials credentials = new DockerHubCredentials()
+    private static RegistryCredentials readCredentialsFromGradleProperties(String usernameKey, String passwordKey) {
+        RegistryCredentials credentials = new RegistryCredentials()
         File gradlePropsFile = new File(System.getProperty('user.home'), '.gradle/gradle.properties')
 
         if(gradlePropsFile.exists()) {
@@ -79,8 +95,8 @@ final class TestPrecondition {
                 properties.load(it)
             }
 
-            credentials.username = properties['dockerHubUsername']
-            credentials.password = properties['dockerHubPassword']
+            credentials.username = properties[usernameKey]
+            credentials.password = properties[passwordKey]
         }
 
         credentials

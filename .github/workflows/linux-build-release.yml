@@ -31,8 +31,10 @@ jobs:
       - name: Functional tests
         uses: gradle/gradle-build-action@v2
         env:
-          DOCKER_HUB_USERNAME: bmuschko
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
         with:
           arguments: functionalTest
       - name: Documentation tests
