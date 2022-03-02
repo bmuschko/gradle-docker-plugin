@@ -31,6 +31,12 @@ class FunctionalTestPlugin : Plugin<Project> {
                 showStandardStreams = true
                 events("started", "passed", "failed")
             }
+            if (System.getenv().containsKey("HARBOR_USERNAME")) {
+                environment("HARBOR_USERNAME", System.getenv()["HARBOR_USERNAME"].toString())
+            }
+            if (System.getenv().containsKey("HARBOR_PASSWORD")) {
+                environment("HARBOR_PASSWORD", System.getenv()["HARBOR_PASSWORD"].toString())
+            }
         }
 
         tasks["check"].dependsOn(functionalTest)
