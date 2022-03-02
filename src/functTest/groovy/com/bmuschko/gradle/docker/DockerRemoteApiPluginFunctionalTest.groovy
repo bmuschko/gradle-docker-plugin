@@ -9,6 +9,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
 
     public static final String DEFAULT_USERNAME = 'Jon Doe'
     public static final String DEFAULT_PASSWORD = 'pwd'
+    public static final String CUSTOM_URL = 'https://myregistry.com/v2/'
     public static final String CUSTOM_USERNAME = 'Sally Wash'
     public static final String CUSTOM_PASSWORD = 'secret'
     public static final String DOCKER_CONFIG = 'DOCKER_CONFIG'
@@ -40,6 +41,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                     assert registryCredentialsAwareTasks.size() == 3
 
                     registryCredentialsAwareTasks.each { task ->
+                        assert task.registryCredentials.url.get() == '$DockerRegistryCredentials.DEFAULT_URL'
                         assert task.registryCredentials.username.get() == '$DEFAULT_USERNAME'
                         assert task.registryCredentials.password.get() == '$DEFAULT_PASSWORD'
                     }
@@ -62,6 +64,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task buildImage(type: DockerBuildImage) {
                 registryCredentials {
+                    url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
                     password = '$CUSTOM_PASSWORD'
                 }
@@ -69,6 +72,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task pullImage(type: DockerPullImage) {
                 registryCredentials {
+                    url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
                     password = '$CUSTOM_PASSWORD'
                 }
@@ -76,6 +80,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task pushImage(type: DockerPushImage) {
                 registryCredentials {
+                    url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
                     password = '$CUSTOM_PASSWORD'
                 }
@@ -87,6 +92,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                     assert registryCredentialsAwareTasks.size() == 3
 
                     registryCredentialsAwareTasks.each { task ->
+                        assert task.registryCredentials.url.get() == '$CUSTOM_URL'
                         assert task.registryCredentials.username.get() == '$CUSTOM_USERNAME'
                         assert task.registryCredentials.password.get() == '$CUSTOM_PASSWORD'
                     }
