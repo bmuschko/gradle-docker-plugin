@@ -24,20 +24,12 @@ class FunctionalTestPlugin : Plugin<Project> {
         val functionalTest by tasks.creating(Test::class) {
             description = "Runs the functional tests"
             group = "verification"
-            inputs.property("harborUsername", System.getenv()["HARBOR_USERNAME"] ?: "")
-            inputs.property("harborPassword", System.getenv()["HARBOR_PASSWORD"] ?: "")
             testClassesDirs = functionalTestSourceSet.output.classesDirs
             classpath = functionalTestSourceSet.runtimeClasspath
             mustRunAfter("test", "integrationTest")
             testLogging {
                 showStandardStreams = true
                 events("started", "passed", "failed")
-            }
-            if (System.getenv().containsKey("HARBOR_USERNAME")) {
-                environment("HARBOR_USERNAME", System.getenv()["HARBOR_USERNAME"].toString())
-            }
-            if (System.getenv().containsKey("HARBOR_PASSWORD")) {
-                environment("HARBOR_PASSWORD", System.getenv()["HARBOR_PASSWORD"].toString())
             }
         }
 
