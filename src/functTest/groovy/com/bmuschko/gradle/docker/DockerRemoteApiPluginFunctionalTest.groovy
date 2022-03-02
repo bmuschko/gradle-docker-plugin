@@ -272,17 +272,17 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
             
             task pullImage(type: DockerPullImage) {
-                image = '$TEST_IMAGE_WITH_TAG'
+                image = 'alpine:3.15.0'
             }
             
             task dockerfile(type: Dockerfile) {
                 dependsOn pullImage
-                from '$TEST_IMAGE_WITH_TAG'
+                from 'alpine:3.15.0'
             }
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                images = ['demo.goharbor.io/gradle-docker-plugin/$TEST_IMAGE_WITH_TAG']
+                images = ['demo.goharbor.io/gradle-docker-plugin/alpine:3.15.0']
             }
             
             task removeImage(type: DockerRemoveImage) {
@@ -307,7 +307,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         BuildResult result = build('pushImage')
 
         then:
-        result.output.contains("Pushing image 'demo.goharbor.io/gradle-docker-plugin/$TEST_IMAGE_WITH_TAG' to https://demo.goharbor.io/v2/")
+        result.output.contains("Pushing image 'demo.goharbor.io/gradle-docker-plugin/alpine:3.15.0' to https://demo.goharbor.io/v2/")
     }
 
     static String registryCredentials() {
