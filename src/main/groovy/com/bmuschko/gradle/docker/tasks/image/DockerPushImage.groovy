@@ -55,9 +55,10 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
         }
 
         for (String image : images.get()) {
-            logger.quiet("Pushing image '${image}'.")
-            PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
             AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image, registryCredentials)
+            logger.quiet "Pushing image '${image}' to ${authConfig.registryAddress}."
+
+            PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
             pushImageCmd.withAuthConfig(authConfig)
             PushImageResultCallback callback = createCallback(nextHandler)
             pushImageCmd.exec(callback).awaitCompletion()

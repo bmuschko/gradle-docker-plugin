@@ -179,7 +179,7 @@ ADD file2.txt /other/dir/file2.txt
     @Requires({ TestPrecondition.DOCKER_HUB_CREDENTIALS_AVAILABLE })
     def "Can create image for Java application and push to DockerHub"() {
         given:
-        DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
+        RegistryCredentials credentials = TestPrecondition.readDockerHubCredentials()
         buildFile << """
             docker {
                 registryCredentials {

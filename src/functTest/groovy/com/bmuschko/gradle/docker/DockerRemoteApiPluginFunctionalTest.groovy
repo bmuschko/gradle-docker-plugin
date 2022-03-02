@@ -1,5 +1,6 @@
 package com.bmuschko.gradle.docker
 
+import org.gradle.testkit.runner.BuildResult
 import spock.lang.Requires
 
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.groovySettingsFile
@@ -15,7 +16,6 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
     public static final String SECURE_REGISTRY_USER = "testuser"
     public static final String SECURE_REGISTRY_PASSWD = "testpassword"
     public static final String TEST_DOCKER_IMAGE_WITH_TAG = "gradle-docker-test:latest"
-
 
     def setup() {
         settingsFile << groovySettingsFile()
@@ -58,6 +58,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
             task buildImage(type: DockerBuildImage) {
                 registryCredentials {
@@ -66,14 +67,29 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 }
             }
 
-            task pullImage(type: DockerPullImage)
+            task pullImage(type: DockerPullImage) {
+                registryCredentials {
+                    username = '$CUSTOM_USERNAME'
+                    password = '$CUSTOM_PASSWORD'
+                }
+            }
+
+            task pushImage(type: DockerPushImage) {
+                registryCredentials {
+                    username = '$CUSTOM_USERNAME'
+                    password = '$CUSTOM_PASSWORD'
+                }
+            }
 
             task verify {
                 doLast {
-                    assert buildImage.registryCredentials.username.get() == '$CUSTOM_USERNAME'
-                    assert buildImage.registryCredentials.password.get() == '$CUSTOM_PASSWORD'
-                    assert pullImage.registryCredentials.username.get() == '$DEFAULT_USERNAME'
-                    assert pullImage.registryCredentials.password.get() == '$DEFAULT_PASSWORD'
+                    def registryCredentialsAwareTasks = tasks.withType(RegistryCredentialsAware)
+                    assert registryCredentialsAwareTasks.size() == 3
+
+                    registryCredentialsAwareTasks.each { task ->
+                        assert task.registryCredentials.username.get() == '$CUSTOM_USERNAME'
+                        assert task.registryCredentials.password.get() == '$CUSTOM_PASSWORD'
+                    }
                 }
             }
         """
@@ -136,8 +152,11 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         addEnvVar(DOCKER_CONFIG, WRONG_USER_PASS_CONFIG)
 
-        expect:
-        build('pullImage')
+        when:
+        BuildResult result = build('pullImage')
+
+        then:
+        result.output.contains("Pushing image '${TestConfiguration.dockerPrivateSecureRegistryDomain}/${TEST_DOCKER_IMAGE_WITH_TAG}' to ${TestConfiguration.dockerPrivateSecureRegistryDomain}")
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE })
@@ -234,6 +253,56 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         expect:
         build('convert')
+    }
+
+    @Requires({ TestPrecondition.HARBOR_CREDENTIALS_AVAILABLE })
+    def "can push image to Harbor"() {
+        given:
+        RegistryCredentials credentials = TestPrecondition.readHarborCredentials()
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            
+            task pullImage(type: DockerPullImage) {
+                image = '$TEST_IMAGE_WITH_TAG'
+            }
+            
+            task dockerfile(type: Dockerfile) {
+                dependsOn pullImage
+                from '$TEST_IMAGE_WITH_TAG'
+            }
+
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                images = ['demo.goharbor.io/gradle-docker-plugin/$TEST_IMAGE_WITH_TAG']
+            }
+            
+            task removeImage(type: DockerRemoveImage) {
+                targetImageId buildImage.imageId
+                force = true
+            }
+
+            task pushImage(type: DockerPushImage) {
+                dependsOn buildImage
+                finalizedBy removeImage
+                images = buildImage.images
+                
+                registryCredentials {
+                    url = 'https://demo.goharbor.io/v2/'
+                    username = '$credentials.username'
+                    password = '$credentials.password'
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('pushImage')
+
+        then:
+        result.output.contains("Pushing image 'demo.goharbor.io/gradle-docker-plugin/$TEST_IMAGE_WITH_TAG' to https://demo.goharbor.io/v2/")
     }
 
     static String registryCredentials() {

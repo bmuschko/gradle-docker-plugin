@@ -125,7 +125,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         given:
         setupSpringBootBuild(plugin.identifier)
 
-        DockerHubCredentials credentials = TestPrecondition.readDockerHubCredentials()
+        RegistryCredentials credentials = TestPrecondition.readDockerHubCredentials()
         buildFile << """
             docker {
                 registryCredentials {
