@@ -320,6 +320,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         String createdImageId = buildImageCmd.exec(createCallback(nextHandler)).awaitImageId()
         imageId.set(createdImageId)
+        imageIdFile.get().asFile.parentFile.mkdirs()
         imageIdFile.get().asFile.text = createdImageId
         logger.quiet "Created image with ID '$createdImageId'."
     }
