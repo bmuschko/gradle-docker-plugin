@@ -134,6 +134,24 @@ class RegistryAuthLocatorTest extends Specification {
         4 * logger.error(*_)
     }
 
+    @Issue('https://github.com/bmuschko/gradle-docker-plugin/issues/985')
+    def "AuthLocator returns auth from file over default"() {
+        given:
+        RegistryAuthLocator locator =
+            createAuthLocatorForExistingConfigFile('config-docker-hub-user-pass.json', false)
+
+        when:
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs(new AuthConfig())
+
+        then:
+        AuthConfig config = new AuthConfig()
+            .withUsername('username')
+            .withPassword('secret')
+        allConfigs.configs.size() == 1
+        allConfigs.configs.get(config.registryAddress) == config
+        0 * logger.error(*_)
+    }
+
     def "AuthLocator works for Docker Desktop config without existing credentials"() {
         given:
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')
