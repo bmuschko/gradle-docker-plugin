@@ -243,7 +243,9 @@ class RegistryAuthLocator {
      */
     AuthConfigurations lookupAllAuthConfigs(AuthConfig additionalAuthConfig) {
         AuthConfigurations allAuthConfigs = lookupAllAuthConfigs()
-        allAuthConfigs.addConfig(additionalAuthConfig)
+        if (allAuthConfigs.configs.isEmpty()) {
+            allAuthConfigs.addConfig(additionalAuthConfig)
+        }
         return allAuthConfigs
     }
 
