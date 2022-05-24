@@ -1,6 +1,12 @@
 == Change Log
 
 [discrete]
+=== v7.4.0 (May 23, 2022)
+
+* Credentials in the `config.json` are overwritten by default (but unset) auth-config - {uri-github}/pull/1065[PR 1065]
+* DockerBuildImage task creates image ID file and parent directory if it doesn't exist - {uri-github}/pull/1064[PR 1064]
+
+[discrete]
 === v7.3.0 (March 1, 2022)
 
 * Upgrade to Docker Java 3.2.13 - {uri-github}/pull/1058[PR 1058]
