@@ -3,10 +3,8 @@ package com.bmuschko.gradle.docker
 import org.asciidoctor.gradle.AsciidoctorExtension
 import org.asciidoctor.gradle.AsciidoctorPlugin
 import org.asciidoctor.gradle.AsciidoctorTask
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.kotlin.dsl.*
 

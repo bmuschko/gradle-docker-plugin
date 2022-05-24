@@ -9,6 +9,7 @@ import org.gradle.api.tasks.javadoc.Groovydoc
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.closureOf
 
 class DocumentationPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
@@ -57,13 +58,13 @@ class DocumentationPlugin : Plugin<Project> {
                     into("current/api")
                 }
                 from(groovydoc) {
-                    into("${version.toString()}/api")
+                    into(KotlinClosure0({ "${project.version}/api" }))
                 }
                 from("${asciidoctor.outputDir}/html5") {
                     into("current/user-guide")
                 }
                 from("${asciidoctor.outputDir}/html5") {
-                    into("${version.toString()}/user-guide")
+                    into(KotlinClosure0({ "${project.version}/user-guide" }))
                 }
             }
         }
