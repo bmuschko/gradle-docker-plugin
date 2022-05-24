@@ -1,0 +1,7 @@
+com.bmuschko.gradle.docker
+com.bmuschko.gradle.docker.domain
+com.bmuschko.gradle.docker.internal
+com.bmuschko.gradle.docker.tasks
+com.bmuschko.gradle.docker.tasks.container
+com.bmuschko.gradle.docker.tasks.image
+com.bmuschko.gradle.docker.tasks.network
