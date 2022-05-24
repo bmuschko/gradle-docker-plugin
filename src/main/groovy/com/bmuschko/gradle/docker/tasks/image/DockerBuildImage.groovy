@@ -184,7 +184,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final SetProperty<String> extraHosts = project.objects.setProperty(String)
 
     /**
-     * The target platform in the format os[/arch[/variant]] e.g. {@code linux/s390x} or {@code darwin}.
+     * The target platform in the format {@code os[/arch[/variant]]}, for example {@code linux/s390x} or {@code darwin}.
      *
      * @since 7.1.0
      */
