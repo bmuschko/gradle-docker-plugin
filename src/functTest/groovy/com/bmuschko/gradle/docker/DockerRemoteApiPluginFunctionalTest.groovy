@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
+import spock.lang.Ignore
 import spock.lang.Requires
 
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.groovySettingsFile
@@ -260,6 +261,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('convert')
     }
 
+    @Ignore
     @Requires({ TestPrecondition.HARBOR_CREDENTIALS_AVAILABLE })
     def "can push image to Harbor"() {
         given:
