@@ -32,7 +32,7 @@ class DockerConventionJvmApplicationExtension {
     /**
      * The Docker base image used for Java application.
      * <p>
-     * Defaults to {@code openjdk:11-jre-slim}.
+     * Defaults to {@code openjdk:11.0.15-jre-slim}.
      */
     final Property<String> baseImage
 
@@ -80,7 +80,7 @@ class DockerConventionJvmApplicationExtension {
 
     DockerConventionJvmApplicationExtension(ObjectFactory objectFactory) {
         baseImage = objectFactory.property(String)
-        baseImage.set('openjdk:11-jre-slim')
+        baseImage.set('openjdk:11.0.15-jre-slim')
         maintainer = objectFactory.property(String)
         maintainer.set(System.getProperty('user.name'))
         ports = objectFactory.listProperty(Integer)
