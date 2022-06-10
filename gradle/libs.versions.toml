@@ -3,7 +3,7 @@ plugin-publish = "0.14.0"
 docker-java = "3.2.13"
 activation = "1.1.1"
 asm = "9.1"
-spock = "1.2-groovy-2.5"
+spock = "2.0-groovy-3.0"
 zt-zip = "1.13"
 
 [plugins]

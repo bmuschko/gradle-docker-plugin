@@ -102,7 +102,6 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         noExceptionThrown()
     }
 
-    @TypeChecked
     def "Can configure the dockerJava.javaApplication extension statically"() {
         given:
         String testTagName = "some-test-tag"

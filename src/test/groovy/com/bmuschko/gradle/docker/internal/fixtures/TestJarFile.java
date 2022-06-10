@@ -1,6 +1,5 @@
 package com.bmuschko.gradle.docker.internal.fixtures;
 
-import org.junit.rules.TemporaryFolder;
 import org.zeroturnaround.zip.FileSource;
 import org.zeroturnaround.zip.ZipEntrySource;
 
@@ -18,8 +17,8 @@ public class TestJarFile {
     private final File jarSource;
     private final List<ZipEntrySource> entries = new ArrayList<>();
 
-    public TestJarFile(TemporaryFolder temporaryFolder) throws IOException {
-        this.jarSource = temporaryFolder.newFolder();
+    public TestJarFile(File temporaryFolder) {
+        this.jarSource = temporaryFolder;
     }
 
     public void addClass(String filename, Class<?> classToCopy) throws IOException {
