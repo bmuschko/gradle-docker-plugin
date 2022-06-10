@@ -1,6 +1,7 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     groovy
     `java-gradle-plugin`
