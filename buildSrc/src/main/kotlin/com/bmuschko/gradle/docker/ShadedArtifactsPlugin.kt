@@ -51,7 +51,7 @@ class ShadedArtifactsPlugin: Plugin<Project> {
                 "javax.activation"
         )
         return tasks.named<ShadowJar>("shadowJar") {
-            classifier = null
+            archiveClassifier.set(null)
             configurations = listOf(shaded)
             mergeServiceFiles()
             for (pkg in packagesToRelocate) {
