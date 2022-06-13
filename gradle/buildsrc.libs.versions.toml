@@ -1,0 +1,15 @@
+[versions]
+asciidoctor-gradle-plugin = "1.5.9.1"
+asciidoctorj-tabbed-code-extension = "0.2"
+grgit = "1.9.1"
+gradle-git = "1.7.1"
+gradle-git-publish = "0.3.3"
+shadow = "5.0.0"
+
+[libraries]
+asciidoctor-gradle-plugin = { module = "org.asciidoctor:asciidoctor-gradle-plugin", version.ref = "asciidoctor-gradle-plugin" }
+asciidoctorj-tabbed-code-extension = { module = "com.bmuschko:asciidoctorj-tabbed-code-extension", version.ref = "asciidoctorj-tabbed-code-extension" }
+grgit = { module = "org.ajoberstar:grgit", version.ref = "grgit" }
+gradle-git = { module = "org.ajoberstar:gradle-git", version.ref = "gradle-git" }
+gradle-git-publish = { module = "org.ajoberstar:gradle-git-publish", version.ref = "gradle-git-publish" }
+shadow = { module = "com.github.jengelman.gradle.plugins:shadow", version.ref = "shadow" }
