@@ -20,10 +20,6 @@ dependencies {
     implementation("com.github.jengelman.gradle.plugins:shadow:5.0.0")
 }
 
-kotlinDslPluginOptions {
-    experimentalWarning.set(false)
-}
-
 gradlePlugin {
     plugins {
         register("test-setup-plugin") {
