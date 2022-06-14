@@ -15,18 +15,17 @@
  */
 package com.bmuschko.gradle.docker
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
 abstract class AbstractIntegrationTest extends Specification {
-    @Rule
-    TemporaryFolder temporaryFolder = new TemporaryFolder()
+    @TempDir
+    File temporaryFolder
 
     File projectDir
 
     def setup() {
-        projectDir = temporaryFolder.root
+        projectDir = temporaryFolder
         System.setOut(new FilteredPrintStream(System.out))
     }
 

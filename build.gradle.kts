@@ -1,11 +1,11 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     groovy
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish") version "0.14.0"
-    `build-scan`
+    alias(libs.plugins.plugin.publish)
     com.bmuschko.gradle.docker.`test-setup`
     com.bmuschko.gradle.docker.`integration-test`
     com.bmuschko.gradle.docker.`functional-test`
@@ -24,15 +24,13 @@ repositories {
 }
 
 dependencies {
-    shaded("com.github.docker-java:docker-java-core:3.2.13")
-    shaded("com.github.docker-java:docker-java-api:3.2.13")
-    shaded("com.github.docker-java:docker-java-transport-httpclient5:3.2.13")
-    shaded("javax.activation:activation:1.1.1")
-    shaded("org.ow2.asm:asm:9.1")
-    testImplementation("org.spockframework:spock-core:1.2-groovy-2.5") {
+    shaded(libs.bundles.docker.java)
+    shaded(libs.activation)
+    shaded(libs.asm)
+    testImplementation(libs.spock.core) {
         exclude(group = "org.codehaus.groovy")
     }
-    testImplementation("org.zeroturnaround:zt-zip:1.13")
+    testImplementation(libs.zt.zip)
 }
 
 java {

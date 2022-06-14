@@ -4,9 +4,8 @@ import com.bmuschko.gradle.docker.utils.CopyDirVisitor
 import com.bmuschko.gradle.docker.utils.GradleDsl
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -16,13 +15,13 @@ abstract class AbstractDocumentationTest extends Specification {
 
     public static final List<GradleDsl> ALL_DSLS = [GradleDsl.GROOVY, GradleDsl.KOTLIN]
 
-    @Rule
-    TemporaryFolder temporaryFolder = new TemporaryFolder()
+    @TempDir
+    File temporaryFolder
 
     File projectDir
 
     def setup() {
-        projectDir = temporaryFolder.root
+        projectDir = temporaryFolder
     }
 
     protected BuildResult build(String... arguments) {

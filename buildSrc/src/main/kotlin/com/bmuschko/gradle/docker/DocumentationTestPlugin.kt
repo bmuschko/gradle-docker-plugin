@@ -2,20 +2,22 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.GroovySourceSet
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.GroovySourceDirectorySet
 import org.gradle.api.tasks.testing.Test
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.creating
+import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.provideDelegate
 
 class DocumentationTestPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
-        val sourceSets = project.the<JavaPluginConvention>().sourceSets
+        val sourceSets = project.extensions.getByType(JavaPluginExtension::class.java).sourceSets
         val testRuntimeClasspath by configurations
 
         val docTestSourceSet = sourceSets.create("docTest") {
-            withConvention(GroovySourceSet::class) {
-                groovy.srcDir("src/docTest/groovy")
-            }
+            val sourceDirectorySet = extensions.getByType(GroovySourceDirectorySet::class.java)
+            sourceDirectorySet.srcDir("src/docTest/groovy")
             resources.srcDir("src/docTest/resources")
             compileClasspath += sourceSets["main"]!!.output + sourceSets["testSetup"]!!.output + testRuntimeClasspath
             runtimeClasspath += output + compileClasspath

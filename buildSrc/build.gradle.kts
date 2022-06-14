@@ -10,18 +10,14 @@ repositories {
 
 dependencies {
     implementation(kotlin("gradle-plugin"))
-    implementation("org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.1")
-    runtimeOnly("com.bmuschko:asciidoctorj-tabbed-code-extension:0.2")
-    implementation("org.ajoberstar:grgit:1.9.1") {
+    implementation(buildsrclibs.asciidoctor.gradle.plugin)
+    runtimeOnly(buildsrclibs.asciidoctorj.tabbed.code.extension)
+    implementation(buildsrclibs.grgit) {
         setForce(true)
     }
-    implementation("org.ajoberstar:gradle-git:1.7.1")
-    implementation("org.ajoberstar:gradle-git-publish:0.3.3")
-    implementation("com.github.jengelman.gradle.plugins:shadow:5.0.0")
-}
-
-kotlinDslPluginOptions {
-    experimentalWarning.set(false)
+    implementation(buildsrclibs.gradle.git)
+    implementation(buildsrclibs.gradle.git.publish)
+    implementation(buildsrclibs.shadow)
 }
 
 gradlePlugin {

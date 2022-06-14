@@ -1,0 +1,23 @@
+[versions]
+plugin-publish = "0.14.0"
+docker-java = "3.2.13"
+activation = "1.1.1"
+asm = "9.1"
+spock = "2.0-groovy-3.0"
+zt-zip = "1.13"
+
+[plugins]
+plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
+
+[libraries]
+docker-java-core = { module = "com.github.docker-java:docker-java-core", version.ref = "docker-java" }
+docker-java-api = { module = "com.github.docker-java:docker-java-api", version.ref = "docker-java" }
+docker-java-transport-httpclient5 = { module = "com.github.docker-java:docker-java-transport-httpclient5", version.ref = "docker-java" }
+activation = { module = "javax.activation:activation", version.ref = "activation" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+spock-core = { module = "org.spockframework:spock-core", version.ref = "spock" }
+zt-zip = { module = "org.zeroturnaround:zt-zip", version.ref = "zt-zip" }
+
+[bundles]
+docker-java = ["docker-java-core", "docker-java-api", "docker-java-transport-httpclient5"]
+

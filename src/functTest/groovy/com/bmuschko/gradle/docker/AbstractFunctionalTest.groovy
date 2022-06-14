@@ -1,12 +1,11 @@
 package com.bmuschko.gradle.docker
 
-import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows;
-
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
+
+import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows
 
 abstract class AbstractFunctionalTest extends Specification {
 
@@ -14,8 +13,8 @@ abstract class AbstractFunctionalTest extends Specification {
     public static final String TEST_IMAGE_TAG = '3.4'
     public static final String TEST_IMAGE_WITH_TAG = "${TEST_IMAGE}:${TEST_IMAGE_TAG}"
 
-    @Rule
-    TemporaryFolder temporaryFolder = new TemporaryFolder()
+    @TempDir
+    File temporaryFolder
 
     File projectDir
     File buildFile
@@ -23,9 +22,12 @@ abstract class AbstractFunctionalTest extends Specification {
     Map<String, String> envVars = new HashMap<>()
 
     def setup() {
-        projectDir = temporaryFolder.root
-        buildFile = temporaryFolder.newFile(getBuildFileName())
-        settingsFile = temporaryFolder.newFile(getSettingsFileName())
+        projectDir = temporaryFolder
+        buildFile = new File(temporaryFolder, getBuildFileName())
+        buildFile.createNewFile()
+        settingsFile = new File(temporaryFolder, getSettingsFileName())
+        settingsFile.createNewFile()
+
         if (isWindows()) {
             envVars.put("PATH", System.getenv("PATH"))
         }
