@@ -475,13 +475,14 @@ class DockerCreateContainer extends DockerExistingImage {
 
         /**
          * Docker container tmpfs support.
-         * The <code>key</code> of this map is the container target path, the <code>value</code> stores
-         * the tmpfs comma seperated options.
+         * <p>
+         * The key of this map is the container target path, the value stores
+         * the tmpfs comma-separated options.
+         * <p>
          * For example, to create a temporary 50MB writeable non executable filesystem mounted under /data
          * in the container: {@code tmpFs = ['/data': 'rw,noexec,size=50m']}
-         *
-         * Original documentation: https://docs.docker.com/storage/tmpfs/
-         *
+         * <p>
+         * <a href="https://docs.docker.com/storage/tmpfs/">Original documentation</a>
          */
         @Input
         @Optional
