@@ -82,6 +82,45 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('inspectContainer')
     }
 
+    def "can setup and mount a tmpfs"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImage()
+                hostConfig.tmpFs = ['/testdata': 'rw,noexec,nosuid,size=2m']
+                cmd = ['sleep','10']
+            }
+        """
+        buildFile <<
+            containerStart(containerCreationTask) <<
+            """
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                targetContainerId startContainer.getContainerId()
+                withCommand(['grep', 'tmpfs /testdata', '/proc/mounts'])
+                successOnExitCodes=[0]
+            }
+
+            ${containerRemove()}
+
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn execContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+                onNext { info ->
+                   if (info.hostConfig.tmpFs['/testdata'] != 'rw,noexec,nosuid,size=2m') {
+                     throw new GradleException("'testdata' tmpfs not found")
+                   }
+                }
+            }
+        """
+
+        expect:
+        def result = build('inspectContainer')
+        result.output.contains("tmpfs /testdata tmpfs rw,nosuid,nodev,noexec,relatime,size=2048k 0 0")
+    }
+
     def "can override default MAC address"() {
         given:
         String containerCreationTask = """
@@ -318,6 +357,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         // Starts with the union of all needed imports.
         """
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerInspectContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
