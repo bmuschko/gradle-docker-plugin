@@ -67,7 +67,7 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
         DockerExtension dockerExtension = project.extensions.getByType(DockerExtension)
         EXT extension = configureExtension(project.objects, dockerExtension)
 
-        project.plugins.withType(JavaPlugin) {
+        project.plugins.withType(JavaPlugin).configureEach {
             TaskProvider<Dockerfile> createDockerfileTask = registerDockerfileTask(project, extension)
             TaskProvider<Sync> syncBuildContextTask = registerSyncBuildContextTask(project, createDockerfileTask)
             createDockerfileTask.configure(new Action<Dockerfile>() {
