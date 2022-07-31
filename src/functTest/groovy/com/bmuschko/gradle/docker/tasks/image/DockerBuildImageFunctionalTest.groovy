@@ -58,26 +58,26 @@ USER \$user"""
                 dockerFile = file('Dockerfile')
                 buildArgs = ['user': 'what_user']
             }
-            
+
             task inspectImage(type: DockerInspectImageUser) {
                 dependsOn buildImage
                 imageId = buildImage.imageId
             }
-            
+
             task removeImage(type: DockerRemoveImage) {
                 force = true
                 imageId = buildImage.imageId
             }
 
             inspectImage.finalizedBy tasks.removeImage
-            
+
             class DockerInspectImageUser extends DockerExistingImage {
                 DockerInspectImageUser() {
                     onNext({ image ->
                         project.logger.quiet "user: \$image.containerConfig.user"
                     })
                 }
-            
+
                 @Override
                 void runRemoteCommand() {
                     def image = dockerClient.inspectImageCmd(imageId.get()).exec()
@@ -415,6 +415,71 @@ USER \$user"""
         result.output.contains("Created image with ID")
         imageIdFile.isFile()
         imageIdFile.text != ""
+    }
+
+    def "task not up-to-date when imageId is not tagged as configured"() {
+        given:
+        buildFile << buildImageWithTagsTask()
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerTagImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import com.bmuschko.gradle.docker.tasks.DockerOperation
+
+            task retagImage(type: DockerTagImage) {
+                dependsOn buildImageWithTag
+                imageId = buildImageWithTag.imageId
+                repository = 'test/image'
+                tag = 'foo'
+            }
+
+            task deleteOriginalTag(type: DockerRemoveImage) {
+                dependsOn retagImage
+                imageId = buildImageWithTag.images.get().first()
+            }
+
+            task verifyTagsMissing(type: DockerOperation) {
+                dependsOn deleteOriginalTag
+                onNext {
+                    if (inspectImageCmd(buildImageWithTag.imageId.get()).exec().repoTags.containsAll(buildImageWithTag.images.get())) {
+                        throw new GradleException("There should be configured tags missing now")
+                    }
+                }
+            }
+
+            task verifyTagsPresent(type: DockerOperation) {
+                dependsOn buildImageWithTag
+                onNext {
+                    if (!inspectImageCmd(buildImageWithTag.imageId.get()).exec().repoTags.containsAll(buildImageWithTag.images.get())) {
+                        throw new GradleException("All configured tags should be present now")
+                    }
+                }
+            }
+        """
+
+        when:
+        BuildResult result = build('buildImageWithTag')
+
+        then:
+        result.task(':buildImageWithTag').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
+
+        when:
+        result = build('verifyTagsMissing')
+
+        then:
+        result.task(':buildImageWithTag').outcome == TaskOutcome.UP_TO_DATE
+        result.task(':retagImage').outcome == TaskOutcome.SUCCESS
+        result.task(':deleteOriginalTag').outcome == TaskOutcome.SUCCESS
+        result.task(':verifyTagsMissing').outcome == TaskOutcome.SUCCESS
+        !result.output.contains("Created image with ID")
+
+        when:
+        result = build('verifyTagsPresent')
+
+        then:
+        result.task(':buildImageWithTag').outcome == TaskOutcome.SUCCESS
+        result.task(':verifyTagsPresent').outcome == TaskOutcome.SUCCESS
+        result.output.contains("Created image with ID")
     }
 
     private static String buildImageWithShmSize() {
