@@ -24,7 +24,8 @@ import static com.bmuschko.gradle.docker.TextUtils.escapeFilePath
 class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "Can build an image, create and link a container"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -70,7 +71,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image, create a container and link its volumes into another container"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
 
         dockerFile << 'VOLUME /data'
@@ -155,7 +157,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image, create a container, and copy file from it"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -219,7 +222,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image, create a container and expose a port"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -258,7 +262,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image, create a container and set LogConfig"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -297,7 +302,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image, create a container and set RestartPolicy"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -336,7 +342,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image, create a container and set devices"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -375,7 +382,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image, create a container and set /dev/shm size"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -422,7 +430,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image, create a container and assign an entrypoint"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -467,7 +476,8 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image and create a container with labels"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
 
         String uniqueContainerName = createUniqueContainerName()
@@ -509,11 +519,12 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
     }
 
     def "Can build an image and save it to a file and load"() {
-        File imageDir = temporaryFolder.newFolder('images', 'minimal')
+        File imageDir = new File(temporaryFolder, 'images/minimal')
+        imageDir.mkdirs()
         File dockerFile = createDockerfile(imageDir)
         dockerFile << "EXPOSE 8888" // add random instruction to be able to remove image
         String imageName = createUniqueImageId()
-        String savedImagePath = "${escapeFilePath(new File(temporaryFolder.getRoot(), 'someFile.tmp'))}"
+        String savedImagePath = "${escapeFilePath(new File(temporaryFolder, 'someFile.tmp'))}"
         String uniqueContainerName = createUniqueContainerName()
 
         buildFile << """

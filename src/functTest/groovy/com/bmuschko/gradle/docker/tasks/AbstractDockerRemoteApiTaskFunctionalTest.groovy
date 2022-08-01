@@ -47,7 +47,8 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
     }
 
     def "Can create and execute custom remote API task with extension values"() {
-        File customCertPath = temporaryFolder.newFolder('mydocker')
+        File customCertPath = new File(temporaryFolder, 'mydocker')
+        customCertPath.mkdirs()
         buildFile << """
             docker {
                 url = 'tcp://remote.docker.com:2375'
