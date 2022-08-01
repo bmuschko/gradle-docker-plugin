@@ -4,6 +4,7 @@ plugins {
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+import com.github.dockerjava.api.model.Image
 
 // tag::task-type-usage[]
 val imageIdForName by tasks.creating(DockerImageIdForName::class) {
@@ -33,7 +34,7 @@ open class DockerImageIdForName : AbstractDockerRemoteApiTask {
     val imageId : Property<String> = project.objects.property(String::class)
 
     constructor() {
-        onNext(Action {
+        onNext(Action<Image> {
             this.withGroovyBuilder {
                 imageId.set(getProperty("id") as String)
             }
