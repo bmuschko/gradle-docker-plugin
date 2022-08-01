@@ -265,7 +265,8 @@ LABEL maintainer=benjamin.muschko@gmail.com
 
     def "Can create Dockerfile from template file"() {
         given:
-        File dockerDir = temporaryFolder.newFolder('src', 'main', 'docker')
+        File dockerDir = new File(temporaryFolder, 'src/main/docker')
+        dockerDir.mkdirs()
         new File(dockerDir, 'Dockerfile.template') << """FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com"""
         buildFile << """
