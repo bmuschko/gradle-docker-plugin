@@ -361,7 +361,7 @@ ADD file2.txt /other/dir/file2.txt
             gradle.buildFinished {
                 def configuredTaskPaths = configuredTasks*.path
 
-                assert configuredTaskPaths == [':help']
+                assert configuredTaskPaths == [':help', ':clean']
             }
         """
     }
