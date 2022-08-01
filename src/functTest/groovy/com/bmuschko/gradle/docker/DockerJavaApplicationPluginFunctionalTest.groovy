@@ -130,8 +130,8 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
 
     def "Can create image for Java application with additional files"() {
         given:
-        temporaryFolder.newFile('file1.txt')
-        temporaryFolder.newFile('file2.txt')
+        new File(temporaryFolder, 'file1.txt').createNewFile()
+        new File(temporaryFolder, 'file2.txt').createNewFile()
 
         buildFile << """
             dockerSyncBuildContext {
