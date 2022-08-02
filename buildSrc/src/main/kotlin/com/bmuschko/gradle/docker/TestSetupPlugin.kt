@@ -21,6 +21,7 @@ class TestSetupPlugin : Plugin<Project> {
         }
 
         tasks.withType<Test>().configureEach {
+            useJUnitPlatform()
             testLogging {
                 events("skipped")
             }
