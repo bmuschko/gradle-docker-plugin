@@ -6,6 +6,7 @@ import org.gradle.testkit.runner.BuildResult
 class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     private static final String IMAGE = 'alpine:3.4'
+    private static final String TEST_SUBNET = '10.11.12.0/30'
 
     def "can create and tear down a network"() {
         given:
@@ -22,7 +23,7 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
                     println 'inspectNoNetwork ' + error
                 }
             }
-            
+
             inspectNetwork.finalizedBy removeNetwork
         """
 
@@ -50,7 +51,7 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 networkAliases = ['some-alias']
                 cmd = ['/bin/sh']
             }
-            
+
             task inspectContainer(type: DockerInspectContainer) {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
@@ -69,6 +70,44 @@ class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         then:
         result.output.contains('[some-alias]')
+    }
+
+    def "can create and tear down a network with a specified subnet"() {
+        given:
+        String uniqueNetworkName = createUniqueNetworkName()
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork
+            import com.bmuschko.gradle.docker.tasks.network.DockerRemoveNetwork
+            import com.bmuschko.gradle.docker.tasks.network.DockerInspectNetwork
+            import static com.bmuschko.gradle.docker.tasks.network.DockerCreateNetwork.Ipam.Config
+
+            task createNetworkWithSubnet(type: DockerCreateNetwork) {
+                networkName = '$uniqueNetworkName'
+                Config config = new Config(subnet: '$TEST_SUBNET')
+                ipam.configs.add(config)
+            }
+
+            task removeNetworkWithSubnet(type: DockerRemoveNetwork) {
+                targetNetworkId createNetworkWithSubnet.getNetworkId()
+            }
+
+            task inspectNetworkWithSubnet(type: DockerInspectNetwork) {
+                dependsOn createNetworkWithSubnet
+                targetNetworkId createNetworkWithSubnet.getNetworkId()
+                
+                onNext { network ->
+                    println 'inspectNetworkWithSubnet subnet: ' + network.ipam.config.get(0).subnet
+                }
+            }
+
+            inspectNetworkWithSubnet.finalizedBy removeNetworkWithSubnet
+        """
+
+        when:
+        BuildResult result = build('inspectNetworkWithSubnet')
+
+        then:
+        result.output.contains("inspectNetworkWithSubnet subnet: $TEST_SUBNET")
     }
 
     static String pullImageTask() {
