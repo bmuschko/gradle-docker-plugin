@@ -19,6 +19,7 @@ import com.bmuschko.gradle.docker.domain.ExecProbe
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.command.ExecCreateCmd
+import com.github.dockerjava.api.command.InspectExecResponse
 import com.github.dockerjava.api.model.Frame
 import com.github.dockerjava.api.model.StreamType
 import groovy.transform.CompileStatic
@@ -124,7 +125,7 @@ class DockerExecContainer extends DockerExistingContainer {
             boolean isRunning = true
 
             // 3.) poll for some amount of time until container is in a non-running state.
-            def lastExecResponse
+            InspectExecResponse lastExecResponse
             while (isRunning && localPollTime > 0) {
                 pollTimes += 1
 
