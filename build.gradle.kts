@@ -31,6 +31,7 @@ dependencies {
         exclude(group = "org.codehaus.groovy")
     }
     testImplementation(libs.zt.zip)
+    functionalTestImplementation(libs.commons.vfs2)
 }
 
 java {

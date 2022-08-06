@@ -541,7 +541,7 @@ class DockerWorkflowFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task saveImage(type: DockerSaveImage) {
                 dependsOn buildImage
-                image = "${imageName}"
+                images.add("${imageName}")
                 destFile = new File("${savedImagePath}")
             }
             
