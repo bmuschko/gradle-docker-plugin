@@ -165,6 +165,12 @@ class MainClassFinder {
         }
         catch (IOException ex) {
             return null
+        } finally {
+            try {
+                inputStream.close()
+            } catch (IOException e) {
+                // do nothing
+            }
         }
     }
 
