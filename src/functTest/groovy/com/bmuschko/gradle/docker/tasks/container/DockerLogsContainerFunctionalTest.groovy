@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.TaskOutcome
 
 class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
@@ -178,6 +179,64 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         then:
         result.task(':logContainer').outcome == TaskOutcome.FAILED
         result.output.contains("No such container: not_existing_container")
+    }
+
+    def "Throwing StopExecutionException in onNext callback does not fail task or build"() {
+        given:
+        String tasks = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId startContainer.getContainerId()
+                tailAll = true
+                onNext { message ->
+                    def foundMessage = message.toString()
+                    if (foundMessage.contains("Hello World")) {
+                        throw new StopExecutionException("This should not stop gradle")
+                    }
+                }
+            }
+            task dummyTask {
+                dependsOn logContainer
+            }
+        """
+        buildFile << containerUsage(tasks)
+
+        when:
+        BuildResult result = build('dummyTask')
+
+        then:
+        BuildTask logContainer = result.task(':logContainer')
+        BuildTask dummyTask = result.task(':dummyTask')
+        logContainer.outcome == TaskOutcome.SUCCESS
+        dummyTask.outcome == TaskOutcome.SUCCESS
+    }
+
+    def "Throwing a non-Gradle API exception in onNext callback fails the build"() {
+        given:
+        String tasks = """
+            task logContainer(type: DockerLogsContainer) {
+                targetContainerId startContainer.getContainerId()
+                tailAll = true
+                onNext { message ->
+                    def foundMessage = message.toString()
+                    if (foundMessage.contains("Hello World")) {
+                        throw new IllegalStateException("This should stop gradle")
+                    }
+                }
+            }
+            task dummyTask {
+                dependsOn logContainer
+            }
+        """
+        buildFile << containerUsage(tasks)
+
+        when:
+        BuildResult result = buildAndFail('dummyTask')
+
+        then:
+        BuildTask logContainer = result.task(':logContainer')
+        BuildTask dummyTask = result.task(':dummyTask')
+        logContainer.outcome == TaskOutcome.FAILED
+        !dummyTask
     }
 
     static String containerUsage(String logContainerTask) {

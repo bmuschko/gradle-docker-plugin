@@ -16,9 +16,9 @@
 package com.bmuschko.gradle.docker.tasks.container
 
 import com.github.dockerjava.api.DockerClient
+import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.command.LogContainerCmd
 import com.github.dockerjava.api.model.Frame
-import com.github.dockerjava.core.command.LogContainerResultCallback
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.GradleException
@@ -68,7 +68,6 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Input
     @Optional
     final Property<Boolean> stdOut = project.objects.property(Boolean)
-
 
     /**
      * Include standard err.
@@ -127,62 +126,47 @@ class DockerLogsContainer extends DockerExistingContainer {
         logCommand.exec(createCallback(nextHandler))?.awaitCompletion()
     }
 
-    private LogContainerResultCallback createCallback(Action nextHandler) {
+    private ResultCallback.Adapter<Frame> createCallback(Action nextHandler) {
         if(sink && nextHandler) {
             throw new GradleException("Define either sink or onNext")
         }
         if(sink) {
-            return new LogContainerResultCallback() {
+            return new ResultCallback.Adapter<Frame>() {
                 @Override
                 void onNext(Frame frame) {
-                    try {
-                        switch (frame.streamType as String) {
-                            case 'STDOUT':
-                            case 'RAW':
-                            case 'STDERR':
-                                sink.append(new String(frame.payload))
-                                sink.flush()
-                                break
-                        }
-                    } catch (Exception e) {
-                        logger.error('Failed to handle frame', e)
-                        return
+                    switch (frame.streamType as String) {
+                        case 'STDOUT':
+                        case 'RAW':
+                        case 'STDERR':
+                            sink.append(new String(frame.payload))
+                            sink.flush()
+                            break
                     }
                     super.onNext(frame)
                 }
             }
         }
         if(nextHandler) {
-            return new LogContainerResultCallback() {
+            return new ResultCallback.Adapter<Frame>() {
                 @Override
                 void onNext(Frame frame) {
-                    try {
-                        nextHandler.execute(frame)
-                    } catch (Exception e) {
-                        logger.error('Failed to handle frame', e)
-                        return
-                    }
+                    nextHandler.execute(frame)
                     super.onNext(frame)
                 }
             }
         }
 
-        new LogContainerResultCallback() {
+        new ResultCallback.Adapter<Frame>() {
             @Override
             void onNext(Frame frame) {
-                try {
-                    switch (frame.streamType as String) {
-                        case 'STDOUT':
-                        case 'RAW':
-                            logger.quiet(new String(frame.payload).replaceFirst(/\s+$/, ''))
-                            break
-                        case 'STDERR':
-                            logger.error(new String(frame.payload).replaceFirst(/\s+$/, ''))
-                            break
-                    }
-                } catch(Exception e) {
-                    logger.error('Failed to handle frame', e)
-                    return
+                switch (frame.streamType as String) {
+                    case 'STDOUT':
+                    case 'RAW':
+                        logger.quiet(new String(frame.payload).replaceFirst(/\s+$/, ''))
+                        break
+                    case 'STDERR':
+                        logger.error(new String(frame.payload).replaceFirst(/\s+$/, ''))
+                        break
                 }
                 super.onNext(frame)
             }
