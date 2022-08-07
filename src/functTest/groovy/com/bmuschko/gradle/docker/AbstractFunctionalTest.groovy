@@ -56,7 +56,6 @@ abstract class AbstractFunctionalTest extends Specification {
             .withArguments(arguments + '-s' as List<String>)
             .withPluginClasspath()
             .withEnvironment(envVars)
-            .forwardOutput()
     }
 
     protected File file(String relativePath) {
