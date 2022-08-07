@@ -181,7 +181,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         result.output.contains("No such container: not_existing_container")
     }
 
-    def "Throwing StopExecutionException does not stop the whole gradle buid"() {
+    def "Throwing StopExecutionException in onNext callback does not fail task or build"() {
         given:
         String tasks = """
             task logContainer(type: DockerLogsContainer) {
@@ -210,7 +210,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         dummyTask.outcome == TaskOutcome.SUCCESS
     }
 
-    def "Throwing a custom exception does stop the whole Gradle build"() {
+    def "Throwing a non-Gradle API exception in onNext callback fails the build"() {
         given:
         String tasks = """
             task logContainer(type: DockerLogsContainer) {
