@@ -5,7 +5,10 @@ import groovy.json.JsonSlurper
 import org.apache.commons.vfs2.VFS
 import spock.lang.Unroll
 
+import static org.gradle.testkit.runner.TaskOutcome.FAILED
 import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
+import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 
 class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -17,6 +20,7 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
     private static final String CONTROL_SAVED_IMAGE = "$BUILD_DIR/alpine-docker-image-control.tar"
     private static final String IMAGE_FILE = "$BUILD_DIR/alpine-docker-image.tar"
     private static final String COMPRESSED_IMAGE_FILE = "$BUILD_DIR/alpine-compressed-docker-image.tar.gz"
+    private static final String IMAGE_IDS_FILE = "$BUILD_DIR/imageIds.properties"
 
     def "can save Docker image without compression"() {
         buildFile << pullImageTask('pullImage', IMAGE_3_4)
@@ -146,6 +150,136 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         then:
         result.task(":saveImage").outcome == SKIPPED
         !new File(projectDir, IMAGE_FILE).exists()
+    }
+
+    def "task not up-to-date when imageIds file is missing"() {
+        given:
+        buildFile << pullImageTask('pullImage', IMAGE_3_4)
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn pullImage
+                images.add("${IMAGE_3_4}")
+                destFile = file("${IMAGE_FILE}")
+                imageIdsFile = file("${IMAGE_IDS_FILE}")
+            }
+        """
+
+        when:
+        def result = build('saveImage')
+
+        then:
+        result.task(':saveImage').outcome == SUCCESS
+
+        when:
+        result = build('saveImage')
+
+        then:
+        result.task(':saveImage').outcome == UP_TO_DATE
+
+        when:
+        file(IMAGE_IDS_FILE).delete()
+        result = build('saveImage')
+
+        then:
+        result.task(':saveImage').outcome == SUCCESS
+    }
+
+    def "task not up-to-date when images in file do not match configuration"() {
+        given:
+        buildFile << pullImageTask('pullImage', IMAGE_3_4)
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn pullImage
+                images.add("${IMAGE_3_4}")
+                destFile = file("${IMAGE_FILE}")
+                doLast {
+                    imageIdsFile.get().asFile.text = "a = b"
+                }
+            }
+        """
+
+        when:
+        def result = build('saveImage')
+
+        then:
+        result.task(':saveImage').outcome == SUCCESS
+
+        when:
+        result = build('saveImage')
+
+        then:
+        result.task(':saveImage').outcome == SUCCESS
+    }
+
+    def "task not up-to-date when saved image is missing on daemon"() {
+        given:
+        buildFile << pullImageTask('pullImage', IMAGE_3_4)
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn pullImage
+                images.add("${IMAGE_3_4}")
+                destFile = file("${IMAGE_FILE}")
+            }
+
+            task deleteImage(type: DockerRemoveImage) {
+                dependsOn saveImage
+                imageId = saveImage.images.get().first()
+            }
+        """
+
+        when:
+        def result = build('deleteImage')
+
+        then:
+        result.task(':saveImage').outcome == SUCCESS
+
+        when:
+        result = buildAndFail('saveImage', '-x', 'pullImage')
+
+        then:
+        result.task(':saveImage').outcome == FAILED
+    }
+
+    def "task not up-to-date when image has a different id"() {
+        given:
+        buildFile << pullImageTask('pullImage', IMAGE_3_4)
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn pullImage
+                images.add("${IMAGE_3_4}")
+                destFile = file("${IMAGE_FILE}")
+                imageIdsFile = file("${IMAGE_IDS_FILE}")
+            }
+        """
+
+        when:
+        def result = build('saveImage')
+
+        then:
+        result.task(':saveImage').outcome == SUCCESS
+
+        when:
+        def imageIds = new Properties()
+        file(IMAGE_IDS_FILE).withInputStream {
+            imageIds.load(it)
+        }
+        imageIds.setProperty(imageIds.stringPropertyNames().first(), 'foo')
+        file(IMAGE_IDS_FILE).withOutputStream {
+            imageIds.store(it, null)
+        }
+        result = build('saveImage')
+
+        then:
+        result.task(':saveImage').outcome == SUCCESS
     }
 
     def getRepoTags(imageFile) {
