@@ -1,7 +1,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.internal.IOUtils
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.github.dockerjava.api.command.SaveImagesCmd
 import com.github.dockerjava.api.command.SaveImagesCmd.TaggedImage
 import com.github.dockerjava.api.exception.DockerException
@@ -26,7 +26,6 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
      *
      * @since 8.0.0
      */
-
     @Input
     final SetProperty<String> images = project.objects.setProperty(String)
 
@@ -46,7 +45,7 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
      * Defaults to "$buildDir/.docker/$taskpath-imageIds.properties".
      * If path contains ':' it will be replaced by '_'.
      *
-     * @since 7.4.0
+     * @since 8.0.0
      */
 
     @OutputFile

@@ -26,6 +26,11 @@ class DockerCreateNetwork extends AbstractDockerRemoteApiTask {
     @Input
     final Property<String> networkName
 
+    /**
+     * The IP address management (IPAM) for managing IP address space on a network.
+     *
+     * @since 8.0.0
+     */
     @Nested
     final Ipam ipam
 
