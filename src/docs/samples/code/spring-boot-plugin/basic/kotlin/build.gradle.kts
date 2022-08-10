@@ -2,7 +2,7 @@
 plugins {
     java
     id("org.springframework.boot") version "2.0.3.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "{project-version}"
+    id("com.bmuschko.docker-spring-boot-application") version "{gradle-project-version}"
 }
 // end::plugins[]
 

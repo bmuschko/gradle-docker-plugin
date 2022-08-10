@@ -2,14 +2,13 @@ package com.bmuschko.gradle.docker
 
 import org.ajoberstar.gradle.git.publish.GitPublishExtension
 import org.ajoberstar.gradle.git.publish.GitPublishPlugin
-import org.asciidoctor.gradle.AsciidoctorTask
+import org.asciidoctor.gradle.jvm.AsciidoctorTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.javadoc.Groovydoc
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.kotlin.dsl.*
-import org.gradle.kotlin.dsl.closureOf
 
 class DocumentationPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {

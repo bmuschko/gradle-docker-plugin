@@ -3,7 +3,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath("com.bmuschko:gradle-docker-plugin:{project-version}")
+        classpath("com.bmuschko:gradle-docker-plugin:{gradle-project-version}")
     }
 }
 

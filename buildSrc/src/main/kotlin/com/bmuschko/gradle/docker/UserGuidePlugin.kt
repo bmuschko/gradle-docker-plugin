@@ -1,39 +1,27 @@
 package com.bmuschko.gradle.docker
 
-import org.asciidoctor.gradle.AsciidoctorExtension
-import org.asciidoctor.gradle.AsciidoctorPlugin
-import org.asciidoctor.gradle.AsciidoctorTask
+import org.asciidoctor.gradle.jvm.AsciidoctorJPlugin
+import org.asciidoctor.gradle.jvm.AsciidoctorTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.util.PatternSet
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.named
 
 class UserGuidePlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
         applyAsciidocPlugin()
-        configureAsciidoctorExtension()
         configureAsciidoctorTask()
     }
 
     private
     fun Project.applyAsciidocPlugin() {
-        apply<AsciidoctorPlugin>()
-    }
-
-    private
-    fun Project.configureAsciidoctorExtension() {
-        configure<AsciidoctorExtension> {
-            setVersion("1.6.0")
-        }
+        apply<AsciidoctorJPlugin>()
     }
 
     private
     fun Project.configureAsciidoctorTask() {
         tasks.named<AsciidoctorTask>("asciidoctor") {
-            sourceDir = file("src/docs/asciidoc")
-            sources(delegateClosureOf<PatternSet> {
-                include("index.adoc")
-            })
+            baseDirFollowsSourceDir()
 
             attributes(
                 mapOf(
@@ -47,13 +35,6 @@ class UserGuidePlugin : Plugin<Project> {
                     "samplesCodeDir" to file("src/docs/samples/code")
                 )
             )
-        }
-
-        // Required as the project version is lazily-calculated by the gradle-git plugin
-        afterEvaluate {
-            tasks.named<AsciidoctorTask>("asciidoctor") {
-                attributes.set("project-version", project.version.toString())
-            }
         }
     }
 }
