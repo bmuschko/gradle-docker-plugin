@@ -59,10 +59,10 @@ class DocumentationPlugin : Plugin<Project> {
                 from(groovydoc) {
                     into(KotlinClosure0({ "${project.version}/api" }))
                 }
-                from("${asciidoctor.outputDir}/html5") {
+                from("${asciidoctor.outputDir}") {
                     into("current/user-guide")
                 }
-                from("${asciidoctor.outputDir}/html5") {
+                from("${asciidoctor.outputDir}") {
                     into(KotlinClosure0({ "${project.version}/user-guide" }))
                 }
             }
