@@ -3,7 +3,7 @@ import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 // tag::plugins[]
 plugins {
     java
-    id("com.bmuschko.docker-java-application") version "{project-version}"
+    id("com.bmuschko.docker-java-application") version "{gradle-project-version}"
 }
 // end::plugins[]
 

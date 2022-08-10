@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("gradle-plugin"))
-    implementation(buildsrclibs.asciidoctor.gradle.plugin)
+    implementation(buildsrclibs.asciidoctor.jvm.plugin)
     runtimeOnly(buildsrclibs.asciidoctorj.tabbed.code.extension)
     implementation(buildsrclibs.grgit) {
         setForce(true)

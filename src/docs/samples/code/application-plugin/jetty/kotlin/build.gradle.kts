@@ -1,6 +1,6 @@
 plugins {
     java
-    id("com.bmuschko.docker-java-application") version "{project-version}"
+    id("com.bmuschko.docker-java-application") version "{gradle-project-version}"
 }
 
 version = "1.0"

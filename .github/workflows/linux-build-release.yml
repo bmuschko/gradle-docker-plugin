@@ -41,10 +41,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: docTest
-      - name: Assemble artifact
+      - name: Assemble artifacts
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: assemble
+          arguments: assemble groovydoc asciidoc
       - name: Store artifact
         uses: actions/upload-artifact@v2
         with:
