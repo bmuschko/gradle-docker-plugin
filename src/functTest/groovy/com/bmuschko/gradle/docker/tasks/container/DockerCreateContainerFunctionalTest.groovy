@@ -118,7 +118,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         expect:
         def result = build('inspectContainer')
-        result.output.contains("tmpfs /testdata tmpfs rw,nosuid,nodev,noexec,relatime,size=2048k 0 0")
+        result.output.contains("tmpfs /testdata tmpfs rw,nosuid,nodev,noexec,relatime,size=2048k,inode64 0 0")
     }
 
     def "can override default MAC address"() {
