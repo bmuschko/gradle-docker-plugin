@@ -12,6 +12,4 @@ include::20-java-application-plugin.adoc[]
 
 include::30-spring-boot-application-plugin.adoc[]
 
-include::40-about.adoc[]
-
-include::50-changes.adoc[]
+include::40-changes.adoc[]

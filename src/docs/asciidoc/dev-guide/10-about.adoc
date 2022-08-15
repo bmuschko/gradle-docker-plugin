@@ -1,17 +1,11 @@
-== About This Project
-
-=== Maintainers
+== Maintainers
 
 * https://github.com/cdancy[Christopher Dancy]
 * https://github.com/orzeh[Łukasz Warchał]
 * https://github.com/bmuschko[Benjamin Muschko]
 
-=== Contributing
+== Contributing
 
 Over the years, the plugin has tremendously grown in popularity.
 Contributions from the community are very welcome.
 Have a look at the {uri-github}/blob/master/.github/CONTRIBUTING.md[contribution guidelines] to get started.
-
-include::41-development.adoc[]
-
-include::42-release-process.adoc[]
