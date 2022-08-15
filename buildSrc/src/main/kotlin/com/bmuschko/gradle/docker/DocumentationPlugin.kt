@@ -43,7 +43,8 @@ class DocumentationPlugin : Plugin<Project> {
     private
     fun Project.configureGitPublishExtension() {
         val groovydoc: Groovydoc by tasks
-        val asciidoctor: AsciidoctorTask by tasks
+        val asciidoctorUserGuide = tasks.named<AsciidoctorTask>("asciidoctorUserGuide").get()
+        val asciidoctorDevGuide = tasks.named<AsciidoctorTask>("asciidoctorDevGuide").get()
 
         configure<GitPublishExtension> {
             repoUri = "https://github.com/bmuschko/gradle-docker-plugin.git"
@@ -59,11 +60,17 @@ class DocumentationPlugin : Plugin<Project> {
                 from(groovydoc) {
                     into(KotlinClosure0({ "${project.version}/api" }))
                 }
-                from(asciidoctor.outputDir) {
+                from(asciidoctorUserGuide.outputDir) {
                     into("current/user-guide")
                 }
-                from(asciidoctor.outputDir) {
+                from(asciidoctorUserGuide.outputDir) {
                     into(KotlinClosure0({ "${project.version}/user-guide" }))
+                }
+                from(asciidoctorDevGuide.outputDir) {
+                    into("current/dev-guide")
+                }
+                from(asciidoctorDevGuide.outputDir) {
+                    into(KotlinClosure0({ "${project.version}/dev-guide" }))
                 }
             }
         }

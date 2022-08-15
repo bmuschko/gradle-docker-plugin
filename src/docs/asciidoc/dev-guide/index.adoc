@@ -1,0 +1,9 @@
+= Gradle Docker Plugin Developer Guide
+
+:uri-github: https://github.com/bmuschko/gradle-docker-plugin
+
+include::10-about.adoc[]
+
+include::20-development.adoc[]
+
+include::30-release-process.adoc[]
