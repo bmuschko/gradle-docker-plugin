@@ -19,7 +19,6 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-import static com.bmuschko.gradle.docker.TextUtils.escapeFilePath
 
 class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
