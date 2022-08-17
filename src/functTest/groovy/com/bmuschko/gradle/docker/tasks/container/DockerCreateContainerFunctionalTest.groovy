@@ -19,7 +19,6 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-
 class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     def "can setup additional user groups"() {
