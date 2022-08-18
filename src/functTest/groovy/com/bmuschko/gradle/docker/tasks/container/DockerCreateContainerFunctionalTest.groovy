@@ -352,6 +352,49 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('inspectContainer')
     }
 
+    def "Can build an image, create a container and add/drop capabilities"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImage()
+
+                hostConfig.capAdd = ['NET_ADMIN']
+                hostConfig.capDrop = ['CHOWN']
+            }
+        """
+
+        String containerInspect = '''
+            task inspectContainer(type: DockerInspectContainer) {
+                dependsOn startContainer
+                finalizedBy removeContainer
+                targetContainerId startContainer.getContainerId()
+
+                onNext { c ->
+                    if(c.hostConfig.capAdd.size() != 1) {
+                        throw new GradleException("Invalid capAdd value!")
+                    }
+                    if(c.hostConfig.capAdd.first().toString() != 'NET_ADMIN') {
+                        throw new GradleException("Invalid capAdd value!")
+                    }
+                    if(c.hostConfig.capDrop.size() != 1) {
+                        throw new GradleException("Invalid capDrop value!")
+                    }
+                    if(c.hostConfig.capDrop.first().toString() != 'CHOWN') {
+                        throw new GradleException("Invalid capDrop value!")
+                    }
+                }
+            }
+        '''
+
+        buildFile << containerStart(containerCreationTask)
+        buildFile << containerRemove()
+        buildFile << containerInspect
+
+        expect:
+        build('inspectContainer')
+    }
+
     static String containerStart(String containerCreationTask) {
         // Starts with the union of all needed imports.
         """

@@ -19,6 +19,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
 import com.github.dockerjava.api.command.CreateContainerCmd
 import com.github.dockerjava.api.command.CreateContainerResponse
 import com.github.dockerjava.api.model.Bind
+import com.github.dockerjava.api.model.Capability
 import com.github.dockerjava.api.model.Device
 import com.github.dockerjava.api.model.HealthCheck
 import com.github.dockerjava.api.model.InternetProtocol
@@ -348,6 +349,16 @@ class DockerCreateContainer extends DockerExistingImage {
             containerCommand.hostConfig.withRestartPolicy(RestartPolicy.parse(hostConfig.restartPolicy.get()))
         }
 
+        if (hostConfig.capAdd.getOrNull()) {
+            Capability[] capabilities = hostConfig.capAdd.get().collect { Capability.valueOf(it) }
+            containerCommand.hostConfig.withCapAdd(capabilities)
+        }
+
+        if (hostConfig.capDrop.getOrNull()) {
+            Capability[] capabilities = hostConfig.capDrop.get().collect { Capability.valueOf(it) }
+            containerCommand.hostConfig.withCapDrop(capabilities)
+        }
+
         if (pid.getOrNull()) {
             containerCommand.getHostConfig().withPidMode(pid.get())
         }
@@ -510,6 +521,14 @@ class DockerCreateContainer extends DockerExistingImage {
         @Optional
         final ListProperty<String> devices
 
+        @Input
+        @Optional
+        final ListProperty<String> capAdd
+
+        @Input
+        @Optional
+        final ListProperty<String> capDrop
+
         /**
          * Size of {@code /dev/shm} in bytes.
          * <p>
@@ -583,6 +602,8 @@ class DockerCreateContainer extends DockerExistingImage {
             privileged = objectFactory.property(Boolean)
             privileged.set(false)
             restartPolicy = objectFactory.property(String)
+            capAdd = objectFactory.listProperty(String)
+            capDrop = objectFactory.listProperty(String)
             devices = objectFactory.listProperty(String)
             shmSize = objectFactory.property(Long)
             autoRemove = objectFactory.property(Boolean)
