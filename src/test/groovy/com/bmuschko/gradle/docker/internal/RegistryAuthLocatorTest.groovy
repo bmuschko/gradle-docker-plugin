@@ -152,6 +152,29 @@ class RegistryAuthLocatorTest extends Specification {
         0 * logger.error(*_)
     }
 
+    def "AuthLocator returns correct default registry"() {
+        given:
+        String image = 'ubuntu'
+
+        when:
+        String registry = RegistryAuthLocator.getRegistry(image)
+
+        then:
+        registry == 'https://index.docker.io/v1/'
+    }
+
+
+    def "AuthLocator returns correct custom registry"() {
+        given:
+        String image = 'gcr.io/distroless/java17'
+
+        when:
+        String registry = RegistryAuthLocator.getRegistry(image)
+
+        then:
+        registry == 'gcr.io'
+    }
+
     def "AuthLocator works for Docker Desktop config without existing credentials"() {
         given:
         RegistryAuthLocator locator = createAuthLocatorForExistingConfigFile('config-docker-desktop.json')

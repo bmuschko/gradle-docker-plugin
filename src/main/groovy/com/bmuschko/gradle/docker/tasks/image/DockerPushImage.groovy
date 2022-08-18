@@ -16,6 +16,7 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
+import com.bmuschko.gradle.docker.internal.RegistryAuthLocator
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import com.github.dockerjava.api.command.PushImageCmd
@@ -56,7 +57,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
         for (String image : images.get()) {
             AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image, registryCredentials)
-            logger.quiet "Pushing image '${image}' to ${authConfig.registryAddress}."
+            logger.quiet "Pushing image '${image}' to ${RegistryAuthLocator.getRegistry(image)}."
 
             PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
             pushImageCmd.withAuthConfig(authConfig)
