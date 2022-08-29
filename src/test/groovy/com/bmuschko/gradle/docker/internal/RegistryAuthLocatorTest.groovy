@@ -157,7 +157,7 @@ class RegistryAuthLocatorTest extends Specification {
         String image = 'ubuntu'
 
         when:
-        String registry = RegistryAuthLocator.getRegistry(image)
+        String registry = new RegistryAuthLocator().getRegistry(image)
 
         then:
         registry == 'https://index.docker.io/v1/'
@@ -169,7 +169,7 @@ class RegistryAuthLocatorTest extends Specification {
         String image = 'gcr.io/distroless/java17'
 
         when:
-        String registry = RegistryAuthLocator.getRegistry(image)
+        String registry = new RegistryAuthLocator().getRegistry(image)
 
         then:
         registry == 'gcr.io'

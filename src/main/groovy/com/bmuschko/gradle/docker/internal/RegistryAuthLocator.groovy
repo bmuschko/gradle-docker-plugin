@@ -281,7 +281,7 @@ class RegistryAuthLocator {
      * @param image the name of the docker image
      * @return docker registry name
      */
-    static String getRegistry(String image) {
+    String getRegistry(String image) {
         final NameParser.ReposTag tag = NameParser.parseRepositoryTag(image)
         final NameParser.HostnameReposName repository = NameParser.resolveRepositoryName(tag.repos)
         return repository.hostname
