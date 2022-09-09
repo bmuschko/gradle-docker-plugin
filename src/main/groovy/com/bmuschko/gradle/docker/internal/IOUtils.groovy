@@ -22,16 +22,6 @@ final class IOUtils {
         }
     }
 
-    static void closeQuietly(Closeable toClose) {
-        try {
-            if (toClose != null) {
-                toClose.close()
-            }
-        } catch (IOException ignored) {
-            // ignore
-        }
-    }
-
     /**
      * Create a progress logger for an arbitrary project and class.
      *

@@ -157,7 +157,7 @@ class MainClassFinder {
     }
 
     private static ClassDescriptor createClassDescriptor(InputStream inputStream) {
-        try {
+        try (inputStream) {
             ClassReader classReader = new ClassReader(inputStream)
             ClassDescriptor classDescriptor = new ClassDescriptor()
             classReader.accept(classDescriptor, ClassReader.SKIP_CODE)
@@ -165,12 +165,6 @@ class MainClassFinder {
         }
         catch (IOException ex) {
             return null
-        } finally {
-            try {
-                inputStream.close()
-            } catch (IOException e) {
-                // do nothing
-            }
         }
     }
 

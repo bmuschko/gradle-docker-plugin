@@ -106,24 +106,12 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
                 }
             }
         }
-        InputStream image = saveImagesCmd.exec()
-        OutputStream os
-        try {
-            FileOutputStream fs = new FileOutputStream(destFile.get().asFile)
-            os = fs
-            if (useCompression.get()) {
-                os = new GZIPOutputStream(fs)
-            }
-            try {
-                IOUtils.copy(image, os)
-            } catch (IOException e) {
-                throw new GradleException("Can't save image.", e)
-            } finally {
-                IOUtils.closeQuietly(image)
-            }
-        }
-        finally {
-            IOUtils.closeQuietly(os)
+        try (InputStream image = saveImagesCmd.exec()
+             FileOutputStream fs = new FileOutputStream(destFile.get().asFile)
+             OutputStream os = useCompression.get() ? new GZIPOutputStream(fs) : fs) {
+            IOUtils.copy(image, os)
+        } catch (IOException e) {
+            throw new GradleException("Can't save image.", e)
         }
 
         def imageIds = new Properties()
