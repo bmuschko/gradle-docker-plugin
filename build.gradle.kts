@@ -9,12 +9,13 @@ plugins {
     com.bmuschko.gradle.docker.`test-setup`
     com.bmuschko.gradle.docker.`integration-test`
     com.bmuschko.gradle.docker.`functional-test`
+    com.bmuschko.gradle.docker.`smoke-test`
     com.bmuschko.gradle.docker.`doc-test`
     com.bmuschko.gradle.docker.`additional-artifacts`
-    com.bmuschko.gradle.docker.`shaded-artifacts`
     com.bmuschko.gradle.docker.`user-guide`
     com.bmuschko.gradle.docker.documentation
     com.bmuschko.gradle.docker.release
+    `maven-publish`
 }
 
 group = "com.bmuschko"
@@ -24,9 +25,9 @@ repositories {
 }
 
 dependencies {
-    shaded(libs.bundles.docker.java)
-    shaded(libs.activation)
-    shaded(libs.asm)
+    implementation(libs.bundles.docker.java)
+    implementation(libs.activation)
+    implementation(libs.asm)
     testImplementation(libs.spock.core) {
         exclude(group = "org.codehaus.groovy")
     }
@@ -92,5 +93,11 @@ buildScan {
     if (!System.getenv("CI").isNullOrEmpty()) {
         publishAlways()
         tag("CI")
+    }
+}
+
+publishing {
+    repositories {
+        mavenLocal()
     }
 }

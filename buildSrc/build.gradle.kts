@@ -34,6 +34,10 @@ gradlePlugin {
             id = "com.bmuschko.gradle.docker.functional-test"
             implementationClass = "com.bmuschko.gradle.docker.FunctionalTestPlugin"
         }
+        register("smoke-test-plugin") {
+            id = "com.bmuschko.gradle.docker.smoke-test"
+            implementationClass = "com.bmuschko.gradle.docker.SmokeTestPlugin"
+        }
         register("doc-test-plugin") {
             id = "com.bmuschko.gradle.docker.doc-test"
             implementationClass = "com.bmuschko.gradle.docker.DocumentationTestPlugin"
@@ -41,10 +45,6 @@ gradlePlugin {
         register("additional-artifacts-plugin") {
             id = "com.bmuschko.gradle.docker.additional-artifacts"
             implementationClass = "com.bmuschko.gradle.docker.AdditionalArtifactsPlugin"
-        }
-        register("shaded-artifacts-plugin") {
-            id = "com.bmuschko.gradle.docker.shaded-artifacts"
-            implementationClass = "com.bmuschko.gradle.docker.ShadedArtifactsPlugin"
         }
         register("user-guide-plugin") {
             id = "com.bmuschko.gradle.docker.user-guide"
