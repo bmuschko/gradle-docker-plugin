@@ -62,7 +62,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         CopyArchiveFromContainerCmd containerCommand = dockerClient.copyArchiveFromContainerCmd(containerId.get(), remotePath.get())
         logger.quiet "Copying '${remotePath.get()}' from container with ID '${containerId.get()}' to '${hostPath.get()}'."
 
-        try (InputStream tarStream = containerCommand.exec()) {
+        containerCommand.exec().withCloseable { InputStream tarStream ->
 
             if(nextHandler) {
                 nextHandler.execute(tarStream)
