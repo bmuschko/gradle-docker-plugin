@@ -1,6 +1,13 @@
 == Change Log
 
 [discrete]
+=== v8.1.0 (September 20, 2022)
+
+* Fix custom registry in logs for `DockerPullImage` and `DockerPushImage` tasks - {uri-github}/pull/1091[PR 1091]
+* Add "add" and "drop" host config capability to `DockerCreateContainer` task - {uri-github}/pull/1087[PR 1087]
+* Split end user and developer guides - {uri-github}/pull/1089[PR 1089]
+
+[discrete]
 === v8.0.0 (August 9, 2022)
 
 * Make `DockerSaveImage` task out of date if the input state on the daemon changed - {uri-github}/pull/1073[PR 1073]

@@ -521,10 +521,16 @@ class DockerCreateContainer extends DockerExistingImage {
         @Optional
         final ListProperty<String> devices
 
+        /**
+         * @since 8.1.0
+         */
         @Input
         @Optional
         final ListProperty<String> capAdd
 
+        /**
+         * @since 8.1.0
+         */
         @Input
         @Optional
         final ListProperty<String> capDrop
