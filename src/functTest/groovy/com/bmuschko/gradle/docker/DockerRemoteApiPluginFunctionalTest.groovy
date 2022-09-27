@@ -309,7 +309,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         BuildResult result = build('pushImage')
 
         then:
-        result.output.contains("Pushing image 'demo.goharbor.io/gradle-docker-plugin/alpine:3.15.0' to https://demo.goharbor.io/v2/")
+        result.output.contains("Pushing image 'demo.goharbor.io/gradle-docker-plugin/alpine:3.15.0' to demo.goharbor.io")
     }
 
     static String registryCredentials() {
