@@ -15,7 +15,8 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 targetContainerId createContainer.getContainerId()
                 author = "john doe"
                 message = "My image created"
-                image = "myimage:latest"
+                repository = "myimage"
+                tag = "latest"
             }
         """
 
@@ -28,7 +29,7 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         BuildResult result = build(COMMIT_TASK_NAME)
 
         then:
-        result.output.contains("Committing image for container")
+        result.output.contains("Committing image 'myimage:latest' for container")
     }
 
     def "cannot commit image with invalid container"() {
@@ -37,7 +38,8 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task $COMMIT_TASK_NAME(type: DockerCommitImage) {
                 dependsOn startContainer
                 targetContainerId "idonotexist"
-                image = "myimage:latest"
+                repository = "myimage"
+                tag = "latest"
             }
         """
 
