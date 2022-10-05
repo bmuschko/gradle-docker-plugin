@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.util.GradleVersion
 
 class FunctionalTestPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
@@ -33,6 +34,7 @@ class FunctionalTestPlugin : Plugin<Project> {
                 showStandardStreams = true
                 events("started", "passed", "failed")
             }
+            environment("CURRENT_GRADLE_VERSION", GradleVersion.current().version)
         }
 
         tasks["check"].dependsOn(functionalTest)

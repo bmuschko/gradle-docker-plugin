@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.util.GradleVersion
 import spock.lang.Requires
 
 import static com.bmuschko.gradle.docker.TextUtils.equalsIgnoreLineEndings
@@ -378,6 +379,14 @@ ADD file2.txt /other/dir/file2.txt
         buildFile << imageTasks()
         buildFile << containerTasks()
         buildFile << lifecycleTask()
+    }
+
+    private String realizedTasks() {
+        if (GradleVersion.version("6.9.2") == GradleVersion.version(System.getenv("GRADLE_VERSION") ?: System.getenv("CURRENT_GRADLE_VERSION"))) {
+            "':help'"
+        } else {
+            "':help', ':clean'"
+        }
     }
 
     private void writeNoTasksRealizedAssertionToBuildFile() {

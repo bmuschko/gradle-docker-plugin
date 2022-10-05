@@ -56,6 +56,7 @@ abstract class AbstractFunctionalTest extends Specification {
             .withArguments(arguments + '-s' + '--configuration-cache' as List<String>)
             .withPluginClasspath()
             .withEnvironment(envVars)
+            .withGradleVersion(System.getenv("GRADLE_VERSION") ?: System.getenv("CURRENT_GRADLE_VERSION"))
     }
 
     protected File file(String relativePath) {
