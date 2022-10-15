@@ -339,6 +339,37 @@ COPY --from=builder /opt/h2.jar /opt/h2.jar
 """)
     }
 
+    def "Can enable configuration cache"() {
+        given:
+        buildFile << """
+            import java.util.concurrent.Callable
+            task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
+                from '$TEST_IMAGE_WITH_TAG'
+                copyFile(project.provider {
+                    if (new File(dockerfile.destDir.get().asFile, 'example').isDirectory()) {
+                        return new Dockerfile.CopyFile('example', 'example/')
+                    }
+                })
+            }
+        """
+
+        when:
+        BuildResult result = build(CONFIGURATION_CACHE, DOCKERFILE_TASK_NAME)
+
+        then:
+        result.output.contains("Configuration cache entry stored.")
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
+""")
+
+        when:
+        result = build(CONFIGURATION_CACHE, DOCKERFILE_TASK_NAME)
+
+        then:
+        result.output.contains("Reusing configuration cache.")
+        assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
+""")
+    }
+
     private void assertDockerfileContent(String expectedContent) {
         File dockerfile = defaultDockerfile()
         assert dockerfile.isFile()

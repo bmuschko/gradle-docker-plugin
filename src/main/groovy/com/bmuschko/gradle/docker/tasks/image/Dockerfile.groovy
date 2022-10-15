@@ -23,6 +23,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
@@ -54,10 +55,13 @@ class Dockerfile extends DefaultTask {
     @OutputFile
     final RegularFileProperty destFile
 
+    private final ObjectFactory objects
+
     Dockerfile() {
         instructions = project.objects.listProperty(Instruction).empty()
         destFile = project.objects.fileProperty()
         destFile.set(project.layout.buildDirectory.file('docker/Dockerfile'))
+        objects = project.objects
     }
 
     /**
@@ -81,7 +85,7 @@ class Dockerfile extends DefaultTask {
         destFile.flatMap(new Transformer<Provider<Directory>, RegularFile>() {
             @Override
             Provider<Directory> transform(RegularFile f) {
-                DirectoryProperty destDir = project.objects.directoryProperty()
+                DirectoryProperty destDir = objects.directoryProperty()
                 destDir.set(f.asFile.parentFile)
                 destDir
             }
