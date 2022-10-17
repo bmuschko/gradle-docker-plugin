@@ -16,13 +16,12 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.internal.RegistryAuthLocator
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
+import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.command.PushImageCmd
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.PushResponseItem
-import com.github.dockerjava.core.command.PushImageResultCallback
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.GradleException
@@ -61,7 +60,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
 
             PushImageCmd pushImageCmd = dockerClient.pushImageCmd(image)
             pushImageCmd.withAuthConfig(authConfig)
-            PushImageResultCallback callback = createCallback(nextHandler)
+            ResultCallback.Adapter<PushResponseItem> callback = createCallback(nextHandler)
             pushImageCmd.exec(callback).awaitCompletion()
         }
     }
@@ -74,19 +73,13 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
         action.execute(registryCredentials)
     }
 
-    private PushImageResultCallback createCallback(Action nextHandler) {
-        new PushImageResultCallback() {
+    private ResultCallback.Adapter<PushResponseItem> createCallback(Action nextHandler) {
+        new ResultCallback.Adapter<PushResponseItem>() {
             @Override
             void onNext(PushResponseItem item) {
                 if (nextHandler) {
-                    try {
-                        nextHandler.execute(item)
-                    } catch (Exception e) {
-                        logger.error('Failed to handle push response', e)
-                        return
-                    }
+                    nextHandler.execute(item)
                 }
-                super.onNext(item)
             }
         }
     }
