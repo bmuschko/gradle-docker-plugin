@@ -51,6 +51,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
                     ports = [9090, 8080]
                     images = ['awesome-spring-boot:1.115']
                     jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
+                    args = ['--spring.config.name=myproject']
                 }
             }
         """
@@ -61,7 +62,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         then:
         File dockerfile = dockerFile()
         dockerfile.exists()
-        equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080], jvmArgs: ['-Dspring.profiles.active=production', '-Xmx2048m'])))
+        equalsIgnoreLineEndings(dockerfile.text, expectedDockerFileContent(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090, 8080], jvmArgs: ['-Dspring.profiles.active=production', '-Xmx2048m'], args: ['--spring.config.name=myproject'])))
 
         where:
         plugin << REACTED_PLUGINS
@@ -269,7 +270,7 @@ LABEL maintainer=$expectedDockerfile.maintainer
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.mainClassName).collect { '"' + it + '"'} }
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.mainClassName, expectedDockerfile.args).collect { '"' + it + '"'} }
 """
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
@@ -280,7 +281,7 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.main
         dockerFileContent
     }
 
-    private static List<String> buildEntrypoint(List<String> jvmArgs, String mainClassName) {
+    private static List<String> buildEntrypoint(List<String> jvmArgs, String mainClassName, List<String> args) {
         List<String> entrypoint = ["java"]
 
         if (!jvmArgs.empty) {
@@ -288,6 +289,11 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.main
         }
 
         entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", mainClassName])
+
+        if (!args.empty) {
+            entrypoint.addAll(args)
+        }
+
         entrypoint
     }
 
@@ -297,5 +303,6 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.main
         List<String> exposedPorts = [8080]
         List<String> jvmArgs = []
         String mainClassName = 'com.bmuschko.gradle.docker.springboot.Application'
+        List<String> args = []
     }
 }

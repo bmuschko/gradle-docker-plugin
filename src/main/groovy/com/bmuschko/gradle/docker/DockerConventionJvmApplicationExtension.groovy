@@ -78,6 +78,15 @@ class DockerConventionJvmApplicationExtension {
      */
     final Property<String> mainClassName
 
+    /**
+     * The program arguments appended to Java application.
+     * <p>
+     * Defaults to {@code []}.
+     *
+     * @since 9.0.0
+     */
+    final ListProperty<String> args
+
     DockerConventionJvmApplicationExtension(ObjectFactory objectFactory) {
         baseImage = objectFactory.property(String)
         baseImage.set('openjdk:11.0.15-jre-slim')
@@ -88,5 +97,6 @@ class DockerConventionJvmApplicationExtension {
         images = objectFactory.setProperty(String).empty()
         jvmArgs = objectFactory.listProperty(String).empty()
         mainClassName = objectFactory.property(String)
+        args = objectFactory.listProperty(String).empty()
     }
 }
