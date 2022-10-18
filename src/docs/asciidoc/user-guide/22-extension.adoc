@@ -12,7 +12,9 @@ The following properties can be configured:
 |`ports`         |`ListProperty<Integer>`            |`[8080]`                                                      |The Docker image exposed ports.
 |`images`        |`SetProperty<String>`              |`[<project.group>/<applicationName>:<project.version>]`       |The images used for the build and push operation.
 |`jvmArgs`       |`ListProperty<String>`             |`[]`                                                          |The JVM arguments passed to the `java` command.
-|`mainClassName` |`Property<String>`                 |A unique main class name discovered by scanning the classpath |The main class name to use for starting the application. Setting an explicit value for this option is useful if your source code contains multiple main class files.
+|`mainClassName` |`Property<String>`                 |A unique main class
+name discovered by scanning the classpath |The main class name to use for starting the application. Setting an explicit value for this option is useful if your source code contains multiple main class files.
+|`args`          |`ListProperty<String>`             |`[]`                                                          |The program arguments passed to the `java` command.
 |=======
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]

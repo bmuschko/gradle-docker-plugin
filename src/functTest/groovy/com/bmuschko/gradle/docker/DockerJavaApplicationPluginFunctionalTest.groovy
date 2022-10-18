@@ -52,6 +52,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
                     ports = [9090]
                     images = ['jettyapp:1.115']
                     jvmArgs = ['-Xms256m', '-Xmx2048m']
+                    args = ['--my.config.name=myproject']
                 }
             }
         """
@@ -60,7 +61,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         build('buildAndCleanResources')
 
         then:
-        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090], jmvArgs: ['-Xms256m', '-Xmx2048m']))
+        assertGeneratedDockerfile(new ExpectedDockerfile(baseImage: CUSTOM_BASE_IMAGE, maintainer: 'benjamin.muschko@gmail.com', exposedPorts: [9090], jmvArgs: ['-Xms256m', '-Xmx2048m'], args: ['--my.config.name=myproject']))
         assertBuildContextLibs()
         assertBuildContextClasses()
     }
@@ -396,7 +397,7 @@ WORKDIR /app
         }
 
         dockerfileContent += """COPY classes classes/
-ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.mainClassName).collect { '"' + it + '"'}}
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.mainClassName, expectedDockerfile.args).collect { '"' + it + '"'}}
 """
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
@@ -407,7 +408,7 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.main
         dockerfileContent
     }
 
-    private static List<String> buildEntrypoint(List<String> jvmArgs, String mainClassName) {
+    private static List<String> buildEntrypoint(List<String> jvmArgs, String mainClassName, List<String> args) {
         List<String> entrypoint = ["java"]
 
         if (!jvmArgs.empty) {
@@ -415,6 +416,11 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.main
         }
 
         entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", mainClassName])
+
+        if (!args.empty) {
+            entrypoint.addAll(args)
+        }
+
         entrypoint
     }
 
@@ -444,5 +450,6 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.main
         List<String> exposedPorts = [8080]
         List<String> jmvArgs = []
         String mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
+        List<String> args = []
     }
 }

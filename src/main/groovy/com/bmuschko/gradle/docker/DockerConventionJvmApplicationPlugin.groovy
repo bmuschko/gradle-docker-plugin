@@ -129,6 +129,13 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
                             }
 
                             entrypoint.addAll(["-cp", "/app/resources:/app/classes:/app/libs/*", getApplicationMainClassName(project, extension)])
+
+                            List<String> args = extension.args.get()
+
+                            if (!args.empty) {
+                                entrypoint.addAll(args)
+                            }
+
                             entrypoint
                         }
                     }))
