@@ -74,7 +74,7 @@ USER \$user"""
             class DockerInspectImageUser extends DockerExistingImage {
                 DockerInspectImageUser() {
                     onNext({ image ->
-                        project.logger.quiet "user: \$image.containerConfig.user"
+                        logger.quiet "user: \$image.containerConfig.user"
                     })
                 }
 
@@ -482,6 +482,24 @@ USER \$user"""
         result.output.contains("Created image with ID")
     }
 
+    def "can enable configuration cache"() {
+        buildFile << imageCreationTask()
+
+        when:
+        BuildResult result = build(CONFIGURATION_CACHE, 'buildImage')
+
+        then:
+        result.output.contains("Created image with ID")
+        result.output.contains("Configuration cache entry stored.")
+
+        when:
+        result = build(CONFIGURATION_CACHE, 'buildImage')
+
+        then:
+        result.output.contains("Reusing configuration cache.")
+
+    }
+
     private static String buildImageWithShmSize() {
         """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
@@ -741,11 +759,12 @@ USER \$user"""
         """
             tasks.withType(DockerBuildImage) { Task task ->
                 def assertTask = tasks.create("assertImageIdFor\${task.name.capitalize()}"){
-                    def dependantTask = task
+                    def imageId = task.getImageId()
+                    def name = task.name
                     doLast {
-                        def value = dependantTask.getImageId().getOrNull()
+                        def value = imageId.getOrNull()
                         if(value == null || !(value ==~ /^\\w+\$/)) {
-                            throw new GradleException("The imageId property was not set from task \${dependantTask.name}")
+                            throw new GradleException("The imageId property was not set from task \$name")
                         }
                     }
                 }

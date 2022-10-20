@@ -15,11 +15,15 @@
  */
 package com.bmuschko.gradle.docker
 
+import com.bmuschko.gradle.docker.services.DockerClientService
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
+import org.gradle.api.services.BuildServiceSpec
 
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
@@ -43,6 +47,24 @@ class DockerRemoteApiPlugin implements Plugin<Project> {
     void apply(Project project) {
         DockerExtension dockerExtension = project.extensions.create(EXTENSION_NAME, DockerExtension, project.objects)
         configureRegistryCredentialsAwareTasks(project, dockerExtension.registryCredentials)
+
+        Provider<DockerClientService> serviceProvider = project.getGradle().getSharedServices().registerIfAbsent("docker", DockerClientService.class, new Action<BuildServiceSpec<DockerClientService.Params>>() {
+            @Override
+            void execute(BuildServiceSpec<DockerClientService.Params> pBuildServiceSpec) {
+                pBuildServiceSpec.parameters(parameters -> {
+                    parameters.getUrl().set(dockerExtension.getUrl());
+                    parameters.getCertPath().set(dockerExtension.getCertPath());
+                    parameters.getApiVersion().set(dockerExtension.getApiVersion());
+                })
+            }
+        })
+
+        project.tasks.withType(AbstractDockerRemoteApiTask).configureEach(new Action<AbstractDockerRemoteApiTask>() {
+            @Override
+            void execute(AbstractDockerRemoteApiTask task) {
+                task.dockerClientService.set(serviceProvider)
+            }
+        })
     }
 
     private void configureRegistryCredentialsAwareTasks(Project project, DockerRegistryCredentials extensionRegistryCredentials) {
