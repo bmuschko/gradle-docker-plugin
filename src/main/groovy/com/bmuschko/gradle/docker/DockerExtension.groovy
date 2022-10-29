@@ -97,6 +97,8 @@ class DockerExtension {
             boolean isWindows = isWindows()
             if (!isWindows && new File('/var/run/docker.sock').exists()) {
                 dockerUrl = 'unix:///var/run/docker.sock'
+            } else if (!isWindows && new File("${System.getProperty("user.home")}/.docker/run/docker.sock").exists()) {
+                dockerUrl = "unix://${System.getProperty("user.home")}/.docker/run/docker.sock"
             } else {
                 if (isWindows && new File("\\\\.\\pipe\\docker_engine").exists()) {
                     dockerUrl = 'npipe:////./pipe/docker_engine'
@@ -111,9 +113,9 @@ class DockerExtension {
 
     private File getDefaultDockerCert() {
         String dockerCertPath = System.getenv("DOCKER_CERT_PATH")
-        if(dockerCertPath) {
+        if (dockerCertPath) {
             File certFile = new File(dockerCertPath)
-            if(certFile.exists()) {
+            if (certFile.exists()) {
                 return certFile
             }
         }
