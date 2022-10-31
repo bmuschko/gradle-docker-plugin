@@ -288,7 +288,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
         given:
         buildFile << """
             ext.labelVersion = project.properties.getOrDefault('labelVersion', '1.0')
-            
+
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 instruction('FROM $TEST_IMAGE_WITH_TAG')
                 instruction('LABEL maintainer=benjamin.muschko@gmail.com')
@@ -354,7 +354,7 @@ COPY --from=builder /opt/h2.jar /opt/h2.jar
         """
 
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, DOCKERFILE_TASK_NAME)
+        BuildResult result = build(DOCKERFILE_TASK_NAME)
 
         then:
         result.output.contains("Configuration cache entry stored.")
@@ -362,7 +362,7 @@ COPY --from=builder /opt/h2.jar /opt/h2.jar
 """)
 
         when:
-        result = build(CONFIGURATION_CACHE, DOCKERFILE_TASK_NAME)
+        result = build(DOCKERFILE_TASK_NAME)
 
         then:
         result.output.contains("Reusing configuration cache.")

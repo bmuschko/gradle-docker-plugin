@@ -184,7 +184,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         buildFile << containerUsage(containerExecutionTask)
 
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, 'logContainer')
+        BuildResult result = build('logContainer')
 
         then:
         result.output.contains('Hello World')

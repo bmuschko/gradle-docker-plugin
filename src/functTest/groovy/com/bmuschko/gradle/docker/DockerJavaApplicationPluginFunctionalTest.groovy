@@ -20,7 +20,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
 
     def "Can create image and start container for Java application with default configuration and configuration cache enabled"() {
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, 'buildAndCleanResources')
+        BuildResult result = build('buildAndCleanResources')
 
         then:
         assertGeneratedDockerfile()
@@ -29,7 +29,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         result.output.contains("0 problems were found storing the configuration cache.")
 
         when:
-        result = build(CONFIGURATION_CACHE, 'buildAndCleanResources')
+        result = build('buildAndCleanResources')
 
         then:
         result.output.contains("Configuration cache entry reused.")

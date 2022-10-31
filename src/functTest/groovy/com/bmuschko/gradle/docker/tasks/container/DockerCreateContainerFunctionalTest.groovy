@@ -409,14 +409,14 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             containerLogAndRemove()
 
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, 'logContainer')
+        BuildResult result = build('logContainer')
 
         then:
         result.output.contains("Hello, world!")
         result.output.contains("0 problems were found storing the configuration cache.")
 
         when:
-        result = build(CONFIGURATION_CACHE, 'logContainer')
+        result = build('logContainer')
 
         then:
         result.output.contains("Configuration cache entry reused.")

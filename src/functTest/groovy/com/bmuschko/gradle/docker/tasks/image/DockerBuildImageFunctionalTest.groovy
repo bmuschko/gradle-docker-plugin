@@ -478,14 +478,14 @@ USER \$user"""
         buildFile << imageCreationTask()
 
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, 'buildImage')
+        BuildResult result = build('buildImage')
 
         then:
         result.output.contains("Created image with ID")
         result.output.contains("Configuration cache entry stored.")
 
         when:
-        result = build(CONFIGURATION_CACHE, 'buildImage')
+        result = build('buildImage')
 
         then:
         result.output.contains("Reusing configuration cache.")

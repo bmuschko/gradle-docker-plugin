@@ -316,14 +316,14 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
 
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, 'saveImage')
+        BuildResult result = build('saveImage')
 
         then:
         file(IMAGE_FILE).size() > 0
         result.output.contains("0 problems were found storing the configuration cache.")
 
         when:
-        result = build(CONFIGURATION_CACHE, 'saveImage')
+        result = build('saveImage')
 
         then:
         result.output.contains("Configuration cache entry reused.")

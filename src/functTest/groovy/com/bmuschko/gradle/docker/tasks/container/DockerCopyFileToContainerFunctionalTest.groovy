@@ -136,13 +136,13 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
         """
 
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, 'copyFileIntoContainer')
+        BuildResult result = build('copyFileIntoContainer')
 
         then:
         result.output.contains("0 problems were found storing the configuration cache.")
 
         when:
-        result = build(CONFIGURATION_CACHE, 'copyFileIntoContainer')
+        result = build('copyFileIntoContainer')
 
         then:
         result.output.contains("Configuration cache entry reused.")
