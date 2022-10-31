@@ -669,7 +669,7 @@ class DockerCreateContainer extends DockerExistingImage {
             this.restartPolicy.set("${name}:${maximumRetryCount}".toString())
         }
 
-        static class LogConfig {
+        static class LogConfig implements Serializable {
             String type
             Map<String, String> config = [:]
         }
