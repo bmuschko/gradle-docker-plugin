@@ -154,21 +154,13 @@ USER \$user"""
         buildFile << dockerFileTask() << """
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
-            task buildImage(type: CustomDockerBuildImage) {
+            task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                labels = ["build-date": "\${getBuildDate()}"]
+                labels = ["build-date": getBuildDate()]
             }
 
             def getBuildDate() {
                 return new Date().format('yyyyMMddHHmmss.SSS')
-            }
-
-            class CustomDockerBuildImage extends DockerBuildImage {
-                @Override
-                @Internal
-                MapProperty<String, String> getLabels() {
-                    super.getLabels()
-                }
             }
         """
 
