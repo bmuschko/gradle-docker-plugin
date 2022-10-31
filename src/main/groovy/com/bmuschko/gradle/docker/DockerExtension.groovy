@@ -39,8 +39,6 @@ import org.gradle.api.provider.Property
 @CompileStatic
 class DockerExtension {
 
-    private final Logger logger = Logging.getLogger(DockerExtension)
-
     /**
      * The server URL to connect to via Docker’s remote API.
      * <p>
@@ -66,11 +64,13 @@ class DockerExtension {
     final DockerRegistryCredentials registryCredentials
 
     DockerExtension(ObjectFactory objectFactory) {
+        DefaultDockerConfigResolver dockerConfigResolver = new DefaultDockerConfigResolver()
+
         url = objectFactory.property(String)
-        url.set(DefaultDockerConfigResolver.getDefaultDockerUrl())
+        url.set(dockerConfigResolver.getDefaultDockerUrl())
         certPath = objectFactory.directoryProperty()
 
-        File defaultDockerCert = DefaultDockerConfigResolver.getDefaultDockerCert()
+        File defaultDockerCert = dockerConfigResolver.getDefaultDockerCert()
 
         if (defaultDockerCert) {
             certPath.set(defaultDockerCert)

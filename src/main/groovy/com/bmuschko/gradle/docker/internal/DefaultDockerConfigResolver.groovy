@@ -1,6 +1,5 @@
 package com.bmuschko.gradle.docker.internal
 
-import com.google.common.annotations.VisibleForTesting
 import groovy.transform.CompileStatic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -14,18 +13,7 @@ class DefaultDockerConfigResolver {
 
     private static final Logger logger = Logging.getLogger(DefaultDockerConfigResolver)
 
-    static String getDefaultDockerUrl() {
-        getDefaultDockerUrl(
-                new File('\\\\.\\pipe\\docker_engine').exists(),
-                new File('/var/run/docker.sock').exists(),
-                new File("${SystemConfig.getProperty("user.home")}/.docker/run/docker.sock").exists()
-        )
-    }
-
-    @VisibleForTesting
-    protected static String getDefaultDockerUrl(boolean winPipeDockerEngineExists,
-                                                boolean varRunDockerSockExists,
-                                                boolean userHomeDockerSockExists) {
+    String getDefaultDockerUrl() {
         String dockerUrl = SystemConfig.getEnv("DOCKER_HOST")
         if (!dockerUrl) {
             boolean isWindows = isWindows()
@@ -52,7 +40,7 @@ class DefaultDockerConfigResolver {
     }
 
     @Nullable
-    static File getDefaultDockerCert() {
+    File getDefaultDockerCert() {
         String dockerCertPath = SystemConfig.getEnv("DOCKER_CERT_PATH")
         if (dockerCertPath) {
             File certFile = new File(dockerCertPath)
@@ -61,6 +49,18 @@ class DefaultDockerConfigResolver {
             }
         }
         return null
+    }
+
+    protected boolean isWinPipeDockerEngineExists() {
+        new File('\\\\.\\pipe\\docker_engine').exists()
+    }
+
+    protected boolean isVarRunDockerSockExists() {
+        new File('/var/run/docker.sock').exists()
+    }
+
+    protected boolean isUserHomeDockerSockExists() {
+        new File("${SystemConfig.getProperty("user.home")}/.docker/run/docker.sock").exists()
     }
 
 }

@@ -3,13 +3,12 @@ package com.bmuschko.gradle.docker.internal
 import spock.lang.Specification
 import spock.lang.TempDir
 import spock.lang.Unroll
+import spock.util.environment.RestoreSystemProperties
 
 import java.nio.file.Files
 import java.nio.file.Path
 
 class DefaultDockerConfigResolverTest extends Specification {
-
-    private static String fallbackDockerUrl = 'tcp://127.0.0.1:2375'
 
     @TempDir
     Path temporaryFolder
@@ -28,9 +27,10 @@ class DefaultDockerConfigResolverTest extends Specification {
         SystemConfig.setEnv('DOCKER_HOST', dockerHostEnv)
 
         expect:
-        DefaultDockerConfigResolver.defaultDockerUrl == dockerHostEnv
+        new DefaultDockerConfigResolver().defaultDockerUrl == dockerHostEnv
     }
 
+    @RestoreSystemProperties
     @Unroll
     def "returns default fallback docker url for all operation systems: #osName"() {
         given:
@@ -38,50 +38,56 @@ class DefaultDockerConfigResolverTest extends Specification {
         SystemConfig.setProperty('os.name', osName)
 
         expect:
-        DefaultDockerConfigResolver.defaultDockerUrl == fallbackDockerUrl
+        new DefaultDockerConfigResolver().defaultDockerUrl == 'tcp://127.0.0.1:2375'
 
         where:
         osName << ['Windows 10', 'Mac OS X', 'Linux']
     }
 
+    @RestoreSystemProperties
     def "returns npipe:////./pipe/docker_engine if file exists on Windows"() {
         given:
         SystemConfig.setProperty('os.name', 'Windows 10')
 
         expect:
-        DefaultDockerConfigResolver.getDefaultDockerUrl(
-                { true },
-                { false },
-                { false }
-        ) == 'npipe:////./pipe/docker_engine'
+        new DefaultDockerConfigResolver() {
+            @Override
+            protected boolean isWinPipeDockerEngineExists() {
+                return true
+            }
+        }.getDefaultDockerUrl() == 'npipe:////./pipe/docker_engine'
     }
 
+    @RestoreSystemProperties
     def "returns unix:///var/run/docker.sock url if file exists on #osName"() {
         given:
         SystemConfig.setProperty('os.name', osName)
 
         expect:
-        DefaultDockerConfigResolver.getDefaultDockerUrl(
-                { false },
-                { true },
-                { false }
-        ) == 'unix:///var/run/docker.sock'
+        new DefaultDockerConfigResolver() {
+            @Override
+            protected boolean isVarRunDockerSockExists() {
+                return true
+            }
+        }.getDefaultDockerUrl() == 'unix:///var/run/docker.sock'
 
         where:
         osName << ['Mac OS X', 'Linux']
     }
 
+    @RestoreSystemProperties
     def "returns unix://{user.home}/.docker/run/docker.sock url if file exists on #osName"() {
         given:
         SystemConfig.setProperty('os.name', osName)
         SystemConfig.setProperty('user.home', '/home/test')
 
         expect:
-        DefaultDockerConfigResolver.getDefaultDockerUrl(
-                { false },
-                { false },
-                { true }
-        ) == "unix:///home/test/.docker/run/docker.sock"
+        new DefaultDockerConfigResolver() {
+            @Override
+            protected boolean isUserHomeDockerSockExists() {
+                return true
+            }
+        }.getDefaultDockerUrl() == "unix:///home/test/.docker/run/docker.sock"
 
         where:
         osName << ['Mac OS X', 'Linux']
@@ -89,7 +95,7 @@ class DefaultDockerConfigResolverTest extends Specification {
 
     def "returns null if DOCKER_CERT_PATH is not set"() {
         expect:
-        DefaultDockerConfigResolver.defaultDockerCert == null
+        new DefaultDockerConfigResolver().defaultDockerCert == null
     }
 
     def "returns null if DOCKER_CERT_PATH set and leads to a not existed file"() {
@@ -98,7 +104,7 @@ class DefaultDockerConfigResolverTest extends Specification {
         SystemConfig.setEnv('DOCKER_CERT_PATH', dockerCertPath)
 
         expect:
-        DefaultDockerConfigResolver.defaultDockerCert == null
+        new DefaultDockerConfigResolver().defaultDockerCert == null
     }
 
     def "returns existed file if DOCKER_CERT_PATH set and leads to a correct file"() {
@@ -109,7 +115,7 @@ class DefaultDockerConfigResolverTest extends Specification {
         SystemConfig.setEnv('DOCKER_CERT_PATH', certFile.toAbsolutePath().toString())
 
         expect:
-        DefaultDockerConfigResolver.defaultDockerCert == certFile.toFile()
+        new DefaultDockerConfigResolver().defaultDockerCert == certFile.toFile()
     }
 
 }

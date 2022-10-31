@@ -1,6 +1,5 @@
 package com.bmuschko.gradle.docker.internal
 
-import com.google.common.annotations.VisibleForTesting
 import groovy.transform.CompileStatic
 
 /**
@@ -10,13 +9,9 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class SystemConfig {
 
-    private static Map<String, String> OVERRIDE_PROPERTIES = [:]
     private static Map<String, String> OVERRIDE_ENVS = [:]
 
     static String getProperty(String key) {
-        if (OVERRIDE_PROPERTIES.containsKey(key)) {
-            return OVERRIDE_PROPERTIES.get(key)
-        }
         return System.getProperty(key)
     }
 
@@ -31,19 +26,18 @@ class SystemConfig {
         return getEnv(name) ?: defaultValue
     }
 
-    @VisibleForTesting
+    // visible for testing
     static void setProperty(String key, String value) {
-        OVERRIDE_PROPERTIES.put(key, value)
+        System.setProperty(key, value)
     }
 
-    @VisibleForTesting
+    // visible for testing
     static void setEnv(String name, String value) {
         OVERRIDE_ENVS.put(name, value)
     }
 
-    @VisibleForTesting
+    // visible for testing
     static void clear() {
-        OVERRIDE_PROPERTIES.clear()
         OVERRIDE_ENVS.clear()
     }
 
