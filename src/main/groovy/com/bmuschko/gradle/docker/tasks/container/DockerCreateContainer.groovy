@@ -18,6 +18,7 @@ package com.bmuschko.gradle.docker.tasks.container
 import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
 import com.github.dockerjava.api.command.CreateContainerCmd
 import com.github.dockerjava.api.command.CreateContainerResponse
+import com.github.dockerjava.api.exception.DockerException
 import com.github.dockerjava.api.model.Bind
 import com.github.dockerjava.api.model.Capability
 import com.github.dockerjava.api.model.Device
@@ -29,14 +30,19 @@ import com.github.dockerjava.api.model.Ports
 import com.github.dockerjava.api.model.RestartPolicy
 import com.github.dockerjava.api.model.Volume
 import com.github.dockerjava.api.model.VolumesFrom
+import org.gradle.api.Task
+import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 
 import javax.inject.Inject
 
@@ -125,6 +131,14 @@ class DockerCreateContainer extends DockerExistingImage {
     final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
 
     /**
+     * Output file containing the container ID of the container created.
+     * Defaults to "$buildDir/.docker/$taskpath-containerId.txt".
+     * If path contains ':' it will be replaced by '_'.
+     */
+    @OutputFile
+    final RegularFileProperty containerIdFile = project.objects.fileProperty()
+
+    /**
      * The ID of the container created. The value of this property requires the task action to be executed.
      */
     @Internal
@@ -165,6 +179,35 @@ class DockerCreateContainer extends DockerExistingImage {
         volumes.empty()
         exposedPorts.empty()
         tty.set(false)
+
+        containerId.set(containerIdFile.map { RegularFile it ->
+            File file = it.asFile
+            if(file.exists()) {
+                return file.text
+            }
+            return null
+        })
+
+        String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
+        containerIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-containerId.txt"))
+
+        outputs.upToDateWhen upToDateWhenSpec
+    }
+
+    private Spec<Task> upToDateWhenSpec = new Spec<Task>() {
+        @Override
+        boolean isSatisfiedBy(Task element) {
+            File file = containerIdFile.get().asFile
+            if(file.exists()) {
+                try {
+                    def fileContainerId = file.text
+                    dockerClient.inspectContainerCmd(fileContainerId).exec()
+                    return true
+                } catch (DockerException ignored) {
+                }
+            }
+            return false
+        }
     }
 
     @Override
@@ -174,7 +217,7 @@ class DockerCreateContainer extends DockerExistingImage {
         CreateContainerResponse container = containerCommand.exec()
         final String localContainerName = containerName.getOrNull() ?: container.id
         logger.quiet "Created container with ID '$localContainerName'."
-        containerId.set(container.id)
+        containerIdFile.get().asFile.text = container.id
         if(nextHandler) {
             nextHandler.execute(container)
         }
@@ -423,7 +466,7 @@ class DockerCreateContainer extends DockerExistingImage {
         }
     }
 
-    static class ExposedPort {
+    static class ExposedPort implements Serializable {
         final String internetProtocol
         final List<Integer> ports
 

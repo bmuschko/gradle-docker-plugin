@@ -129,7 +129,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
                 cmd = ['ifconfig']
                 macAddress = '02:03:04:05:06:07'
                 hostConfig.cpuset = '1'
-                labels = ["project.name": "\$project.name"]
+                labels = ["project.name": project.name]
             }
         """
         buildFile <<
@@ -393,6 +393,33 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         expect:
         build('inspectContainer')
+    }
+
+    def "can run with configuration cache"() {
+        given:
+        String containerCreationTask = """
+            task createContainer(type: DockerCreateContainer) {
+                dependsOn pullImage
+                targetImageId pullImage.getImage()
+                cmd = ['echo', 'Hello, world!']
+            }
+        """
+        buildFile <<
+            containerStart(containerCreationTask) <<
+            containerLogAndRemove()
+
+        when:
+        BuildResult result = build(CONFIGURATION_CACHE, 'logContainer')
+
+        then:
+        result.output.contains("Hello, world!")
+        result.output.contains("0 problems were found storing the configuration cache.")
+
+        when:
+        result = build(CONFIGURATION_CACHE, 'logContainer')
+
+        then:
+        result.output.contains("Configuration cache entry reused.")
     }
 
     static String containerStart(String containerCreationTask) {

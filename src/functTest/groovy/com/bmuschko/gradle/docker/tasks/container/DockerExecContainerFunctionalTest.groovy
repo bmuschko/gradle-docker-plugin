@@ -15,6 +15,7 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
@@ -169,6 +170,25 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
 
         then:
         result.output.contains('Finished Probing Exec')
+    }
+
+    def "Execute command with configuration cache enabled"() {
+        given:
+        String containerExecutionTask = """
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                targetContainerId startContainer.getContainerId()
+                withCommand(['echo', 'Hello World'])
+            }
+        """
+        buildFile << containerUsage(containerExecutionTask)
+
+        when:
+        BuildResult result = build(CONFIGURATION_CACHE, 'logContainer')
+
+        then:
+        result.output.contains('Hello World')
+        println result.output
     }
 
     static String containerUsage(String containerExecutionTask, int sleep = 30) {

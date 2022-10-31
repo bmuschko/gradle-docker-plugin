@@ -114,7 +114,7 @@ class DockerExecContainer extends DockerExistingContainer {
 
 
             // create progressLogger for pretty printing of terminal log progression.
-            final def progressLogger = getProgressLogger(project, DockerExecContainer)
+            final def progressLogger = getProgressLogger(services, DockerExecContainer)
             progressLogger.started()
 
             // if no livenessProbe defined then create a default

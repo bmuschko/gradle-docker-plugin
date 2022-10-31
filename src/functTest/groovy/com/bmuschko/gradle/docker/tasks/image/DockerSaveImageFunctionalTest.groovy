@@ -3,6 +3,7 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import groovy.json.JsonSlurper
 import org.apache.commons.vfs2.VFS
+import org.gradle.testkit.runner.BuildResult
 import spock.lang.Unroll
 
 import static org.gradle.testkit.runner.TaskOutcome.FAILED
@@ -300,5 +301,31 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                 image = "${image}"
             }
         """
+    }
+
+    def "can use configuration cache"() {
+        buildFile << pullImageTask('pullImage', IMAGE_3_4)
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.DockerSaveImage
+
+            task saveImage(type: DockerSaveImage) {
+                dependsOn pullImage
+                images.add("${IMAGE_3_4}")
+                destFile = file("${IMAGE_FILE}")
+            }
+        """
+
+        when:
+        BuildResult result = build(CONFIGURATION_CACHE, 'saveImage')
+
+        then:
+        file(IMAGE_FILE).size() > 0
+        result.output.contains("0 problems were found storing the configuration cache.")
+
+        when:
+        result = build(CONFIGURATION_CACHE, 'saveImage')
+
+        then:
+        result.output.contains("Configuration cache entry reused.")
     }
 }

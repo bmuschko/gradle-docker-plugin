@@ -19,6 +19,7 @@ import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 
 import java.util.concurrent.Callable
@@ -30,6 +31,8 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
      */
     @Input
     final Property<String> imageId = project.objects.property(String)
+
+    private final ProviderFactory providers = project.providers
 
     /**
      * Sets the target image ID or name.
@@ -50,7 +53,7 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
      * @see #targetImageId(Provider)
      */
     void targetImageId(Callable<String> imageId) {
-        targetImageId(project.provider(imageId))
+        targetImageId(providers.provider(imageId))
     }
 
     /**
