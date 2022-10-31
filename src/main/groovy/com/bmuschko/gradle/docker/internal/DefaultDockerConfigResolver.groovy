@@ -16,29 +16,29 @@ class DefaultDockerConfigResolver {
 
     static String getDefaultDockerUrl() {
         getDefaultDockerUrl(
-                { new File('\\\\.\\pipe\\docker_engine').exists() },
-                { new File('/var/run/docker.sock').exists() },
-                { new File("${SystemConfig.getProperty("user.home")}/.docker/run/docker.sock").exists() }
+                new File('\\\\.\\pipe\\docker_engine').exists(),
+                new File('/var/run/docker.sock').exists(),
+                new File("${SystemConfig.getProperty("user.home")}/.docker/run/docker.sock").exists()
         )
     }
 
     @VisibleForTesting
-    protected static String getDefaultDockerUrl(Closure<Boolean> winPipeDockerEngineExists,
-                                                Closure<Boolean> varRunDockerSockExists,
-                                                Closure<Boolean> userHomeDockerSockExists) {
+    protected static String getDefaultDockerUrl(boolean winPipeDockerEngineExists,
+                                                boolean varRunDockerSockExists,
+                                                boolean userHomeDockerSockExists) {
         String dockerUrl = SystemConfig.getEnv("DOCKER_HOST")
         if (!dockerUrl) {
             boolean isWindows = isWindows()
 
             if (isWindows) {
-                if (winPipeDockerEngineExists.call()) {
+                if (winPipeDockerEngineExists) {
                     dockerUrl = 'npipe:////./pipe/docker_engine'
                 }
             } else {
                 // macOS or Linux
-                if (varRunDockerSockExists.call()) {
+                if (varRunDockerSockExists) {
                     dockerUrl = 'unix:///var/run/docker.sock'
-                } else if (userHomeDockerSockExists.call()) {
+                } else if (userHomeDockerSockExists) {
                     dockerUrl = "unix://${SystemConfig.getProperty('user.home')}/.docker/run/docker.sock"
                 }
             }
