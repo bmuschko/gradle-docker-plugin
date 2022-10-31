@@ -18,10 +18,13 @@ package com.bmuschko.gradle.docker.tasks.image
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
 import com.github.dockerjava.api.command.CommitCmd
 import groovy.transform.CompileStatic
+import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 
 @CompileStatic
 class DockerCommitImage extends DockerExistingContainer {
@@ -69,10 +72,31 @@ class DockerCommitImage extends DockerExistingContainer {
     final Property<Boolean> attachStdin = project.objects.property(Boolean)
 
     /**
+     * Output file containing the image ID of the image committed.
+     * Defaults to "$buildDir/.docker/$taskpath-imageId.txt".
+     * If path contains ':' it will be replaced by '_'.
+     */
+    @OutputFile
+    final RegularFileProperty imageIdFile = project.objects.fileProperty()
+
+    /**
      * The ID of the image committed. The value of this property requires the task action to be executed.
      */
     @Internal
     final Property<String> imageId = project.objects.property(String)
+
+    DockerCommitImage() {
+        imageId.set(imageIdFile.map { RegularFile it ->
+            File file = it.asFile
+            if(file.exists()) {
+                return file.text
+            }
+            return null
+        })
+
+        String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
+        imageIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
+    }
 
     @Override
     void runRemoteCommand() {
@@ -102,7 +126,7 @@ class DockerCommitImage extends DockerExistingContainer {
         }
 
         String createdImageId = commitCmd.exec()
-        imageId.set(createdImageId)
+        imageIdFile.get().asFile.text = createdImageId
         logger.quiet "Created image with ID '$createdImageId'."
         if(nextHandler) {
             nextHandler.execute(createdImageId)
