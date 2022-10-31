@@ -54,7 +54,7 @@ abstract class AbstractFunctionalTest extends Specification {
     private GradleRunner createAndConfigureGradleRunner(String... arguments) {
         GradleRunner.create()
             .withProjectDir(projectDir)
-            .withArguments(arguments + '-s' as List<String>)
+            .withArguments(arguments + '-s' + CONFIGURATION_CACHE as List<String>)
             .withPluginClasspath()
             .withEnvironment(envVars)
     }
