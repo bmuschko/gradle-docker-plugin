@@ -194,7 +194,7 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
                     images = expectedImages
                 }
             }
-            
+
             task verify {
                 doLast {
                     assert dockerBuildImage.images.get() == expectedImages
@@ -215,13 +215,14 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         writeSpringBootBuildFile(reactedPluginIdentifier)
         configureRemoteApiPlugin()
         writeCustomTasksToBuildFile()
+        writeSpringBootApplicationClass()
     }
 
     private void writeSpringBootBuildFile(String reactedPluginIdentifier) {
         buildFile << """
             plugins {
-                id 'org.springframework.boot' version '2.0.3.RELEASE'
-                id 'io.spring.dependency-management' version '1.0.5.RELEASE'
+                id 'org.springframework.boot' version '2.7.5'
+                id 'io.spring.dependency-management' version '1.1.0'
                 id '$reactedPluginIdentifier'
                 id 'com.bmuschko.docker-spring-boot-application'
             }
@@ -244,6 +245,17 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
         buildFile << imageTasks()
         buildFile << containerTasks()
         buildFile << lifecycleTask()
+    }
+
+
+    void writeSpringBootApplicationClass() {
+        buildFile << """
+            docker {
+                springBootApplication {
+                    mainClassName = 'com.bmuschko.gradle.docker.springboot.Application'
+                }
+            }
+            """
     }
 
     enum ReactedPlugin {

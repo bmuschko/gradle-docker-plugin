@@ -382,15 +382,8 @@ ADD file2.txt /other/dir/file2.txt
 
     private void writeNoTasksRealizedAssertionToBuildFile() {
         buildFile << """
-            def configuredTasks = []
             tasks.configureEach {
-                configuredTasks << it
-            }
-
-            gradle.buildFinished {
-                def configuredTaskPaths = configuredTasks*.path
-
-                assert configuredTaskPaths == [':help', ':clean']
+                assert it.path in [':help', ':clean']
             }
         """
     }
