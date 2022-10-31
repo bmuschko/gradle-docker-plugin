@@ -1,11 +1,10 @@
-package com.bmuschko.gradle.docker.services;
+package com.bmuschko.gradle.docker.internal.services;
 
 import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
-import com.google.common.io.Closer;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -18,7 +17,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -101,8 +99,20 @@ public abstract class DockerClientService implements BuildService<DockerClientSe
 
     @Override
     public void close() throws Exception {
-        try (final Closer closer = Closer.create()) {
-            dockerClients.values().forEach(closer::register);
+        IOException throwable = null;
+        for (DockerClient dockerClient : dockerClients.values()) {
+            try {
+                dockerClient.close();
+            } catch (IOException e) {
+                if (throwable == null) {
+                    throwable = e;
+                } else {
+                    throwable.addSuppressed(e);
+                }
+            }
+        }
+        if (throwable != null) {
+            throw throwable;
         }
     }
 }

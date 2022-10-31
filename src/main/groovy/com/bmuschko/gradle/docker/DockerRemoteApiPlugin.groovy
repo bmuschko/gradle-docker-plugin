@@ -15,7 +15,7 @@
  */
 package com.bmuschko.gradle.docker
 
-import com.bmuschko.gradle.docker.services.DockerClientService
+import com.bmuschko.gradle.docker.internal.services.DockerClientService
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
 import groovy.transform.CompileStatic

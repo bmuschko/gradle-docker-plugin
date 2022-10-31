@@ -16,7 +16,7 @@
 package com.bmuschko.gradle.docker.tasks
 
 import com.bmuschko.gradle.docker.internal.RegistryAuthLocator
-import com.bmuschko.gradle.docker.services.DockerClientService
+import com.bmuschko.gradle.docker.internal.services.DockerClientService
 import com.github.dockerjava.api.DockerClient
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
