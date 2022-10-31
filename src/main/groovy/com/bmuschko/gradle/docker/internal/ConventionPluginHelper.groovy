@@ -6,7 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.CopySpec
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetOutput
 
@@ -16,8 +16,8 @@ final class ConventionPluginHelper {
     private ConventionPluginHelper() {}
 
     static SourceSetOutput getMainJavaSourceSetOutput(Project project) {
-        JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention)
-        javaConvention.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).output
+        JavaPluginExtension javaPluginExtension = project.getExtensions().getByType(JavaPluginExtension)
+        javaPluginExtension.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).output
     }
 
     static CopySpec createAppFilesCopySpec(Project project) {
