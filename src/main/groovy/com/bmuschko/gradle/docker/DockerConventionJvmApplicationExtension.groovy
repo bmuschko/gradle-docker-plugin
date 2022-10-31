@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker
 
-import com.bmuschko.gradle.docker.internal.SystemConfig
 import groovy.transform.CompileStatic
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
@@ -92,7 +91,7 @@ class DockerConventionJvmApplicationExtension {
         baseImage = objectFactory.property(String)
         baseImage.set('openjdk:11.0.15-jre-slim')
         maintainer = objectFactory.property(String)
-        maintainer.set(SystemConfig.getProperty('user.name'))
+        maintainer.set(System.getProperty('user.name'))
         ports = objectFactory.listProperty(Integer)
         ports.set([8080])
         images = objectFactory.setProperty(String).empty()

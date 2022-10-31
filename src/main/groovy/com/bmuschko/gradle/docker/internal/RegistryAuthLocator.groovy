@@ -271,8 +271,8 @@ class RegistryAuthLocator {
      * @return default location of the docker credentials config file
      */
     private static String configLocation() {
-        String defaultDir = SystemConfig.getProperty(USER_HOME) + File.separator + DOCKER_DIR
-        String dir = SystemConfig.getEnvOrDefault(DOCKER_CONFIG, defaultDir)
+        String defaultDir = System.getProperty(USER_HOME) + File.separator + DOCKER_DIR
+        String dir = System.getenv().getOrDefault(DOCKER_CONFIG, defaultDir)
         dir + File.separator + CONFIG_JSON
     }
 

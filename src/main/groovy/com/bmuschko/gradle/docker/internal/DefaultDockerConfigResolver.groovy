@@ -14,20 +14,20 @@ class DefaultDockerConfigResolver {
     private static final Logger logger = Logging.getLogger(DefaultDockerConfigResolver)
 
     String getDefaultDockerUrl() {
-        String dockerUrl = SystemConfig.getEnv("DOCKER_HOST")
+        String dockerUrl = getEnv("DOCKER_HOST")
         if (!dockerUrl) {
             boolean isWindows = isWindows()
 
             if (isWindows) {
-                if (winPipeDockerEngineExists) {
+                if (isFileExists('\\\\.\\pipe\\docker_engine')) {
                     dockerUrl = 'npipe:////./pipe/docker_engine'
                 }
             } else {
                 // macOS or Linux
-                if (varRunDockerSockExists) {
+                if (isFileExists('/var/run/docker.sock')) {
                     dockerUrl = 'unix:///var/run/docker.sock'
-                } else if (userHomeDockerSockExists) {
-                    dockerUrl = "unix://${SystemConfig.getProperty('user.home')}/.docker/run/docker.sock"
+                } else if (isFileExists("${System.getProperty("user.home")}/.docker/run/docker.sock")) {
+                    dockerUrl = "unix://${System.getProperty('user.home')}/.docker/run/docker.sock"
                 }
             }
 
@@ -41,7 +41,7 @@ class DefaultDockerConfigResolver {
 
     @Nullable
     File getDefaultDockerCert() {
-        String dockerCertPath = SystemConfig.getEnv("DOCKER_CERT_PATH")
+        String dockerCertPath = getEnv("DOCKER_CERT_PATH")
         if (dockerCertPath) {
             File certFile = new File(dockerCertPath)
             if (certFile.exists()) {
@@ -51,16 +51,13 @@ class DefaultDockerConfigResolver {
         return null
     }
 
-    protected boolean isWinPipeDockerEngineExists() {
-        new File('\\\\.\\pipe\\docker_engine').exists()
+    @Nullable
+    protected String getEnv(String name) {
+        System.getenv(name)
     }
 
-    protected boolean isVarRunDockerSockExists() {
-        new File('/var/run/docker.sock').exists()
-    }
-
-    protected boolean isUserHomeDockerSockExists() {
-        new File("${SystemConfig.getProperty("user.home")}/.docker/run/docker.sock").exists()
+    protected boolean isFileExists(String path) {
+        new File(path).exists()
     }
 
 }
