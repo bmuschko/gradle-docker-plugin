@@ -23,6 +23,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.internal.provider.Providers
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
@@ -1103,11 +1104,10 @@ class Dockerfile extends DefaultTask {
      * Use this instruction if you want to provide a very complex instruction or if there's not a specific implementation of {@link Instruction} that serves your use case.
      */
     static class GenericInstruction implements Instruction {
-        private final String instruction
         private final Provider<String> instructionProvider
 
         GenericInstruction(String instruction) {
-            this.instruction = instruction
+            this.instructionProvider = Providers.ofNullable(instruction)
         }
 
         GenericInstruction(Provider<String> instructionProvider) {
@@ -1119,11 +1119,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getKeyword() {
-            if (instructionProvider) {
-                return parseKeyword(instructionProvider.getOrNull())
-            }
-
-            parseKeyword(instruction)
+            return parseKeyword(instructionProvider.getOrNull())
         }
 
         private String parseKeyword(String inst) {
@@ -1135,11 +1131,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getText() {
-            if (instructionProvider) {
-                return instructionProvider.getOrNull()
-            }
-
-            instruction
+            return instructionProvider.getOrNull()
         }
     }
 
@@ -1147,11 +1139,10 @@ class Dockerfile extends DefaultTask {
      * An instruction whose value is a String.
      */
     static abstract class StringCommandInstruction implements Instruction {
-        private final String command
         private final Provider<String> commandProvider
 
         StringCommandInstruction(String command) {
-            this.command = command
+            this.commandProvider = Providers.ofNullable(command)
         }
 
         StringCommandInstruction(Provider<String> commandProvider) {
@@ -1163,15 +1154,13 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getText() {
-            if (commandProvider) {
-                String command = commandProvider.getOrNull()
+            String command = commandProvider.getOrNull()
 
-                if (command) {
-                    return buildText(command)
-                }
-            } else {
+            if (command) {
                 return buildText(command)
             }
+
+            return null
         }
 
         private String buildText(String command) {
@@ -1183,11 +1172,10 @@ class Dockerfile extends DefaultTask {
      * An instruction whose value is a String array.
      */
     static abstract class StringArrayInstruction implements Instruction {
-        private final String[] command
         private final Provider<List<String>> commandProvider
 
         StringArrayInstruction(String... command) {
-            this.command = command
+            this.commandProvider = Providers.ofNullable(command as List<String>)
         }
 
         StringArrayInstruction(Provider<List<String>> commandProvider) {
@@ -1199,15 +1187,13 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getText() {
-            if (commandProvider) {
-                List<String> command = commandProvider.getOrNull()
+            List<String> command = commandProvider.getOrNull()
 
-                if (command) {
-                    return buildText(command as String[])
-                }
-            } else {
-                return buildText(command)
+            if (command) {
+                return buildText(command as String[])
             }
+
+            return null
         }
 
         private String buildText(String[] command) {
@@ -1247,12 +1233,11 @@ class Dockerfile extends DefaultTask {
      * An instruction whose value is a Map.
      */
     static abstract class MapInstruction implements Instruction {
-        private final Map<String, String> command
         private final Provider<Map<String, String>> commandProvider
         private final ItemJoiner joiner
 
         MapInstruction(Map<String, String> command) {
-            this.command = command
+            this.commandProvider = Providers.ofNullable(command)
             this.joiner = new MultiItemJoiner()
         }
 
@@ -1266,16 +1251,14 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getText() {
-            Map<String, String> commandToJoin = command
+            Map<String, String> commandToJoin
 
-            if (commandProvider) {
-                def evaluatedCommand = commandProvider.getOrNull()
+            def evaluatedCommand = commandProvider.getOrNull()
 
-                if (!(evaluatedCommand instanceof Map<String, String>)) {
-                    throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provide a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
-                }
-                commandToJoin = evaluatedCommand as Map<String, String>
+            if (!(evaluatedCommand instanceof Map<String, String>)) {
+                throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provide a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
             }
+            commandToJoin = evaluatedCommand as Map<String, String>
             if (commandToJoin == null) {
                 throw new IllegalArgumentException("instruction has to be set for ${keyword}")
             }
@@ -1296,11 +1279,10 @@ class Dockerfile extends DefaultTask {
      * An instruction whose value is a Dockerfile.File.
      */
     static abstract class FileInstruction<T extends Dockerfile.File> implements Instruction {
-        private final T file
         private final Provider<T> provider
 
         FileInstruction(T file) {
-            this.file = file
+            this.provider = Providers.ofNullable(file)
         }
 
         FileInstruction(Provider<T> provider) {
@@ -1309,7 +1291,7 @@ class Dockerfile extends DefaultTask {
 
         @Internal
         T getFile() {
-            provider ? provider.getOrNull() : file
+            return provider.getOrNull()
         }
 
         /**
@@ -1329,8 +1311,10 @@ class Dockerfile extends DefaultTask {
                     instruction.append(" $fileValue.src $fileValue.dest")
                 }
 
-                instruction.toString()
+                return instruction.toString()
             }
+
+            return null
         }
     }
 
@@ -1339,11 +1323,10 @@ class Dockerfile extends DefaultTask {
      */
     static class FromInstruction implements Instruction {
         public static final String KEYWORD = 'FROM'
-        private final From from
         private final Provider<From> provider
 
         FromInstruction(From from) {
-            this.from = from
+            this.provider = Providers.ofNullable(from)
         }
 
         FromInstruction(Provider<From> provider) {
@@ -1363,11 +1346,7 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getText() {
-            if (provider) {
-                return buildTextInstruction(provider.getOrNull())
-            }
-
-            buildTextInstruction(from)
+            return buildTextInstruction(provider.getOrNull())
         }
 
         private String buildTextInstruction(From from) {
@@ -1378,8 +1357,10 @@ class Dockerfile extends DefaultTask {
                     result += " AS $from.stage"
                 }
 
-                result
+                return result
             }
+
+            return null
         }
     }
 
@@ -1457,11 +1438,10 @@ class Dockerfile extends DefaultTask {
      */
     static class ExposePortInstruction implements Instruction {
         public static final String KEYWORD = 'EXPOSE'
-        private final Integer[] ports
         private final Provider<List<Integer>> provider
 
         ExposePortInstruction(Integer... ports) {
-            this.ports = ports
+            this.provider = Providers.ofNullable(ports as List<Integer>)
         }
 
         ExposePortInstruction(Provider<List<Integer>> provider) {
@@ -1481,15 +1461,13 @@ class Dockerfile extends DefaultTask {
          */
         @Override
         String getText() {
-            if (provider) {
-                List<Integer> evaluatedPorts = provider.getOrNull()
+            List<Integer> evaluatedPorts = provider.getOrNull()
 
-                if (evaluatedPorts && !evaluatedPorts.isEmpty()) {
-                    return buildText(evaluatedPorts as Integer[])
-                }
-            } else {
-                return buildText(ports)
+            if (evaluatedPorts && !evaluatedPorts.isEmpty()) {
+                return buildText(evaluatedPorts as Integer[])
             }
+
+            return null
         }
 
         private String buildText(Integer[] ports) {
