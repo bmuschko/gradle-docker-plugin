@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker.tasks.container
 
-import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
@@ -188,7 +187,6 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
 
         then:
         result.output.contains('Hello World')
-        println result.output
     }
 
     static String containerUsage(String containerExecutionTask, int sleep = 30) {

@@ -19,7 +19,6 @@ import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.TaskOutcome
-import spock.lang.Ignore
 
 class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
@@ -145,7 +144,6 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         result.output ==~ ~/(?s).*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][.][0-9]+Z\s+Hello World.*/
     }
 
-    @Ignore("the only test task that doesn't support configuration cache")
     def "Can write output to file"() {
         given:
         String logContainerTask = """
