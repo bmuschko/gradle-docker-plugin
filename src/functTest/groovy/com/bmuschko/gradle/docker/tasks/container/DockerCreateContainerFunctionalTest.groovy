@@ -141,6 +141,12 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         then:
         result.output.contains("HWaddr 02:03:04:05:06:07")
+
+        when:
+        result = build('logContainer')
+
+        then:
+        result.output.contains("HWaddr 02:03:04:05:06:07")
     }
 
     def "can set multiple environment variables"() {
