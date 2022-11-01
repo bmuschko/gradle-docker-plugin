@@ -104,6 +104,9 @@ class DockerLogsContainer extends DockerExistingContainer {
         if (sink != null) {
             notCompatibleWithConfigurationCache("Setting sink is not compatible with configuration cache")
             this.sink = sink
+        } else {
+            isCompatibleWithConfigurationCache()
+            this.sink = null
         }
     }
 
