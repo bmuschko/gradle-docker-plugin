@@ -182,7 +182,7 @@ class DockerCreateContainer extends DockerExistingImage {
 
         containerId.set(containerIdFile.map { RegularFile it ->
             File file = it.asFile
-            if(file.exists()) {
+            if (file.exists()) {
                 return file.text
             }
             return null
@@ -198,7 +198,7 @@ class DockerCreateContainer extends DockerExistingImage {
         @Override
         boolean isSatisfiedBy(Task element) {
             File file = containerIdFile.get().asFile
-            if(file.exists()) {
+            if (file.exists()) {
                 try {
                     def fileContainerId = file.text
                     dockerClient.inspectContainerCmd(fileContainerId).exec()

@@ -229,7 +229,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         imageId.set(imageIdFile.map { RegularFile it ->
             File file = it.asFile
-            if(file.exists()) {
+            if (file.exists()) {
                 return file.text
             }
             return null
@@ -246,7 +246,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
         @Override
         boolean isSatisfiedBy(Task element) {
             File file = imageIdFile.get().asFile
-            if(file.exists()) {
+            if (file.exists()) {
                 try {
                     def fileImageId = file.text
                     def repoTags = dockerClient.inspectImageCmd(fileImageId).exec().repoTags

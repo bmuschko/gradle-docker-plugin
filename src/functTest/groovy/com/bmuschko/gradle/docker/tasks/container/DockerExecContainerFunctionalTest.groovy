@@ -187,6 +187,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
 
         then:
         result.output.contains('Hello World')
+        result.output.contains("0 problems were found storing the configuration cache.")
     }
 
     static String containerUsage(String containerExecutionTask, int sleep = 30) {
