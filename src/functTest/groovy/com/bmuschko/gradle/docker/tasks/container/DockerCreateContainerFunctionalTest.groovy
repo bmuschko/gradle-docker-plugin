@@ -141,12 +141,14 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         then:
         result.output.contains("HWaddr 02:03:04:05:06:07")
+        result.output.contains("0 problems were found storing the configuration cache.")
 
         when:
         result = build('logContainer')
 
         then:
         result.output.contains("HWaddr 02:03:04:05:06:07")
+        result.output.contains("Configuration cache entry reused.")
     }
 
     def "can set multiple environment variables"() {
