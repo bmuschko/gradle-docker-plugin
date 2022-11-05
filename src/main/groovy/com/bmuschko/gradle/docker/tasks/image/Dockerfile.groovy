@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker.tasks.image
 
 import groovy.transform.CompileStatic
-import groovy.transform.TypeCheckingMode
 import org.gradle.api.DefaultTask
 import org.gradle.api.Transformer
 import org.gradle.api.file.Directory
@@ -1207,24 +1206,23 @@ class Dockerfile extends DefaultTask {
 
     private static class MultiItemJoiner implements ItemJoiner {
         @Override
-        @CompileStatic(TypeCheckingMode.SKIP)
         String join(Map<String, String> map) {
-            map.inject([]) { result, entry ->
+            map.entrySet().collect { Map.Entry<String, String> entry ->
                 def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
                 def value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.value) ? ItemJoinerUtil.toQuotedString(entry.value) : entry.value
                 value = value.replaceAll("(\r)*\n", "\\\\\n")
-                result << "$key=$value"
+                "$key=$value"
             }.join(' ')
         }
     }
 
     private static class ItemJoinerUtil {
-        private static boolean isUnquotedStringWithWhitespaces(String str) {
+        protected static boolean isUnquotedStringWithWhitespaces(String str) {
             return !str.matches('["].*["]') &&
                 str.matches('.*(?: |(?:\r?\n)).*')
         }
 
-        private static String toQuotedString(final String str) {
+        protected static String toQuotedString(final String str) {
             '"'.concat(str.replaceAll('"', '\\\\"')).concat('"')
         }
     }
