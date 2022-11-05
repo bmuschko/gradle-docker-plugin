@@ -17,9 +17,15 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd
 import groovy.io.FileType
+import org.gradle.api.Action
 import org.gradle.api.GradleException
+import org.gradle.api.file.CopySpec
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileTree
+import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 
 class DockerCopyFileFromContainer extends DockerExistingContainer {
@@ -50,6 +56,9 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     @Input
     @Optional
     final Property<Boolean> compressed = project.objects.property(Boolean)
+
+    @Internal
+    final DirectoryProperty buildDirectory = project.layout.buildDirectory
 
     DockerCopyFileFromContainer() {
         hostPath.set(project.projectDir.path)
@@ -153,6 +162,8 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         }
     }
 
+    private final fileOperations = (project as ProjectInternal).fileOperations
+
     /**
      * Unpack tar stream into generated directory relative to $buildDir
      */
@@ -169,14 +180,18 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
             // We are not allowed to rename tempDir's created in OS temp directory (as
             // we do further downstream) which is why we are creating it relative to
             // build directory
-            outputDirectory = new File("${project.buildDir}/${UUID.randomUUID().toString()}")
+            outputDirectory = new File(buildDirectory.asFile.get(), UUID.randomUUID().toString())
             if(!outputDirectory.mkdirs())
                 throw new GradleException("Failed creating directory at ${outputDirectory.path}")
 
-            project.copy {
-                into outputDirectory
-                from project.tarTree(tempFile)
-            }
+            FileTree tarTree = fileOperations.tarTree(tempFile)
+            fileOperations.copy(new Action<CopySpec>() {
+                @Override
+                void execute(CopySpec copySpec) {
+                    copySpec.into(outputDirectory)
+                    copySpec.from(tarTree)
+                }
+            })
             return outputDirectory
 
         } finally {

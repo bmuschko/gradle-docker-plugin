@@ -9,9 +9,11 @@ import com.github.dockerjava.core.command.SaveImagesCmdImpl
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
+import org.gradle.api.Task
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
@@ -56,11 +58,21 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
         String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
         imageIdsFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageIds.properties"))
 
-        onlyIf {
+        onlyIf onlyIfSpec
+
+        outputs.upToDateWhen upToDateWhenSpec
+    }
+
+    private final Spec<Task> onlyIfSpec = new Spec<Task>() {
+        @Override
+        boolean isSatisfiedBy(Task element) {
             images.getOrNull()
         }
+    }
 
-        outputs.upToDateWhen {
+    private final Spec<Task> upToDateWhenSpec = new Spec<Task>() {
+        @Override
+        boolean isSatisfiedBy(Task element) {
             File file = imageIdsFile.get().asFile
             if (file.exists()) {
                 def savedImageIds = new Properties()

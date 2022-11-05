@@ -26,11 +26,17 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         """
 
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, COMMIT_TASK_NAME)
+        BuildResult result = build(COMMIT_TASK_NAME)
 
         then:
         result.output.contains("Committing image 'myimage:latest' for container")
         result.output.contains("0 problems were found storing the configuration cache.")
+
+        when:
+        result = build(COMMIT_TASK_NAME)
+
+        then:
+        result.output.contains("Configuration cache entry reused.")
     }
 
     def "cannot commit image with invalid container"() {

@@ -154,21 +154,13 @@ USER \$user"""
         buildFile << dockerFileTask() << """
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
-            task buildImage(type: CustomDockerBuildImage) {
+            task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                labels = ["build-date": "\${getBuildDate()}"]
+                labels = ["build-date": getBuildDate()]
             }
 
             def getBuildDate() {
                 return new Date().format('yyyyMMddHHmmss.SSS')
-            }
-
-            class CustomDockerBuildImage extends DockerBuildImage {
-                @Override
-                @Internal
-                MapProperty<String, String> getLabels() {
-                    super.getLabels()
-                }
             }
         """
 
@@ -486,14 +478,14 @@ USER \$user"""
         buildFile << imageCreationTask()
 
         when:
-        BuildResult result = build(CONFIGURATION_CACHE, 'buildImage')
+        BuildResult result = build('buildImage')
 
         then:
         result.output.contains("Created image with ID")
         result.output.contains("Configuration cache entry stored.")
 
         when:
-        result = build(CONFIGURATION_CACHE, 'buildImage')
+        result = build('buildImage')
 
         then:
         result.output.contains("Reusing configuration cache.")

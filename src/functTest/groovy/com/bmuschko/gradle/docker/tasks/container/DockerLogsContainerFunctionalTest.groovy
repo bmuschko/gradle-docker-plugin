@@ -261,7 +261,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
-            
+
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true

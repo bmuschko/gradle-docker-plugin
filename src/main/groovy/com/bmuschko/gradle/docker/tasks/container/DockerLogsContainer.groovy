@@ -100,6 +100,16 @@ class DockerLogsContainer extends DockerExistingContainer {
     @Optional
     Writer sink
 
+    def setSink(Writer sink) {
+        if (sink != null) {
+            notCompatibleWithConfigurationCache("Setting sink is not compatible with configuration cache")
+            this.sink = sink
+        } else {
+            isCompatibleWithConfigurationCache()
+            this.sink = null
+        }
+    }
+
     // Allows subclasses to carry their own logic
     @Internal
     protected Date getInternalSince() {

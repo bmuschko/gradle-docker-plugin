@@ -88,7 +88,7 @@ class DockerCommitImage extends DockerExistingContainer {
     DockerCommitImage() {
         imageId.set(imageIdFile.map { RegularFile it ->
             File file = it.asFile
-            if(file.exists()) {
+            if (file.exists()) {
                 return file.text
             }
             return null

@@ -1,8 +1,6 @@
 package com.bmuschko.gradle.docker.internal
 
 import groovy.transform.CompileStatic
-import org.gradle.api.Project
-import org.gradle.api.internal.GradleInternal
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import org.gradle.internal.service.ServiceRegistry
@@ -35,12 +33,11 @@ final class IOUtils {
     /**
      * Create a progress logger for an arbitrary project and class.
      *
-     * @param project the project to create a ProgressLogger for.
+     * @param services the service registry.
      * @param clazz optional class to pair the ProgressLogger to. Defaults to _this_ class if null.
      * @return instance of ProgressLogger.
      */
-    static ProgressLogger getProgressLogger(final Project project, final Class clazz) {
-        ServiceRegistry registry = (project.gradle as GradleInternal).getServices()
+    static ProgressLogger getProgressLogger(final ServiceRegistry registry, final Class clazz) {
         ProgressLoggerFactory factory = registry.get(ProgressLoggerFactory)
         ProgressLogger progressLogger = factory.newOperation(Objects.requireNonNull(clazz))
         progressLogger.setDescription("ProgressLogger for ${clazz.getSimpleName()}")

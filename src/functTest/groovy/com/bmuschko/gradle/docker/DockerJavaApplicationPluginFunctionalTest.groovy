@@ -18,6 +18,23 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         setupProjectUnderTest()
     }
 
+    def "Can create image and start container for Java application with default configuration and configuration cache enabled"() {
+        when:
+        BuildResult result = build('buildAndCleanResources')
+
+        then:
+        assertGeneratedDockerfile()
+        assertBuildContextLibs()
+        assertBuildContextClasses()
+        result.output.contains("0 problems were found storing the configuration cache.")
+
+        when:
+        result = build('buildAndCleanResources')
+
+        then:
+        result.output.contains("Configuration cache entry reused.")
+    }
+
     def "Can create image and start container for Java application with default configuration"() {
         when:
         build('buildAndCleanResources')
@@ -285,7 +302,7 @@ ADD file2.txt /other/dir/file2.txt
                     images = expectedImages
                 }
             }
-            
+
             task verify {
                 doLast {
                     assert dockerBuildImage.images.get() == expectedImages
@@ -325,6 +342,17 @@ ADD file2.txt /other/dir/file2.txt
         writeBasicSetupToBuildFile()
         writeCustomTasksToBuildFile()
         writeJettyMainClass(projectDir)
+        writeJettyMainClass()
+    }
+
+    private void writeJettyMainClass() {
+        buildFile << """
+            docker {
+                javaApplication {
+                    mainClassName = 'com.bmuschko.gradle.docker.application.JettyMain'
+                }
+            }
+            """
     }
 
     private void writeSettingsFile() {
@@ -354,15 +382,8 @@ ADD file2.txt /other/dir/file2.txt
 
     private void writeNoTasksRealizedAssertionToBuildFile() {
         buildFile << """
-            def configuredTasks = []
             tasks.configureEach {
-                configuredTasks << it
-            }
-
-            gradle.buildFinished {
-                def configuredTaskPaths = configuredTasks*.path
-
-                assert configuredTaskPaths == [':help', ':clean']
+                assert it.path in [':help', ':clean']
             }
         """
     }

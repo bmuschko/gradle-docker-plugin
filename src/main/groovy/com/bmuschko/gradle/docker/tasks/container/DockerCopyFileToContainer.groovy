@@ -19,6 +19,7 @@ import com.bmuschko.gradle.docker.domain.CopyFileToContainer
 import com.github.dockerjava.api.command.CopyArchiveToContainerCmd
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -73,13 +74,15 @@ class DockerCopyFileToContainer extends DockerExistingContainer {
         }
     }
 
+    private final fileOperations = (project as ProjectInternal).fileOperations
+
     private void setContainerCommandConfig(CopyArchiveToContainerCmd containerCommand, CopyFileToContainer copyFileToContainer) {
 
         def localHostPath
         if (copyFileToContainer.hostPath instanceof Closure) {
-            localHostPath = project.file(copyFileToContainer.hostPath.call())
+            localHostPath = fileOperations.file(copyFileToContainer.hostPath.call())
         } else {
-            localHostPath = project.file(copyFileToContainer.hostPath)
+            localHostPath = fileOperations.file(copyFileToContainer.hostPath)
         }
 
         def localRemotePath

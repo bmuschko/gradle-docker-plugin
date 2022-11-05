@@ -121,6 +121,33 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
         result.output.contains('Can specify either hostPath or tarFile not both')
     }
 
+    def "can copy a file into a container with configuration cache"() {
+        given:
+        writeHelloWorldFile()
+        buildFile << commonBuildScriptTasks()
+        buildFile << """
+            task copyFileIntoContainer(type: DockerCopyFileToContainer) {
+                dependsOn createContainer
+                finalizedBy removeContainer
+                targetContainerId createContainer.getContainerId()
+                hostPath = "${escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}"
+                remotePath = "/root"
+            }
+        """
+
+        when:
+        BuildResult result = build('copyFileIntoContainer')
+
+        then:
+        result.output.contains("0 problems were found storing the configuration cache.")
+
+        when:
+        result = build('copyFileIntoContainer')
+
+        then:
+        result.output.contains("Configuration cache entry reused.")
+    }
+
     private void writeHelloWorldFile() {
         new File("$projectDir/HelloWorld.txt").withWriter('UTF-8') {
             it.write('Hello, World!')
@@ -144,7 +171,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
                 targetImageId pullImage.getImage()
                 cmd = ['echo', 'Hello World']
             }
-            
+
             task removeContainer(type: DockerRemoveContainer) {
                 removeVolumes = true
                 force = true

@@ -171,6 +171,25 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         result.output.contains('Finished Probing Exec')
     }
 
+    def "Execute command with configuration cache enabled"() {
+        given:
+        String containerExecutionTask = """
+            task execContainer(type: DockerExecContainer) {
+                dependsOn startContainer
+                targetContainerId startContainer.getContainerId()
+                withCommand(['echo', 'Hello World'])
+            }
+        """
+        buildFile << containerUsage(containerExecutionTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        result.output.contains('Hello World')
+        result.output.contains("0 problems were found storing the configuration cache.")
+    }
+
     static String containerUsage(String containerExecutionTask, int sleep = 30) {
         """
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
