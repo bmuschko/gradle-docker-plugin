@@ -1,9 +1,13 @@
-package com.bmuschko.gradle.docker.internal
+package com.bmuschko.gradle.docker.internal;
 
-final class OsUtils {
-    private OsUtils() {}
+import groovy.transform.CompileStatic;
 
-    static Boolean isWindows() {
-        System.getProperty("os.name").toLowerCase().indexOf("win") >= 0
+@CompileStatic
+public final class OsUtils {
+    private OsUtils() {
+    }
+
+    public static Boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
     }
 }

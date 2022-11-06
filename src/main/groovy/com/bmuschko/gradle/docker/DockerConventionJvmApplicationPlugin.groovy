@@ -220,5 +220,5 @@ abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerConvention
     }
 
     protected abstract EXT configureExtension(ObjectFactory objectFactory, DockerExtension dockerExtension)
-    protected abstract String findMainClassName(File classesDir)
+    protected abstract String findMainClassName(File classesDir) throws IOException
 }

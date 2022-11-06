@@ -1,7 +1,7 @@
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.model.ObjectFactory
+import groovy.transform.CompileStatic;
+import org.gradle.api.model.ObjectFactory;
 
 /**
  * The extension for configuring a Spring Boot application via the {@link DockerSpringBootApplicationPlugin}.
@@ -24,9 +24,9 @@ import org.gradle.api.model.ObjectFactory
  * @since 3.4.5
  */
 @CompileStatic
-class DockerSpringBootApplication extends DockerConventionJvmApplicationExtension {
+public class DockerSpringBootApplication extends DockerConventionJvmApplicationExtension {
 
-    DockerSpringBootApplication(ObjectFactory objectFactory) {
-        super(objectFactory)
+    public DockerSpringBootApplication(ObjectFactory objectFactory) {
+        super(objectFactory);
     }
 }
