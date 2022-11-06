@@ -1,6 +1,5 @@
 package com.bmuschko.gradle.docker.internal;
 
-import groovy.transform.CompileStatic;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -10,7 +9,6 @@ import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetOutput;
 
-@CompileStatic
 public final class ConventionPluginHelper {
 
     private ConventionPluginHelper() {

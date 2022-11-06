@@ -1,7 +1,5 @@
 package com.bmuschko.gradle.docker.internal;
 
-import groovy.transform.CompileStatic;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -9,7 +7,6 @@ import java.util.function.Consumer;
 /**
  * A utility class that will collect strings until a new line is encountered.
  */
-@CompileStatic
 public final class OutputCollector implements Closeable {
 
     /**

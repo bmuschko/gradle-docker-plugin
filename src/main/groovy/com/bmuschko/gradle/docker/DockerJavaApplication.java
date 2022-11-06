@@ -15,7 +15,6 @@
  */
 package com.bmuschko.gradle.docker;
 
-import groovy.transform.CompileStatic;
 import org.gradle.api.model.ObjectFactory;
 
 /**
@@ -36,7 +35,6 @@ import org.gradle.api.model.ObjectFactory;
  * }
  * </pre>
  */
-@CompileStatic
 public class DockerJavaApplication extends DockerConventionJvmApplicationExtension {
 
     public DockerJavaApplication(ObjectFactory objectFactory) {

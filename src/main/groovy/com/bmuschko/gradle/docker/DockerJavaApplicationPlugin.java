@@ -16,7 +16,6 @@
 package com.bmuschko.gradle.docker;
 
 import com.bmuschko.gradle.docker.internal.MainClassFinder;
-import groovy.transform.CompileStatic;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 
@@ -28,7 +27,6 @@ import java.io.IOException;
  * <p>
  * This plugin can be configured with the help of {@link DockerJavaApplication}.
  */
-@CompileStatic
 public class DockerJavaApplicationPlugin extends DockerConventionJvmApplicationPlugin<DockerJavaApplication> {
 
     /**

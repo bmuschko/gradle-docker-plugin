@@ -1,7 +1,6 @@
 package com.bmuschko.gradle.docker;
 
 import com.bmuschko.gradle.docker.internal.MainClassFinder;
-import groovy.transform.CompileStatic;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 
@@ -15,7 +14,6 @@ import java.io.IOException;
  *
  * @since 3.4.5
  */
-@CompileStatic
 public class DockerSpringBootApplicationPlugin extends DockerConventionJvmApplicationPlugin<DockerSpringBootApplication> {
 
     private static final String SPRING_BOOT_APP_ANNOTATION = "org.springframework.boot.autoconfigure.SpringBootApplication";
