@@ -33,7 +33,7 @@ class DefaultDockerConfigResolverTest extends Specification {
 
         DefaultDockerConfigResolver dockerConfigResolver = Spy(DefaultDockerConfigResolver.class)
         dockerConfigResolver.getEnv('DOCKER_HOST') >> null
-        dockerConfigResolver.isFileExists(_) >> null
+        dockerConfigResolver.isFileExists(_) >> false
 
         expect:
         dockerConfigResolver.defaultDockerUrl == 'tcp://127.0.0.1:2375'
