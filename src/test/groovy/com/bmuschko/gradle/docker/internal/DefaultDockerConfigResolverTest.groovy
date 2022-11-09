@@ -79,6 +79,7 @@ class DefaultDockerConfigResolverTest extends Specification {
 
         DefaultDockerConfigResolver dockerConfigResolver = Spy(DefaultDockerConfigResolver.class)
         dockerConfigResolver.getEnv('DOCKER_HOST') >> null
+        dockerConfigResolver.isFileExists('/var/run/docker.sock') >> false
         dockerConfigResolver.isFileExists('/home/test/.docker/run/docker.sock') >> true
 
         expect:
