@@ -15,8 +15,7 @@
  */
 package com.bmuschko.gradle.docker
 
-import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows;
-
+import com.bmuschko.gradle.docker.internal.DefaultDockerConfigResolver
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
@@ -39,8 +38,6 @@ import org.gradle.api.provider.Property
  */
 @CompileStatic
 class DockerExtension {
-
-    private final Logger logger = Logging.getLogger(DockerExtension)
 
     /**
      * The server URL to connect to via Docker’s remote API.
@@ -67,11 +64,13 @@ class DockerExtension {
     final DockerRegistryCredentials registryCredentials
 
     DockerExtension(ObjectFactory objectFactory) {
+        DefaultDockerConfigResolver dockerConfigResolver = new DefaultDockerConfigResolver()
+
         url = objectFactory.property(String)
-        url.set(getDefaultDockerUrl())
+        url.set(dockerConfigResolver.getDefaultDockerUrl())
         certPath = objectFactory.directoryProperty()
 
-        File defaultDockerCert = getDefaultDockerCert()
+        File defaultDockerCert = dockerConfigResolver.getDefaultDockerCert()
 
         if (defaultDockerCert) {
             certPath.set(defaultDockerCert)
@@ -91,32 +90,4 @@ class DockerExtension {
         action.execute(registryCredentials)
     }
 
-    private String getDefaultDockerUrl() {
-        String dockerUrl = System.getenv("DOCKER_HOST")
-        if (!dockerUrl) {
-            boolean isWindows = isWindows()
-            if (!isWindows && new File('/var/run/docker.sock').exists()) {
-                dockerUrl = 'unix:///var/run/docker.sock'
-            } else {
-                if (isWindows && new File("\\\\.\\pipe\\docker_engine").exists()) {
-                    dockerUrl = 'npipe:////./pipe/docker_engine'
-                } else {
-                    dockerUrl = 'tcp://127.0.0.1:2375'
-                }
-            }
-        }
-        logger.info("Default docker.url set to $dockerUrl")
-        dockerUrl
-    }
-
-    private File getDefaultDockerCert() {
-        String dockerCertPath = System.getenv("DOCKER_CERT_PATH")
-        if(dockerCertPath) {
-            File certFile = new File(dockerCertPath)
-            if(certFile.exists()) {
-                return certFile
-            }
-        }
-        return null
-    }
 }
