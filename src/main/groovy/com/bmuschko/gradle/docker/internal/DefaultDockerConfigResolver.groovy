@@ -9,16 +9,15 @@ import javax.annotation.Nullable
 import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows
 
 @CompileStatic
-class DefaultDockerConfigResolver {
+class DefaultDockerConfigResolver implements DockerConfigResolver {
 
     private static final Logger logger = Logging.getLogger(DefaultDockerConfigResolver)
 
+    @Override
     String getDefaultDockerUrl() {
         String dockerUrl = getEnv("DOCKER_HOST")
         if (!dockerUrl) {
-            boolean isWindows = isWindows()
-
-            if (isWindows) {
+            if (isWindows()) {
                 if (isFileExists('\\\\.\\pipe\\docker_engine')) {
                     dockerUrl = 'npipe:////./pipe/docker_engine'
                 }
@@ -40,6 +39,7 @@ class DefaultDockerConfigResolver {
     }
 
     @Nullable
+    @Override
     File getDefaultDockerCert() {
         String dockerCertPath = getEnv("DOCKER_CERT_PATH")
         if (dockerCertPath) {
@@ -52,12 +52,11 @@ class DefaultDockerConfigResolver {
     }
 
     @Nullable
-    protected String getEnv(String name) {
+    private static String getEnv(String name) {
         System.getenv(name)
     }
 
-    protected boolean isFileExists(String path) {
+    private static boolean isFileExists(String path) {
         new File(path).exists()
     }
-
 }

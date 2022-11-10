@@ -16,11 +16,10 @@
 package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.internal.DefaultDockerConfigResolver
+import com.bmuschko.gradle.docker.internal.DockerConfigResolver
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 
@@ -64,7 +63,7 @@ class DockerExtension {
     final DockerRegistryCredentials registryCredentials
 
     DockerExtension(ObjectFactory objectFactory) {
-        DefaultDockerConfigResolver dockerConfigResolver = new DefaultDockerConfigResolver()
+        DockerConfigResolver dockerConfigResolver = new DefaultDockerConfigResolver()
 
         url = objectFactory.property(String)
         url.set(dockerConfigResolver.getDefaultDockerUrl())
@@ -89,5 +88,4 @@ class DockerExtension {
     void registryCredentials(Action<? super DockerRegistryCredentials> action) {
         action.execute(registryCredentials)
     }
-
 }
