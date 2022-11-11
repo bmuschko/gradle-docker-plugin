@@ -20,23 +20,57 @@ import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Build service for Docker client.
+ */
 public abstract class DockerClientService implements BuildService<DockerClientService.Params>, AutoCloseable {
     private final Map<DefaultDockerClientConfig, DockerClient> dockerClients;
 
     private final ObjectFactory objects;
 
+    /**
+     * Parameters for build service.
+     */
     public interface Params extends BuildServiceParameters {
+        /**
+         * The server URL to connect to via Docker’s remote API.
+         *
+         * @return The server URL
+         */
         Property<String> getUrl();
+
+        /**
+         * The path to certificates for communicating with Docker over SSL.
+         *
+         * @return The cert path
+         */
         DirectoryProperty getCertPath();
+
+        /**
+         * The remote API version.
+         *
+         * @return The remote API
+         */
         Property<String> getApiVersion();
     }
 
+    /**
+     * Constructor for Docker client service.
+     *
+     * @param objects The object factory
+     */
     @Inject
     public DockerClientService(ObjectFactory objects) {
         this.objects = objects;
         dockerClients = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Returns the Docker client.
+     *
+     * @param dockerClientConfiguration The Docker client configuration
+     * @return Docker client
+     */
     public DockerClient getDockerClient(DockerClientConfiguration dockerClientConfiguration) {
         String dockerUrl = getDockerHostUrl(dockerClientConfiguration);
         File dockerCertPath = thingOrProperty(objects.directoryProperty(), dockerClientConfiguration.getCertPath(), getParameters().getCertPath()).map(Directory::getAsFile).getOrNull();
@@ -47,14 +81,14 @@ public abstract class DockerClientService implements BuildService<DockerClientSe
         dockerClientConfigBuilder.withDockerHost(dockerUrl);
 
         if (dockerCertPath != null) {
-            String caninicalCertPath;
+            String canonicalCertPath;
             try {
-                caninicalCertPath = dockerCertPath.getCanonicalPath();
+                canonicalCertPath = dockerCertPath.getCanonicalPath();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
             dockerClientConfigBuilder.withDockerTlsVerify(true);
-            dockerClientConfigBuilder.withDockerCertPath(caninicalCertPath);
+            dockerClientConfigBuilder.withDockerCertPath(canonicalCertPath);
         } else {
             dockerClientConfigBuilder.withDockerTlsVerify(false);
         }
