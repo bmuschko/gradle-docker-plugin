@@ -1,6 +1,7 @@
 package com.bmuschko.gradle.docker.internal
 
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -52,11 +53,13 @@ class DefaultDockerConfigResolver implements DockerConfigResolver {
     }
 
     @Nullable
-    private static String getEnv(String name) {
+    @PackageScope
+    String getEnv(String name) {
         System.getenv(name)
     }
 
-    private static boolean isFileExists(String path) {
+    @PackageScope
+    boolean isFileExists(String path) {
         new File(path).exists()
     }
 }
