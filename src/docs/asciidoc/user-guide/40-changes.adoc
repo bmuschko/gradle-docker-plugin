@@ -1,6 +1,15 @@
 == Change Log
 
 [discrete]
+=== v9.0.0 (November 12, 2022)
+
+* Configuration cache support - {uri-github}/pull/1102[PR 1102]
+* Support Java up to version 20 with latest ASM library - {uri-github}/pull/1107[PR 1107]
+* Introduce extension attribute for setting program arguments in convention plugins - {uri-github}/pull/1105[PR 1105]
+* **Breaking Change!** Expose repository and tag properties for DockerCommitImage task - {uri-github}/pull/1101[PR 1101]
+* Support auto-detection DOCKER_HOST on macOS Ventura with latest Docker Desktop - {uri-github}/pull/1111[PR 1111]
+
+[discrete]
 === v8.1.0 (September 20, 2022)
 
 * Fix custom registry in logs for `DockerPullImage` and `DockerPushImage` tasks - {uri-github}/pull/1091[PR 1091]
