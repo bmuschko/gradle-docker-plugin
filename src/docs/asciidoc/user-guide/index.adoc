@@ -1,6 +1,6 @@
 = Gradle Docker Plugin User Guide & Examples
 :uri-bmuschko-blog: https://bmuschko.com/blog
-:uri-ghpages: https://bmuschko.github.io/gradle-docker-plugin
+:uri-ghpages: https://bmuschko.github.io/gradle-docker-plugin/{gradle-project-version}
 :uri-github: https://github.com/bmuschko/gradle-docker-plugin
 :uri-gradle-docs: https://docs.gradle.org/current
 
