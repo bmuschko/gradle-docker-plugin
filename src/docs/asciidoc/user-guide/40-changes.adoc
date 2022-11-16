@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v9.0.1 (November 16, 2022)
+
+* Correct links in user guide that point to outdated API docs - {uri-github}/pull/1122[PR 1122]
+
+[discrete]
 === v9.0.0 (November 12, 2022)
 
 * Configuration cache support - {uri-github}/issues/1102[Issue 1102]
