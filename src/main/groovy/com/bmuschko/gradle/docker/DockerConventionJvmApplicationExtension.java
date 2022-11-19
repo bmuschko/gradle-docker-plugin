@@ -1,54 +1,51 @@
-/*
- * Copyright 2019 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
+
+import java.util.List;
 
 /**
  * The extension for configuring a conventional JVM Docker plugin.
  *
  * @since 5.2.0
  */
-@CompileStatic
-class DockerConventionJvmApplicationExtension {
+public class DockerConventionJvmApplicationExtension {
 
     /**
      * The Docker base image used for Java application.
      * <p>
      * Defaults to {@code openjdk:11.0.15-jre-slim}.
      */
-    final Property<String> baseImage
+    public final Property<String> getBaseImage() {
+        return baseImage;
+    }
+
+    private final Property<String> baseImage;
 
     /**
      * The maintainer of the image.
      * <p>
      * Defaults to the value of the system property {@code user.name}.
      */
-    final Property<String> maintainer
+    public final Property<String> getMaintainer() {
+        return maintainer;
+    }
+
+    private final Property<String> maintainer;
 
     /**
      * The Docker image exposed ports.
      * <p>
      * Defaults to {@code [8080]}.
      */
-    final ListProperty<Integer> ports
+    public final ListProperty<Integer> getPorts() {
+        return ports;
+    }
+
+    private final ListProperty<Integer> ports;
 
     /**
      * The images used for the build and push operation e.g. {@code vieux/apache:2.0}.
@@ -57,7 +54,11 @@ class DockerConventionJvmApplicationExtension {
      *
      * @since 6.0.0
      */
-    final SetProperty<String> images
+    public final SetProperty<String> getImages() {
+        return images;
+    }
+
+    private final SetProperty<String> images;
 
     /**
      * The JVM arguments used to start the Java program.
@@ -66,7 +67,11 @@ class DockerConventionJvmApplicationExtension {
      *
      * @since 4.8.0
      */
-    final ListProperty<String> jvmArgs
+    public final ListProperty<String> getJvmArgs() {
+        return jvmArgs;
+    }
+
+    private final ListProperty<String> jvmArgs;
 
     /**
      * The main class name to use for starting the application e.g. {@code com.bmuschko.app.Main}.
@@ -76,7 +81,11 @@ class DockerConventionJvmApplicationExtension {
      *
      * @since 6.1.0
      */
-    final Property<String> mainClassName
+    public final Property<String> getMainClassName() {
+        return mainClassName;
+    }
+
+    private final Property<String> mainClassName;
 
     /**
      * The program arguments appended to Java application.
@@ -85,18 +94,22 @@ class DockerConventionJvmApplicationExtension {
      *
      * @since 9.0.0
      */
-    final ListProperty<String> args
+    public final ListProperty<String> getArgs() {
+        return args;
+    }
 
-    DockerConventionJvmApplicationExtension(ObjectFactory objectFactory) {
-        baseImage = objectFactory.property(String)
-        baseImage.set('openjdk:11.0.15-jre-slim')
-        maintainer = objectFactory.property(String)
-        maintainer.set(System.getProperty('user.name'))
-        ports = objectFactory.listProperty(Integer)
-        ports.set([8080])
-        images = objectFactory.setProperty(String).empty()
-        jvmArgs = objectFactory.listProperty(String).empty()
-        mainClassName = objectFactory.property(String)
-        args = objectFactory.listProperty(String).empty()
+    private final ListProperty<String> args;
+
+    public DockerConventionJvmApplicationExtension(ObjectFactory objectFactory) {
+        baseImage = objectFactory.property(String.class);
+        baseImage.set("openjdk:11.0.15-jre-slim");
+        maintainer = objectFactory.property(String.class);
+        maintainer.set(System.getProperty("user.name"));
+        ports = objectFactory.listProperty(Integer.class);
+        ports.set(List.of(8080));
+        images = objectFactory.setProperty(String.class).empty();
+        jvmArgs = objectFactory.listProperty(String.class).empty();
+        mainClassName = objectFactory.property(String.class);
+        args = objectFactory.listProperty(String.class).empty();
     }
 }

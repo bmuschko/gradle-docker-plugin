@@ -1,29 +1,13 @@
-/*
- * Copyright 2014 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.credentials.PasswordCredentials
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import org.gradle.api.credentials.PasswordCredentials;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-import javax.annotation.Nullable
-import javax.inject.Inject
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 /**
  * The extension for configuring the Docker communication via the remote API through the {@link DockerRemoteApiPlugin}.
@@ -38,21 +22,23 @@ import javax.inject.Inject
  * }
  * </pre>
  */
-@CompileStatic
-class DockerRegistryCredentials {
+public class DockerRegistryCredentials {
 
     /**
      * The registry URL used as default value for the property {@link #url}.
      */
-    public static final String DEFAULT_URL = 'https://index.docker.io/v1/'
-
+    public static final String DEFAULT_URL = "https://index.docker.io/v1/";
     /**
      * Registry URL needed to push images.
      * <p>
      * Defaults to "https://index.docker.io/v1/".
      */
     @Input
-    final Property<String> url
+    public final Property<String> getUrl() {
+        return url;
+    }
+
+    private final Property<String> url;
 
     /**
      * Registry username needed to push images.
@@ -61,8 +47,11 @@ class DockerRegistryCredentials {
      */
     @Input
     @Optional
-    final Property<String> username
+    public final Property<String> getUsername() {
+        return username;
+    }
 
+    private final Property<String> username;
     /**
      * Registry password needed to push images.
      * <p>
@@ -70,7 +59,11 @@ class DockerRegistryCredentials {
      */
     @Input
     @Optional
-    final Property<String> password
+    public final Property<String> getPassword() {
+        return password;
+    }
+
+    private final Property<String> password;
 
     /**
      * Registry email address needed to push images.
@@ -79,15 +72,19 @@ class DockerRegistryCredentials {
      */
     @Input
     @Optional
-    final Property<String> email
+    public final Property<String> getEmail() {
+        return email;
+    }
+
+    private final Property<String> email;
 
     @Inject
-    DockerRegistryCredentials(ObjectFactory objectFactory) {
-        url = objectFactory.property(String)
-        url.set(DEFAULT_URL)
-        username = objectFactory.property(String)
-        password = objectFactory.property(String)
-        email = objectFactory.property(String)
+    public DockerRegistryCredentials(ObjectFactory objectFactory) {
+        url = objectFactory.property(String.class);
+        url.set(DEFAULT_URL);
+        username = objectFactory.property(String.class);
+        password = objectFactory.property(String.class);
+        email = objectFactory.property(String.class);
     }
 
     /**
@@ -95,27 +92,28 @@ class DockerRegistryCredentials {
      *
      * @since 4.0.0
      */
-    PasswordCredentials asPasswordCredentials() {
-        new PasswordCredentials() {
+    public PasswordCredentials asPasswordCredentials() {
+        return new PasswordCredentials() {
             @Override
-            String getUsername() {
-                DockerRegistryCredentials.this.username.get()
+            public String getUsername() {
+                return DockerRegistryCredentials.this.getUsername().get();
             }
 
             @Override
-            void setUsername(@Nullable String userName) {
-                DockerRegistryCredentials.this.username.set(userName)
+            public void setUsername(@Nullable String userName) {
+                DockerRegistryCredentials.this.getUsername().set(userName);
             }
 
             @Override
-            String getPassword() {
-                DockerRegistryCredentials.this.password.get()
+            public String getPassword() {
+                return DockerRegistryCredentials.this.getPassword().get();
             }
 
             @Override
-            void setPassword(@Nullable String password) {
-                DockerRegistryCredentials.this.password.set(password)
+            public void setPassword(@Nullable String password) {
+                DockerRegistryCredentials.this.getPassword().set(password);
             }
-        }
+
+        };
     }
 }
