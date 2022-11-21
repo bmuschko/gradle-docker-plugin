@@ -81,7 +81,7 @@ public class DockerRegistryCredentials {
     @Inject
     public DockerRegistryCredentials(ObjectFactory objectFactory) {
         url = objectFactory.property(String.class);
-        url.set(DEFAULT_URL);
+        url.convention(DEFAULT_URL);
         username = objectFactory.property(String.class);
         password = objectFactory.property(String.class);
         email = objectFactory.property(String.class);

@@ -67,13 +67,13 @@ public class DockerExtension {
         DockerConfigResolver dockerConfigResolver = new DefaultDockerConfigResolver();
 
         url = objectFactory.property(String.class);
-        url.set(dockerConfigResolver.getDefaultDockerUrl());
+        url.convention(dockerConfigResolver.getDefaultDockerUrl());
         certPath = objectFactory.directoryProperty();
 
         File defaultDockerCert = dockerConfigResolver.getDefaultDockerCert();
 
         if (defaultDockerCert != null) {
-            certPath.set(defaultDockerCert);
+            certPath.convention(objectFactory.directoryProperty().fileValue(defaultDockerCert));
         }
 
         apiVersion = objectFactory.property(String.class);

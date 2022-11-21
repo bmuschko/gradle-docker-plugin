@@ -117,8 +117,8 @@ class DockerLogsContainer extends DockerExistingContainer {
     }
 
     DockerLogsContainer() {
-        stdOut.set(true)
-        stdErr.set(true)
+        stdOut.convention(true)
+        stdErr.convention(true)
     }
 
     @Override

@@ -185,7 +185,7 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
                 pushImage.setGroup(DockerRemoteApiPlugin.DEFAULT_TASK_GROUP);
                 pushImage.setDescription("Pushes created Docker image to the repository.");
                 pushImage.dependsOn(dockerBuildImageTask);
-                pushImage.getImages().set(dockerBuildImageTask.get().getImages());
+                pushImage.getImages().convention(dockerBuildImageTask.get().getImages());
             }
         });
     }

@@ -102,14 +102,14 @@ public class DockerConventionJvmApplicationExtension {
 
     public DockerConventionJvmApplicationExtension(ObjectFactory objectFactory) {
         baseImage = objectFactory.property(String.class);
-        baseImage.set("openjdk:11.0.15-jre-slim");
+        baseImage.convention("openjdk:11.0.15-jre-slim");
         maintainer = objectFactory.property(String.class);
-        maintainer.set(System.getProperty("user.name"));
+        maintainer.convention(System.getProperty("user.name"));
         ports = objectFactory.listProperty(Integer.class);
-        ports.set(List.of(8080));
-        images = objectFactory.setProperty(String.class).empty();
-        jvmArgs = objectFactory.listProperty(String.class).empty();
+        ports.convention(List.of(8080));
+        images = objectFactory.setProperty(String.class);
+        jvmArgs = objectFactory.listProperty(String.class);
         mainClassName = objectFactory.property(String.class);
-        args = objectFactory.listProperty(String.class).empty();
+        args = objectFactory.listProperty(String.class);
     }
 }

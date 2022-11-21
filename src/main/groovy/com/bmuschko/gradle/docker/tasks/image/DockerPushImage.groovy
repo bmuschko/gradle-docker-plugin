@@ -37,7 +37,7 @@ class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCre
      * @since 6.0.0
      */
     @Input
-    final SetProperty<String> images = project.objects.setProperty(String).empty()
+    final SetProperty<String> images = project.objects.setProperty(String)
 
     /**
      * {@inheritDoc}

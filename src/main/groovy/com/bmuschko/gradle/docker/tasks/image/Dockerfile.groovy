@@ -58,9 +58,9 @@ class Dockerfile extends DefaultTask {
     private final ObjectFactory objects
 
     Dockerfile() {
-        instructions = project.objects.listProperty(Instruction).empty()
+        instructions = project.objects.listProperty(Instruction)
         destFile = project.objects.fileProperty()
-        destFile.set(project.layout.buildDirectory.file('docker/Dockerfile'))
+        destFile.convention(project.layout.buildDirectory.file('docker/Dockerfile'))
         objects = project.objects
     }
 

@@ -86,7 +86,7 @@ class DockerCommitImage extends DockerExistingContainer {
     final Property<String> imageId = project.objects.property(String)
 
     DockerCommitImage() {
-        imageId.set(imageIdFile.map { RegularFile it ->
+        imageId.convention(imageIdFile.map { RegularFile it ->
             File file = it.asFile
             if (file.exists()) {
                 return file.text
@@ -95,7 +95,7 @@ class DockerCommitImage extends DockerExistingContainer {
         })
 
         String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
-        imageIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
+        imageIdFile.convention(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
     }
 
     @Override

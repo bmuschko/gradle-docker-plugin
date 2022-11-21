@@ -167,20 +167,14 @@ class DockerCreateContainer extends DockerExistingImage {
     DockerCreateContainer(ObjectFactory objectFactory) {
         hostConfig = objectFactory.newInstance(HostConfig, objectFactory)
         healthCheck = objectFactory.newInstance(HealthCheckConfig, objectFactory)
-        portSpecs.empty()
-        stdinOpen.set(false)
-        stdinOnce.set(false)
-        attachStdin.set(false)
-        attachStdout.set(false)
-        attachStderr.set(false)
-        cmd.empty()
-        entrypoint.empty()
-        networkAliases.empty()
-        volumes.empty()
-        exposedPorts.empty()
-        tty.set(false)
+        stdinOpen.convention(false)
+        stdinOnce.convention(false)
+        attachStdin.convention(false)
+        attachStdout.convention(false)
+        attachStderr.convention(false)
+        tty.convention(false)
 
-        containerId.set(containerIdFile.map { RegularFile it ->
+        containerId.convention(containerIdFile.map { RegularFile it ->
             File file = it.asFile
             if (file.exists()) {
                 return file.text
@@ -189,7 +183,7 @@ class DockerCreateContainer extends DockerExistingImage {
         })
 
         String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
-        containerIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-containerId.txt"))
+        containerIdFile.convention(project.layout.buildDirectory.file(".docker/${safeTaskPath}-containerId.txt"))
 
         outputs.upToDateWhen upToDateWhenSpec
     }
@@ -228,11 +222,7 @@ class DockerCreateContainer extends DockerExistingImage {
     }
 
     void withEnvVar(String key, String value) {
-        if (envVars.getOrNull()) {
-            envVars.put(key, value)
-        } else {
-            envVars.set([(key): value])
-        }
+        envVars.put(key, value)
     }
 
     private static HealthCheck getOrCreateHealthCheck(CreateContainerCmd containerCommand) {
@@ -628,35 +618,28 @@ class DockerCreateContainer extends DockerExistingImage {
         @Inject
         HostConfig(ObjectFactory objectFactory) {
             groups = objectFactory.listProperty(String)
-            groups.empty()
             memory = objectFactory.property(Long)
             memorySwap = objectFactory.property(Long)
             cpuset = objectFactory.property(String)
             dns = objectFactory.listProperty(String)
-            dns.empty()
             network = objectFactory.property(String)
             links = objectFactory.listProperty(String)
-            links.empty()
             volumesFrom = objectFactory.listProperty(String)
-            volumesFrom.empty()
             portBindings = objectFactory.listProperty(String)
-            portBindings.empty()
             publishAll = objectFactory.property(Boolean)
-            publishAll.set(false)
+            publishAll.convention(false)
             binds = objectFactory.mapProperty(String, String)
             tmpFs = objectFactory.mapProperty(String, String)
             extraHosts = objectFactory.listProperty(String)
-            extraHosts.empty()
             logConfig = objectFactory.property(LogConfig)
             privileged = objectFactory.property(Boolean)
-            privileged.set(false)
+            privileged.convention(false)
             restartPolicy = objectFactory.property(String)
             capAdd = objectFactory.listProperty(String)
             capDrop = objectFactory.listProperty(String)
             devices = objectFactory.listProperty(String)
             shmSize = objectFactory.property(Long)
             autoRemove = objectFactory.property(Boolean)
-            autoRemove.set(false)
             ipcMode = objectFactory.property(String)
             sysctls = objectFactory.mapProperty(String, String)
         }
@@ -717,7 +700,6 @@ class DockerCreateContainer extends DockerExistingImage {
             interval = objectFactory.property(Long)
             timeout = objectFactory.property(Long)
             cmd = objectFactory.listProperty(String)
-            cmd.empty()
             retries = objectFactory.property(Integer)
             startPeriod = objectFactory.property(Long)
         }
