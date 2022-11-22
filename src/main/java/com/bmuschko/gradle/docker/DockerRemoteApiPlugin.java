@@ -12,7 +12,7 @@ import org.gradle.api.services.BuildServiceSpec;
 /**
  * Gradle plugin that provides custom tasks for interacting with Docker via its remote API.
  * <p>
- * Exposes the extension {@link DockerExtension) required to configure the communication and authentication with the Docker remote API. Provides Docker registry credential values from the extension to all custom tasks that implement {@link RegistryCredentialsAware}.
+ * Exposes the extension {@link DockerExtension} required to configure the communication and authentication with the Docker remote API. Provides Docker registry credential values from the extension to all custom tasks that implement {@link RegistryCredentialsAware}.
  */
 public class DockerRemoteApiPlugin implements Plugin<Project> {
 

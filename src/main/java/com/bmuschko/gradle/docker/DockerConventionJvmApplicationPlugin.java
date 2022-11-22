@@ -80,7 +80,7 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
                 dockerfile.label(project.provider(new Callable<Map<String, String>>() {
                     @Override
                     public Map<String, String> call() throws Exception {
-                        return Map.ofEntries(Map.entry("maintainer", extension.getMaintainer().get()));
+                        return new HashMap<>(Map.ofEntries(Map.entry("maintainer", extension.getMaintainer().get())));
                     }
 
                 }));
@@ -166,13 +166,13 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
         return project.provider(new Callable<Set<String>>() {
             @Override
             public Set<String> call() throws Exception {
-                if (extension.getImages().getOrNull() != null) {
+                if (extension.getImages().getOrNull() != null && !extension.getImages().get().isEmpty()) {
                     return extension.getImages().get();
                 }
 
                 final String tagVersion = project.getVersion().equals("unspecified") ? "latest" : project.getVersion().toString();
                 String artifactAndVersion = (project.getName() + ":" + tagVersion).toLowerCase();
-                return Set.of(!project.getGroup().toString().isEmpty() ? project.getGroup().toString() + "/" + artifactAndVersion.toString() : artifactAndVersion);
+                return Set.of(!project.getGroup().toString().isEmpty() ? project.getGroup() + "/" + artifactAndVersion : artifactAndVersion);
             }
 
         });
