@@ -219,15 +219,13 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
     final Property<String> imageId = project.objects.property(String)
 
     DockerBuildImage() {
-        inputDir.set(project.layout.buildDirectory.dir('docker'))
-        images.empty()
-        noCache.set(false)
-        remove.set(false)
-        quiet.set(false)
-        pull.set(false)
-        cacheFrom.empty()
+        inputDir.convention(project.layout.buildDirectory.dir('docker'))
+        noCache.convention(false)
+        remove.convention(false)
+        quiet.convention(false)
+        pull.convention(false)
 
-        imageId.set(imageIdFile.map { RegularFile it ->
+        imageId.convention(imageIdFile.map { RegularFile it ->
             File file = it.asFile
             if (file.exists()) {
                 return file.text
@@ -237,7 +235,7 @@ class DockerBuildImage extends AbstractDockerRemoteApiTask implements RegistryCr
 
         String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
         registryCredentials = project.objects.newInstance(DockerRegistryCredentials, project.objects)
-        imageIdFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
+        imageIdFile.convention(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
 
         outputs.upToDateWhen upToDateWhenSpec
     }

@@ -53,10 +53,10 @@ public class DockerRemoteApiPlugin implements Plugin<Project> {
         project.getTasks().withType(RegistryCredentialsAware.class).configureEach(new Action<RegistryCredentialsAware>() {
             @Override
             public void execute(RegistryCredentialsAware task) {
-                task.getRegistryCredentials().getUrl().set(extensionRegistryCredentials.getUrl());
-                task.getRegistryCredentials().getUsername().set(extensionRegistryCredentials.getUsername());
-                task.getRegistryCredentials().getPassword().set(extensionRegistryCredentials.getPassword());
-                task.getRegistryCredentials().getEmail().set(extensionRegistryCredentials.getEmail());
+                task.getRegistryCredentials().getUrl().convention(extensionRegistryCredentials.getUrl());
+                task.getRegistryCredentials().getUsername().convention(extensionRegistryCredentials.getUsername());
+                task.getRegistryCredentials().getPassword().convention(extensionRegistryCredentials.getPassword());
+                task.getRegistryCredentials().getEmail().convention(extensionRegistryCredentials.getEmail());
             }
         });
     }

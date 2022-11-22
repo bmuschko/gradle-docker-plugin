@@ -61,8 +61,8 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     final DirectoryProperty buildDirectory = project.layout.buildDirectory
 
     DockerCopyFileFromContainer() {
-        hostPath.set(project.projectDir.path)
-        compressed.set(false)
+        hostPath.convention(project.projectDir.path)
+        compressed.convention(false)
     }
 
     @Override

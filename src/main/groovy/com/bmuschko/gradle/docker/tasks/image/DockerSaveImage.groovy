@@ -54,9 +54,9 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
     final RegularFileProperty imageIdsFile = project.objects.fileProperty()
 
     DockerSaveImage() {
-        useCompression.set(false)
+        useCompression.convention(false)
         String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
-        imageIdsFile.set(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageIds.properties"))
+        imageIdsFile.convention(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageIds.properties"))
 
         onlyIf onlyIfSpec
 

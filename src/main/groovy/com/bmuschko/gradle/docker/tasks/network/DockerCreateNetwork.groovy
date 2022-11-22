@@ -86,7 +86,7 @@ class DockerCreateNetwork extends AbstractDockerRemoteApiTask {
         @Inject
         Ipam(ObjectFactory objectFactory) {
             driver = objectFactory.property(String)
-            configs = objectFactory.listProperty(Config).empty()
+            configs = objectFactory.listProperty(Config)
         }
 
         @PackageScope
