@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker
+package com.bmuschko.gradle.docker;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.model.ObjectFactory
+import org.gradle.api.model.ObjectFactory;
 
 /**
  * The extension for configuring a Java application via the {@link DockerJavaApplicationPlugin}.
@@ -36,10 +35,9 @@ import org.gradle.api.model.ObjectFactory
  * }
  * </pre>
  */
-@CompileStatic
-class DockerJavaApplication extends DockerConventionJvmApplicationExtension {
+public class DockerJavaApplication extends DockerConventionJvmApplicationExtension {
 
-    DockerJavaApplication(ObjectFactory objectFactory) {
-        super(objectFactory)
+    public DockerJavaApplication(ObjectFactory objectFactory) {
+        super(objectFactory);
     }
 }
