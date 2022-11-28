@@ -13,37 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.DefaultTask
-import org.gradle.api.Transformer
-import org.gradle.api.file.Directory
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFile
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.internal.provider.Providers
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.DefaultTask;
+import org.gradle.api.Transformer;
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.internal.provider.Providers;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.TaskAction;
 
-import javax.annotation.Nullable
+import javax.annotation.Nullable;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Creates a Dockerfile based on the provided instructions.
  */
 @CacheableTask
-@CompileStatic
-class Dockerfile extends DefaultTask {
+public class Dockerfile extends DefaultTask {
 
-    private final ListProperty<Instruction> instructions
+    private final ListProperty<Instruction> instructions;
 
     /**
      * The destination file representing the Dockerfile. The destination file encourages the conventional file name Dockerfile but allows any arbitrary file name.
@@ -53,15 +62,19 @@ class Dockerfile extends DefaultTask {
      * The method {@link #getDestDir()} returns the parent directory of the Dockerfile.
      */
     @OutputFile
-    final RegularFileProperty destFile
+    public final RegularFileProperty getDestFile() {
+        return destFile;
+    }
 
-    private final ObjectFactory objects
+    private final RegularFileProperty destFile;
 
-    Dockerfile() {
-        instructions = project.objects.listProperty(Instruction)
-        destFile = project.objects.fileProperty()
-        destFile.convention(project.layout.buildDirectory.file('docker/Dockerfile'))
-        objects = project.objects
+    private final ObjectFactory objects;
+
+    public Dockerfile() {
+        instructions = getProject().getObjects().listProperty(Instruction.class);
+        destFile = getProject().getObjects().fileProperty();
+        destFile.convention(getProject().getLayout().getBuildDirectory().file("docker/Dockerfile"));
+        objects = getProject().getObjects();
     }
 
     /**
@@ -70,8 +83,8 @@ class Dockerfile extends DefaultTask {
      * @return All instructions
      */
     @Nested
-    ListProperty<Instruction> getInstructions() {
-        instructions
+    public ListProperty<Instruction> getInstructions() {
+        return instructions;
     }
 
     /**
@@ -81,47 +94,64 @@ class Dockerfile extends DefaultTask {
      * @since 4.4.0
      */
     @Internal
-    Provider<Directory> getDestDir() {
-        destFile.flatMap(new Transformer<Provider<Directory>, RegularFile>() {
+    public Provider<Directory> getDestDir() {
+        return destFile.flatMap(new Transformer<Provider<Directory>, RegularFile>() {
             @Override
-            Provider<Directory> transform(RegularFile f) {
-                DirectoryProperty destDir = objects.directoryProperty()
-                destDir.set(f.asFile.parentFile)
-                destDir
+            public Provider<Directory> transform(RegularFile f) {
+                DirectoryProperty destDir = objects.directoryProperty();
+                destDir.set(f.getAsFile().getParentFile());
+                return destDir;
             }
-        })
+        });
     }
 
     @TaskAction
-    void create() {
-        verifyValidInstructions()
+    public void create() throws IOException {
+        verifyValidInstructions();
 
-        destFile.get().asFile.withWriter { out ->
-            instructions.get().forEach() { Instruction instruction ->
-                String instructionText = instruction.getText()
+        try (PrintWriter out = new PrintWriter(destFile.get().getAsFile())) {
+            instructions.get().forEach(instruction -> {
+                String instructionText = instruction.getText();
 
-                if (instructionText) {
-                    out.println instructionText
+                if (instructionText != null && !instructionText.isEmpty()) {
+                    out.println(instructionText);
                 }
-            }
+            });
         }
     }
 
     private void verifyValidInstructions() {
-        List<Instruction> allInstructions = instructions.get().collect()
+        List<Instruction> allInstructions = new ArrayList<>(instructions.get());
 
         // Comments are not relevant for validating instruction order
-        allInstructions.removeAll { it.text?.startsWith(CommentInstruction.KEYWORD) }
+        allInstructions.removeIf(it -> {
+            String text = it.getText();
+            if (text == null) {
+                return false;
+            }
+            return text.startsWith(CommentInstruction.KEYWORD);
+        });
 
-        if (allInstructions.empty) {
-            throw new IllegalStateException('Please specify instructions for your Dockerfile')
+        if (allInstructions.isEmpty()) {
+            throw new IllegalStateException("Please specify instructions for your Dockerfile");
         }
 
-        def fromPos = allInstructions.findIndexOf { it.keyword == FromInstruction.KEYWORD }
-        def othersPos = allInstructions.findIndexOf { it.keyword != ArgInstruction.KEYWORD && it.keyword != FromInstruction.KEYWORD }
-
+        int fromPos = IntStream.range(0, allInstructions.size())
+                .filter(index -> {
+                    Instruction it = allInstructions.get(index);
+                    return it.getKeyword().equals(FromInstruction.KEYWORD);
+                })
+                .findFirst()
+                .orElse(-1);
+        int othersPos = IntStream.range(0, allInstructions.size())
+                .filter(index -> {
+                    Instruction it = allInstructions.get(index);
+                    return !it.getKeyword().equals(ArgInstruction.KEYWORD) && !it.getKeyword().equals(FromInstruction.KEYWORD);
+                })
+                .findFirst()
+                .orElse(-1);
         if (fromPos < 0 || (othersPos >= 0 && fromPos > othersPos)) {
-            throw new IllegalStateException("The first instruction of a Dockerfile has to be $FromInstruction.KEYWORD (or $ArgInstruction.KEYWORD for Docker later than 17.05)")
+            throw new IllegalStateException("The first instruction of a Dockerfile has to be " + FromInstruction.KEYWORD + " (or " + ArgInstruction.KEYWORD + " for Docker later than 17.05)");
         }
     }
 
@@ -132,12 +162,17 @@ class Dockerfile extends DefaultTask {
      * @see #instructionsFromTemplate(String)
      * @see #instructionsFromTemplate(Provider)
      */
-    void instructionsFromTemplate(java.io.File template) {
+    public void instructionsFromTemplate(final java.io.File template) throws IOException {
         if (!template.exists()) {
-            throw new FileNotFoundException("docker template file not found at location : ${template.getAbsolutePath()}")
+            throw new FileNotFoundException("docker template file not found at location : " + template.getAbsolutePath());
         }
-        template.readLines().findAll { it.length() > 0 } each { String instruction ->
-            instructions.add(new GenericInstruction(instruction))
+
+        try (Stream<String> lines = Files.lines(template.toPath())) {
+            lines
+                    .filter(it -> !it.isEmpty())
+                    .forEach(instruction -> {
+                        getInstructions().add(new GenericInstruction(instruction));
+                    });
         }
     }
 
@@ -148,8 +183,8 @@ class Dockerfile extends DefaultTask {
      * @see #instructionsFromTemplate(java.io.File)
      * @see #instructionsFromTemplate(Provider)
      */
-    void instructionsFromTemplate(String templatePath) {
-        instructionsFromTemplate(project.file(templatePath))
+    public void instructionsFromTemplate(String templatePath) throws IOException {
+        instructionsFromTemplate(getProject().file(templatePath));
     }
 
     /**
@@ -161,8 +196,8 @@ class Dockerfile extends DefaultTask {
      * @see #instructionsFromTemplate(String)
      * @since 4.0.0
      */
-    void instructionsFromTemplate(Provider<RegularFile> provider) {
-        instructionsFromTemplate(provider.get().asFile)
+    public void instructionsFromTemplate(Provider<RegularFile> provider) throws IOException {
+        instructionsFromTemplate(provider.get().getAsFile());
     }
 
     /**
@@ -186,8 +221,8 @@ class Dockerfile extends DefaultTask {
      * @param instruction Instruction as String
      * @see #instruction(Provider)
      */
-    void instruction(String instruction) {
-        instructions.add(new GenericInstruction(instruction))
+    public void instruction(String instruction) {
+        instructions.add(new GenericInstruction(instruction));
     }
 
     /**
@@ -215,8 +250,8 @@ class Dockerfile extends DefaultTask {
      * @see #instruction(String)
      * @since 4.0.0
      */
-    void instruction(Provider<String> provider) {
-        instructions.add(new GenericInstruction(provider))
+    public void instruction(Provider<String> provider) {
+        instructions.add(new GenericInstruction(provider));
     }
 
     /**
@@ -236,12 +271,12 @@ class Dockerfile extends DefaultTask {
      * FROM ubuntu:14.04
      * </pre>
      *
-     * @param from From definition
+     * @param image From definition
      * @see #from(From)
      * @see #from(Provider)
      */
-    void from(String image) {
-        instructions.add(new FromInstruction(new From(image)))
+    public void from(String image) {
+        instructions.add(new FromInstruction(new From(image)));
     }
 
     /**
@@ -261,13 +296,12 @@ class Dockerfile extends DefaultTask {
      * FROM ubuntu:14.04
      * </pre>
      *
-     * @param from From definition
-     * @param stageName stage name in case of multi-stage builds (default null)
+     * @param from      From definition
      * @see #from(String)
      * @see #from(Provider)
      */
-    void from(From from) {
-        instructions.add(new FromInstruction(from))
+    public void from(From from) {
+        instructions.add(new FromInstruction(from));
     }
 
     /**
@@ -295,8 +329,8 @@ class Dockerfile extends DefaultTask {
      * @see #from(From)
      * @since 4.0.0
      */
-    void from(Provider<Dockerfile.From> provider) {
-        instructions.add(new FromInstruction(provider))
+    public void from(Provider<From> provider) {
+        instructions.add(new FromInstruction(provider));
     }
 
     /**
@@ -319,8 +353,8 @@ class Dockerfile extends DefaultTask {
      * @param arg Argument to pass, possibly with default value.
      * @see #arg(Provider)
      */
-    void arg(String arg) {
-        instructions.add(new ArgInstruction(arg))
+    public void arg(String arg) {
+        instructions.add(new ArgInstruction(arg));
     }
 
     /**
@@ -348,8 +382,8 @@ class Dockerfile extends DefaultTask {
      * @see #arg(String)
      * @since 4.0.0
      */
-    void arg(Provider<String> provider) {
-        instructions.add(new ArgInstruction(provider))
+    public void arg(Provider<String> provider) {
+        instructions.add(new ArgInstruction(provider));
     }
 
     /**
@@ -372,8 +406,8 @@ class Dockerfile extends DefaultTask {
      * @param command Command
      * @see #runCommand(Provider)
      */
-    void runCommand(String command) {
-        instructions.add(new RunCommandInstruction(command))
+    public void runCommand(String command) {
+        instructions.add(new RunCommandInstruction(command));
     }
 
     /**
@@ -401,8 +435,8 @@ class Dockerfile extends DefaultTask {
      * @see #runCommand(String)
      * @since 4.0.0
      */
-    void runCommand(Provider<String> provider) {
-        instructions.add(new RunCommandInstruction(provider))
+    public void runCommand(Provider<String> provider) {
+        instructions.add(new RunCommandInstruction(provider));
     }
 
     /**
@@ -425,8 +459,8 @@ class Dockerfile extends DefaultTask {
      * @param command Command
      * @see #defaultCommand(Provider)
      */
-    void defaultCommand(String... command) {
-        instructions.add(new DefaultCommandInstruction(command))
+    public void defaultCommand(String... command) {
+        instructions.add(new DefaultCommandInstruction(command));
     }
 
     /**
@@ -454,8 +488,8 @@ class Dockerfile extends DefaultTask {
      * @see #defaultCommand(String...)
      * @since 4.0.0
      */
-    void defaultCommand(Provider<List<String>> provider) {
-        instructions.add(new DefaultCommandInstruction(provider))
+    public void defaultCommand(Provider<List<String>> provider) {
+        instructions.add(new DefaultCommandInstruction(provider));
     }
 
     /**
@@ -478,8 +512,8 @@ class Dockerfile extends DefaultTask {
      * @param ports Ports
      * @see #exposePort(Provider)
      */
-    void exposePort(Integer... ports) {
-        instructions.add(new ExposePortInstruction(ports))
+    public void exposePort(Integer... ports) {
+        instructions.add(new ExposePortInstruction(ports));
     }
 
     /**
@@ -503,12 +537,12 @@ class Dockerfile extends DefaultTask {
      * EXPOSE 8080 9090
      * </pre>
      *
-     * @param ports Ports as Provider
+     * @param provider Ports as Provider
      * @see #exposePort(Integer...)
      * @since 4.0.0
      */
-    void exposePort(Provider<List<Integer>> provider) {
-        instructions.add(new ExposePortInstruction(provider))
+    public void exposePort(Provider<List<Integer>> provider) {
+        instructions.add(new ExposePortInstruction(provider));
     }
 
     /**
@@ -528,13 +562,13 @@ class Dockerfile extends DefaultTask {
      * ENV MY_NAME=John Doe
      * </pre>
      *
-     * @param key Key
+     * @param key   Key
      * @param value Value
      * @see #environmentVariable(Map)
      * @see #environmentVariable(Provider)
      */
-    void environmentVariable(String key, String value) {
-        instructions.add(new EnvironmentVariableInstruction(key, value))
+    public void environmentVariable(String key, String value) {
+        instructions.add(new EnvironmentVariableInstruction(key, value));
     }
 
     /**
@@ -557,8 +591,8 @@ class Dockerfile extends DefaultTask {
      * @see #environmentVariable(String, String)
      * @see #environmentVariable(Provider)
      */
-    void environmentVariable(Map<String, String> envVars) {
-        instructions.add(new EnvironmentVariableInstruction(envVars))
+    public void environmentVariable(Map<String, String> envVars) {
+        instructions.add(new EnvironmentVariableInstruction(envVars));
     }
 
     /**
@@ -587,8 +621,8 @@ class Dockerfile extends DefaultTask {
      * @see #environmentVariable(Map)
      * @since 4.0.0
      */
-    void environmentVariable(Provider<Map<String, String>> provider) {
-        instructions.add(new EnvironmentVariableInstruction(provider))
+    public void environmentVariable(Provider<Map<String, String>> provider) {
+        instructions.add(new EnvironmentVariableInstruction(provider));
     }
 
     /**
@@ -608,13 +642,13 @@ class Dockerfile extends DefaultTask {
      * ADD test /absoluteDir/
      * </pre>
      *
-     * @param src The source path
+     * @param src  The source path
      * @param dest The destination path
-     * @see #addFile(Dockerfile.File)
+     * @see #addFile(File)
      * @see #addFile(Provider)
      */
-    void addFile(String src, String dest) {
-        addFile(new File(src, dest))
+    public void addFile(String src, String dest) {
+        addFile(new File(src, dest));
     }
 
     /**
@@ -638,8 +672,8 @@ class Dockerfile extends DefaultTask {
      * @see #addFile(String, String)
      * @see #addFile(Provider)
      */
-    void addFile(Dockerfile.File file) {
-        instructions.add(new AddFileInstruction(file))
+    public void addFile(File file) {
+        instructions.add(new AddFileInstruction(file));
     }
 
     /**
@@ -665,11 +699,11 @@ class Dockerfile extends DefaultTask {
      *
      * @param provider Add instruction as Provider
      * @see #addFile(String, String)
-     * @see #addFile(Dockerfile.File)
+     * @see #addFile(File)
      * @since 4.0.0
      */
-    void addFile(Provider<Dockerfile.File> provider) {
-        instructions.add(new AddFileInstruction(provider))
+    public void addFile(Provider<File> provider) {
+        instructions.add(new AddFileInstruction(provider));
     }
 
     /**
@@ -689,13 +723,13 @@ class Dockerfile extends DefaultTask {
      * COPY test /absoluteDir/
      * </pre>
      *
-     * @param src The source path
+     * @param src  The source path
      * @param dest The destination path
      * @see #copyFile(CopyFile)
      * @see #copyFile(Provider)
      */
-    void copyFile(String src, String dest) {
-        copyFile(new CopyFile(src, dest))
+    public void copyFile(String src, String dest) {
+        copyFile(new CopyFile(src, dest));
     }
 
     /**
@@ -719,8 +753,8 @@ class Dockerfile extends DefaultTask {
      * @see #copyFile(String, String)
      * @see #copyFile(Provider)
      */
-    void copyFile(CopyFile file) {
-        instructions.add(new CopyFileInstruction(file))
+    public void copyFile(CopyFile file) {
+        instructions.add(new CopyFileInstruction(file));
     }
 
     /**
@@ -749,8 +783,8 @@ class Dockerfile extends DefaultTask {
      * @see #copyFile(CopyFile)
      * @since 4.0.0
      */
-    void copyFile(Provider<Dockerfile.CopyFile> provider) {
-        instructions.add(new CopyFileInstruction(provider))
+    public void copyFile(Provider<CopyFile> provider) {
+        instructions.add(new CopyFileInstruction(provider));
     }
 
     /**
@@ -773,8 +807,8 @@ class Dockerfile extends DefaultTask {
      * @param entryPoint Entry point
      * @see #entryPoint(Provider)
      */
-    void entryPoint(String... entryPoint) {
-        instructions.add(new EntryPointInstruction(entryPoint))
+    public void entryPoint(String... entryPoint) {
+        instructions.add(new EntryPointInstruction(entryPoint));
     }
 
     /**
@@ -798,12 +832,12 @@ class Dockerfile extends DefaultTask {
      * ENTRYPOINT ["top", "-b"]
      * </pre>
      *
-     * @param entryPoint Entry point
+     * @param provider Entry point
      * @see #entryPoint(String...)
      * @since 4.0.0
      */
-    void entryPoint(Provider<List<String>> provider) {
-        instructions.add(new EntryPointInstruction(provider))
+    public void entryPoint(Provider<List<String>> provider) {
+        instructions.add(new EntryPointInstruction(provider));
     }
 
     /**
@@ -826,8 +860,8 @@ class Dockerfile extends DefaultTask {
      * @param volume Volume
      * @see #volume(Provider)
      */
-    void volume(String... volume) {
-        instructions.add(new VolumeInstruction(volume))
+    public void volume(String... volume) {
+        instructions.add(new VolumeInstruction(volume));
     }
 
     /**
@@ -851,12 +885,12 @@ class Dockerfile extends DefaultTask {
      * VOLUME ["/myvol"]
      * </pre>
      *
-     * @param volume Volume
+     * @param provider Volume
      * @see #volume(String...)
      * @since 4.0.0
      */
-    void volume(Provider<List<String>> provider) {
-        instructions.add(new VolumeInstruction(provider))
+    public void volume(Provider<List<String>> provider) {
+        instructions.add(new VolumeInstruction(provider));
     }
 
     /**
@@ -879,8 +913,8 @@ class Dockerfile extends DefaultTask {
      * @param user User
      * @see #user(Provider)
      */
-    void user(String user) {
-        instructions.add(new UserInstruction(user))
+    public void user(String user) {
+        instructions.add(new UserInstruction(user));
     }
 
     /**
@@ -908,8 +942,8 @@ class Dockerfile extends DefaultTask {
      * @see #user(String)
      * @since 4.0.0
      */
-    void user(Provider<String> provider) {
-        instructions.add(new UserInstruction(provider))
+    public void user(Provider<String> provider) {
+        instructions.add(new UserInstruction(provider));
     }
 
     /**
@@ -932,8 +966,8 @@ class Dockerfile extends DefaultTask {
      * @param dir Directory
      * @see #workingDir(Provider)
      */
-    void workingDir(String dir) {
-        instructions.add(new WorkDirInstruction(dir))
+    public void workingDir(String dir) {
+        instructions.add(new WorkDirInstruction(dir));
     }
 
     /**
@@ -957,12 +991,12 @@ class Dockerfile extends DefaultTask {
      * WORKDIR /path/to/workdir
      * </pre>
      *
-     * @param dir Directory
+     * @param provider Directory
      * @see #workingDir(String)
      * @since 4.0.0
      */
-    void workingDir(Provider<String> provider) {
-        instructions.add(new WorkDirInstruction(provider))
+    public void workingDir(Provider<String> provider) {
+        instructions.add(new WorkDirInstruction(provider));
     }
 
     /**
@@ -985,8 +1019,8 @@ class Dockerfile extends DefaultTask {
      * @param instruction Instruction
      * @see #onBuild(Provider)
      */
-    void onBuild(String instruction) {
-        instructions.add(new OnBuildInstruction(instruction))
+    public void onBuild(String instruction) {
+        instructions.add(new OnBuildInstruction(instruction));
     }
 
     /**
@@ -1010,12 +1044,12 @@ class Dockerfile extends DefaultTask {
      * ONBUILD ADD . /app/src
      * </pre>
      *
-     * @param instruction Instruction
+     * @param provider Instruction
      * @see #onBuild(String)
      * @since 4.0.0
      */
-    void onBuild(Provider<String> provider) {
-        instructions.add(new OnBuildInstruction(provider))
+    public void onBuild(Provider<String> provider) {
+        instructions.add(new OnBuildInstruction(provider));
     }
 
     /**
@@ -1037,8 +1071,8 @@ class Dockerfile extends DefaultTask {
      * @param labels Labels
      * @see #label(Provider)
      */
-    void label(Map<String, String> labels) {
-        instructions.add(new LabelInstruction(labels))
+    public void label(Map<String, String> labels) {
+        instructions.add(new LabelInstruction(labels));
     }
 
     /**
@@ -1066,14 +1100,14 @@ class Dockerfile extends DefaultTask {
      * @see #label(Map)
      * @since 4.0.0
      */
-    void label(Provider<Map<String, String>> provider) {
-        instructions.add(new LabelInstruction(provider))
+    public void label(Provider<Map<String, String>> provider) {
+        instructions.add(new LabelInstruction(provider));
     }
 
     /**
      * A representation of an instruction in a Dockerfile.
      */
-    static interface Instruction {
+    public interface Instruction {
         /**
          * Gets the keyword of the instruction as used in the Dockerfile.
          * <p>
@@ -1083,7 +1117,7 @@ class Dockerfile extends DefaultTask {
          */
         @Internal
         @Nullable
-        String getKeyword()
+        String getKeyword();
 
         /**
          * Gets the full text of the instruction as used in the Dockerfile.
@@ -1094,7 +1128,7 @@ class Dockerfile extends DefaultTask {
         @Input
         @Optional
         @Nullable
-        String getText()
+        String getText();
     }
 
     /**
@@ -1102,594 +1136,592 @@ class Dockerfile extends DefaultTask {
      * <p>
      * Use this instruction if you want to provide a very complex instruction or if there's not a specific implementation of {@link Instruction} that serves your use case.
      */
-    static class GenericInstruction implements Instruction {
-        private final Provider<String> instructionProvider
+    public static class GenericInstruction implements Instruction {
+        private final Provider<String> instructionProvider;
 
-        GenericInstruction(String instruction) {
-            this.instructionProvider = Providers.ofNullable(instruction)
+        public GenericInstruction(String instruction) {
+            this.instructionProvider = Providers.ofNullable(instruction);
         }
 
-        GenericInstruction(Provider<String> instructionProvider) {
-            this.instructionProvider = instructionProvider
+        public GenericInstruction(Provider<String> instructionProvider) {
+            this.instructionProvider = instructionProvider;
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            return parseKeyword(instructionProvider.getOrNull())
+        public String getKeyword() {
+            return parseKeyword(instructionProvider.getOrNull());
         }
 
         private String parseKeyword(String inst) {
-            inst?.substring(0, inst.indexOf(' '))
+            return inst.substring(0, inst.indexOf(" "));
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getText() {
-            return instructionProvider.getOrNull()
+        public String getText() {
+            return instructionProvider.getOrNull();
         }
     }
 
     /**
      * An instruction whose value is a String.
      */
-    static abstract class StringCommandInstruction implements Instruction {
-        private final Provider<String> commandProvider
+    public static abstract class StringCommandInstruction implements Instruction {
+        private final Provider<String> commandProvider;
 
-        StringCommandInstruction(String command) {
-            this.commandProvider = Providers.ofNullable(command)
+        public StringCommandInstruction(String command) {
+            this.commandProvider = Providers.ofNullable(command);
         }
 
-        StringCommandInstruction(Provider<String> commandProvider) {
-            this.commandProvider = commandProvider
+        public StringCommandInstruction(Provider<String> commandProvider) {
+            this.commandProvider = commandProvider;
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getText() {
-            String command = commandProvider.getOrNull()
+        public String getText() {
+            String command = commandProvider.getOrNull();
 
-            if (command) {
-                return buildText(command)
+            if (command != null) {
+                return buildText(command);
             }
 
-            return null
+
+            return null;
         }
 
         private String buildText(String command) {
-            "$keyword $command"
+            return getKeyword() + " " + command;
         }
     }
 
     /**
      * An instruction whose value is a String array.
      */
-    static abstract class StringArrayInstruction implements Instruction {
-        private final Provider<List<String>> commandProvider
+    public static abstract class StringArrayInstruction implements Instruction {
+        private final Provider<List<String>> commandProvider;
 
-        StringArrayInstruction(String... command) {
-            this.commandProvider = Providers.ofNullable(command as List<String>)
+        public StringArrayInstruction(String... command) {
+            this.commandProvider = Providers.ofNullable(new ArrayList<>(List.of(command)));
         }
 
-        StringArrayInstruction(Provider<List<String>> commandProvider) {
-            this.commandProvider = commandProvider
+        public StringArrayInstruction(Provider<List<String>> commandProvider) {
+            this.commandProvider = commandProvider;
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getText() {
-            List<String> command = commandProvider.getOrNull()
+        public String getText() {
+            List<String> command = commandProvider.getOrNull();
 
-            if (command) {
-                return buildText(command as String[])
+            if (command != null && !command.isEmpty()) {
+                return buildText(command);
             }
 
-            return null
+
+            return null;
         }
 
-        private String buildText(String[] command) {
-            keyword + ' ["' + command.join('", "') + '"]'
+        private String buildText(List<String> command) {
+            return getKeyword() + " [\"" + String.join("\", \"", command) + "\"]";
         }
     }
 
     private interface ItemJoiner {
-        String join(Map<String, String> map)
+        String join(Map<String, String> map);
     }
 
     private static class MultiItemJoiner implements ItemJoiner {
         @Override
-        String join(Map<String, String> map) {
-            map.entrySet().collect { Map.Entry<String, String> entry ->
-                def key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.key) ? ItemJoinerUtil.toQuotedString(entry.key) : entry.key
-                def value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.value) ? ItemJoinerUtil.toQuotedString(entry.value) : entry.value
-                value = value.replaceAll("(\r)*\n", "\\\\\n")
-                "$key=$value"
-            }.join(' ')
+        public String join(Map<String, String> map) {
+            return map.entrySet().stream().map( entry -> {
+                String key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.getKey()) ? ItemJoinerUtil.toQuotedString(entry.getKey()) : entry.getKey();
+                String value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.getValue()) ? ItemJoinerUtil.toQuotedString(entry.getValue()) : entry.getValue();
+                value = value.replaceAll("(\r)*\n", "\\\\\n");
+                return key + "=" + value;
+            }).collect(Collectors.joining(" "));
         }
     }
 
     private static class ItemJoinerUtil {
         protected static boolean isUnquotedStringWithWhitespaces(String str) {
-            return !str.matches('["].*["]') &&
-                str.matches('.*(?: |(?:\r?\n)).*')
+            return !str.matches("[\"].*[\"]") && str.matches(".*(?: |(?:\r?\n)).*");
         }
 
         protected static String toQuotedString(final String str) {
-            '"'.concat(str.replaceAll('"', '\\\\"')).concat('"')
+            return "\"".concat(str.replaceAll("\"", "\\\\\"")).concat("\"");
         }
     }
 
     /**
      * An instruction whose value is a Map.
      */
-    static abstract class MapInstruction implements Instruction {
-        private final Provider<Map<String, String>> commandProvider
-        private final ItemJoiner joiner
+    public static abstract class MapInstruction implements Instruction {
+        private final Provider<Map<String, String>> commandProvider;
+        private final ItemJoiner joiner;
 
-        MapInstruction(Map<String, String> command) {
-            this.commandProvider = Providers.ofNullable(command)
-            this.joiner = new MultiItemJoiner()
+        public MapInstruction(Map<String, String> command) {
+            this.commandProvider = Providers.ofNullable(command);
+            this.joiner = new MultiItemJoiner();
         }
 
-        MapInstruction(Provider<Map<String, String>> commandProvider) {
-            this.commandProvider = commandProvider
-            joiner = new MultiItemJoiner()
+        public MapInstruction(Provider<Map<String, String>> commandProvider) {
+            this.commandProvider = commandProvider;
+            joiner = new MultiItemJoiner();
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getText() {
-            Map<String, String> commandToJoin
+        public String getText() {
+            final Map<String, String> evaluatedCommand = commandProvider.getOrNull();
 
-            def evaluatedCommand = commandProvider.getOrNull()
+            if (evaluatedCommand == null) {
+                throw new IllegalArgumentException("instruction has to be set for " + getKeyword());
+            }
 
-            if (!(evaluatedCommand instanceof Map<String, String>)) {
-                throw new IllegalArgumentException("the given evaluated closure is not a valid input for instruction ${keyword} while it doesn't provide a `Map` ([ key: value ]) but a `${evaluatedCommand?.class}` (${evaluatedCommand?.toString()})")
-            }
-            commandToJoin = evaluatedCommand as Map<String, String>
-            if (commandToJoin == null) {
-                throw new IllegalArgumentException("instruction has to be set for ${keyword}")
-            }
-            validateKeysAreNotBlank commandToJoin
-            "$keyword ${joiner.join(commandToJoin)}"
+            validateKeysAreNotBlank(evaluatedCommand);
+            return getKeyword() + " " + joiner.join(evaluatedCommand);
         }
 
         private void validateKeysAreNotBlank(Map<String, String> command) throws IllegalArgumentException {
-            command.each { entry ->
-                if (entry.key.trim().length() == 0) {
-                    throw new IllegalArgumentException("blank keys for a key=value pair are not allowed: please check instruction ${keyword} and given pair `${entry}`")
+            command.entrySet().forEach(entry -> {
+                if (entry.getKey().trim().length() == 0) {
+                    throw new IllegalArgumentException("blank keys for a key=value pair are not allowed: please check instruction " + getKeyword() + " and given pair `" + String.valueOf(entry) + "`");
                 }
-            }
+            });
         }
     }
 
     /**
      * An instruction whose value is a Dockerfile.File.
      */
-    static abstract class FileInstruction<T extends Dockerfile.File> implements Instruction {
-        private final Provider<T> provider
+    public static abstract class FileInstruction<T extends File> implements Instruction {
+        private final Provider<T> provider;
 
-        FileInstruction(T file) {
-            this.provider = Providers.ofNullable(file)
+        public FileInstruction(T file) {
+            this.provider = Providers.ofNullable(file);
         }
 
-        FileInstruction(Provider<T> provider) {
-            this.provider = provider
+        public FileInstruction(Provider<T> provider) {
+            this.provider = provider;
         }
 
         @Internal
-        T getFile() {
-            return provider.getOrNull()
+        public T getFile() {
+            return provider.getOrNull();
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getText() {
-            File fileValue = getFile()
+        public String getText() {
+            File fileValue = getFile();
 
-            if (fileValue) {
-                StringBuilder instruction = new StringBuilder(keyword)
+            if (fileValue != null) {
+                StringBuilder instruction = new StringBuilder(getKeyword());
 
-                if (fileValue.chown) {
-                    instruction.append(" --chown=$fileValue.chown")
-                }
-                if (fileValue.src && fileValue.dest) {
-                    instruction.append(" $fileValue.src $fileValue.dest")
+                if (fileValue.getChown() != null) {
+                    instruction.append(" --chown=" + fileValue.getChown());
                 }
 
-                return instruction.toString()
+                if (fileValue.getSrc() != null && fileValue.getDest() != null) {
+                    instruction.append(" " + fileValue.getSrc() + " " + fileValue.getDest());
+                }
+
+                return instruction.toString();
             }
 
-            return null
+            return null;
         }
     }
 
     /**
      * Represents a {@code FROM} instruction.
      */
-    static class FromInstruction implements Instruction {
-        public static final String KEYWORD = 'FROM'
-        private final Provider<From> provider
+    public static class FromInstruction implements Instruction {
+        public static final String KEYWORD = "FROM";
+        private final Provider<From> provider;
 
-        FromInstruction(From from) {
-            this.provider = Providers.ofNullable(from)
+        public FromInstruction(From from) {
+            this.provider = Providers.ofNullable(from);
         }
 
-        FromInstruction(Provider<From> provider) {
-            this.provider = provider
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        String getKeyword() {
-            KEYWORD
+        public FromInstruction(Provider<From> provider) {
+            this.provider = provider;
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getText() {
-            return buildTextInstruction(provider.getOrNull())
+        public String getKeyword() {
+            return KEYWORD;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getText() {
+            return buildTextInstruction(provider.getOrNull());
         }
 
         private String buildTextInstruction(From from) {
-            if (from) {
-                String result = "$keyword $from.image"
+            if (from != null) {
+                String result = getKeyword() + " " + from.getImage();
 
-                if (from.stage) {
-                    result += " AS $from.stage"
+                if (from.getStage() != null) {
+                    result += " AS " + from.getStage();
                 }
 
-                return result
+                return result;
             }
 
-            return null
+            return null;
         }
     }
 
     /**
      * Represents a {@code ARG} instruction.
      */
-    static class ArgInstruction extends StringCommandInstruction {
-        public static final String KEYWORD = 'ARG'
+    public static class ArgInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = "ARG";
 
-        ArgInstruction(String arg) {
-            super(arg)
+        public ArgInstruction(String arg) {
+            super(arg);
         }
 
-        ArgInstruction(Provider<String> provider) {
-            super(provider)
+        public ArgInstruction(Provider<String> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code RUN} instruction.
      */
-    static class RunCommandInstruction extends StringCommandInstruction {
-        public static final String KEYWORD = 'RUN'
+    public static class RunCommandInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = "RUN";
 
-        RunCommandInstruction(String command) {
-            super(command)
+        public RunCommandInstruction(String command) {
+            super(command);
         }
 
-        RunCommandInstruction(Provider<String> provider) {
-            super(provider)
+        public RunCommandInstruction(Provider<String> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code CMD} instruction.
      */
-    static class DefaultCommandInstruction extends StringArrayInstruction {
-        public static final String KEYWORD = 'CMD'
+    public static class DefaultCommandInstruction extends StringArrayInstruction {
+        public static final String KEYWORD = "CMD";
 
-        DefaultCommandInstruction(String... command) {
-            super(command)
+        public DefaultCommandInstruction(String... command) {
+            super(command);
         }
 
-        DefaultCommandInstruction(Provider<List<String>> provider) {
-            super(provider)
+        public DefaultCommandInstruction(Provider<List<String>> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code EXPOSE} instruction.
      */
-    static class ExposePortInstruction implements Instruction {
-        public static final String KEYWORD = 'EXPOSE'
-        private final Provider<List<Integer>> provider
+    public static class ExposePortInstruction implements Instruction {
+        public static final String KEYWORD = "EXPOSE";
+        private final Provider<List<Integer>> provider;
 
-        ExposePortInstruction(Integer... ports) {
-            this.provider = Providers.ofNullable(ports as List<Integer>)
+        public ExposePortInstruction(Integer... ports) {
+            this.provider = Providers.ofNullable(new ArrayList<>(List.of(ports)));
         }
 
-        ExposePortInstruction(Provider<List<Integer>> provider) {
-            this.provider = provider
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        String getKeyword() {
-            KEYWORD
+        public ExposePortInstruction(Provider<List<Integer>> provider) {
+            this.provider = provider;
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getText() {
-            List<Integer> evaluatedPorts = provider.getOrNull()
+        public String getKeyword() {
+            return KEYWORD;
+        }
 
-            if (evaluatedPorts && !evaluatedPorts.isEmpty()) {
-                return buildText(evaluatedPorts as Integer[])
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getText() {
+            List<Integer> evaluatedPorts = provider.getOrNull();
+
+            if (evaluatedPorts != null && !evaluatedPorts.isEmpty()) {
+                return buildText(evaluatedPorts);
             }
 
-            return null
+            return null;
         }
 
-        private String buildText(Integer[] ports) {
-            "$keyword ${ports.join(' ')}"
+        private String buildText(final List<Integer> ports) {
+            return getKeyword() + " " + ports.stream().map(Object::toString).collect(Collectors.joining(" "));
         }
     }
 
     /**
      * Represents a {@code ENV} instruction.
      */
-    static class EnvironmentVariableInstruction extends MapInstruction {
-        public static final String KEYWORD = 'ENV'
+    public static class EnvironmentVariableInstruction extends MapInstruction {
+        public static final String KEYWORD = "ENV";
 
-        EnvironmentVariableInstruction(String key, String value) {
-            super([(key): value])
+        public EnvironmentVariableInstruction(String key, String value) {
+            super(new HashMap<>(Map.of(key, value)));
         }
 
-        EnvironmentVariableInstruction(Map envVars) {
-            super(envVars)
+        public EnvironmentVariableInstruction(Map<String, String> envVars) {
+            super(envVars);
         }
 
-        EnvironmentVariableInstruction(Provider<Map<String, String>> provider) {
-            super(provider)
+        public EnvironmentVariableInstruction(Provider<Map<String, String>> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code ADD} instruction.
      */
-    static class AddFileInstruction extends FileInstruction<File> {
-        public static final String KEYWORD = 'ADD'
+    public static class AddFileInstruction extends FileInstruction<File> {
+        public static final String KEYWORD = "ADD";
 
-        AddFileInstruction(File file) {
-            super(file)
+        public AddFileInstruction(File file) {
+            super(file);
         }
 
-        AddFileInstruction(Provider<File> provider) {
-            super(provider)
+        public AddFileInstruction(Provider<File> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code COPY} instruction.
      */
-    static class CopyFileInstruction extends FileInstruction<CopyFile> {
-        public static final String KEYWORD = 'COPY'
+    public static class CopyFileInstruction extends FileInstruction<CopyFile> {
+        public static final String KEYWORD = "COPY";
 
-        CopyFileInstruction(CopyFile file) {
-            super(file)
+        public CopyFileInstruction(CopyFile file) {
+            super(file);
         }
 
-        CopyFileInstruction(Provider<CopyFile> provider) {
-            super(provider)
+        public CopyFileInstruction(Provider<CopyFile> provider) {
+            super(provider);
         }
 
         @Override
-        String getText() {
-            String text = super.getText()
+        public String getText() {
+            String text = super.getText();
 
-            if (file && file.stage) {
-                int keywordIndex = keyword.length()
-                text = text.substring(0, keywordIndex) + " --from=$file.stage" + text.substring(keywordIndex, text.length())
+            if (getFile() != null && getFile().getStage() != null) {
+                int keywordIndex = getKeyword().length();
+                text = text.substring(0, keywordIndex) + " --from=" + getFile().getStage() + text.substring(keywordIndex, text.length());
             }
 
-            text
+
+            return text;
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code ENTRYPOINT} instruction.
      */
-    static class EntryPointInstruction extends StringArrayInstruction {
-        public static final String KEYWORD = 'ENTRYPOINT'
+    public static class EntryPointInstruction extends StringArrayInstruction {
+        public static final String KEYWORD = "ENTRYPOINT";
 
-        EntryPointInstruction(String... entryPoint) {
-            super(entryPoint)
+        public EntryPointInstruction(String... entryPoint) {
+            super(entryPoint);
         }
 
-        EntryPointInstruction(Provider<List<String>> provider) {
-            super(provider)
+        public EntryPointInstruction(Provider<List<String>> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
-    static class VolumeInstruction extends StringArrayInstruction {
-        public static final String KEYWORD = 'VOLUME'
+    public static class VolumeInstruction extends StringArrayInstruction {
+        public static final String KEYWORD = "VOLUME";
 
-        VolumeInstruction(String... volume) {
-            super(volume)
+        public VolumeInstruction(String... volume) {
+            super(volume);
         }
 
-        VolumeInstruction(Provider<List<String>> provider) {
-            super(provider)
+        public VolumeInstruction(Provider<List<String>> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code USER} instruction.
      */
-    static class UserInstruction extends StringCommandInstruction {
-        public static final String KEYWORD = 'USER'
+    public static class UserInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = "USER";
 
-        UserInstruction(String user) {
-            super(user)
+        public UserInstruction(String user) {
+            super(user);
         }
 
-        UserInstruction(Provider<String> provider) {
-            super(provider)
+        public UserInstruction(Provider<String> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code WORKDIR} instruction.
      */
-    static class WorkDirInstruction extends StringCommandInstruction {
-        public static final String KEYWORD = 'WORKDIR'
+    public static class WorkDirInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = "WORKDIR";
 
-        WorkDirInstruction(String dir) {
-            super(dir)
+        public WorkDirInstruction(String dir) {
+            super(dir);
         }
 
-        WorkDirInstruction(Provider<String> provider) {
-            super(provider)
+        public WorkDirInstruction(Provider<String> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code ONBUILD} instruction.
      */
-    static class OnBuildInstruction extends StringCommandInstruction {
-        public static final String KEYWORD = 'ONBUILD'
+    public static class OnBuildInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = "ONBUILD";
 
-        OnBuildInstruction(String instruction) {
-            super(instruction)
+        public OnBuildInstruction(String instruction) {
+            super(instruction);
         }
 
-        OnBuildInstruction(Provider<String> provider) {
-            super(provider)
+        public OnBuildInstruction(Provider<String> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
     /**
      * Represents a {@code LABEL} instruction.
      */
-    static class LabelInstruction extends MapInstruction {
-        public static final String KEYWORD = 'LABEL'
+    public static class LabelInstruction extends MapInstruction {
+        public static final String KEYWORD = "LABEL";
 
-        LabelInstruction(Map labels) {
-            super(labels)
+        public LabelInstruction(Map labels) {
+            super(labels);
         }
 
-        LabelInstruction(Provider<Map<String, String>> provider) {
-            super(provider)
+        public LabelInstruction(Provider<Map<String, String>> provider) {
+            super(provider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
@@ -1698,23 +1730,23 @@ class Dockerfile extends DefaultTask {
      *
      * @since 4.0.1
      */
-    static class CommentInstruction extends StringCommandInstruction {
-        public static final String KEYWORD = '#'
+    public static class CommentInstruction extends StringCommandInstruction {
+        public static final String KEYWORD = "#";
 
-        CommentInstruction(String command) {
-            super(command)
+        public CommentInstruction(String command) {
+            super(command);
         }
 
-        CommentInstruction(Provider<String> commandProvider) {
-            super(commandProvider)
+        public CommentInstruction(Provider<String> commandProvider) {
+            super(commandProvider);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        String getKeyword() {
-            KEYWORD
+        public String getKeyword() {
+            return KEYWORD;
         }
     }
 
@@ -1723,16 +1755,15 @@ class Dockerfile extends DefaultTask {
      *
      * @since 4.0.0
      */
-    static class File {
-        private final String src
-        private final String dest
-
+    public static class File {
+        private final String src;
+        private final String dest;
         @Nullable
-        private String chown
+        private String chown;
 
-        File(String src, String dest) {
-            this.src = src
-            this.dest = dest
+        public File(String src, String dest) {
+            this.src = src;
+            this.dest = dest;
         }
 
         /**
@@ -1742,9 +1773,9 @@ class Dockerfile extends DefaultTask {
          *
          * @param chown The ownership of the copied content
          */
-        File withChown(String chown) {
-            this.chown = chown
-            this
+        public File withChown(String chown) {
+            this.chown = chown;
+            return this;
         }
 
         /**
@@ -1752,8 +1783,8 @@ class Dockerfile extends DefaultTask {
          *
          * @return The source path
          */
-        String getSrc() {
-            src
+        public String getSrc() {
+            return src;
         }
 
         /**
@@ -1761,8 +1792,8 @@ class Dockerfile extends DefaultTask {
          *
          * @return The destination path
          */
-        String getDest() {
-            dest
+        public String getDest() {
+            return dest;
         }
 
         /**
@@ -1771,8 +1802,8 @@ class Dockerfile extends DefaultTask {
          * @return The ownership of the copied content
          */
         @Nullable
-        String getChown() {
-            chown
+        public String getChown() {
+            return chown;
         }
     }
 
@@ -1781,23 +1812,20 @@ class Dockerfile extends DefaultTask {
      *
      * @since 5.0.0
      */
-    static class CopyFile extends File {
-        @Nullable
-        private String stage
-
-        CopyFile(String src, String dest) {
-            super(src, dest)
+    public static class CopyFile extends File {
+        public CopyFile(String src, String dest) {
+            super(src, dest);
         }
 
         /**
          * Used to set the source location to a previous build stage.
          *
-         * @param The previous stage
+         * @param stage The previous stage
          * @return This instruction
          */
-        CopyFile withStage(String stage) {
-            this.stage = stage
-            this
+        public CopyFile withStage(String stage) {
+            this.stage = stage;
+            return this;
         }
 
         /**
@@ -1806,9 +1834,12 @@ class Dockerfile extends DefaultTask {
          * @return The previous stage
          */
         @Nullable
-        String getStage() {
-            stage
+        public String getStage() {
+            return stage;
         }
+
+        @Nullable
+        private String stage;
     }
 
     /**
@@ -1816,14 +1847,13 @@ class Dockerfile extends DefaultTask {
      *
      * @since 4.0.0
      */
-    static class From {
-        private final String image
-
+    public static class From {
+        private final String image;
         @Nullable
-        private String stage
+        private String stage;
 
-        From(String image) {
-            this.image = image
+        public From(String image) {
+            this.image = image;
         }
 
         /**
@@ -1832,9 +1862,9 @@ class Dockerfile extends DefaultTask {
          * @param stage The stage
          * @return This instruction
          */
-        From withStage(String stage) {
-            this.stage = stage
-            this
+        public From withStage(String stage) {
+            this.stage = stage;
+            return this;
         }
 
         /**
@@ -1842,8 +1872,8 @@ class Dockerfile extends DefaultTask {
          *
          * @return The base image
          */
-        String getImage() {
-            image
+        public String getImage() {
+            return image;
         }
 
         /**
@@ -1852,8 +1882,8 @@ class Dockerfile extends DefaultTask {
          * @return The stage
          */
         @Nullable
-        String getStage() {
-            stage
+        public String getStage() {
+            return stage;
         }
     }
 }

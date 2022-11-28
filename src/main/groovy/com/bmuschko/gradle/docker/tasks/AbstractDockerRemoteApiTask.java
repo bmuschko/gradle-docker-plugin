@@ -13,33 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks
+package com.bmuschko.gradle.docker.tasks;
 
-import com.bmuschko.gradle.docker.internal.RegistryAuthLocator
-import com.bmuschko.gradle.docker.internal.services.DockerClientService
-import com.github.dockerjava.api.DockerClient
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
-import org.gradle.api.DefaultTask
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
-import org.gradle.api.tasks.TaskAction
+import com.bmuschko.gradle.docker.internal.RegistryAuthLocator;
+import com.bmuschko.gradle.docker.internal.services.DockerClientService;
+import com.github.dockerjava.api.DockerClient;
+import org.gradle.api.Action;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
+import org.gradle.api.tasks.TaskAction;
 
-@CompileStatic
-abstract class AbstractDockerRemoteApiTask extends DefaultTask {
+public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
     /**
      * Docker remote API server URL. Defaults to "http://localhost:2375".
      */
     @Input
     @Optional
-    final Property<String> url = project.objects.property(String)
+    public final Property<String> getUrl() {
+        return url;
+    }
+
+    private final Property<String> url = getProject().getObjects().property(String.class);
 
     /**
      * Path to the <a href="https://docs.docker.com/engine/security/https/">Docker certificate and key</a>.
@@ -47,37 +49,50 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    final DirectoryProperty certPath = project.objects.directoryProperty()
+    public final DirectoryProperty getCertPath() {
+        return certPath;
+    }
+
+    private final DirectoryProperty certPath = getProject().getObjects().directoryProperty();
 
     /**
      * The Docker remote API version.
      */
     @Input
     @Optional
-    final Property<String> apiVersion = project.objects.property(String)
+    public final Property<String> getApiVersion() {
+        return apiVersion;
+    }
+
+    private final Property<String> apiVersion = getProject().getObjects().property(String.class);
 
     @Internal
-    final Property<DockerClientService> dockerClientService = project.objects.property(DockerClientService)
+    public final Property<DockerClientService> getDockerClientService() {
+        return dockerClientService;
+    }
 
-    private Action<? super Throwable> errorHandler
-    private Action nextHandler
-    private Runnable completeHandler
+    private final Property<DockerClientService> dockerClientService = getProject().getObjects().property(DockerClientService.class);
+
+    private Action<? super Throwable> errorHandler;
+    private Action nextHandler;
+    private Runnable completeHandler;
 
     @TaskAction
-    void start() {
-        boolean commandFailed = false
+    public void start() {
+        boolean commandFailed = false;
         try {
-            runRemoteCommand()
+            runRemoteCommand();
         } catch (Exception possibleException) {
-            commandFailed = true
-            if (errorHandler) {
-                errorHandler.execute(possibleException)
+            commandFailed = true;
+            if (errorHandler != null) {
+                errorHandler.execute(possibleException);
             } else {
-                throw possibleException
+                throw possibleException;
             }
         }
-        if(!commandFailed && completeHandler) {
-            completeHandler.run()
+
+        if (!commandFailed && completeHandler != null) {
+            completeHandler.run();
         }
     }
 
@@ -87,8 +102,8 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      * @param action The action handling the error
      * @since 4.0.0
      */
-    void onError(Action<? super Throwable> action) {
-        errorHandler = action
+    public void onError(Action<? super Throwable> action) {
+        errorHandler = action;
     }
 
     /**
@@ -97,13 +112,13 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      * @param action The action handling the data
      * @since 4.0.0
      */
-    void onNext(Action action) {
-        nextHandler = action
+    public void onNext(Action action) {
+        nextHandler = action;
     }
 
     @Internal
     protected Action getNextHandler() {
-        nextHandler
+        return nextHandler;
     }
 
     /**
@@ -112,8 +127,8 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      * @param callback The callback to be executed
      * @since 4.0.0
      */
-    void onComplete(Runnable callback) {
-        completeHandler = callback
+    public void onComplete(Runnable callback) {
+        completeHandler = callback;
     }
 
     /**
@@ -138,8 +153,8 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      * @return The Docker client
      */
     @Internal
-    DockerClient getDockerClient() {
-        dockerClientService.get().getDockerClient(createDockerClientConfig())
+    public DockerClient getDockerClient() {
+        return dockerClientService.get().getDockerClient(createDockerClientConfig());
     }
 
     /**
@@ -151,18 +166,18 @@ abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      */
     @Internal
     protected RegistryAuthLocator getRegistryAuthLocator() {
-        registryAuthLocator
+        return registryAuthLocator;
     }
 
-    private final RegistryAuthLocator registryAuthLocator = new RegistryAuthLocator()
+    private final RegistryAuthLocator registryAuthLocator = new RegistryAuthLocator();
 
     private DockerClientConfiguration createDockerClientConfig() {
-        DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration()
-        dockerClientConfig.url = url.getOrNull()
-        dockerClientConfig.certPath = certPath.getOrNull()
-        dockerClientConfig.apiVersion = apiVersion.getOrNull()
-        dockerClientConfig
+        DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration();
+        dockerClientConfig.setUrl(url.getOrNull());
+        dockerClientConfig.setCertPath(certPath.getOrNull());
+        dockerClientConfig.setApiVersion(apiVersion.getOrNull());
+        return dockerClientConfig;
     }
 
-    abstract void runRemoteCommand()
+    public abstract void runRemoteCommand();
 }
