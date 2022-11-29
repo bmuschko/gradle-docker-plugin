@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks
+package com.bmuschko.gradle.docker.tasks;
 
-import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
-import org.gradle.api.Task
-import org.gradle.api.tasks.Nested
+import com.bmuschko.gradle.docker.DockerRegistryCredentials;
+import org.gradle.api.Action;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.Nested;
 
-@CompileStatic
-interface RegistryCredentialsAware extends Task {
+public interface RegistryCredentialsAware extends Task {
     /**
      * The target Docker registry credentials for usage with a task.
      */
     @Nested
-    DockerRegistryCredentials getRegistryCredentials()
+    DockerRegistryCredentials getRegistryCredentials();
 
     /**
      * Configures the target Docker registry credentials for use with a task.
@@ -35,5 +33,5 @@ interface RegistryCredentialsAware extends Task {
      * @param action The action against the Docker registry credentials
      * @since 6.0.0
      */
-    void registryCredentials(Action<? super DockerRegistryCredentials> action)
+    void registryCredentials(Action<? super DockerRegistryCredentials> action);
 }

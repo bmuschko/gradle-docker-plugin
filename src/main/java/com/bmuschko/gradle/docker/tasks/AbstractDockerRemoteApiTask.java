@@ -78,7 +78,7 @@ public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     private Runnable completeHandler;
 
     @TaskAction
-    public void start() {
+    public void start() throws Exception {
         boolean commandFailed = false;
         try {
             runRemoteCommand();
@@ -179,5 +179,5 @@ public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
         return dockerClientConfig;
     }
 
-    public abstract void runRemoteCommand();
+    public abstract void runRemoteCommand() throws Exception;
 }

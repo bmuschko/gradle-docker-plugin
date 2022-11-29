@@ -97,6 +97,11 @@ sourceSets {
     }
 }
 
+tasks.javadoc {
+    // required until all main source is rewritten in java (or we can compile java before groovy)
+    enabled = false
+}
+
 buildScan {
     termsOfServiceUrl = "https://gradle.com/terms-of-service"
     termsOfServiceAgree = "yes"

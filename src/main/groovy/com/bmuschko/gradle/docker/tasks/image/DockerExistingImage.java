@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.provider.ProviderFactory
-import org.gradle.api.tasks.Input
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.Input;
 
-import java.util.concurrent.Callable
+import java.util.concurrent.Callable;
 
-@CompileStatic
-abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
+public abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
     /**
      * The ID or name of image used to perform operation. The image for the provided ID has to be created first.
      */
     @Input
-    final Property<String> imageId = project.objects.property(String)
+    public final Property<String> getImageId() {
+        return imageId;
+    }
 
-    private final ProviderFactory providers = project.providers
+    private final Property<String> imageId = getProject().getObjects().property(String.class);
+
+    private final ProviderFactory providers = getProject().getProviders();
 
     /**
      * Sets the target image ID or name.
@@ -41,8 +43,8 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
      * @see #targetImageId(Callable)
      * @see #targetImageId(Provider)
      */
-    void targetImageId(String imageId) {
-        this.imageId.set(imageId)
+    public void targetImageId(String imageId) {
+        this.imageId.set(imageId);
     }
 
     /**
@@ -52,8 +54,8 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
      * @see #targetImageId(String)
      * @see #targetImageId(Provider)
      */
-    void targetImageId(Callable<String> imageId) {
-        targetImageId(providers.provider(imageId))
+    public void targetImageId(Callable<String> imageId) {
+        targetImageId(providers.provider(imageId));
     }
 
     /**
@@ -63,7 +65,7 @@ abstract class DockerExistingImage extends AbstractDockerRemoteApiTask {
      * @see #targetImageId(String)
      * @see #targetImageId(Callable)
      */
-    void targetImageId(Provider<String> imageId) {
-        this.imageId.set(imageId)
+    public void targetImageId(Provider<String> imageId) {
+        this.imageId.set(imageId);
     }
 }
