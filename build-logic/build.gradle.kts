@@ -13,7 +13,9 @@ dependencies {
     implementation(buildsrclibs.asciidoctor.jvm.plugin)
     runtimeOnly(buildsrclibs.asciidoctorj.tabbed.code.extension)
     implementation(buildsrclibs.grgit) {
-        setForce(true)
+        version {
+            strictly(buildsrclibs.grgit.orNull?.version!!)
+        }
     }
     implementation(buildsrclibs.gradle.git)
     implementation(buildsrclibs.gradle.git.publish)

@@ -1,3 +1,7 @@
+pluginManagement {
+    includeBuild("build-logic")
+}
+
 plugins {
     id("com.gradle.enterprise") version("3.10.2")
 }

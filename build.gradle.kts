@@ -6,15 +6,15 @@ plugins {
     groovy
     `java-gradle-plugin`
     alias(libs.plugins.plugin.publish)
-    com.bmuschko.gradle.docker.`test-setup`
-    com.bmuschko.gradle.docker.`integration-test`
-    com.bmuschko.gradle.docker.`functional-test`
-    com.bmuschko.gradle.docker.`doc-test`
-    com.bmuschko.gradle.docker.`additional-artifacts`
-    com.bmuschko.gradle.docker.`shaded-artifacts`
-    com.bmuschko.gradle.docker.`user-guide`
-    com.bmuschko.gradle.docker.documentation
-    com.bmuschko.gradle.docker.release
+    id("com.bmuschko.gradle.docker.test-setup")
+    id("com.bmuschko.gradle.docker.integration-test")
+    id("com.bmuschko.gradle.docker.functional-test")
+    id("com.bmuschko.gradle.docker.doc-test")
+    id("com.bmuschko.gradle.docker.additional-artifacts")
+    id("com.bmuschko.gradle.docker.shaded-artifacts")
+    id("com.bmuschko.gradle.docker.user-guide")
+    id("com.bmuschko.gradle.docker.documentation")
+    id("com.bmuschko.gradle.docker.release")
 }
 
 group = "com.bmuschko"

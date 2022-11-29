@@ -5,3 +5,5 @@ dependencyResolutionManagement {
         }
     }
 }
+
+rootProject.name = "gradle-docker-plugin-build-logic"
