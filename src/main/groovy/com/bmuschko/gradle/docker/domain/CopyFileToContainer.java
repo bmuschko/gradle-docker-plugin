@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.bmuschko.gradle.docker.domain
+package com.bmuschko.gradle.docker.domain;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 
 /**
  * Class holding metadata for an arbitrary copy-file-to-container invocation.
  */
-@CompileStatic
-class CopyFileToContainer {
+public class CopyFileToContainer {
 
     /**
      * The host path.
@@ -32,7 +30,15 @@ class CopyFileToContainer {
      * Can take the form of {@code String}, {@code GString}, {@code File}, or {@code Closure} which returns any of the previous.
      */
     @Input
-    def hostPath
+    private Object hostPath;
+
+    public Object getHostPath() {
+        return hostPath;
+    }
+
+    public void setHostPath(Object hostPath) {
+        this.hostPath = hostPath;
+    }
 
     /**
      * The remote path.
@@ -40,11 +46,32 @@ class CopyFileToContainer {
      * Can take the form of {@code String}, {@code GString}, {@code File}, or {@code Closure} which returns any of the previous.
      */
     @Input
-    def remotePath
+    private Object remotePath;
+
+    public Object getRemotePath() {
+        return remotePath;
+    }
+
+    public void setRemotePath(Object remotePath) {
+        this.remotePath = remotePath;
+    }
 
     /**
      * Indicates if copied file is a TAR file.
      */
     @Internal
-    boolean isTar = false
+    private boolean isTar = false;
+
+    public boolean getIsTar() {
+        return isTar;
+    }
+
+    public boolean isIsTar() {
+        return isTar;
+    }
+
+    public void setIsTar(boolean isTar) {
+        this.isTar = isTar;
+    }
+
 }

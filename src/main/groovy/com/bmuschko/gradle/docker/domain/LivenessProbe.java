@@ -14,53 +14,77 @@
  * limitations under the License.
  */
 
-package com.bmuschko.gradle.docker.domain
+package com.bmuschko.gradle.docker.domain;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.GradleException
-import org.gradle.api.tasks.Input
+import org.gradle.api.GradleException;
+import org.gradle.api.tasks.Input;
+
+import java.util.Objects;
 
 /**
  * Class holding metadata for an arbitrary liveness probe.
  */
-@CompileStatic
-class LivenessProbe {
+public class LivenessProbe {
 
     /**
      * Indicates how long we poll until match is found.
      */
     @Input
-    long pollTime
+    private long pollTime;
+
+    public long getPollTime() {
+        return pollTime;
+    }
+
+    public void setPollTime(long pollTime) {
+        this.pollTime = pollTime;
+    }
 
     /**
      * Indicates how long we wait until next poll.
      */
     @Input
-    long pollInterval
+    private long pollInterval;
+
+    public long getPollInterval() {
+        return pollInterval;
+    }
+
+    public void setPollInterval(long pollInterval) {
+        this.pollInterval = pollInterval;
+    }
 
     /**
      * Halts polling on logs containing this String.
      */
     @Input
-    String logContains
+    private String logContains;
 
-    LivenessProbe(long pollTime, long pollInterval, String logContains) {
+    public String getLogContains() {
+        return logContains;
+    }
+
+    public void setLogContains(String logContains) {
+        this.logContains = logContains;
+    }
+
+    public LivenessProbe(final long pollTime, final long pollInterval, String logContains) {
         if (pollInterval > pollTime) {
-            throw new GradleException("pollInterval must be greater than pollTime: pollInterval=${pollInterval}, pollTime=${pollTime}")
+            throw new GradleException("pollInterval must be greater than pollTime: pollInterval=" + pollInterval + ", pollTime=" + pollTime);
         }
 
-        String localLogContains = Objects.requireNonNull(logContains).trim()
-        if (localLogContains) {
-            this.pollTime = pollTime
-            this.pollInterval = pollInterval
-            this.logContains = localLogContains
+        String localLogContains = Objects.requireNonNull(logContains).trim();
+        if (!localLogContains.isEmpty()) {
+            this.pollTime = pollTime;
+            this.pollInterval = pollInterval;
+            this.logContains = localLogContains;
         } else {
-            throw new GradleException("logContains must be a valid non-empty String")
+            throw new GradleException("logContains must be a valid non-empty String");
         }
     }
 
     @Override
-    String toString() {
-        "pollTime=${pollTime}, pollInterval=${pollInterval}, logContains='${logContains}'"
+    public String toString() {
+        return "pollTime=" + getPollTime() + ", pollInterval=" + getPollInterval() + ", logContains='" + getLogContains() + "'";
     }
 }
