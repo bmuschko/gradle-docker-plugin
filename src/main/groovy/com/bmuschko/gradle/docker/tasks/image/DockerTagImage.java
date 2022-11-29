@@ -13,44 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.github.dockerjava.api.command.TagImageCmd
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.github.dockerjava.api.command.TagImageCmd;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-@CompileStatic
-class DockerTagImage extends DockerExistingImage {
+public class DockerTagImage extends DockerExistingImage {
     /**
      * The repository to tag in.
      */
     @Input
-    final Property<String> repository = project.objects.property(String)
+    public final Property<String> getRepository() {
+        return repository;
+    }
+
+    private final Property<String> repository = getProject().getObjects().property(String.class);
 
     /**
      * Image name to be tagged.
      */
     @Input
-    final Property<String> tag = project.objects.property(String)
+    public final Property<String> getTag() {
+        return tag;
+    }
+
+    private final Property<String> tag = getProject().getObjects().property(String.class);
 
     /**
      * Forces tagging.
      */
     @Input
     @Optional
-    final Property<Boolean> force = project.objects.property(Boolean)
+    public final Property<Boolean> getForce() {
+        return force;
+    }
+
+    private final Property<Boolean> force = getProject().getObjects().property(Boolean.class);
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Tagging image with ID '${imageId.get()}'."
-        TagImageCmd tagImageCmd = dockerClient.tagImageCmd(imageId.get(), repository.get(), tag.get())
+    public void runRemoteCommand() {
+        getLogger().quiet("Tagging image with ID \'" + getImageId().get() + "\'.");
+        TagImageCmd tagImageCmd = getDockerClient().tagImageCmd(getImageId().get(), repository.get(), tag.get());
 
-        if(force.getOrNull()) {
-            tagImageCmd.withForce(force.get())
+        if (Boolean.TRUE.equals(force.getOrNull())) {
+            tagImageCmd.withForce(force.get());
         }
 
-        tagImageCmd.exec()
+        tagImageCmd.exec();
     }
 }

@@ -13,46 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.github.dockerjava.api.command.InspectImageResponse
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
+import com.github.dockerjava.api.command.InspectImageResponse;
+import org.gradle.api.Action;
 
-@CompileStatic
-class DockerInspectImage extends DockerExistingImage {
+public class DockerInspectImage extends DockerExistingImage {
 
-    DockerInspectImage() {
-        defaultResponseHandling()
+    public DockerInspectImage() {
+        defaultResponseHandling();
     }
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Inspecting image with ID '${imageId.get()}'."
-        InspectImageResponse image = dockerClient.inspectImageCmd(imageId.get()).exec()
+    public void runRemoteCommand() {
+        getLogger().quiet("Inspecting image with ID '" + getImageId().get() + "'.");
+        InspectImageResponse image = getDockerClient().inspectImageCmd(getImageId().get()).exec();
 
-        if (nextHandler) {
-            nextHandler.execute(image)
+        if (getNextHandler() != null) {
+            getNextHandler().execute(image);
         }
     }
 
     private void defaultResponseHandling() {
         Action<InspectImageResponse> action = new Action<InspectImageResponse>() {
             @Override
-            void execute(InspectImageResponse image) {
-                logger.quiet "ID               : $image.id"
-                logger.quiet "Author           : $image.author"
-                logger.quiet "Created          : $image.created"
-                logger.quiet "Comment          : $image.comment"
-                logger.quiet "Architecture     : $image.arch"
-                logger.quiet "Operating System : $image.os"
-                logger.quiet "Parent           : $image.parent"
-                logger.quiet "Size             : $image.size"
-                logger.quiet "Docker Version   : $image.dockerVersion"
-                logger.quiet "Labels           : $image.config.labels"
+            public void execute(InspectImageResponse image) {
+                getLogger().quiet("ID               : " + image.getId());
+                getLogger().quiet("Author           : " + image.getAuthor());
+                getLogger().quiet("Created          : " + image.getCreated());
+                getLogger().quiet("Comment          : " + image.getComment());
+                getLogger().quiet("Architecture     : " + image.getArch());
+                getLogger().quiet("Operating System : " + image.getOs());
+                getLogger().quiet("Parent           : " + image.getParent());
+                getLogger().quiet("Size             : " + image.getSize());
+                getLogger().quiet("Docker Version   : " + image.getDockerVersion());
+                getLogger().quiet("Labels           : " + image.getConfig().getLabels());
             }
-        }
+        };
 
-        onNext(action)
+        onNext(action);
     }
 }

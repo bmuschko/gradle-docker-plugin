@@ -13,30 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.github.dockerjava.api.command.RemoveImageCmd
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.github.dockerjava.api.command.RemoveImageCmd;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-@CompileStatic
-class DockerRemoveImage extends DockerExistingImage {
+public class DockerRemoveImage extends DockerExistingImage {
 
     @Input
     @Optional
-    final Property<Boolean> force = project.objects.property(Boolean)
+    public final Property<Boolean> getForce() {
+        return force;
+    }
+
+    private final Property<Boolean> force = getProject().getObjects().property(Boolean.class);
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Removing image with ID '${imageId.get()}'."
-        RemoveImageCmd removeImageCmd = dockerClient.removeImageCmd(imageId.get())
+    public void runRemoteCommand() {
+        getLogger().quiet("Removing image with ID \'" + getImageId().get() + "\'.");
+        RemoveImageCmd removeImageCmd = getDockerClient().removeImageCmd(getImageId().get());
 
-        if (force.getOrNull()) {
-            removeImageCmd.withForce(force.get())
+        if (Boolean.TRUE.equals(force.getOrNull())) {
+            removeImageCmd.withForce(force.get());
         }
 
-        removeImageCmd.exec()
+        removeImageCmd.exec();
     }
 }

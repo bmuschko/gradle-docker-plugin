@@ -141,7 +141,7 @@ USER \$user"""
         BuildResult result = build('inspectImage')
 
         then:
-        result.output.contains("label1:test1, label2:test2")
+        result.output.contains("label1=test1, label2=test2")
 
         where:
         description        | gradleTaskDefinition

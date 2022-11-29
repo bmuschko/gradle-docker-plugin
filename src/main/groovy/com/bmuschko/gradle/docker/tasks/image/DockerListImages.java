@@ -13,66 +13,83 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.github.dockerjava.api.command.ListImagesCmd
-import com.github.dockerjava.api.model.Image
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
-import org.gradle.api.provider.MapProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
+import com.github.dockerjava.api.command.ListImagesCmd;
+import com.github.dockerjava.api.model.Image;
+import org.gradle.api.Action;
+import org.gradle.api.provider.MapProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-@CompileStatic
-class DockerListImages extends AbstractDockerRemoteApiTask {
+import java.util.Date;
+import java.util.List;
 
-    @Input
-    @Optional
-    final Property<Boolean> showAll = project.objects.property(Boolean)
+public class DockerListImages extends AbstractDockerRemoteApiTask {
 
     @Input
     @Optional
-    final Property<Boolean> dangling = project.objects.property(Boolean)
-
-    @Input
-    @Optional
-    final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
-
-    @Input
-    @Optional
-    final Property<String> imageName = project.objects.property(String)
-
-    DockerListImages() {
-        defaultResponseHandling()
+    public final Property<Boolean> getShowAll() {
+        return showAll;
     }
 
+    private final Property<Boolean> showAll = getProject().getObjects().property(Boolean.class);
+
+    @Input
+    @Optional
+    public final Property<Boolean> getDangling() {
+        return dangling;
+    }
+
+    private final Property<Boolean> dangling = getProject().getObjects().property(Boolean.class);
+
+    @Input
+    @Optional
+    public final MapProperty<String, String> getLabels() {
+        return labels;
+    }
+
+    private final MapProperty<String, String> labels = getProject().getObjects().mapProperty(String.class, String.class);
+
+    @Input
+    @Optional
+    public final Property<String> getImageName() {
+        return imageName;
+    }
+
+    public DockerListImages() {
+        defaultResponseHandling();
+    }
+
+    private final Property<String> imageName = getProject().getObjects().property(String.class);
+
     @Override
-    void runRemoteCommand() {
-        ListImagesCmd listImagesCmd = dockerClient.listImagesCmd()
+    public void runRemoteCommand() {
+        ListImagesCmd listImagesCmd = getDockerClient().listImagesCmd();
 
-        if (showAll.getOrNull()) {
-            listImagesCmd.withShowAll(showAll.get())
+        if (Boolean.TRUE.equals(showAll.getOrNull())) {
+            listImagesCmd.withShowAll(showAll.get());
         }
 
-        if (dangling.getOrNull()) {
-            listImagesCmd.withDanglingFilter(dangling.get())
+        if (Boolean.TRUE.equals(dangling.getOrNull())) {
+            listImagesCmd.withDanglingFilter(dangling.get());
         }
 
-        if (labels.getOrNull()) {
-            listImagesCmd.withLabelFilter(labels.get())
+        if (labels.getOrNull() != null && !labels.get().isEmpty()) {
+            listImagesCmd.withLabelFilter(labels.get());
         }
 
-        if (imageName.getOrNull()) {
-            listImagesCmd.withImageNameFilter(imageName.get())
+        if (imageName.getOrNull() != null && !imageName.get().isEmpty()) {
+            listImagesCmd.withImageNameFilter(imageName.get());
         }
 
-        List<Image> images = listImagesCmd.exec()
+        List<Image> images = listImagesCmd.exec();
 
-        if (nextHandler) {
-            for(image in images) {
-                nextHandler.execute(image)
+        if (getNextHandler() != null) {
+            for (Image image : images) {
+                getNextHandler().execute(image);
             }
         }
     }
@@ -80,15 +97,16 @@ class DockerListImages extends AbstractDockerRemoteApiTask {
     private void defaultResponseHandling() {
         Action<Image> action = new Action<Image>() {
             @Override
-            void execute(Image image) {
-                logger.quiet "Repository Tags : ${image.repoTags?.join(', ')}"
-                logger.quiet "Image ID        : $image.id"
-                logger.quiet "Created         : ${new Date(image.created * 1000)}"
-                logger.quiet "Virtual Size    : $image.virtualSize"
-                logger.quiet "-----------------------------------------------"
+            public void execute(final Image image) {
+                getLogger().quiet("Repository Tags : " + String.join(", ",image.getRepoTags()));
+                getLogger().quiet("Image ID        : " + image.getId());
+                getLogger().quiet("Created         : " + new Date(image.getCreated() * 1000));
+                getLogger().quiet("Virtual Size    : " + image.getVirtualSize());
+                getLogger().quiet("-----------------------------------------------");
             }
-        }
 
-        onNext(action)
+        };
+
+        onNext(action);
     }
 }

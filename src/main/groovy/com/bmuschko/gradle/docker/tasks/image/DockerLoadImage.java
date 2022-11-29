@@ -1,18 +1,23 @@
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import groovy.transform.CompileStatic
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.Input
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.tasks.Input;
 
-@CompileStatic
-class DockerLoadImage extends AbstractDockerRemoteApiTask {
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class DockerLoadImage extends AbstractDockerRemoteApiTask {
 
     @Input
-    final RegularFileProperty imageFile = project.objects.fileProperty()
+    public final RegularFileProperty getImageFile() {
+        return imageFile;
+    }
+
+    private final RegularFileProperty imageFile = getProject().getObjects().fileProperty();
 
     @Override
-    void runRemoteCommand() {
-        dockerClient.loadImageCmd(new FileInputStream(imageFile.get().asFile)).exec()
+    public void runRemoteCommand() throws IOException {
+        getDockerClient().loadImageCmd(new FileInputStream(imageFile.get().getAsFile())).exec();
     }
 }
