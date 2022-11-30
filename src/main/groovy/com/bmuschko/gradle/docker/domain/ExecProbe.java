@@ -14,41 +14,55 @@
  * limitations under the License.
  */
 
-package com.bmuschko.gradle.docker.domain
+package com.bmuschko.gradle.docker.domain;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.GradleException
-import org.gradle.api.tasks.Input
+import org.gradle.api.GradleException;
+import org.gradle.api.tasks.Input;
 
 /**
  * Class holding metadata for an arbitrary exec livenessProbe.
  */
-@CompileStatic
-class ExecProbe {
+public class ExecProbe {
 
     /**
      * Indicates how long we poll until match is found.
      */
     @Input
-    long pollTime
+    private long pollTime;
+
+    public long getPollTime() {
+        return pollTime;
+    }
+
+    public void setPollTime(long pollTime) {
+        this.pollTime = pollTime;
+    }
 
     /**
      * Indicates how long we wait until next poll.
      */
     @Input
-    long pollInterval
+    private long pollInterval;
 
-    ExecProbe(long pollTime, long pollInterval) {
+    public long getPollInterval() {
+        return pollInterval;
+    }
+
+    public void setPollInterval(long pollInterval) {
+        this.pollInterval = pollInterval;
+    }
+
+    public ExecProbe(final long pollTime, final long pollInterval) {
         if (pollInterval > pollTime) {
-            throw new GradleException("pollInterval must be greater than pollTime: pollInterval=${pollInterval}, pollTime=${pollTime}")
+            throw new GradleException("pollInterval must be greater than pollTime: pollInterval=" + pollInterval + ", pollTime=" + pollTime);
         }
 
-        this.pollTime = pollTime
-        this.pollInterval = pollInterval
+        this.pollTime = pollTime;
+        this.pollInterval = pollInterval;
     }
 
     @Override
-    String toString() {
-        "pollTime=${pollTime}, pollInterval=${pollInterval}"
+    public String toString() {
+        return "pollTime=" + getPollTime() + ", pollInterval=" + getPollInterval();
     }
 }
