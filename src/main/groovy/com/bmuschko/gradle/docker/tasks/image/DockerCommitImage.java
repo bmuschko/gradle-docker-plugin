@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
-import com.github.dockerjava.api.command.CommitCmd
-import groovy.transform.CompileStatic
-import org.gradle.api.file.RegularFile
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
+import com.bmuschko.gradle.docker.internal.RegularFileToStringTransformer;
+import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer;
+import com.github.dockerjava.api.command.CommitCmd;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 
-@CompileStatic
-class DockerCommitImage extends DockerExistingContainer {
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+public class DockerCommitImage extends DockerExistingContainer {
 
     /**
      * The repository and image name e.g. {@code vieux/apache}.
@@ -35,7 +37,11 @@ class DockerCommitImage extends DockerExistingContainer {
      * @since 9.0.0
      */
     @Input
-    final Property<String> repository = project.objects.property(String)
+    public final Property<String> getRepository() {
+        return repository;
+    }
+
+    private final Property<String> repository = getProject().getObjects().property(String.class);
 
     /**
      * The tag e.g. {@code 2.0}.
@@ -43,33 +49,57 @@ class DockerCommitImage extends DockerExistingContainer {
      * @since 9.0.0
      */
     @Input
-    final Property<String> tag = project.objects.property(String)
+    public final Property<String> getTag() {
+        return tag;
+    }
+
+    private final Property<String> tag = getProject().getObjects().property(String.class);
 
     /**
      * Commit message.
      */
     @Input
     @Optional
-    final Property<String> message = project.objects.property(String)
+    public final Property<String> getMessage() {
+        return message;
+    }
+
+    private final Property<String> message = getProject().getObjects().property(String.class);
 
     /**
      * Author of image e.g. Benjamin Muschko.
      */
     @Input
     @Optional
-    final Property<String> author = project.objects.property(String)
+    public final Property<String> getAuthor() {
+        return author;
+    }
+
+    private final Property<String> author = getProject().getObjects().property(String.class);
 
     @Input
     @Optional
-    final Property<Boolean> pause = project.objects.property(Boolean)
+    public final Property<Boolean> getPause() {
+        return pause;
+    }
+
+    private final Property<Boolean> pause = getProject().getObjects().property(Boolean.class);
 
     @Input
     @Optional
-    final Property<Boolean> attachStderr = project.objects.property(Boolean)
+    public final Property<Boolean> getAttachStderr() {
+        return attachStderr;
+    }
+
+    private final Property<Boolean> attachStderr = getProject().getObjects().property(Boolean.class);
 
     @Input
     @Optional
-    final Property<Boolean> attachStdin = project.objects.property(Boolean)
+    public final Property<Boolean> getAttachStdin() {
+        return attachStdin;
+    }
+
+    private final Property<Boolean> attachStdin = getProject().getObjects().property(Boolean.class);
 
     /**
      * Output file containing the image ID of the image committed.
@@ -77,59 +107,61 @@ class DockerCommitImage extends DockerExistingContainer {
      * If path contains ':' it will be replaced by '_'.
      */
     @OutputFile
-    final RegularFileProperty imageIdFile = project.objects.fileProperty()
+    public final RegularFileProperty getImageIdFile() {
+        return imageIdFile;
+    }
+
+    private final RegularFileProperty imageIdFile = getProject().getObjects().fileProperty();
 
     /**
      * The ID of the image committed. The value of this property requires the task action to be executed.
      */
     @Internal
-    final Property<String> imageId = project.objects.property(String)
+    public final Property<String> getImageId() {
+        return imageId;
+    }
 
-    DockerCommitImage() {
-        imageId.convention(imageIdFile.map { RegularFile it ->
-            File file = it.asFile
-            if (file.exists()) {
-                return file.text
-            }
-            return null
-        })
+    private final Property<String> imageId = getProject().getObjects().property(String.class);
 
-        String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
-        imageIdFile.convention(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageId.txt"))
+    public DockerCommitImage() {
+        imageId.convention(imageIdFile.map(new RegularFileToStringTransformer()));
+
+        final String safeTaskPath = getPath().replaceFirst("^:", "").replaceAll(":", "_");
+        imageIdFile.convention(getProject().getLayout().getBuildDirectory().file(".docker/" + safeTaskPath + "-imageId.txt"));
     }
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Committing image '${repository.get()}:${tag.get()}' for container '${getContainerId().get()}'."
-        CommitCmd commitCmd = dockerClient.commitCmd(getContainerId().get())
-        commitCmd.withRepository(repository.get())
-        commitCmd.withTag(tag.get())
+    public void runRemoteCommand() throws IOException {
+        getLogger().quiet("Committing image '" + getRepository().get() + ":" + getTag().get() + "' for container '" + getContainerId().get() + "'.");
+        CommitCmd commitCmd = getDockerClient().commitCmd(getContainerId().get());
+        commitCmd.withRepository(repository.get());
+        commitCmd.withTag(tag.get());
 
-        if(message.getOrNull()) {
-            commitCmd.withMessage(message.get())
+        if (message.getOrNull() != null) {
+            commitCmd.withMessage(message.get());
         }
 
-        if(author.getOrNull()) {
-            commitCmd.withAuthor(author.get())
+        if (author.getOrNull() != null) {
+            commitCmd.withAuthor(author.get());
         }
 
-        if(pause.getOrNull()) {
-            commitCmd.withPause(pause.get())
+        if (Boolean.TRUE.equals(pause.getOrNull())) {
+            commitCmd.withPause(pause.get());
         }
 
-        if(attachStderr.getOrNull()) {
-            commitCmd.withAttachStderr(attachStderr.get())
+        if (Boolean.TRUE.equals(attachStderr.getOrNull())) {
+            commitCmd.withAttachStderr(attachStderr.get());
         }
 
-        if(attachStdin.getOrNull()) {
-            commitCmd.withAttachStdin(attachStdin.get())
+        if (Boolean.TRUE.equals(attachStdin.getOrNull())) {
+            commitCmd.withAttachStdin(attachStdin.get());
         }
 
-        String createdImageId = commitCmd.exec()
-        imageIdFile.get().asFile.text = createdImageId
-        logger.quiet "Created image with ID '$createdImageId'."
-        if(nextHandler) {
-            nextHandler.execute(createdImageId)
+        String createdImageId = commitCmd.exec();
+        Files.write(imageIdFile.get().getAsFile().toPath(), createdImageId.getBytes());
+        getLogger().quiet("Created image with ID '" + createdImageId + "'.");
+        if (getNextHandler() != null) {
+            getNextHandler().execute(createdImageId);
         }
     }
 }

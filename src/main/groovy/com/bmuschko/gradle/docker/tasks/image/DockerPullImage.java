@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
-import com.github.dockerjava.api.command.PullImageCmd
-import com.github.dockerjava.api.command.PullImageResultCallback
-import com.github.dockerjava.api.model.AuthConfig
-import com.github.dockerjava.api.model.PullResponseItem
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.bmuschko.gradle.docker.DockerRegistryCredentials;
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
+import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware;
+import com.github.dockerjava.api.command.PullImageCmd;
+import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.model.AuthConfig;
+import com.github.dockerjava.api.model.PullResponseItem;
+import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-@CompileStatic
-class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
+public class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
     /**
      * The image including repository, image name and tag to be pulled e.g. {@code vieux/apache:2.0}.
@@ -37,7 +35,11 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
      * @since 6.0.0
      */
     @Input
-    final Property<String> image = project.objects.property(String)
+    public final Property<String> getImage() {
+        return image;
+    }
+
+    private final Property<String> image = getProject().getObjects().property(String.class);
 
     /**
      * The target platform in the format {@code os[/arch[/variant]]}, for example {@code linux/s390x} or {@code darwin}.
@@ -46,55 +48,64 @@ class DockerPullImage extends AbstractDockerRemoteApiTask implements RegistryCre
      */
     @Input
     @Optional
-    final Property<String> platform = project.objects.property(String)
+    public final Property<String> getPlatform() {
+        return platform;
+    }
+
+    private final Property<String> platform = getProject().getObjects().property(String.class);
 
     /**
      * {@inheritDoc}
      */
-    final DockerRegistryCredentials registryCredentials
+    @Override
+    public final DockerRegistryCredentials getRegistryCredentials() {
+        return registryCredentials;
+    }
 
-    DockerPullImage() {
-        registryCredentials = project.objects.newInstance(DockerRegistryCredentials, project.objects)
+    private final DockerRegistryCredentials registryCredentials;
+
+    public DockerPullImage() {
+        registryCredentials = getProject().getObjects().newInstance(DockerRegistryCredentials.class, getProject().getObjects());
     }
 
     @Override
-    void runRemoteCommand() {
-        AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image.get(), registryCredentials)
-        logger.quiet "Pulling image '${image.get()}' from ${getRegistryAuthLocator().getRegistry(image.get())}."
+    public void runRemoteCommand() throws InterruptedException {
+        AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image.get(), registryCredentials);
+        getLogger().quiet("Pulling image '" + getImage().get() + "' from " + getRegistryAuthLocator().getRegistry(getImage().get()) + ".");
 
-        PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image.get())
+        PullImageCmd pullImageCmd = getDockerClient().pullImageCmd(image.get());
 
-        if(platform.getOrNull()) {
-            pullImageCmd.withPlatform(platform.get())
+        if (platform.getOrNull() != null) {
+            pullImageCmd.withPlatform(platform.get());
         }
 
-        pullImageCmd.withAuthConfig(authConfig)
-        PullImageResultCallback callback = createCallback(nextHandler)
-        pullImageCmd.exec(callback).awaitCompletion()
+        pullImageCmd.withAuthConfig(authConfig);
+        PullImageResultCallback callback = createCallback(getNextHandler());
+        pullImageCmd.exec(callback).awaitCompletion();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    void registryCredentials(Action<? super DockerRegistryCredentials> action) {
-        action.execute(registryCredentials)
+    public void registryCredentials(Action<? super DockerRegistryCredentials> action) {
+        action.execute(registryCredentials);
     }
 
-    private PullImageResultCallback createCallback(Action nextHandler) {
-        new PullImageResultCallback() {
+    private PullImageResultCallback createCallback(final Action nextHandler) {
+        return new PullImageResultCallback() {
             @Override
-            void onNext(PullResponseItem item) {
-                if (nextHandler) {
+            public void onNext(PullResponseItem item) {
+                if (nextHandler != null) {
                     try {
-                        nextHandler.execute(item)
+                        nextHandler.execute(item);
                     } catch (Exception e) {
-                        logger.error('Failed to handle pull response', e)
-                        return
+                        getLogger().error("Failed to handle pull response", e);
+                        return;
                     }
                 }
-                super.onNext(item)
+                super.onNext(item);
             }
-        }
+        };
     }
 }

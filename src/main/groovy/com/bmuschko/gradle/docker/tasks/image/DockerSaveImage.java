@@ -1,27 +1,29 @@
-package com.bmuschko.gradle.docker.tasks.image
+package com.bmuschko.gradle.docker.tasks.image;
 
-import com.bmuschko.gradle.docker.internal.IOUtils
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import com.github.dockerjava.api.command.SaveImagesCmd
-import com.github.dockerjava.api.command.SaveImagesCmd.TaggedImage
-import com.github.dockerjava.api.exception.DockerException
-import com.github.dockerjava.core.command.SaveImagesCmdImpl
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
-import org.gradle.api.GradleException
-import org.gradle.api.Task
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
-import org.gradle.api.specs.Spec
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
+import com.bmuschko.gradle.docker.internal.IOUtils;
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
+import com.github.dockerjava.api.command.SaveImagesCmd;
+import com.github.dockerjava.api.exception.DockerException;
+import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.core.command.SaveImagesCmdImpl;
+import org.gradle.api.GradleException;
+import org.gradle.api.Task;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
+import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 
-import java.util.zip.GZIPOutputStream
+import java.io.*;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.GZIPOutputStream;
 
-@CompileStatic
-class DockerSaveImage extends AbstractDockerRemoteApiTask {
+public class DockerSaveImage extends AbstractDockerRemoteApiTask {
 
     /**
      * The images including repository, image name and tag to be saved e.g. {@code vieux/apache:2.0}.
@@ -29,18 +31,30 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
      * @since 8.0.0
      */
     @Input
-    final SetProperty<String> images = project.objects.setProperty(String)
+    public final SetProperty<String> getImages() {
+        return images;
+    }
+
+    private final SetProperty<String> images = getProject().getObjects().setProperty(String.class);
 
     @Input
     @Optional
-    final Property<Boolean> useCompression = project.objects.property(Boolean)
+    public final Property<Boolean> getUseCompression() {
+        return useCompression;
+    }
+
+    private final Property<Boolean> useCompression = getProject().getObjects().property(Boolean.class);
 
     /**
      * Where to save image.
      */
 
     @OutputFile
-    final RegularFileProperty destFile = project.objects.fileProperty()
+    public final RegularFileProperty getDestFile() {
+        return destFile;
+    }
+
+    private final RegularFileProperty destFile = getProject().getObjects().fileProperty();
 
     /**
      * Output file containing the image IDs of the saved images.
@@ -51,128 +65,117 @@ class DockerSaveImage extends AbstractDockerRemoteApiTask {
      */
 
     @OutputFile
-    final RegularFileProperty imageIdsFile = project.objects.fileProperty()
-
-    DockerSaveImage() {
-        useCompression.convention(false)
-        String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
-        imageIdsFile.convention(project.layout.buildDirectory.file(".docker/${safeTaskPath}-imageIds.properties"))
-
-        onlyIf onlyIfSpec
-
-        outputs.upToDateWhen upToDateWhenSpec
+    public final RegularFileProperty getImageIdsFile() {
+        return imageIdsFile;
     }
+
+    private final RegularFileProperty imageIdsFile = getProject().getObjects().fileProperty();
 
     private final Spec<Task> onlyIfSpec = new Spec<Task>() {
         @Override
-        boolean isSatisfiedBy(Task element) {
-            images.getOrNull()
+        public boolean isSatisfiedBy(Task element) {
+            return getImages().getOrNull() != null;
         }
-    }
 
+    };
     private final Spec<Task> upToDateWhenSpec = new Spec<Task>() {
         @Override
-        boolean isSatisfiedBy(Task element) {
-            File file = imageIdsFile.get().asFile
+        public boolean isSatisfiedBy(Task element) {
+            File file = getImageIdsFile().get().getAsFile();
             if (file.exists()) {
-                def savedImageIds = new Properties()
-                file.withInputStream { savedImageIds.load(it) }
-                def savedImages = savedImageIds.stringPropertyNames()
+                final Properties savedImageIds = new Properties();
+                try (InputStream is = Files.newInputStream(file.toPath())) {
+                    savedImageIds.load(is);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+                Set<String> savedImages = savedImageIds.stringPropertyNames();
 
-                Set<String> configuredImages = images.getOrElse([] as Set)
-                if (savedImages != configuredImages) {
-                    return false
+                Set<String> configuredImages = getImages().getOrElse(new HashSet<>());
+                if (!savedImages.equals(configuredImages)) {
+                    return false;
                 }
 
                 try {
-                    savedImages.each { savedImage ->
-                        def savedId = savedImageIds.getProperty(savedImage)
-                        if (savedId != getImageIds(savedImage)) {
-                            return false
+                    for (String savedImage : savedImages) {
+                        String savedId = savedImageIds.getProperty(savedImage);
+                        if (!savedId.equals(getImageIds(savedImage))) {
+                            return false;
                         }
                     }
-                    return true
+                    return true;
                 } catch (DockerException e) {
-                    return false
+                    return false;
                 }
             }
-            return false
+            return false;
         }
+    };
+
+    public DockerSaveImage() {
+        useCompression.convention(false);
+        final String safeTaskPath = getPath().replaceFirst("^:", "").replaceAll(":", "_");
+        imageIdsFile.convention(getProject().getLayout().getBuildDirectory().file(".docker/" + safeTaskPath + "-imageIds.properties"));
+
+        onlyIf(onlyIfSpec);
+
+        getOutputs().upToDateWhen(upToDateWhenSpec);
     }
 
-    // part of work-around for https://github.com/docker-java/docker-java/issues/1872
-    @CompileDynamic
     private SaveImagesCmd.Exec getExecution() {
-        dockerClient.saveImagesCmd().@execution
+        return ((SaveImagesCmd.Exec) (getDockerClient().saveImagesCmd()));
     }
 
     @Override
-    void runRemoteCommand() {
-        Set<String> images = images.getOrElse([] as Set)
-        // part of work-around for https://github.com/docker-java/docker-java/issues/1872
-        SaveImagesCmd saveImagesCmd = new SaveImagesCmdImpl(execution) {
+    public void runRemoteCommand() {
+        final Set<String> images = getImages().getOrElse(new HashSet<>());
+        SaveImagesCmd saveImagesCmd = new SaveImagesCmdImpl(getExecution()) {
             @Override
-            List<TaggedImage> getImages() {
-                images.collect {
-                    { -> it } as TaggedImage
-                }
+            public List<TaggedImage> getImages() {
+                return images.stream().map(it -> (TaggedImage) () -> it).collect(Collectors.toList());
             }
-        }
-        InputStream image = saveImagesCmd.exec()
-        OutputStream os
-        try {
-            FileOutputStream fs = new FileOutputStream(destFile.get().asFile)
-            os = fs
-            if (useCompression.get()) {
-                os = new GZIPOutputStream(fs)
-            }
-            try {
-                image.transferTo(os)
-            } catch (IOException e) {
-                throw new GradleException("Can't save image.", e)
-            } finally {
-                IOUtils.closeQuietly(image)
-            }
-        }
-        finally {
-            IOUtils.closeQuietly(os)
+        };
+        try (InputStream image = saveImagesCmd.exec();
+                OutputStream fs = Files.newOutputStream(destFile.get().getAsFile().toPath());
+            OutputStream os = useCompression.get() ? new GZIPOutputStream(fs) : fs) {
+                image.transferTo(os);
+        } catch (IOException e) {
+            throw new GradleException("Can't save image.", e);
         }
 
-        def imageIds = new Properties()
-        images.each { configuredImage ->
-            imageIds[configuredImage] = getImageIds(configuredImage)
+        final Properties imageIds = new Properties();
+        for (String configuredImage : images) {
+            imageIds.put(configuredImage, getImageIds(configuredImage));
         }
-        imageIdsFile.get().asFile.parentFile.mkdirs()
-        imageIdsFile.get().asFile.withOutputStream {
-            imageIds.store(it, null)
+        imageIdsFile.get().getAsFile().getParentFile().mkdirs();
+        try (OutputStream os = Files.newOutputStream(imageIdsFile.get().getAsFile().toPath())) {
+            imageIds.store(os, null);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    private getImageIds(String image) {
+    private String getImageIds(String image) {
         if (image.contains(":")) {
-            getImageIdForConcreteImage(image)
+            return getImageIdForConcreteImage(image);
         } else {
-            getImageIdsForBaseImage(image)
+            return getImageIdsForBaseImage(image);
         }
     }
 
-    private getImageIdForConcreteImage(String image) {
-        dockerClient.inspectImageCmd(image).exec().id
+    private String getImageIdForConcreteImage(String image) {
+        return getDockerClient().inspectImageCmd(image).exec().getId();
     }
 
-    private getImageIdsForBaseImage(String image) {
-        dockerClient
-            .listImagesCmd()
-            .exec()
-            .collectMany { listedImage ->
-                listedImage
-                    .repoTags
-                    .collect { [it, listedImage.id] }
-            }
-            .collectEntries { it }
-            .findAll { "$it.key".startsWith(image) }
-            .toSorted { it.key }
-            .collect { it.value }
-            .join(",")
+    private String getImageIdsForBaseImage(final String image) {
+        return getDockerClient()
+                .listImagesCmd()
+                .exec()
+                .stream()
+                .flatMap(listedImage -> Arrays.stream(listedImage.getRepoTags()).map(it -> Map.entry(it, listedImage.getId())))
+                .filter(i -> i.getKey().startsWith(image))
+                .sorted(Map.Entry.comparingByKey())
+                .map(Map.Entry::getValue)
+                .collect(Collectors.joining(","));
     }
 }
