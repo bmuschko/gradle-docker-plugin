@@ -1,65 +1,61 @@
-package com.bmuschko.gradle.docker.internal
+package com.bmuschko.gradle.docker.internal;
 
-import groovy.transform.CompileStatic
-import groovy.transform.PackageScope
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 
-import javax.annotation.Nullable
+import javax.annotation.Nullable;
+import java.io.File;
 
-import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows
+public class DefaultDockerConfigResolver implements DockerConfigResolver {
 
-@CompileStatic
-class DefaultDockerConfigResolver implements DockerConfigResolver {
-
-    private static final Logger logger = Logging.getLogger(DefaultDockerConfigResolver)
+    private static final Logger logger = Logging.getLogger(DefaultDockerConfigResolver.class);
 
     @Override
-    String getDefaultDockerUrl() {
-        String dockerUrl = getEnv("DOCKER_HOST")
-        if (!dockerUrl) {
-            if (isWindows()) {
-                if (isFileExists('\\\\.\\pipe\\docker_engine')) {
-                    dockerUrl = 'npipe:////./pipe/docker_engine'
+    public String getDefaultDockerUrl() {
+        String dockerUrl = getEnv("DOCKER_HOST");
+        if (dockerUrl == null) {
+            if (OsUtils.isWindows()) {
+                if (isFileExists("\\\\.\\pipe\\docker_engine")) {
+                    dockerUrl = "npipe:////./pipe/docker_engine";
                 }
             } else {
                 // macOS or Linux
-                if (isFileExists('/var/run/docker.sock')) {
-                    dockerUrl = 'unix:///var/run/docker.sock'
-                } else if (isFileExists("${System.getProperty("user.home")}/.docker/run/docker.sock")) {
-                    dockerUrl = "unix://${System.getProperty('user.home')}/.docker/run/docker.sock"
+                if (isFileExists("/var/run/docker.sock")) {
+                    dockerUrl = "unix:///var/run/docker.sock";
+                } else if (isFileExists(System.getProperty("user.home") + "/.docker/run/docker.sock")) {
+                    dockerUrl = "unix://" + System.getProperty("user.home") + "/.docker/run/docker.sock";
                 }
             }
 
-            if (!dockerUrl) {
-                dockerUrl = 'tcp://127.0.0.1:2375'
+
+            if (dockerUrl == null) {
+                dockerUrl = "tcp://127.0.0.1:2375";
             }
         }
-        logger.info("Default docker.url set to $dockerUrl")
-        dockerUrl
+
+        logger.info("Default docker.url set to " + dockerUrl);
+        return dockerUrl;
     }
 
     @Nullable
     @Override
-    File getDefaultDockerCert() {
-        String dockerCertPath = getEnv("DOCKER_CERT_PATH")
-        if (dockerCertPath) {
-            File certFile = new File(dockerCertPath)
+    public File getDefaultDockerCert() {
+        String dockerCertPath = getEnv("DOCKER_CERT_PATH");
+        if (dockerCertPath != null) {
+            File certFile = new File(dockerCertPath);
             if (certFile.exists()) {
-                return certFile
+                return certFile;
             }
         }
-        return null
+        return null;
     }
 
     @Nullable
-    @PackageScope
     String getEnv(String name) {
-        System.getenv(name)
+        return System.getenv(name);
     }
 
-    @PackageScope
     boolean isFileExists(String path) {
-        new File(path).exists()
+        return new File(path).exists();
     }
 }

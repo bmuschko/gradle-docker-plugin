@@ -1,6 +1,9 @@
-package com.bmuschko.gradle.docker.internal
+package com.bmuschko.gradle.docker.internal;
 
-interface DockerConfigResolver {
-    String getDefaultDockerUrl()
-    File getDefaultDockerCert()
+import java.io.File;
+
+public interface DockerConfigResolver {
+    public abstract String getDefaultDockerUrl();
+
+    public abstract File getDefaultDockerCert();
 }
