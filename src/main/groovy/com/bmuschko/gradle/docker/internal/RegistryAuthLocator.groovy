@@ -1,11 +1,11 @@
 package com.bmuschko.gradle.docker.internal
 
 import com.bmuschko.gradle.docker.DockerRegistryCredentials
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import com.github.dockerjava.core.NameParser
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.apache.commons.codec.binary.Base64
@@ -36,7 +36,7 @@ class RegistryAuthLocator {
     private static final String DEFAULT_HELPER_PREFIX = 'docker-credential-'
 
     private Logger logger = Logging.getLogger(RegistryAuthLocator)
-    private final JsonSlurper slurper = new JsonSlurper()
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     private final File configFile
     private final String commandPathPrefix
@@ -131,7 +131,7 @@ class RegistryAuthLocator {
         }
 
         try {
-            Map<String, Object> config = slurper.parse(configFile) as Map<String, Object>
+            Map<String, Object> config = objectMapper.readValue(configFile, Map<String, Object>)
 
             AuthConfig existingAuthConfig = findExistingAuthConfig(config, registry)
             if (existingAuthConfig != null) {
@@ -179,7 +179,7 @@ class RegistryAuthLocator {
 
         try {
             Set<String> registryAddresses = new HashSet<>()
-            Map<String, Object> config = slurper.parse(configFile) as Map<String, Object>
+            Map<String, Object> config = objectMapper.readValue(configFile, Map<String, Object>)
 
             // Discover registry addresses from `auths` section
             Map<String, Object> authSectionRegistries = config.getOrDefault(AUTH_SECTION, new HashMap()) as Map<String, Object>
@@ -199,7 +199,7 @@ class RegistryAuthLocator {
                 logger.debug('Executing docker credential helper: {} to locate auth configs', credStoreCommand)
                 String credStoreResponse = runCommand("$credStoreCommand list")
                 logger.debug('Credential helper response: {}', credStoreResponse)
-                Map<String, String> helperResponse = parseText(credStoreResponse) as Map<String, String>
+                Map<String, String> helperResponse = parseText(credStoreResponse, Map<String, String>)
                 if (helperResponse != null) {
                     logger.debug("Found registries in docker credential helper: {}", helperResponse.keySet())
                     registryAddresses.addAll(helperResponse.keySet())
@@ -298,8 +298,8 @@ class RegistryAuthLocator {
         if (entry != null && entry.getValue() != null && entry.getValue() instanceof Map) {
             Map authMap = entry.getValue() as Map
             if (authMap.size() > 0) {
-                String authJson = JsonOutput.toJson(entry.getValue())
-                AuthConfig authCfg = parseText(authJson) as AuthConfig
+                String authJson = objectMapper.writeValueAsString(entry.getValue())
+                AuthConfig authCfg = parseText(authJson, AuthConfig)
                 if (authCfg == null) {
                     return null
                 }
@@ -361,7 +361,7 @@ class RegistryAuthLocator {
                 credentialHelperName, hostName)
         String data = runCommand("$credentialHelperName get", { Writer writer -> writer << hostName })
         logger.debug('Credential helper response: {}', data)
-        Map<String, String> helperResponse = parseText(data) as Map<String, String>
+        Map<String, String> helperResponse = parseText(data, Map<String, String>)
         if (helperResponse == null) {
             return null
         }
@@ -433,9 +433,9 @@ class RegistryAuthLocator {
         return config
     }
 
-    private Object parseText(String data) {
+    private <T> T parseText(String data, Class<T> valueType) {
         try {
-            return slurper.parseText(data)
+            return objectMapper.readValue(data, valueType)
         } catch (Exception e) {
             logger.debug('Failure parsing the json response {}', data, e)
             return null
