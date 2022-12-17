@@ -166,10 +166,8 @@ public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      */
     @Internal
     protected RegistryAuthLocator getRegistryAuthLocator() {
-        return registryAuthLocator;
+        return new RegistryAuthLocator();
     }
-
-    private final RegistryAuthLocator registryAuthLocator = new RegistryAuthLocator();
 
     private DockerClientConfiguration createDockerClientConfig() {
         DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration();
