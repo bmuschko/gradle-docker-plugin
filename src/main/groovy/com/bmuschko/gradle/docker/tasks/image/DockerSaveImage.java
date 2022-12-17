@@ -1,10 +1,9 @@
 package com.bmuschko.gradle.docker.tasks.image;
 
-import com.bmuschko.gradle.docker.internal.IOUtils;
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
 import com.github.dockerjava.api.command.SaveImagesCmd;
 import com.github.dockerjava.api.exception.DockerException;
-import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.core.command.AbstrDockerCmd;
 import com.github.dockerjava.core.command.SaveImagesCmdImpl;
 import org.gradle.api.GradleException;
 import org.gradle.api.Task;
@@ -17,10 +16,10 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
 
 public class DockerSaveImage extends AbstractDockerRemoteApiTask {
@@ -122,13 +121,21 @@ public class DockerSaveImage extends AbstractDockerRemoteApiTask {
         getOutputs().upToDateWhen(upToDateWhenSpec);
     }
 
+    // part of work-around for https://github.com/docker-java/docker-java/issues/1872
     private SaveImagesCmd.Exec getExecution() {
-        return ((SaveImagesCmd.Exec) (getDockerClient().saveImagesCmd()));
+        try {
+            Field execution = AbstrDockerCmd.class.getDeclaredField("execution");
+            execution.setAccessible(true);
+            return (SaveImagesCmd.Exec) execution.get(getDockerClient().saveImagesCmd());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void runRemoteCommand() {
         final Set<String> images = getImages().getOrElse(new HashSet<>());
+        // part of work-around for https://github.com/docker-java/docker-java/issues/1872
         SaveImagesCmd saveImagesCmd = new SaveImagesCmdImpl(getExecution()) {
             @Override
             public List<TaggedImage> getImages() {
