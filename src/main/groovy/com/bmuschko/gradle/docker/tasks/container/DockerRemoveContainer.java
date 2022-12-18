@@ -13,40 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.github.dockerjava.api.command.RemoveContainerCmd
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.github.dockerjava.api.command.RemoveContainerCmd;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-@CompileStatic
-class DockerRemoveContainer extends DockerExistingContainer {
+public class DockerRemoveContainer extends DockerExistingContainer {
 
     @Input
     @Optional
-    final Property<Boolean> removeVolumes = project.objects.property(Boolean)
+    public final Property<Boolean> getRemoveVolumes() {
+        return removeVolumes;
+    }
 
     @Input
     @Optional
-    final Property<Boolean> force = project.objects.property(Boolean)
+    public final Property<Boolean> getForce() {
+        return force;
+    }
+
+    private final Property<Boolean> removeVolumes = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> force = getProject().getObjects().property(Boolean.class);
 
     @Override
-    void runRemoteCommand() {
-        RemoveContainerCmd containerCommand = dockerClient.removeContainerCmd(containerId.get())
-        configureContainerCommandConfig(containerCommand)
-        logger.quiet "Removing container with ID '${containerId.get()}'."
-        containerCommand.exec()
+    public void runRemoteCommand() {
+        RemoveContainerCmd containerCommand = getDockerClient().removeContainerCmd(getContainerId().get());
+        configureContainerCommandConfig(containerCommand);
+        getLogger().quiet("Removing container with ID '" + getContainerId().get() + "'.");
+        containerCommand.exec();
     }
 
     private void configureContainerCommandConfig(RemoveContainerCmd containerCommand) {
-        if(removeVolumes.getOrNull()) {
-            containerCommand.withRemoveVolumes(removeVolumes.get())
+        if (Boolean.TRUE.equals(removeVolumes.getOrNull())) {
+            containerCommand.withRemoveVolumes(removeVolumes.get());
         }
 
-        if(force.getOrNull()) {
-            containerCommand.withForce(force.get())
+        if (Boolean.TRUE.equals(force.getOrNull())) {
+            containerCommand.withForce(force.get());
         }
     }
 }

@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import groovy.transform.CompileStatic
-
-@CompileStatic
-class DockerKillContainer extends DockerExistingContainer {
+public class DockerKillContainer extends DockerExistingContainer {
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Killing container with ID '${containerId.get()}'."
-        dockerClient.killContainerCmd(containerId.get()).exec()
+    public void runRemoteCommand() {
+        getLogger().quiet("Killing container with ID '" + getContainerId().get() + "'.");
+        getDockerClient().killContainerCmd(getContainerId().get()).exec();
     }
 }

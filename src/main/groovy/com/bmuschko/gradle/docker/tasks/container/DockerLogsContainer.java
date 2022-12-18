@@ -13,27 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.github.dockerjava.api.DockerClient
-import com.github.dockerjava.api.async.ResultCallback
-import com.github.dockerjava.api.command.LogContainerCmd
-import com.github.dockerjava.api.model.Frame
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
-import org.gradle.api.GradleException
-import org.gradle.api.InvalidUserDataException
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
+import com.github.dockerjava.api.command.LogContainerCmd;
+import com.github.dockerjava.api.model.Frame;
+import org.gradle.api.Action;
+import org.gradle.api.GradleException;
+import org.gradle.api.InvalidUserDataException;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.util.Date;
 
 /**
  * Copies the container logs into standard out/err, the same as the `docker logs` command. The container output
  * to standard out will go to standard out, and standard err to standard err.
  */
-@CompileStatic
-class DockerLogsContainer extends DockerExistingContainer {
+public class DockerLogsContainer extends DockerExistingContainer {
 
     /**
      * Set to true to follow the output, which will cause this task to block until the container exists.
@@ -41,7 +44,9 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Boolean> follow = project.objects.property(Boolean)
+    public final Property<Boolean> getFollow() {
+        return follow;
+    }
 
     /**
      * Set to true to copy all output since the container has started. For long running containers or containers
@@ -51,7 +56,9 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Boolean> tailAll = project.objects.property(Boolean)
+    public final Property<Boolean> getTailAll() {
+        return tailAll;
+    }
 
     /**
      * Limit the number of lines of existing output. This cannot be set if #tailAll is also set.
@@ -59,7 +66,9 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Integer> tailCount = project.objects.property(Integer)
+    public final Property<Integer> getTailCount() {
+        return tailCount;
+    }
 
     /**
      * Include standard out.
@@ -67,7 +76,9 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Boolean> stdOut = project.objects.property(Boolean)
+    public final Property<Boolean> getStdOut() {
+        return stdOut;
+    }
 
     /**
      * Include standard err.
@@ -75,7 +86,9 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Boolean> stdErr = project.objects.property(Boolean)
+    public final Property<Boolean> getStdErr() {
+        return stdErr;
+    }
 
     /**
      * Set to the true to include a timestamp for each line in the output.
@@ -83,7 +96,9 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Boolean> showTimestamps = project.objects.property(Boolean)
+    public final Property<Boolean> getShowTimestamps() {
+        return showTimestamps;
+    }
 
     /**
      * Limit the output to lines on or after the specified date.
@@ -91,123 +106,143 @@ class DockerLogsContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Date> since = project.objects.property(Date)
+    public final Property<Date> getSince() {
+        return since;
+    }
 
     /**
      * Sink to write log output into.
      */
     @Input
     @Optional
-    Writer sink
+    public Writer getSink() {
+        return sink;
+    }
 
-    def setSink(Writer sink) {
+    public Writer setSink(Writer sink) {
         if (sink != null) {
-            notCompatibleWithConfigurationCache("Setting sink is not compatible with configuration cache")
-            this.sink = sink
+            notCompatibleWithConfigurationCache("Setting sink is not compatible with configuration cache");
+            return this.sink = sink;
         } else {
-            isCompatibleWithConfigurationCache()
-            this.sink = null
+            isCompatibleWithConfigurationCache();
+            return this.sink = null;
         }
     }
 
-    // Allows subclasses to carry their own logic
     @Internal
     protected Date getInternalSince() {
-        return since.getOrNull()
+        return since.getOrNull();
     }
 
-    DockerLogsContainer() {
-        stdOut.convention(true)
-        stdErr.convention(true)
+    private final Property<Boolean> follow = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> tailAll = getProject().getObjects().property(Boolean.class);
+    private final Property<Integer> tailCount = getProject().getObjects().property(Integer.class);
+    private final Property<Boolean> stdOut = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> stdErr = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> showTimestamps = getProject().getObjects().property(Boolean.class);
+    private final Property<Date> since = getProject().getObjects().property(Date.class);
+    private Writer sink;
+
+    public DockerLogsContainer() {
+        stdOut.convention(true);
+        stdErr.convention(true);
     }
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Logs for container with ID '${containerId.get()}'."
-        logAndProcessResponse(dockerClient)
+    public void runRemoteCommand() throws InterruptedException {
+        getLogger().quiet("Logs for container with ID '" + getContainerId().get() + "'.");
+        logAndProcessResponse(getDockerClient());
     }
 
     // method used for sub-classes who wish to invoke this task
     // multiple times but don't want the logging message to be
     // printed for every iteration.
-    void logAndProcessResponse(DockerClient dockerClient) {
-        LogContainerCmd logCommand = dockerClient.logContainerCmd(containerId.get())
-        setContainerCommandConfig(logCommand)
-        logCommand.exec(createCallback(nextHandler))?.awaitCompletion()
+    public void logAndProcessResponse(DockerClient dockerClient) throws InterruptedException {
+        LogContainerCmd logCommand = dockerClient.logContainerCmd(getContainerId().get());
+        setContainerCommandConfig(logCommand);
+        logCommand.exec(createCallback(getNextHandler())).awaitCompletion();
     }
 
-    private ResultCallback.Adapter<Frame> createCallback(Action nextHandler) {
-        if(sink && nextHandler) {
-            throw new GradleException("Define either sink or onNext")
+    private ResultCallback.Adapter<Frame> createCallback(final Action nextHandler) {
+        if (sink != null && nextHandler != null) {
+            throw new GradleException("Define either sink or onNext");
         }
-        if(sink) {
+        if (sink != null) {
             return new ResultCallback.Adapter<Frame>() {
                 @Override
-                void onNext(Frame frame) {
-                    switch (frame.streamType as String) {
-                        case 'STDOUT':
-                        case 'RAW':
-                        case 'STDERR':
-                            sink.append(new String(frame.payload))
-                            sink.flush()
-                            break
+                public void onNext(Frame frame) {
+                    switch (frame.getStreamType()) {
+                        case STDOUT:
+                        case RAW:
+                        case STDERR:
+                            try {
+                                getSink().append(new String(frame.getPayload()));
+                                getSink().flush();
+                            } catch (IOException e) {
+                                throw new UncheckedIOException(e);
+                            }
+                            break;
                     }
-                    super.onNext(frame)
+                    super.onNext(frame);
                 }
-            }
-        }
-        if(nextHandler) {
-            return new ResultCallback.Adapter<Frame>() {
-                @Override
-                void onNext(Frame frame) {
-                    nextHandler.execute(frame)
-                    super.onNext(frame)
-                }
-            }
+
+            };
         }
 
-        new ResultCallback.Adapter<Frame>() {
-            @Override
-            void onNext(Frame frame) {
-                switch (frame.streamType as String) {
-                    case 'STDOUT':
-                    case 'RAW':
-                        logger.quiet(new String(frame.payload).replaceFirst(/\s+$/, ''))
-                        break
-                    case 'STDERR':
-                        logger.error(new String(frame.payload).replaceFirst(/\s+$/, ''))
-                        break
+        if (nextHandler != null) {
+            return new ResultCallback.Adapter<Frame>() {
+                @Override
+                public void onNext(Frame frame) {
+                    nextHandler.execute(frame);
+                    super.onNext(frame);
                 }
-                super.onNext(frame)
-            }
+
+            };
         }
+
+        return new ResultCallback.Adapter<Frame>() {
+            @Override
+            public void onNext(Frame frame) {
+                switch (frame.getStreamType()) {
+                    case STDOUT:
+                    case RAW:
+                        getLogger().quiet(new String(frame.getPayload()).replaceFirst( "/\\s+$/", ""));
+                        break;
+                    case STDERR:
+                        getLogger().error(new String(frame.getPayload()).replaceFirst("/\\s+$/", ""));
+                        break;
+                }
+                super.onNext(frame);
+            }
+
+        };
     }
 
     private void setContainerCommandConfig(LogContainerCmd logsCommand) {
         if (follow.getOrNull() != null) {
-            logsCommand.withFollowStream(follow.get())
+            logsCommand.withFollowStream(follow.get());
         }
 
         if (showTimestamps.getOrNull() != null) {
-            logsCommand.withTimestamps(showTimestamps.get())
+            logsCommand.withTimestamps(showTimestamps.get());
         }
 
-        logsCommand.withStdOut(stdOut.get()).withStdErr(stdErr.get())
+        logsCommand.withStdOut(stdOut.get()).withStdErr(stdErr.get());
 
-        if (tailAll.getOrNull() && tailCount.getOrNull()) {
-            throw new InvalidUserDataException("Conflicting parameters: only one of tailAll and tailCount can be specified")
+        if (Boolean.TRUE.equals(tailAll.getOrNull()) && tailCount.getOrNull() != null) {
+            throw new InvalidUserDataException("Conflicting parameters: only one of tailAll and tailCount can be specified");
         }
 
-        if (tailAll.getOrNull()) {
-            logsCommand.withTailAll()
+
+        if (Boolean.TRUE.equals(tailAll.getOrNull())) {
+            logsCommand.withTailAll();
         } else if (tailCount.getOrNull() != null) {
-            logsCommand.withTail(tailCount.get())
+            logsCommand.withTail(tailCount.get());
         }
 
-        Date since = getInternalSince()
-        if (since) {
-            logsCommand.withSince((int) (since.time / 1000))
+        Date since = getInternalSince();
+        if (since != null) {
+            logsCommand.withSince((int) (since.getTime() / 1000));
         }
     }
 }
-

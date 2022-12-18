@@ -13,38 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.github.dockerjava.api.DockerClient
-import com.github.dockerjava.api.command.StopContainerCmd
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.StopContainerCmd;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-@CompileStatic
-class DockerStopContainer extends DockerExistingContainer {
+public class DockerStopContainer extends DockerExistingContainer {
 
     /**
      * Stop timeout in seconds.
      */
     @Input
     @Optional
-    final Property<Integer> waitTime = project.objects.property(Integer)
-
-    @Override
-    void runRemoteCommand() {
-        logger.quiet "Stopping container with ID '${containerId.get()}'."
-        _runRemoteCommand(dockerClient, containerId.get(), waitTime.getOrNull())
+    public final Property<Integer> getWaitTime() {
+        return waitTime;
     }
 
-    // overloaded method used by sub-classes and ad-hoc processes
-    static void _runRemoteCommand(DockerClient dockerClient, String containerId, Integer optionalTimeout) {
-        StopContainerCmd stopContainerCmd = dockerClient.stopContainerCmd(containerId)
-        if(optionalTimeout) {
-            stopContainerCmd.withTimeout(optionalTimeout)
+    private final Property<Integer> waitTime = getProject().getObjects().property(Integer.class);
+
+    @Override
+    public void runRemoteCommand() {
+        getLogger().quiet("Stopping container with ID '" + getContainerId().get() + "'.");
+        _runRemoteCommand(getDockerClient(), getContainerId().get(), waitTime.getOrNull());
+    }
+
+    public static void _runRemoteCommand(DockerClient dockerClient, String containerId, Integer optionalTimeout) {
+        StopContainerCmd stopContainerCmd = dockerClient.stopContainerCmd(containerId);
+        if (optionalTimeout != null) {
+            stopContainerCmd.withTimeout(optionalTimeout);
         }
 
-        stopContainerCmd.exec()
+        stopContainerCmd.exec();
     }
 }

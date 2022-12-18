@@ -13,62 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.github.dockerjava.api.async.ResultCallback
-import com.github.dockerjava.api.command.WaitContainerCmd
-import com.github.dockerjava.api.command.WaitContainerResultCallback
-import com.github.dockerjava.api.model.WaitResponse
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
+import com.github.dockerjava.api.command.WaitContainerCmd;
+import com.github.dockerjava.api.command.WaitContainerResultCallback;
+import com.github.dockerjava.api.model.WaitResponse;
+import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
 
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit;
 
-@CompileStatic
-class DockerWaitContainer extends DockerExistingContainer {
+public class DockerWaitContainer extends DockerExistingContainer {
 
-    private int exitCode
+    private int exitCode;
 
     /**
      * Wait timeout in seconds.
      */
     @Input
     @Optional
-    final Property<Integer> awaitStatusTimeout = project.objects.property(Integer)
+    public final Property<Integer> getAwaitStatusTimeout() {
+        return awaitStatusTimeout;
+    }
+
+    private final Property<Integer> awaitStatusTimeout = getProject().getObjects().property(Integer.class);
 
     @Override
-    void runRemoteCommand() {
-        String possibleTimeout = awaitStatusTimeout.getOrNull() ? " for ${awaitStatusTimeout.get()} seconds" : ''
-        logger.quiet "Waiting for container with ID '${containerId.get()}'${possibleTimeout}."
-        WaitContainerCmd containerCommand = dockerClient.waitContainerCmd(containerId.get())
-        ResultCallback<WaitResponse> callback = containerCommand.exec(createCallback(nextHandler))
-        exitCode = awaitStatusTimeout.getOrNull() ? callback.awaitStatusCode(awaitStatusTimeout.get(), TimeUnit.SECONDS) : callback.awaitStatusCode()
-        logger.quiet "Container exited with code ${exitCode}"
+    public void runRemoteCommand() {
+        final String possibleTimeout = awaitStatusTimeout.getOrNull() != null ? " for " + getAwaitStatusTimeout().get() + " seconds" : "";
+        getLogger().quiet("Waiting for container with ID '" + getContainerId().get() + "'" + possibleTimeout + ".");
+        WaitContainerCmd containerCommand = getDockerClient().waitContainerCmd(getContainerId().get());
+        WaitContainerResultCallback callback = containerCommand.exec(createCallback(getNextHandler()));
+        exitCode = awaitStatusTimeout.getOrNull() != null ? callback.awaitStatusCode(awaitStatusTimeout.get(), TimeUnit.SECONDS) : callback.awaitStatusCode();
+        getLogger().quiet("Container exited with code " + getExitCode());
     }
 
     @Internal
-    int getExitCode() {
-        exitCode
+    public int getExitCode() {
+        return exitCode;
     }
 
-    private WaitContainerResultCallback createCallback(Action nextHandler) {
-        new WaitContainerResultCallback() {
+    private WaitContainerResultCallback createCallback(final Action nextHandler) {
+        return new WaitContainerResultCallback() {
             @Override
-            void onNext(WaitResponse waitResponse) {
-                if (nextHandler) {
+            public void onNext(WaitResponse waitResponse) {
+                if (nextHandler != null) {
                     try {
-                        nextHandler.execute(waitResponse)
+                        nextHandler.execute(waitResponse);
                     } catch (Exception e) {
-                        logger.error('Failed to handle wait response', e)
-                        return
+                        getLogger().error("Failed to handle wait response", e);
+                        return;
                     }
                 }
-                super.onNext(waitResponse)
+                super.onNext(waitResponse);
             }
-        }
+
+        };
     }
 }

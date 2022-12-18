@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Input
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Input;
 
-import java.util.concurrent.Callable
+import java.util.concurrent.Callable;
 
-@CompileStatic
-abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
+public abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
     /**
      * The ID or name of container used to perform operation. The container for the provided ID has to be created first.
      */
     @Input
-    final Property<String> containerId = project.objects.property(String)
+    public final Property<String> getContainerId() {
+        return containerId;
+    }
 
     /**
      * Sets the target container ID or name.
@@ -38,8 +38,8 @@ abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
      * @see #targetContainerId(Callable)
      * @see #targetContainerId(Provider)
      */
-    void targetContainerId(String containerId) {
-        this.containerId.set(containerId)
+    public void targetContainerId(String containerId) {
+        this.containerId.set(containerId);
     }
 
     /**
@@ -49,8 +49,8 @@ abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
      * @see #targetContainerId(String)
      * @see #targetContainerId(Provider)
      */
-    void targetContainerId(Callable<String> containerId) {
-        targetContainerId(project.provider(containerId))
+    public void targetContainerId(Callable<String> containerId) {
+        targetContainerId(getProject().provider(containerId));
     }
 
     /**
@@ -60,7 +60,9 @@ abstract class DockerExistingContainer extends AbstractDockerRemoteApiTask {
      * @see #targetContainerId(String)
      * @see #targetContainerId(Callable)
      */
-    void targetContainerId(Provider<String> containerId) {
-        this.containerId.set(containerId)
+    public void targetContainerId(Provider<String> containerId) {
+        this.containerId.set(containerId);
     }
+
+    private final Property<String> containerId = getProject().getObjects().property(String.class);
 }

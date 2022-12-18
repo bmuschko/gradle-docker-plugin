@@ -13,32 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.github.dockerjava.api.command.RestartContainerCmd
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.github.dockerjava.api.command.RestartContainerCmd;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-@CompileStatic
-class DockerRestartContainer extends DockerExistingContainer {
+public class DockerRestartContainer extends DockerExistingContainer {
     /**
      * Restart timeout in seconds.
      */
     @Input
     @Optional
-    final Property<Integer> waitTime = project.objects.property(Integer)
+    public final Property<Integer> getWaitTime() {
+        return waitTime;
+    }
+
+    private final Property<Integer> waitTime = getProject().getObjects().property(Integer.class);
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Restarting container with ID '${containerId.get()}'."
-        RestartContainerCmd restartContainerCmd = dockerClient.restartContainerCmd(containerId.get())
+    public void runRemoteCommand() {
+        getLogger().quiet("Restarting container with ID '" + getContainerId().get() + "'.");
+        RestartContainerCmd restartContainerCmd = getDockerClient().restartContainerCmd(getContainerId().get());
 
-        if(waitTime.getOrNull()) {
-            restartContainerCmd.withtTimeout(waitTime.get())
+        if (waitTime.getOrNull() != null) {
+            restartContainerCmd.withtTimeout(waitTime.get());
         }
 
-        restartContainerCmd.exec()
+        restartContainerCmd.exec();
     }
 }

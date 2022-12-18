@@ -13,57 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.github.dockerjava.api.command.InspectContainerResponse
-import com.github.dockerjava.api.model.ExposedPort
-import com.github.dockerjava.api.model.VolumeBind
-import com.github.dockerjava.api.model.VolumesFrom
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.Device;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.VolumeBind;
+import com.github.dockerjava.api.model.VolumesFrom;
+import org.gradle.api.Action;
 
-@CompileStatic
-class DockerInspectContainer extends DockerExistingContainer {
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-    DockerInspectContainer() {
-        defaultResponseHandling()
+public class DockerInspectContainer extends DockerExistingContainer {
+
+    public DockerInspectContainer() {
+        defaultResponseHandling();
     }
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Inspecting container with ID '${containerId.get()}'."
-        InspectContainerResponse container = dockerClient.inspectContainerCmd(containerId.get()).exec()
+    public void runRemoteCommand() {
+        getLogger().quiet("Inspecting container with ID '" + getContainerId().get() + "'.");
+        InspectContainerResponse container = getDockerClient().inspectContainerCmd(getContainerId().get()).exec();
 
-        if (nextHandler) {
-            nextHandler.execute(container)
+        if (getNextHandler() != null) {
+            getNextHandler().execute(container);
         }
     }
 
     private void defaultResponseHandling() {
         Action<InspectContainerResponse> action = new Action<InspectContainerResponse>() {
             @Override
-            void execute(InspectContainerResponse container) {
-                logger.quiet "Image ID    : $container.imageId"
-                logger.quiet "Name        : $container.name"
-                logger.quiet "Links       : $container.hostConfig.links"
-                VolumeBind[] volumes = container.volumes ? container.volumes : new VolumeBind[0]
-                logger.quiet "Volumes     : $volumes"
-                VolumesFrom[] volumesFrom = container.hostConfig.volumesFrom ? container.hostConfig.volumesFrom : new VolumesFrom[0]
-                logger.quiet "VolumesFrom : $volumesFrom"
-                ExposedPort[] exposedPorts = container.config.exposedPorts ? container.config.exposedPorts : new ExposedPort[0]
-                logger.quiet "ExposedPorts : $exposedPorts"
-                logger.quiet "LogConfig : $container.hostConfig.logConfig.type.type"
-                logger.quiet "RestartPolicy : $container.hostConfig.restartPolicy"
-                logger.quiet "PidMode : $container.hostConfig.pidMode"
-                List<String> devices = container.hostConfig.devices ?
-                    container.hostConfig.devices.collect {
-                        "${it.pathOnHost}:${it.pathInContainer}:${it.cGroupPermissions}".toString()
-                    } : []
-                logger.quiet "Devices : $devices"
-                logger.quiet "TmpFs : $container.hostConfig.tmpFs"
+            public void execute(InspectContainerResponse container) {
+                getLogger().quiet("Image ID    : " + container.getImageId());
+                getLogger().quiet("Name        : " + container.getName());
+                getLogger().quiet("Links       : " + Arrays.toString(container.getHostConfig().getLinks()));
+                VolumeBind[] volumes = container.getVolumes() != null ? container.getVolumes() : new VolumeBind[0];
+                getLogger().quiet("Volumes     : " + Arrays.toString(volumes));
+                VolumesFrom[] volumesFrom = container.getHostConfig().getVolumesFrom() != null ? container.getHostConfig().getVolumesFrom() : new VolumesFrom[0];
+                getLogger().quiet("VolumesFrom : " + Arrays.toString(volumesFrom));
+                ExposedPort[] exposedPorts = container.getConfig().getExposedPorts() != null ? container.getConfig().getExposedPorts() : new ExposedPort[0];
+                getLogger().quiet("ExposedPorts : " + Arrays.toString(exposedPorts));
+                getLogger().quiet("LogConfig : " + container.getHostConfig().getLogConfig().getType().getType());
+                getLogger().quiet("RestartPolicy : " + container.getHostConfig().getRestartPolicy());
+                getLogger().quiet("PidMode : " + container.getHostConfig().getPidMode());
+                List<String> devices = (container.getHostConfig().getDevices() != null ? Arrays.stream(container.getHostConfig().getDevices()) : Stream.<Device>empty())
+                        .map(it -> it.getPathOnHost() + ":" + it.getPathInContainer() + ":" + it.getcGroupPermissions())
+                        .collect(Collectors.toList());
+                getLogger().quiet("Devices : " + devices);
+                getLogger().quiet("TmpFs : " + container.getHostConfig().getTmpFs());
             }
-        }
+        };
 
-        onNext(action)
+        onNext(action);
     }
 }

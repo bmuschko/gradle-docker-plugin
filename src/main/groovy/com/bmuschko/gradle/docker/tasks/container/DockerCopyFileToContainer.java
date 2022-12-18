@@ -13,112 +13,141 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.bmuschko.gradle.docker.domain.CopyFileToContainer
-import com.github.dockerjava.api.command.CopyArchiveToContainerCmd
-import org.gradle.api.GradleException
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.internal.project.ProjectInternal
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.bmuschko.gradle.docker.domain.CopyFileToContainer;
+import com.github.dockerjava.api.command.CopyArchiveToContainerCmd;
+import groovy.lang.Closure;
+import org.gradle.api.GradleException;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.internal.file.FileOperations;
+import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-class DockerCopyFileToContainer extends DockerExistingContainer {
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Objects;
+
+public class DockerCopyFileToContainer extends DockerExistingContainer {
     /**
      * Path of file inside container
      */
     @Input
     @Optional
-    final Property<String> remotePath = project.objects.property(String)
+    public final Property<String> getRemotePath() {
+        return remotePath;
+    }
 
     /**
      * File path on host to copy into container
      */
     @Input
     @Optional
-    final Property<String> hostPath = project.objects.property(String)
+    public final Property<String> getHostPath() {
+        return hostPath;
+    }
 
     /**
      * Tar file we will copy into container
      */
     @Input
     @Optional
-    final RegularFileProperty tarFile = project.objects.fileProperty()
+    public final RegularFileProperty getTarFile() {
+        return tarFile;
+    }
 
     @Input
     @Optional
-    final List<CopyFileToContainer> copyFiles = []
+    public final ArrayList<CopyFileToContainer> getCopyFiles() {
+        return copyFiles;
+    }
+
+    private final Property<String> remotePath = getProject().getObjects().property(String.class);
+    private final Property<String> hostPath = getProject().getObjects().property(String.class);
+    private final RegularFileProperty tarFile = getProject().getObjects().fileProperty();
+    private final ArrayList<CopyFileToContainer> copyFiles = new ArrayList<CopyFileToContainer>();
 
     @Override
-    void runRemoteCommand() {
+    public void runRemoteCommand() throws IOException {
 
-        if (remotePath.getOrNull()) {
-            if (hostPath.getOrNull() && tarFile.getOrNull()) {
-                throw new GradleException("Can specify either hostPath or tarFile not both")
+        if (remotePath.getOrNull() != null) {
+            if (hostPath.getOrNull() != null && tarFile.getOrNull() != null) {
+                throw new GradleException("Can specify either hostPath or tarFile not both");
             } else {
-                if (hostPath.getOrNull()) {
-                    withFile(hostPath.get(), remotePath.get())
-                } else if (tarFile.getOrNull()) {
-                    withTarFile(tarFile.get(), remotePath.get())
+                if (hostPath.getOrNull() != null) {
+                    withFile(hostPath.get(), remotePath.get());
+                } else if (tarFile.getOrNull() != null) {
+                    withTarFile(tarFile.get(), remotePath.get());
                 }
             }
         }
 
         for (int i = 0; i < copyFiles.size(); i++) {
-            CopyFileToContainer fileToCopy = copyFiles.get(i)
-            logger.quiet "Copying file to container with ID '${containerId.get()}' at '${fileToCopy.remotePath}'."
-            CopyArchiveToContainerCmd containerCommand = dockerClient.copyArchiveToContainerCmd(containerId.get())
-            setContainerCommandConfig(containerCommand, fileToCopy)
-            containerCommand.exec()
+            final CopyFileToContainer fileToCopy = copyFiles.get(i);
+            getLogger().quiet("Copying file to container with ID '" + getContainerId().get() + "' at '" + String.valueOf(fileToCopy.getRemotePath()) + "'.");
+            CopyArchiveToContainerCmd containerCommand = getDockerClient().copyArchiveToContainerCmd(getContainerId().get());
+            setContainerCommandConfig(containerCommand, fileToCopy);
+            containerCommand.exec();
         }
     }
 
-    private final fileOperations = (project as ProjectInternal).fileOperations
+    private final FileOperations fileOperations = ((ProjectInternal)getProject()).getFileOperations();
 
-    private void setContainerCommandConfig(CopyArchiveToContainerCmd containerCommand, CopyFileToContainer copyFileToContainer) {
+    private void setContainerCommandConfig(CopyArchiveToContainerCmd containerCommand, CopyFileToContainer copyFileToContainer) throws IOException {
 
-        def localHostPath
-        if (copyFileToContainer.hostPath instanceof Closure) {
-            localHostPath = fileOperations.file(copyFileToContainer.hostPath.call())
+        File localHostPath;
+        if (copyFileToContainer.getHostPath() instanceof Closure) {
+            localHostPath = fileOperations.file(((Closure)copyFileToContainer.getHostPath()).call());
         } else {
-            localHostPath = fileOperations.file(copyFileToContainer.hostPath)
+            localHostPath = fileOperations.file(copyFileToContainer.getHostPath());
         }
 
-        def localRemotePath
-        if (copyFileToContainer.remotePath instanceof Closure) {
-            containerCommand.withRemotePath(copyFileToContainer.remotePath.call() as String)
+        if (copyFileToContainer.getRemotePath() instanceof Closure) {
+            containerCommand.withRemotePath((String) ((Closure)copyFileToContainer.getRemotePath()).call());
         } else {
-            containerCommand.withRemotePath(copyFileToContainer.remotePath as String)
+            containerCommand.withRemotePath((String)copyFileToContainer.getRemotePath());
         }
 
-        if (copyFileToContainer.isTar) {
-            containerCommand.withTarInputStream(localHostPath.newInputStream())
+        if (copyFileToContainer.getIsTar()) {
+            containerCommand.withTarInputStream(Files.newInputStream(localHostPath.toPath()));
         } else {
-            containerCommand.withHostResource(localHostPath.path)
+            containerCommand.withHostResource(localHostPath.getPath());
         }
     }
 
     /**
      * Add a file to be copied into container
      *
-     * @param hostPath can be either String, GString, File or Closure which returns any of the previous.
+     * @param hostPath   can be either String, GString, File or Closure which returns any of the previous.
      * @param remotePath can be either String, GString, File or Closure which returns any of the previous.
      */
-    void withFile(def hostPath, def remotePath) {
-        copyFiles << new CopyFileToContainer(hostPath: Objects.requireNonNull(hostPath),
-            remotePath: Objects.requireNonNull(remotePath))
+    public void withFile(Object hostPath, Object remotePath) {
+        CopyFileToContainer container = new CopyFileToContainer();
+        container.setHostPath(Objects.requireNonNull(hostPath));
+        container.setRemotePath(Objects.requireNonNull(remotePath));
+
+        copyFiles.add(container);
     }
 
     /**
      * Add a tarfile to be copied into container
      *
-     * @param hostPath can be either String, GString, File or Closure which returns any of the previous.
+     * @param hostPath   can be either String, GString, File or Closure which returns any of the previous.
      * @param remotePath can be either String, GString, File or Closure which returns any of the previous.
      */
-    void withTarFile(def hostPath, def remotePath) {
-        copyFiles << new CopyFileToContainer(hostPath: Objects.requireNonNull(hostPath),
-            remotePath: Objects.requireNonNull(remotePath),
-            isTar: true)
+    public void withTarFile(Object hostPath, Object remotePath) {
+        CopyFileToContainer container = new CopyFileToContainer();
+        container.setHostPath(Objects.requireNonNull(hostPath));
+        container.setRemotePath(Objects.requireNonNull(remotePath));
+        container.setIsTar(true);
+
+        copyFiles.add(container);
     }
 }

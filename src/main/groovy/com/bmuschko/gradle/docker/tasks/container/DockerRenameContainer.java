@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
 
-@CompileStatic
-class DockerRenameContainer extends DockerExistingContainer {
-
+public class DockerRenameContainer extends DockerExistingContainer {
     @Input
-    final Property<String> renameTo = project.objects.property(String)
+    public final Property<String> getRenameTo() {
+        return renameTo;
+    }
+
+    private final Property<String> renameTo = getProject().getObjects().property(String.class);
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Renaming container with ID '${containerId.get()}' to '${renameTo.get()}'."
-        dockerClient.renameContainerCmd(containerId.get()).withName(renameTo.get()).exec()
+    public void runRemoteCommand() {
+        getLogger().quiet("Renaming container with ID '" + getContainerId().get() + "' to '" + getRenameTo().get() + "'.");
+        getDockerClient().renameContainerCmd(getContainerId().get()).withName(renameTo.get()).exec();
     }
 }

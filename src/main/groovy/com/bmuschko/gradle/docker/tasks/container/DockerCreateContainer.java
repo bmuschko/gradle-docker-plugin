@@ -13,122 +13,158 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
-import com.github.dockerjava.api.command.CreateContainerCmd
-import com.github.dockerjava.api.command.CreateContainerResponse
-import com.github.dockerjava.api.exception.DockerException
-import com.github.dockerjava.api.model.Bind
-import com.github.dockerjava.api.model.Capability
-import com.github.dockerjava.api.model.Device
-import com.github.dockerjava.api.model.HealthCheck
-import com.github.dockerjava.api.model.InternetProtocol
-import com.github.dockerjava.api.model.Link
-import com.github.dockerjava.api.model.PortBinding
-import com.github.dockerjava.api.model.Ports
-import com.github.dockerjava.api.model.RestartPolicy
-import com.github.dockerjava.api.model.Volume
-import com.github.dockerjava.api.model.VolumesFrom
-import org.gradle.api.Task
-import org.gradle.api.file.RegularFile
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.MapProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.specs.Spec
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
+import com.bmuschko.gradle.docker.internal.RegularFileToStringTransformer;
+import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage;
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.DockerException;
+import com.github.dockerjava.api.model.*;
+import org.gradle.api.Task;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.MapProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Optional;
 
-import javax.inject.Inject
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.stream.Collectors;
 
-class DockerCreateContainer extends DockerExistingImage {
+public class DockerCreateContainer extends DockerExistingImage {
     @Input
     @Optional
-    final Property<String> containerName = project.objects.property(String)
+    public final Property<String> getContainerName() {
+        return containerName;
+    }
 
     @Input
     @Optional
-    final Property<String> hostName = project.objects.property(String)
+    public final Property<String> getHostName() {
+        return hostName;
+    }
 
     @Input
     @Optional
-    final Property<String> ipv4Address = project.objects.property(String)
+    public final Property<String> getIpv4Address() {
+        return ipv4Address;
+    }
 
     @Input
     @Optional
-    final ListProperty<String> portSpecs = project.objects.listProperty(String)
+    public final ListProperty<String> getPortSpecs() {
+        return portSpecs;
+    }
 
     @Input
     @Optional
-    final Property<String> user = project.objects.property(String)
+    public final Property<String> getUser() {
+        return user;
+    }
 
     @Input
     @Optional
-    final Property<Boolean> stdinOpen = project.objects.property(Boolean)
+    public final Property<Boolean> getStdinOpen() {
+        return stdinOpen;
+    }
 
     @Input
     @Optional
-    final Property<Boolean> stdinOnce = project.objects.property(Boolean)
+    public final Property<Boolean> getStdinOnce() {
+        return stdinOnce;
+    }
 
     @Input
     @Optional
-    final Property<Boolean> attachStdin = project.objects.property(Boolean)
+    public final Property<Boolean> getAttachStdin() {
+        return attachStdin;
+    }
 
     @Input
     @Optional
-    final Property<Boolean> attachStdout = project.objects.property(Boolean)
+    public final Property<Boolean> getAttachStdout() {
+        return attachStdout;
+    }
 
     @Input
     @Optional
-    final Property<Boolean> attachStderr = project.objects.property(Boolean)
+    public final Property<Boolean> getAttachStderr() {
+        return attachStderr;
+    }
 
     @Input
     @Optional
-    final MapProperty<String, String> envVars = project.objects.mapProperty(String, String)
+    public final MapProperty<String, String> getEnvVars() {
+        return envVars;
+    }
 
     @Input
     @Optional
-    final ListProperty<String> cmd = project.objects.listProperty(String)
+    public final ListProperty<String> getCmd() {
+        return cmd;
+    }
 
     @Input
     @Optional
-    final ListProperty<String> entrypoint = project.objects.listProperty(String)
+    public final ListProperty<String> getEntrypoint() {
+        return entrypoint;
+    }
 
     @Input
     @Optional
-    final ListProperty<String> networkAliases = project.objects.listProperty(String)
+    public final ListProperty<String> getNetworkAliases() {
+        return networkAliases;
+    }
 
     @Input
     @Optional
-    final Property<String> image = project.objects.property(String)
+    public final Property<String> getImage() {
+        return image;
+    }
 
     @Input
     @Optional
-    final ListProperty<String> volumes = project.objects.listProperty(String)
+    public final ListProperty<String> getVolumes() {
+        return volumes;
+    }
 
     @Input
     @Optional
-    final Property<String> workingDir = project.objects.property(String)
+    public final Property<String> getWorkingDir() {
+        return workingDir;
+    }
 
     @Input
-    final ListProperty<ExposedPort> exposedPorts = project.objects.listProperty(ExposedPort)
-
-    @Input
-    @Optional
-    final Property<Boolean> tty = project.objects.property(Boolean)
-
-    @Input
-    @Optional
-    final Property<String> pid = project.objects.property(String)
+    public final ListProperty<ExposedPort> getExposedPorts() {
+        return exposedPorts;
+    }
 
     @Input
     @Optional
-    final MapProperty<String, String> labels = project.objects.mapProperty(String, String)
+    public final Property<Boolean> getTty() {
+        return tty;
+    }
+
+    @Input
+    @Optional
+    public final Property<String> getPid() {
+        return pid;
+    }
+
+    @Input
+    @Optional
+    public final MapProperty<String, String> getLabels() {
+        return labels;
+    }
 
     /**
      * Output file containing the container ID of the container created.
@@ -136,17 +172,23 @@ class DockerCreateContainer extends DockerExistingImage {
      * If path contains ':' it will be replaced by '_'.
      */
     @OutputFile
-    final RegularFileProperty containerIdFile = project.objects.fileProperty()
+    public final RegularFileProperty getContainerIdFile() {
+        return containerIdFile;
+    }
 
     /**
      * The ID of the container created. The value of this property requires the task action to be executed.
      */
     @Internal
-    final Property<String> containerId = project.objects.property(String)
+    public final Property<String> getContainerId() {
+        return containerId;
+    }
 
     @Input
     @Optional
-    final Property<String> macAddress = project.objects.property(String)
+    public final Property<String> getMacAddress() {
+        return macAddress;
+    }
 
     /**
      * The target platform in the format {@code os[/arch[/variant]]}, for example {@code linux/s390x} or {@code darwin}.
@@ -155,367 +197,451 @@ class DockerCreateContainer extends DockerExistingImage {
      */
     @Input
     @Optional
-    final Property<String> platform = project.objects.property(String)
+    public final Property<String> getPlatform() {
+        return platform;
+    }
 
     @Nested
-    final HostConfig hostConfig
+    public final HostConfig getHostConfig() {
+        return hostConfig;
+    }
 
     @Nested
-    final HealthCheckConfig healthCheck
+    public final HealthCheckConfig getHealthCheck() {
+        return healthCheck;
+    }
+
+    private final Property<String> containerName = getProject().getObjects().property(String.class);
+    private final Property<String> hostName = getProject().getObjects().property(String.class);
+    private final Property<String> ipv4Address = getProject().getObjects().property(String.class);
+    private final ListProperty<String> portSpecs = getProject().getObjects().listProperty(String.class);
+    private final Property<String> user = getProject().getObjects().property(String.class);
+    private final Property<Boolean> stdinOpen = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> stdinOnce = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> attachStdin = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> attachStdout = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> attachStderr = getProject().getObjects().property(Boolean.class);
+    private final MapProperty<String, String> envVars = getProject().getObjects().mapProperty(String.class, String.class);
+    private final ListProperty<String> cmd = getProject().getObjects().listProperty(String.class);
+    private final ListProperty<String> entrypoint = getProject().getObjects().listProperty(String.class);
+    private final ListProperty<String> networkAliases = getProject().getObjects().listProperty(String.class);
+    private final Property<String> image = getProject().getObjects().property(String.class);
+    private final ListProperty<String> volumes = getProject().getObjects().listProperty(String.class);
+    private final Property<String> workingDir = getProject().getObjects().property(String.class);
+    private final ListProperty<ExposedPort> exposedPorts = getProject().getObjects().listProperty(ExposedPort.class);
+    private final Property<Boolean> tty = getProject().getObjects().property(Boolean.class);
+    private final Property<String> pid = getProject().getObjects().property(String.class);
+    private final MapProperty<String, String> labels = getProject().getObjects().mapProperty(String.class, String.class);
+    private final RegularFileProperty containerIdFile = getProject().getObjects().fileProperty();
+    private final Property<String> containerId = getProject().getObjects().property(String.class);
+    private final Property<String> macAddress = getProject().getObjects().property(String.class);
+    private final Property<String> platform = getProject().getObjects().property(String.class);
+    private final HostConfig hostConfig;
+    private final HealthCheckConfig healthCheck;
 
     @Inject
-    DockerCreateContainer(ObjectFactory objectFactory) {
-        hostConfig = objectFactory.newInstance(HostConfig, objectFactory)
-        healthCheck = objectFactory.newInstance(HealthCheckConfig, objectFactory)
-        stdinOpen.convention(false)
-        stdinOnce.convention(false)
-        attachStdin.convention(false)
-        attachStdout.convention(false)
-        attachStderr.convention(false)
-        tty.convention(false)
+    public DockerCreateContainer(ObjectFactory objectFactory) {
+        hostConfig = objectFactory.newInstance(HostConfig.class);
+        healthCheck = objectFactory.newInstance(HealthCheckConfig.class);
+        stdinOpen.convention(false);
+        stdinOnce.convention(false);
+        attachStdin.convention(false);
+        attachStdout.convention(false);
+        attachStderr.convention(false);
+        tty.convention(false);
 
-        containerId.convention(containerIdFile.map { RegularFile it ->
-            File file = it.asFile
-            if (file.exists()) {
-                return file.text
-            }
-            return null
-        })
+        containerId.convention(containerIdFile.map(new RegularFileToStringTransformer()));
 
-        String safeTaskPath = path.replaceFirst("^:", "").replaceAll(":", "_")
-        containerIdFile.convention(project.layout.buildDirectory.file(".docker/${safeTaskPath}-containerId.txt"))
+        final String safeTaskPath = getPath().replaceFirst("^:", "").replaceAll(":", "_");
+        containerIdFile.convention(getProject().getLayout().getBuildDirectory().file(".docker/" + safeTaskPath + "-containerId.txt"));
 
-        outputs.upToDateWhen upToDateWhenSpec
+        getOutputs().upToDateWhen(upToDateWhenSpec);
     }
 
     private Spec<Task> upToDateWhenSpec = new Spec<Task>() {
         @Override
-        boolean isSatisfiedBy(Task element) {
-            File file = containerIdFile.get().asFile
+        public boolean isSatisfiedBy(Task element) {
+            File file = getContainerIdFile().get().getAsFile();
             if (file.exists()) {
                 try {
-                    def fileContainerId = file.text
-                    dockerClient.inspectContainerCmd(fileContainerId).exec()
-                    return true
+                    String fileContainerId;
+                    try {
+                        fileContainerId = Files.readString(file.toPath());
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                    getDockerClient().inspectContainerCmd(fileContainerId).exec();
+                    return true;
                 } catch (DockerException ignored) {
                 }
             }
-            return false
+            return false;
         }
-    }
+    };
 
     @Override
-    void runRemoteCommand() {
-        CreateContainerCmd containerCommand = dockerClient.createContainerCmd(imageId.get())
-        setContainerCommandConfig(containerCommand)
-        CreateContainerResponse container = containerCommand.exec()
-        final String localContainerName = containerName.getOrNull() ?: container.id
-        logger.quiet "Created container with ID '$localContainerName'."
-        containerIdFile.get().asFile.text = container.id
-        if(nextHandler) {
-            nextHandler.execute(container)
+    public void runRemoteCommand() throws IOException {
+        CreateContainerCmd containerCommand = getDockerClient().createContainerCmd(getImageId().get());
+        setContainerCommandConfig(containerCommand);
+        CreateContainerResponse container = containerCommand.exec();
+        final String orNull = containerName.getOrNull();
+        final String localContainerName = orNull != null ? orNull : container.getId();
+        getLogger().quiet("Created container with ID '" + localContainerName + "'.");
+        Files.writeString(containerIdFile.get().getAsFile().toPath(), container.getId());
+        if (getNextHandler() != null) {
+            getNextHandler().execute(container);
         }
     }
 
-    void exposePorts(String internetProtocol, List<Integer> ports) {
-        exposedPorts.add(new ExposedPort(internetProtocol, ports))
+    public void exposePorts(String internetProtocol, List<Integer> ports) {
+        exposedPorts.add(new ExposedPort(internetProtocol, ports));
     }
 
-    void withEnvVar(String key, String value) {
-        envVars.put(key, value)
+    public void withEnvVar(String key, String value) {
+        envVars.put(key, value);
     }
 
     private static HealthCheck getOrCreateHealthCheck(CreateContainerCmd containerCommand) {
-        if (containerCommand.healthcheck == null) {
-            containerCommand.withHealthcheck(new HealthCheck())
+        if (containerCommand.getHealthcheck() == null) {
+            containerCommand.withHealthcheck(new HealthCheck());
         }
-        return containerCommand.healthcheck
+        return containerCommand.getHealthcheck();
     }
 
     private void setContainerCommandConfig(CreateContainerCmd containerCommand) {
-        if(containerName.getOrNull()) {
-            containerCommand.withName(containerName.get())
+        if (containerName.getOrNull() != null) {
+            containerCommand.withName(containerName.get());
         }
 
-        if(hostName.getOrNull()) {
-            containerCommand.withHostName(hostName.get())
+        if (hostName.getOrNull() != null) {
+            containerCommand.withHostName(hostName.get());
         }
 
-        if(ipv4Address.getOrNull()){
-            containerCommand.withIpv4Address(ipv4Address.get())
+        if (ipv4Address.getOrNull() != null) {
+            containerCommand.withIpv4Address(ipv4Address.get());
         }
 
-        if(portSpecs.getOrNull()) {
-            containerCommand.withPortSpecs(portSpecs.get())
+        if (portSpecs.getOrNull() != null && !portSpecs.get().isEmpty()) {
+            containerCommand.withPortSpecs(portSpecs.get());
         }
 
-        if(user.getOrNull()) {
-            containerCommand.withUser(user.get())
+        if (user.getOrNull() != null) {
+            containerCommand.withUser(user.get());
         }
 
-        if(hostConfig.groups.getOrNull()) {
-            containerCommand.hostConfig.withGroupAdd(hostConfig.groups.get())
+        if (hostConfig.getGroups().getOrNull() != null && !hostConfig.getGroups().get().isEmpty()) {
+            containerCommand.getHostConfig().withGroupAdd(hostConfig.getGroups().get());
         }
 
-        if(stdinOpen.getOrNull()) {
-            containerCommand.withStdinOpen(stdinOpen.get())
+        if (Boolean.TRUE.equals(stdinOpen.getOrNull())) {
+            containerCommand.withStdinOpen(stdinOpen.get());
         }
 
-        if(stdinOnce.getOrNull()) {
-            containerCommand.withStdInOnce(stdinOnce.get())
+        if (Boolean.TRUE.equals(stdinOnce.getOrNull())) {
+            containerCommand.withStdInOnce(stdinOnce.get());
         }
 
-        if(hostConfig.memory.getOrNull()) {
-            containerCommand.hostConfig.withMemory(hostConfig.memory.get())
+        if (hostConfig.getMemory().getOrNull() != null) {
+            containerCommand.getHostConfig().withMemory(hostConfig.getMemory().get());
         }
 
-        if(hostConfig.memorySwap.getOrNull()) {
-            containerCommand.hostConfig.withMemorySwap(hostConfig.memorySwap.get())
+        if (hostConfig.getMemorySwap().getOrNull() != null) {
+            containerCommand.getHostConfig().withMemorySwap(hostConfig.getMemorySwap().get());
         }
 
-        if(hostConfig.cpuset.getOrNull()) {
-            containerCommand.hostConfig.withCpusetCpus(hostConfig.cpuset.get())
+        if (hostConfig.getCpuset().getOrNull() != null) {
+            containerCommand.getHostConfig().withCpusetCpus(hostConfig.getCpuset().get());
         }
 
-        if(attachStdin.getOrNull()) {
-            containerCommand.withAttachStdin(attachStdin.get())
+        if (Boolean.TRUE.equals(attachStdin.getOrNull())) {
+            containerCommand.withAttachStdin(attachStdin.get());
         }
 
-        if(attachStdout.getOrNull()) {
-            containerCommand.withAttachStdout(attachStdout.get())
+        if (Boolean.TRUE.equals(attachStdout.getOrNull())) {
+            containerCommand.withAttachStdout(attachStdout.get());
         }
 
-        if(attachStderr.getOrNull()) {
-            containerCommand.withAttachStderr(attachStderr.get())
+        if (Boolean.TRUE.equals(attachStderr.getOrNull())) {
+            containerCommand.withAttachStderr(attachStderr.get());
         }
 
         // marshall map into list
-        if(envVars.getOrNull()) {
-            containerCommand.withEnv(envVars.get().collect { key, value -> "${key}=${value}".toString() })
+        if (envVars.getOrNull() != null && !envVars.get().isEmpty()) {
+            containerCommand.withEnv(envVars.get().entrySet().stream().map(entry -> entry.getKey() +"="+entry.getValue()).collect(Collectors.toList()));
         }
 
-        if(cmd.getOrNull()) {
-            containerCommand.withCmd(cmd.get())
+        if (cmd.getOrNull() != null && !cmd.get().isEmpty()) {
+            containerCommand.withCmd(cmd.get());
         }
 
-        if(entrypoint.getOrNull()) {
-            containerCommand.withEntrypoint(entrypoint.get())
+        if (entrypoint.getOrNull() != null && !entrypoint.get().isEmpty()) {
+            containerCommand.withEntrypoint(entrypoint.get());
         }
 
-        if(hostConfig.dns.getOrNull()) {
-            containerCommand.hostConfig.withDns(hostConfig.dns.get())
+        if (hostConfig.getDns().getOrNull() != null && !hostConfig.getDns().get().isEmpty()) {
+            containerCommand.getHostConfig().withDns(hostConfig.getDns().get());
         }
 
-        if(hostConfig.network.getOrNull()) {
-            containerCommand.hostConfig.withNetworkMode(hostConfig.network.get())
+        if (hostConfig.getNetwork().getOrNull() != null) {
+            containerCommand.getHostConfig().withNetworkMode(hostConfig.getNetwork().get());
         }
 
-        if(networkAliases.getOrNull()) {
-            containerCommand.withAliases(networkAliases.get())
+        if (networkAliases.getOrNull() != null && !networkAliases.get().isEmpty()) {
+            containerCommand.withAliases(networkAliases.get());
         }
 
-        if(image.getOrNull()) {
-            containerCommand.withImage(image.get())
+        if (image.getOrNull() != null) {
+            containerCommand.withImage(image.get());
         }
 
-        if(volumes.getOrNull()) {
-            List<Volume> createdVolumes = volumes.get().collect { Volume.parse(it) }
-            containerCommand.withVolumes(createdVolumes)
+        if (volumes.getOrNull() != null && !volumes.get().isEmpty()) {
+            List<Volume> createdVolumes = volumes.get().stream().map(Volume::parse).collect(Collectors.toList());
+            containerCommand.withVolumes(createdVolumes);
         }
 
-        if (hostConfig.links.getOrNull()) {
-            List<Link> createdLinks = hostConfig.links.get().collect { Link.parse(it) }
-            containerCommand.hostConfig.withLinks(createdLinks as Link[])
+        if (hostConfig.getLinks().getOrNull() != null && !hostConfig.getLinks().get().isEmpty()) {
+            List<Link> createdLinks = hostConfig.links.get().stream().map(Link::parse).collect(Collectors.toList());
+            containerCommand.getHostConfig().withLinks(createdLinks.toArray(Link[]::new));
         }
 
-        if(hostConfig.volumesFrom.getOrNull()) {
-            List<VolumesFrom> createdVolumes = hostConfig.volumesFrom.get().collect { new VolumesFrom(it) }
-            containerCommand.hostConfig.withVolumesFrom(createdVolumes)
+        if (hostConfig.getVolumesFrom().getOrNull() != null && !hostConfig.getVolumesFrom().get().isEmpty()) {
+            List<VolumesFrom> createdVolumes = hostConfig.volumesFrom.get().stream().map(VolumesFrom::new).collect(Collectors.toList());
+            containerCommand.getHostConfig().withVolumesFrom(createdVolumes);
         }
 
-        if(workingDir.getOrNull()) {
-            containerCommand.withWorkingDir(workingDir.get())
+        if (workingDir.getOrNull() != null) {
+            containerCommand.withWorkingDir(workingDir.get());
         }
 
-        if(exposedPorts.getOrNull()) {
-            List<List<com.github.dockerjava.api.model.ExposedPort>> allPorts = exposedPorts.get().collect { exposedPort ->
-                exposedPort.ports.collect {
-                    Integer port -> new com.github.dockerjava.api.model.ExposedPort(port, InternetProtocol.parse(exposedPort.internetProtocol.toLowerCase()))
-                }
-            }
-            containerCommand.withExposedPorts(allPorts.flatten() as List<com.github.dockerjava.api.model.ExposedPort>)
+        if (exposedPorts.getOrNull() != null && !exposedPorts.get().isEmpty()) {
+            List<com.github.dockerjava.api.model.ExposedPort> allPorts = exposedPorts.get().stream().flatMap(exposedPort ->
+                    exposedPort.getPorts().stream().map(port -> new com.github.dockerjava.api.model.ExposedPort(port, InternetProtocol.parse(exposedPort.getInternetProtocol().toLowerCase())))).collect(Collectors.toList());
+            containerCommand.withExposedPorts(allPorts);
         }
 
-        if(hostConfig.portBindings.getOrNull()) {
-            List<PortBinding> createdPortBindings = hostConfig.portBindings.get().collect { PortBinding.parse(it) }
-            containerCommand.hostConfig.withPortBindings(new Ports(createdPortBindings as PortBinding[]))
+        if (hostConfig.getPortBindings().getOrNull() != null && !hostConfig.getPortBindings().get().isEmpty()) {
+            List<PortBinding> createdPortBindings = hostConfig.portBindings.get().stream().map(PortBinding::parse).collect(Collectors.toList());
+            containerCommand.getHostConfig().withPortBindings(new Ports(createdPortBindings.toArray(PortBinding[]::new)));
         }
 
-        if(hostConfig.publishAll.getOrNull()) {
-            containerCommand.hostConfig.withPublishAllPorts(hostConfig.publishAll.get())
+        if (Boolean.TRUE.equals(hostConfig.getPublishAll().getOrNull())) {
+            containerCommand.getHostConfig().withPublishAllPorts(hostConfig.getPublishAll().get());
         }
 
-        if(hostConfig.binds.getOrNull()) {
-            List<Bind> createdBinds = hostConfig.binds.get().collect { Bind.parse([it.key, it.value].join(':')) }
-            containerCommand.hostConfig.withBinds(createdBinds)
+        if (hostConfig.getBinds().getOrNull() != null && !hostConfig.getBinds().get().isEmpty()) {
+            List<Bind> createdBinds = hostConfig.binds.get().entrySet().stream().map(it -> Bind.parse(it.getKey() + ":" + it.getValue())).collect(Collectors.toList());
+            containerCommand.getHostConfig().withBinds(createdBinds);
         }
 
-        if(hostConfig.tmpFs.getOrNull()) {
-            containerCommand.hostConfig.withTmpFs(hostConfig.tmpFs.get())
+        if (hostConfig.getTmpFs().getOrNull() != null && !hostConfig.getTmpFs().get().isEmpty()) {
+            containerCommand.getHostConfig().withTmpFs(hostConfig.getTmpFs().get());
         }
 
-        if(hostConfig.extraHosts.getOrNull()) {
-            containerCommand.hostConfig.withExtraHosts(hostConfig.extraHosts.get() as String[])
+        if (hostConfig.getExtraHosts().getOrNull() != null && !hostConfig.getExtraHosts().get().isEmpty()) {
+            containerCommand.getHostConfig().withExtraHosts(hostConfig.getExtraHosts().get().toArray(String[]::new));
         }
 
-        if(hostConfig.logConfig.getOrNull()) {
-            com.github.dockerjava.api.model.LogConfig.LoggingType type = com.github.dockerjava.api.model.LogConfig.LoggingType.fromValue(hostConfig.logConfig.get().type)
-            com.github.dockerjava.api.model.LogConfig config = new com.github.dockerjava.api.model.LogConfig(type, hostConfig.logConfig.get().config)
-            containerCommand.hostConfig.withLogConfig(config)
+        if (hostConfig.getLogConfig().getOrNull() != null) {
+            com.github.dockerjava.api.model.LogConfig.LoggingType type = com.github.dockerjava.api.model.LogConfig.LoggingType.fromValue(hostConfig.getLogConfig().get().getType());
+            com.github.dockerjava.api.model.LogConfig config = new com.github.dockerjava.api.model.LogConfig(type, hostConfig.getLogConfig().get().getConfig());
+            containerCommand.getHostConfig().withLogConfig(config);
         }
 
-        if(hostConfig.privileged.getOrNull()) {
-            containerCommand.hostConfig.withPrivileged(hostConfig.privileged.get())
+        if (Boolean.TRUE.equals(hostConfig.getPrivileged().getOrNull())) {
+            containerCommand.getHostConfig().withPrivileged(hostConfig.getPrivileged().get());
         }
 
-        if (hostConfig.restartPolicy.getOrNull()) {
-            containerCommand.hostConfig.withRestartPolicy(RestartPolicy.parse(hostConfig.restartPolicy.get()))
+        if (hostConfig.getRestartPolicy().getOrNull() != null) {
+            containerCommand.getHostConfig().withRestartPolicy(RestartPolicy.parse(hostConfig.getRestartPolicy().get()));
         }
 
-        if (hostConfig.capAdd.getOrNull()) {
-            Capability[] capabilities = hostConfig.capAdd.get().collect { Capability.valueOf(it) }
-            containerCommand.hostConfig.withCapAdd(capabilities)
+        if (hostConfig.getCapAdd().getOrNull() != null && !hostConfig.getCapAdd().get().isEmpty()) {
+            Capability[] capabilities = hostConfig.getCapAdd().get().stream().map(Capability::valueOf).toArray(Capability[]::new);
+            containerCommand.getHostConfig().withCapAdd(capabilities);
         }
 
-        if (hostConfig.capDrop.getOrNull()) {
-            Capability[] capabilities = hostConfig.capDrop.get().collect { Capability.valueOf(it) }
-            containerCommand.hostConfig.withCapDrop(capabilities)
+        if (hostConfig.getCapDrop().getOrNull() != null && !hostConfig.getCapDrop().get().isEmpty()) {
+            Capability[] capabilities = hostConfig.getCapDrop().get().stream().map(Capability::valueOf).toArray(Capability[]::new);
+            containerCommand.getHostConfig().withCapDrop(capabilities);
         }
 
-        if (pid.getOrNull()) {
-            containerCommand.getHostConfig().withPidMode(pid.get())
+        if (pid.getOrNull() != null) {
+            containerCommand.getHostConfig().withPidMode(pid.get());
         }
 
-        if (hostConfig.devices.getOrNull()) {
-            List<Device> createdDevices = hostConfig.devices.get().collect { Device.parse(it) }
-            containerCommand.hostConfig.withDevices(createdDevices)
+        if (hostConfig.getDevices().getOrNull() != null && !hostConfig.getDevices().get().isEmpty()) {
+            List<Device> createdDevices = hostConfig.getDevices().get().stream().map(Device::parse).collect(Collectors.toList());
+            containerCommand.getHostConfig().withDevices(createdDevices);
         }
 
-        if(tty.getOrNull()) {
-            containerCommand.withTty(tty.get())
+        if (Boolean.TRUE.equals(tty.getOrNull())) {
+            containerCommand.withTty(tty.get());
         }
 
-        if(hostConfig.shmSize.getOrNull() != null) { // 0 is valid input
-            containerCommand.hostConfig.withShmSize(hostConfig.shmSize.get())
+        if (hostConfig.getShmSize().getOrNull() != null) { // 0 is valid input
+            containerCommand.getHostConfig().withShmSize(hostConfig.getShmSize().get());
         }
 
-        if (hostConfig.autoRemove.getOrNull()) {
-            containerCommand.hostConfig.withAutoRemove(hostConfig.autoRemove.get())
+        if (hostConfig.getAutoRemove().getOrNull() != null) {
+            containerCommand.getHostConfig().withAutoRemove(hostConfig.getAutoRemove().get());
         }
 
-        if(labels.getOrNull()) {
-            containerCommand.withLabels(labels.get())
+        if (labels.getOrNull() != null && !labels.get().isEmpty()) {
+            containerCommand.withLabels(labels.get());
         }
 
-        if(macAddress.getOrNull()) {
-            containerCommand.withMacAddress(macAddress.get())
+        if (macAddress.getOrNull() != null) {
+            containerCommand.withMacAddress(macAddress.get());
         }
 
-        if(platform.getOrNull()) {
-            containerCommand.withPlatform(platform.get())
+        if (platform.getOrNull() != null && !platform.get().isEmpty()) {
+            containerCommand.withPlatform(platform.get());
         }
 
-        if(hostConfig.ipcMode.getOrNull()) {
-            containerCommand.hostConfig.withIpcMode(hostConfig.ipcMode.get())
+        if (hostConfig.getIpcMode().getOrNull() != null) {
+            containerCommand.getHostConfig().withIpcMode(hostConfig.getIpcMode().get());
         }
 
-        if(hostConfig.sysctls.getOrNull()) {
-            containerCommand.hostConfig.withSysctls(hostConfig.sysctls.get())
+        if (hostConfig.getSysctls().getOrNull() != null && !hostConfig.getSysctls().get().isEmpty()) {
+            containerCommand.getHostConfig().withSysctls(hostConfig.getSysctls().get());
         }
 
-        if (healthCheck.interval.getOrNull()) {
-            getOrCreateHealthCheck(containerCommand).withInterval(healthCheck.interval.get())
+        if (healthCheck.getInterval().getOrNull() != null) {
+            getOrCreateHealthCheck(containerCommand).withInterval(healthCheck.getInterval().get());
         }
 
-        if (healthCheck.timeout.getOrNull()) {
-            getOrCreateHealthCheck(containerCommand).withTimeout(healthCheck.timeout.get())
+        if (healthCheck.getTimeout().getOrNull() != null) {
+            getOrCreateHealthCheck(containerCommand).withTimeout(healthCheck.getTimeout().get());
         }
 
-        if (healthCheck.cmd.getOrNull()) {
-            String command = healthCheck.cmd.get().size() == 1 ? 'CMD-SHELL' : 'CMD'
-            List<String> test = [command] + healthCheck.cmd.get()
-            getOrCreateHealthCheck(containerCommand).withTest(test)
+        if (healthCheck.getCmd().getOrNull() != null && !healthCheck.getCmd().get().isEmpty()) {
+            String command = healthCheck.getCmd().get().size() == 1 ? "CMD-SHELL" : "CMD";
+            List<String> test = new ArrayList<>(List.of(command));
+            test.addAll(healthCheck.getCmd().get());
+            getOrCreateHealthCheck(containerCommand).withTest(test);
         }
 
-        if (healthCheck.retries.getOrNull()) {
-            getOrCreateHealthCheck(containerCommand).withRetries(healthCheck.retries.get())
+        if (healthCheck.getRetries().getOrNull() != null) {
+            getOrCreateHealthCheck(containerCommand).withRetries(healthCheck.getRetries().get());
         }
 
-        if (healthCheck.startPeriod.getOrNull()) {
-            getOrCreateHealthCheck(containerCommand).withStartPeriod(healthCheck.startPeriod.get())
+        if (healthCheck.getStartPeriod().getOrNull() != null) {
+            getOrCreateHealthCheck(containerCommand).withStartPeriod(healthCheck.getStartPeriod().get());
         }
     }
 
-    static class ExposedPort implements Serializable {
-        final String internetProtocol
-        final List<Integer> ports
+    public static class ExposedPort implements Serializable {
+        private final String internetProtocol;
+        private final List<Integer> ports;
 
-        ExposedPort(String internetProtocol, List<Integer> ports) {
-            this.internetProtocol = internetProtocol
-            this.ports = ports
+        public ExposedPort(String internetProtocol, List<Integer> ports) {
+            this.internetProtocol = internetProtocol;
+            this.ports = ports;
+        }
+
+        public final String getInternetProtocol() {
+            return internetProtocol;
+        }
+
+        public final List<Integer> getPorts() {
+            return ports;
         }
     }
 
     /**
      * @since 6.0.0
      */
-    static class HostConfig {
+    public static class HostConfig {
         /**
          * A list of additional groups that the container process will run as.
          */
         @Input
         @Optional
-        final ListProperty<String> groups
+        public final ListProperty<String> getGroups() {
+            return groups;
+        }
+
+        private final ListProperty<String> groups;
 
         @Input
         @Optional
-        final Property<Long> memory
+        public final Property<Long> getMemory() {
+            return memory;
+        }
+
+        private final Property<Long> memory;
 
         @Input
         @Optional
-        final Property<Long> memorySwap
+        public final Property<Long> getMemorySwap() {
+            return memorySwap;
+        }
+
+        private final Property<Long> memorySwap;
 
         @Input
         @Optional
-        final Property<String> cpuset
+        public final Property<String> getCpuset() {
+            return cpuset;
+        }
+
+        private final Property<String> cpuset;
 
         @Input
         @Optional
-        final ListProperty<String> dns
+        public final ListProperty<String> getDns() {
+            return dns;
+        }
+
+        private final ListProperty<String> dns;
 
         @Input
         @Optional
-        final Property<String> network
+        public final Property<String> getNetwork() {
+            return network;
+        }
+
+        private final Property<String> network;
 
         @Input
         @Optional
-        final ListProperty<String> links
+        public final ListProperty<String> getLinks() {
+            return links;
+        }
+
+        private final ListProperty<String> links;
 
         @Input
         @Optional
-        final ListProperty<String> volumesFrom
+        public final ListProperty<String> getVolumesFrom() {
+            return volumesFrom;
+        }
+
+        private final ListProperty<String> volumesFrom;
 
         @Input
         @Optional
-        final ListProperty<String> portBindings
+        public final ListProperty<String> getPortBindings() {
+            return portBindings;
+        }
+
+        private final ListProperty<String> portBindings;
 
         @Input
         @Optional
-        final Property<Boolean> publishAll
+        public final Property<Boolean> getPublishAll() {
+            return publishAll;
+        }
+
+        private final Property<Boolean> publishAll;
 
         @Input
         @Optional
-        final MapProperty<String, String> binds
+        public final MapProperty<String, String> getBinds() {
+            return binds;
+        }
+
+        private final MapProperty<String, String> binds;
 
         /**
          * Docker container tmpfs support.
@@ -532,41 +658,73 @@ class DockerCreateContainer extends DockerExistingImage {
          */
         @Input
         @Optional
-        final MapProperty<String, String> tmpFs
+        public final MapProperty<String, String> getTmpFs() {
+            return tmpFs;
+        }
+
+        private final MapProperty<String, String> tmpFs;
 
         @Input
         @Optional
-        final ListProperty<String> extraHosts
+        public final ListProperty<String> getExtraHosts() {
+            return extraHosts;
+        }
+
+        private final ListProperty<String> extraHosts;
 
         @Input
         @Optional
-        final Property<LogConfig> logConfig
+        public final Property<LogConfig> getLogConfig() {
+            return logConfig;
+        }
+
+        private final Property<LogConfig> logConfig;
 
         @Input
         @Optional
-        final Property<Boolean> privileged
+        public final Property<Boolean> getPrivileged() {
+            return privileged;
+        }
+
+        private final Property<Boolean> privileged;
 
         @Input
         @Optional
-        final Property<String> restartPolicy
+        public final Property<String> getRestartPolicy() {
+            return restartPolicy;
+        }
+
+        private final Property<String> restartPolicy;
 
         @Input
         @Optional
-        final ListProperty<String> devices
+        public final ListProperty<String> getDevices() {
+            return devices;
+        }
+
+        private final ListProperty<String> devices;
 
         /**
          * @since 8.1.0
          */
         @Input
         @Optional
-        final ListProperty<String> capAdd
+        public final ListProperty<String> getCapAdd() {
+            return capAdd;
+        }
+
+        private final ListProperty<String> capAdd;
 
         /**
          * @since 8.1.0
          */
         @Input
         @Optional
-        final ListProperty<String> capDrop
+        public final ListProperty<String> getCapDrop() {
+            return capDrop;
+        }
+
+        private final ListProperty<String> capDrop;
 
         /**
          * Size of {@code /dev/shm} in bytes.
@@ -575,7 +733,11 @@ class DockerCreateContainer extends DockerExistingImage {
          */
         @Input
         @Optional
-        final Property<Long> shmSize
+        public final Property<Long> getShmSize() {
+            return shmSize;
+        }
+
+        private final Property<Long> shmSize;
 
         /**
          * Automatically remove the container when the container's process exits.
@@ -584,7 +746,11 @@ class DockerCreateContainer extends DockerExistingImage {
          */
         @Input
         @Optional
-        final Property<Boolean> autoRemove
+        public final Property<Boolean> getAutoRemove() {
+            return autoRemove;
+        }
+
+        private final Property<Boolean> autoRemove;
 
         /**
          * The IPC mode for the container.
@@ -598,7 +764,11 @@ class DockerCreateContainer extends DockerExistingImage {
          */
         @Input
         @Optional
-        final Property<String> ipcMode
+        public final Property<String> getIpcMode() {
+            return ipcMode;
+        }
+
+        private final Property<String> ipcMode;
 
         /**
          * The namespaced kernel parameters (sysctls) in the container.
@@ -613,79 +783,118 @@ class DockerCreateContainer extends DockerExistingImage {
          */
         @Input
         @Optional
-        final MapProperty<String, String> sysctls
+        public final MapProperty<String, String> getSysctls() {
+            return sysctls;
+        }
+
+        private final MapProperty<String, String> sysctls;
 
         @Inject
-        HostConfig(ObjectFactory objectFactory) {
-            groups = objectFactory.listProperty(String)
-            memory = objectFactory.property(Long)
-            memorySwap = objectFactory.property(Long)
-            cpuset = objectFactory.property(String)
-            dns = objectFactory.listProperty(String)
-            network = objectFactory.property(String)
-            links = objectFactory.listProperty(String)
-            volumesFrom = objectFactory.listProperty(String)
-            portBindings = objectFactory.listProperty(String)
-            publishAll = objectFactory.property(Boolean)
-            publishAll.convention(false)
-            binds = objectFactory.mapProperty(String, String)
-            tmpFs = objectFactory.mapProperty(String, String)
-            extraHosts = objectFactory.listProperty(String)
-            logConfig = objectFactory.property(LogConfig)
-            privileged = objectFactory.property(Boolean)
-            privileged.convention(false)
-            restartPolicy = objectFactory.property(String)
-            capAdd = objectFactory.listProperty(String)
-            capDrop = objectFactory.listProperty(String)
-            devices = objectFactory.listProperty(String)
-            shmSize = objectFactory.property(Long)
-            autoRemove = objectFactory.property(Boolean)
-            ipcMode = objectFactory.property(String)
-            sysctls = objectFactory.mapProperty(String, String)
+        public HostConfig(ObjectFactory objectFactory) {
+            groups = objectFactory.listProperty(String.class);
+            memory = objectFactory.property(Long.class);
+            memorySwap = objectFactory.property(Long.class);
+            cpuset = objectFactory.property(String.class);
+            dns = objectFactory.listProperty(String.class);
+            network = objectFactory.property(String.class);
+            links = objectFactory.listProperty(String.class);
+            volumesFrom = objectFactory.listProperty(String.class);
+            portBindings = objectFactory.listProperty(String.class);
+            publishAll = objectFactory.property(Boolean.class);
+            publishAll.convention(false);
+            binds = objectFactory.mapProperty(String.class, String.class);
+            tmpFs = objectFactory.mapProperty(String.class, String.class);
+            extraHosts = objectFactory.listProperty(String.class);
+            logConfig = objectFactory.property(LogConfig.class);
+            privileged = objectFactory.property(Boolean.class);
+            privileged.convention(false);
+            restartPolicy = objectFactory.property(String.class);
+            capAdd = objectFactory.listProperty(String.class);
+            capDrop = objectFactory.listProperty(String.class);
+            devices = objectFactory.listProperty(String.class);
+            shmSize = objectFactory.property(Long.class);
+            autoRemove = objectFactory.property(Boolean.class);
+            ipcMode = objectFactory.property(String.class);
+            sysctls = objectFactory.mapProperty(String.class, String.class);
         }
 
-        void logConfig(String type, Map<String, String> config) {
-            this.logConfig.set(new LogConfig(type: type, config: config))
+        public void logConfig(String type, Map<String, String> config) {
+            LogConfig logConfig = new LogConfig();
+            logConfig.setType(type);
+            logConfig.setConfig(config);
+            this.logConfig.set(logConfig);
         }
 
-        void restartPolicy(String name, int maximumRetryCount) {
-            this.restartPolicy.set("${name}:${maximumRetryCount}".toString())
+        public void restartPolicy(final String name, final int maximumRetryCount) {
+            this.restartPolicy.set(name + ":" + maximumRetryCount);
         }
 
-        static class LogConfig implements Serializable {
-            String type
-            Map<String, String> config = [:]
+        public static class LogConfig implements Serializable {
+            public String getType() {
+                return type;
+            }
+
+            public void setType(String type) {
+                this.type = type;
+            }
+
+            public Map<String, String> getConfig() {
+                return config;
+            }
+
+            public void setConfig(Map<String, String> config) {
+                this.config = config;
+            }
+
+            private String type;
+            private Map<String, String> config = new HashMap<>();
         }
     }
 
     /**
      * @since 6.7.0
      */
-    static class HealthCheckConfig {
+    public static class HealthCheckConfig {
         /**
          * The time to wait between checks in nanoseconds. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
          */
         @Input
         @Optional
-        final Property<Long> interval
+        public final Property<Long> getInterval() {
+            return interval;
+        }
+
+        private final Property<Long> interval;
 
         /**
          * The time to wait before considering the check to have hung. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
          */
         @Input
         @Optional
-        final Property<Long> timeout
+        public final Property<Long> getTimeout() {
+            return timeout;
+        }
+
+        private final Property<Long> timeout;
 
         @Input
         @Optional
-        final ListProperty<String> cmd
+        public final ListProperty<String> getCmd() {
+            return cmd;
+        }
+
+        private final ListProperty<String> cmd;
 
         /**
          * The number of consecutive failures needed to consider a container as unhealthy. 0 means inherit.
          */
         @Input
         @Optional
-        final Property<Integer> retries
+        public final Property<Integer> getRetries() {
+            return retries;
+        }
+
+        private final Property<Integer> retries;
 
         /**
          * The time to wait for container initialization before starting health-retries countdown in nanoseconds.
@@ -693,19 +902,23 @@ class DockerCreateContainer extends DockerExistingImage {
          */
         @Input
         @Optional
-        final Property<Long> startPeriod
-
-        @Inject
-        HealthCheckConfig(ObjectFactory objectFactory) {
-            interval = objectFactory.property(Long)
-            timeout = objectFactory.property(Long)
-            cmd = objectFactory.listProperty(String)
-            retries = objectFactory.property(Integer)
-            startPeriod = objectFactory.property(Long)
+        public final Property<Long> getStartPeriod() {
+            return startPeriod;
         }
 
-        void cmd(String shellCommand) {
-            cmd.set([shellCommand])
+        private final Property<Long> startPeriod;
+
+        @Inject
+        public HealthCheckConfig(ObjectFactory objectFactory) {
+            interval = objectFactory.property(Long.class);
+            timeout = objectFactory.property(Long.class);
+            cmd = objectFactory.listProperty(String.class);
+            retries = objectFactory.property(Integer.class);
+            startPeriod = objectFactory.property(Long.class);
+        }
+
+        public void cmd(String shellCommand) {
+            cmd.set(List.of(shellCommand));
         }
     }
 }
