@@ -19,14 +19,15 @@ import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd
 import groovy.io.FileType
 import org.gradle.api.Action
 import org.gradle.api.GradleException
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.CopySpec
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.FileTree
-import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+
+import javax.inject.Inject
 
 class DockerCopyFileFromContainer extends DockerExistingContainer {
     /**
@@ -57,12 +58,16 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     @Optional
     final Property<Boolean> compressed = project.objects.property(Boolean)
 
-    @Internal
-    final DirectoryProperty buildDirectory = project.layout.buildDirectory
+    private final FileSystemOperations fileSystemOperations
 
-    DockerCopyFileFromContainer() {
+    private final ArchiveOperations archiveOperations
+
+    @Inject
+    DockerCopyFileFromContainer(FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations) {
         hostPath.convention(project.projectDir.path)
         compressed.convention(false)
+        this.fileSystemOperations = fileSystemOperations
+        this.archiveOperations = archiveOperations
     }
 
     @Override
@@ -102,7 +107,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         // whichever name was passed in.
         def fileName = new File(remotePath.get()).name
         def compressedFileName = (hostDestination.exists() && hostDestination.isDirectory()) ?
-                (fileName.endsWith(".tar") ?: fileName + ".tar") :
+                (fileName.endsWith(".tar") ? fileName : fileName + ".tar") :
                 hostDestination.name
 
         def compressedFileLocation = (hostDestination.exists() && hostDestination.isDirectory()) ?
@@ -133,71 +138,53 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      */
     private void copyFile(InputStream tarStream, File hostDestination) {
 
-        def tempDestination
-        try {
+        def tempDestination = untarStream(tarStream)
 
-            tempDestination = untarStream(tarStream)
+        /*
+            At this juncture we have 3 possibilities:
 
-            /*
-                At this juncture we have 3 possibilities:
+                1.) 0 files were found in which case we do nothing
 
-                    1.) 0 files were found in which case we do nothing
+                2.) 1 regular file was found
 
-                    2.) 1 regular file was found
-
-                    3.) N regular files (and possibly directories) were found
-            */
-            def fileCount = 0
-            tempDestination.eachFileRecurse(FileType.FILES) { fileCount++ }
-            if (fileCount == 0) {
-                logger.quiet "Nothing to copy."
-            } else if (fileCount == 1) {
-                copySingleFile(hostDestination, tempDestination)
-            } else {
-                copyMultipleFiles(hostDestination, tempDestination)
-            }
-        } finally {
-            if(!tempDestination?.deleteDir())
-                throw new GradleException("Failed deleting directory at ${tempDestination.path}")
+                3.) N regular files (and possibly directories) were found
+        */
+        def fileCount = 0
+        tempDestination.eachFileRecurse(FileType.FILES) { fileCount++ }
+        if (fileCount == 0) {
+            logger.quiet "Nothing to copy."
+        } else if (fileCount == 1) {
+            copySingleFile(hostDestination, tempDestination)
+        } else {
+            copyMultipleFiles(hostDestination, tempDestination)
         }
     }
-
-    private final fileOperations = (project as ProjectInternal).fileOperations
 
     /**
      * Unpack tar stream into generated directory relative to $buildDir
      */
     private File untarStream(InputStream tarStream) {
 
-        def tempFile
-        def outputDirectory
-        try {
+        // Write tar to temp location since we are exploding it anyway
+        def tempFile = new File(temporaryDir, UUID.randomUUID().toString() + ".tar")
+        tempFile.withOutputStream { it << tarStream }
 
-            // Write tar to temp location since we are exploding it anyway
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tar")
-            tempFile.withOutputStream { it << tarStream }
+        // We are not allowed to rename tempDir's created in OS temp directory (as
+        // we do further downstream) which is why we are creating via our task's
+        // temporaryDir
+        def outputDirectory = new File(temporaryDir, UUID.randomUUID().toString())
+        if(!outputDirectory.mkdirs())
+            throw new GradleException("Failed creating directory at ${outputDirectory.path}")
 
-            // We are not allowed to rename tempDir's created in OS temp directory (as
-            // we do further downstream) which is why we are creating it relative to
-            // build directory
-            outputDirectory = new File(buildDirectory.asFile.get(), UUID.randomUUID().toString())
-            if(!outputDirectory.mkdirs())
-                throw new GradleException("Failed creating directory at ${outputDirectory.path}")
-
-            FileTree tarTree = fileOperations.tarTree(tempFile)
-            fileOperations.copy(new Action<CopySpec>() {
-                @Override
-                void execute(CopySpec copySpec) {
-                    copySpec.into(outputDirectory)
-                    copySpec.from(tarTree)
-                }
-            })
-            return outputDirectory
-
-        } finally {
-            if(!tempFile.delete())
-                throw new GradleException("Failed deleting previously existing file at ${tempFile.path}")
-        }
+        FileTree tarTree = archiveOperations.tarTree(tempFile)
+        fileSystemOperations.copy(new Action<CopySpec>() {
+            @Override
+            void execute(CopySpec copySpec) {
+                copySpec.into(outputDirectory)
+                copySpec.from(tarTree)
+            }
+        })
+        return outputDirectory
     }
 
     /**
