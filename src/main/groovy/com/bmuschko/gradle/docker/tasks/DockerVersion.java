@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks
+package com.bmuschko.gradle.docker.tasks;
 
-import com.github.dockerjava.api.model.Version
-import groovy.transform.CompileStatic
+import com.github.dockerjava.api.model.Version;
 
-@CompileStatic
-class DockerVersion extends AbstractDockerRemoteApiTask {
-
+public class DockerVersion extends AbstractDockerRemoteApiTask {
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Retrieving Docker version."
-        Version version = dockerClient.versionCmd().exec()
-        logger.quiet "Version          : $version.version"
-        logger.quiet "Git Commit       : $version.gitCommit"
-        logger.quiet "Go Version       : $version.goVersion"
-        logger.quiet "Kernel Version   : $version.kernelVersion"
-        logger.quiet "Architecture     : $version.arch"
-        logger.quiet "Operating System : $version.operatingSystem"
+    public void runRemoteCommand() {
+        getLogger().quiet("Retrieving Docker version.");
+        Version version = getDockerClient().versionCmd().exec();
+        getLogger().quiet("Version          : " + version.getVersion());
+        getLogger().quiet("Git Commit       : " + version.getGitCommit());
+        getLogger().quiet("Go Version       : " + version.getGoVersion());
+        getLogger().quiet("Kernel Version   : " + version.getKernelVersion());
+        getLogger().quiet("Architecture     : " + version.getArch());
+        getLogger().quiet("Operating System : " + version.getOperatingSystem());
     }
 }

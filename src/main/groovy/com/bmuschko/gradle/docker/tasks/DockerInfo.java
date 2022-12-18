@@ -13,39 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks
+package com.bmuschko.gradle.docker.tasks;
 
-import com.github.dockerjava.api.model.Info
-import groovy.transform.CompileStatic
+import com.github.dockerjava.api.model.Info;
 
-@CompileStatic
-class DockerInfo extends AbstractDockerRemoteApiTask {
+import java.util.Arrays;
+
+public class DockerInfo extends AbstractDockerRemoteApiTask {
 
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Retrieving Docker info."
-        Info info = dockerClient.infoCmd().exec()
+    public void runRemoteCommand() {
+        getLogger().quiet("Retrieving Docker info.");
+        Info info = getDockerClient().infoCmd().exec();
 
-        if (nextHandler) {
-            nextHandler.execute(info)
+        if (getNextHandler() != null) {
+            getNextHandler().execute(info);
         } else {
-            logger.quiet "Debug                : $info.debug"
-            logger.quiet "Containers           : $info.containers"
-            logger.quiet "Driver               : $info.driver"
-            logger.quiet "Driver Statuses      : $info.driverStatuses"
-            logger.quiet "Images               : $info.images"
-            logger.quiet "IPv4 Forwarding      : $info.IPv4Forwarding"
-            logger.quiet "Index Server Address : $info.indexServerAddress"
-            logger.quiet "Init Path            : $info.initPath"
-            logger.quiet "Init SHA1            : $info.initSha1"
-            logger.quiet "Kernel Version       : $info.kernelVersion"
-            logger.quiet "Sockets              : $info.sockets"
-            logger.quiet "Memory Limit         : $info.memoryLimit"
-            logger.quiet "nEvent Listener      : $info.NEventsListener"
-            logger.quiet "NFd                  : $info.NFd"
-            logger.quiet "NGoroutines          : $info.NGoroutines"
-            logger.quiet "Swap Limit           : $info.swapLimit"
-            logger.quiet "Execution Driver     : $info.executionDriver"
+            getLogger().quiet("Debug                : " + info.getDebug());
+            getLogger().quiet("Containers           : " + info.getContainers());
+            getLogger().quiet("Driver               : " + info.getDriver());
+            getLogger().quiet("Driver Statuses      : " + info.getDriverStatuses());
+            getLogger().quiet("Images               : " + info.getImages());
+            getLogger().quiet("IPv4 Forwarding      : " + info.getIPv4Forwarding());
+            getLogger().quiet("Index Server Address : " + info.getIndexServerAddress());
+            getLogger().quiet("Init Path            : " + info.getInitPath());
+            getLogger().quiet("Init SHA1            : " + info.getInitSha1());
+            getLogger().quiet("Kernel Version       : " + info.getKernelVersion());
+            getLogger().quiet("Sockets              : " + Arrays.toString(info.getSockets()));
+            getLogger().quiet("Memory Limit         : " + info.getMemoryLimit());
+            getLogger().quiet("nEvent Listener      : " + info.getNEventsListener());
+            getLogger().quiet("NFd                  : " + info.getNFd());
+            getLogger().quiet("NGoroutines          : " + info.getNGoroutines());
+            getLogger().quiet("Swap Limit           : " + info.getSwapLimit());
+            getLogger().quiet("Execution Driver     : " + info.getExecutionDriver());
         }
     }
 }

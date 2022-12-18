@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.bmuschko.gradle.docker.tasks
-
-import groovy.transform.CompileStatic
+package com.bmuschko.gradle.docker.tasks;
 
 /**
- *  Passes the underlying `docker-java` client to the defined `onNext` closure if it exists.
+ * Passes the underlying `docker-java` client to the defined `onNext` closure if it exists.
  */
-@CompileStatic
-class DockerOperation extends AbstractDockerRemoteApiTask {
-
+public class DockerOperation extends AbstractDockerRemoteApiTask {
     @Override
-    void runRemoteCommand() {
-        if (nextHandler) {
-            nextHandler.execute(dockerClient)
+    public void runRemoteCommand() {
+        if (getNextHandler() != null) {
+            getNextHandler().execute(getDockerClient());
         } else {
-            logger.quiet 'Execution amounts to a no-op if the onNext closure/reactive-stream is not defined.'
+            getLogger().quiet("Execution amounts to a no-op if the onNext closure/reactive-stream is not defined.");
         }
     }
 }
