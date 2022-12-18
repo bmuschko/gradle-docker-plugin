@@ -17,6 +17,7 @@ package com.bmuschko.gradle.docker.tasks.container
 
 import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd
 import groovy.io.FileType
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.file.ArchiveOperations
@@ -28,7 +29,13 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 import javax.inject.Inject
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
+@CompileStatic
 class DockerCopyFileFromContainer extends DockerExistingContainer {
     /**
      * Path inside container
@@ -83,7 +90,7 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
             if(nextHandler) {
                 nextHandler.execute(tarStream)
             } else {
-                def hostDestination = new File(hostPath.get())
+                def hostDestination = Paths.get(hostPath.get())
 
                 // if compressed leave file as is otherwise untar
                 if (compressed.getOrNull()) {
@@ -100,43 +107,42 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     /**
      * Copy tar-stream from container to host
      */
-    private void copyFileCompressed(InputStream tarStream, File hostDestination) {
+    private void copyFileCompressed(InputStream tarStream, Path hostDestination) {
 
         // If user supplied an existing directory then we are responsible for naming and so
         // will ensure file ends with '.tar'. If user supplied a regular file then use
         // whichever name was passed in.
-        def fileName = new File(remotePath.get()).name
-        def compressedFileName = (hostDestination.exists() && hostDestination.isDirectory()) ?
+        def fileName = remotePath.get()
+        def compressedFileName = (Files.exists(hostDestination) && Files.isDirectory(hostDestination)) ?
                 (fileName.endsWith(".tar") ? fileName : fileName + ".tar") :
-                hostDestination.name
+                hostDestination.fileName.toString()
 
-        def compressedFileLocation = (hostDestination.exists() && hostDestination.isDirectory()) ?
+        def compressedFileLocation = (Files.exists(hostDestination) && Files.isDirectory(hostDestination)) ?
                 hostDestination :
-                hostDestination.parentFile
+                hostDestination.parent
 
         // If user supplied regular file ensure its parent location exists and if
         // the regular file itself exists, delete to avoid clobbering.
-        if (hostDestination.exists()) {
-            if (!hostDestination.isDirectory())
-                if(!hostDestination.delete())
-                    throw new GradleException("Failed deleting previously existing file at ${hostDestination.path}")
-
+        if (Files.exists(hostDestination)) {
+            if (!Files.isDirectory(hostDestination)) {
+                Files.delete(hostDestination)
+            }
         } else {
-            if (!hostDestination.parentFile.exists() && !hostDestination.parentFile.mkdirs())
-                throw new GradleException("Failed creating parent directory for ${hostDestination.path}")
+            if (!Files.exists(hostDestination.parent)) {
+                Files.createDirectories(hostDestination.parent);
+            }
         }
 
-        def tarFile = new File(compressedFileLocation, compressedFileName)
-        if(!tarFile.createNewFile())
-            throw new GradleException("Failed creating file at ${tarFile.path}")
-        else
-            tarFile.withOutputStream { it << tarStream }
+        Path tarFile = compressedFileLocation.resolve(compressedFileName)
+        try (OutputStream it = Files.newOutputStream(tarFile)) {
+            it << tarStream
+        }
     }
 
     /**
      * Copy regular file or directory from container to host
      */
-    private void copyFile(InputStream tarStream, File hostDestination) {
+    private void copyFile(InputStream tarStream, Path hostDestination) {
 
         def tempDestination = untarStream(tarStream)
 
@@ -163,18 +169,19 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     /**
      * Unpack tar stream into generated directory relative to $buildDir
      */
-    private File untarStream(InputStream tarStream) {
+    private Path untarStream(InputStream tarStream) {
 
         // Write tar to temp location since we are exploding it anyway
-        def tempFile = new File(temporaryDir, UUID.randomUUID().toString() + ".tar")
-        tempFile.withOutputStream { it << tarStream }
+        Path tempFile = temporaryDir.toPath().resolve(UUID.randomUUID().toString() + ".tar")
+        try (OutputStream it = Files.newOutputStream(tempFile)) {
+            it << tarStream
+        }
 
         // We are not allowed to rename tempDir's created in OS temp directory (as
         // we do further downstream) which is why we are creating via our task's
         // temporaryDir
-        def outputDirectory = new File(temporaryDir, UUID.randomUUID().toString())
-        if(!outputDirectory.mkdirs())
-            throw new GradleException("Failed creating directory at ${outputDirectory.path}")
+        def outputDirectory = temporaryDir.toPath().resolve(UUID.randomUUID().toString())
+        Files.createDirectories(outputDirectory)
 
         FileTree tarTree = archiveOperations.tarTree(tempFile)
         fileSystemOperations.copy(new Action<CopySpec>() {
@@ -190,32 +197,34 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
     /**
      * Copy regular file inside tempDestination to, or into, hostDestination
      */
-    private void copySingleFile(File hostDestination, File tempDestination) {
+    private void copySingleFile(Path hostDestination, Path tempDestination) {
 
         // ensure regular file does not exist as we don't want clobbering
-        if (hostDestination.exists() && !hostDestination.isDirectory())
-            if(!hostDestination.delete())
-                throw new GradleException("Failed deleting file at ${hostDestination.path}")
+        if (Files.exists(hostDestination) && !Files.isDirectory(hostDestination)) {
+            Files.delete(hostDestination)
+        }
 
         // create parent files of hostPath should they not exist
-        if (!hostDestination.exists())
-            if(!hostDestination.parentFile.exists() && !hostDestination.parentFile.mkdirs())
-                throw new GradleException("Failed creating parent directory for ${hostDestination.path}")
+        if (!Files.exists(hostDestination) && !Files.exists(hostDestination.parent)) {
+            Files.createDirectories(hostDestination.parent)
+        }
 
-        def parentDirectory = hostDestination.isDirectory() ? hostDestination : hostDestination.parentFile
-        def fileName = hostDestination.isDirectory() ?
-                tempDestination.listFiles().last().name : hostDestination.name
+        def parentDirectory = Files.isDirectory(hostDestination) ? hostDestination : hostDestination.parent
+        List<Path> files
+        try (def stream = Files.list(tempDestination)) {
+            files = stream.collect(Collectors.toList());
+        }
+        def fileName = Files.isDirectory(hostDestination) ?
+            files.last().fileName : hostDestination.fileName
 
-        def destination = new File(parentDirectory, fileName)
-        if (!tempDestination.listFiles().last().renameTo(destination))
-            throw new GradleException("Failed renaming file ${tempDestination.path} to ${destination.path}")
-
+        Path destination = parentDirectory.resolve(fileName)
+        Files.move(files.last(), destination)
     }
 
     /**
      * Copy files inside tempDestination into hostDestination
      */
-    private void copyMultipleFiles(File hostDestination, File tempDestination) {
+    private void copyMultipleFiles(Path hostDestination, Path tempDestination) {
 
         // Flatten single top-level directory to behave more like docker. Basically
         // we are turning this:
@@ -228,46 +237,44 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
         //
         // gradle does not currently offer any mechanism to do this which
         // is why we have to do the following gymnastics
-        if (tempDestination.listFiles().size() == 1) {
-            def dirToFlatten = tempDestination.listFiles().last()
-            def dirToFlattenParent = tempDestination.listFiles().last().parentFile
-            def flatDir = new File(dirToFlattenParent, UUID.randomUUID().toString())
+        def files = Files.list(tempDestination).withCloseable { it.collect(Collectors.toList()) }
+        if (files.size() == 1) {
+            Path dirToFlatten = files.last()
+            Path dirToFlattenParent = dirToFlatten.parent
+            Path flatDir = dirToFlattenParent.resolve(UUID.randomUUID().toString())
 
             // rename origin to escape potential clobbering
-            if(!dirToFlatten.renameTo(flatDir))
-                throw new GradleException("Failed renaming file ${dirToFlatten.path} to ${flatDir.path}")
+            Files.move(dirToFlatten, flatDir)
 
             // rename files 1 level higher
-            flatDir.listFiles().each {
-                def movedFile = new File(dirToFlattenParent, it.name)
-                if(!it.renameTo(movedFile))
-                    throw new GradleException("Failed renaming file ${it.path} to ${movedFile.path}")
+            for (Path it : flatDir) {
+                def movedFile = dirToFlattenParent.resolve(it.fileName)
+                Files.move(it, movedFile)
             }
 
-            if(!flatDir.deleteDir())
-                throw new GradleException("Failed deleting directory at ${flatDir.path}")
+            if (!flatDir.deleteDir()) {
+                throw new GradleException("Failed deleting directory at ${flatDir}")
+            }
         }
 
         // delete regular file should it exist
-        if (hostDestination.exists() && !hostDestination.isDirectory())
-            if(!hostDestination.delete())
-                throw new GradleException("Failed deleting file at ${hostDestination.path}")
+        if (Files.exists(hostDestination) && !Files.isDirectory(hostDestination)) {
+            Files.delete(hostDestination)
+        }
 
         // If directory already exists, rename each file into
         // said directory, otherwise rename entire directory.
-        if (hostDestination.exists()) {
-            def parentName = tempDestination.name
-            tempDestination.listFiles().each {
-                def originPath = it.absolutePath
-                def index = originPath.lastIndexOf(parentName) + parentName.length()
-                def relativePath = originPath.substring(index, originPath.length())
-                def destFile = new File("${hostDestination.path}/${relativePath}")
-                if (!it.renameTo(destFile))
-                    throw new GradleException("Failed renaming file ${it.path} to ${destFile.path}")
+        if (Files.exists(hostDestination)) {
+            def parentName = tempDestination.fileName.toString()
+            tempDestination.each {
+                def originPath = it.toAbsolutePath()
+                def index = originPath.toString().lastIndexOf(parentName) + parentName.length()
+                def relativePath = originPath.toString().substring(index, originPath.toString().length())
+                def destFile = Paths.get("${hostDestination}/${relativePath}")
+                Files.move(it, destFile)
             }
         } else {
-            if (!tempDestination.renameTo(hostDestination))
-                throw new GradleException("Failed renaming file ${tempDestination.path} to ${hostDestination.path}")
+            Files.move(tempDestination, hostDestination)
         }
     }
 }
