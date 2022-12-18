@@ -1,17 +1,15 @@
-package com.bmuschko.gradle.docker.tasks.network
+package com.bmuschko.gradle.docker.tasks.network;
 
-import com.github.dockerjava.api.model.Network
-import groovy.transform.CompileStatic
+import com.github.dockerjava.api.model.Network;
 
-@CompileStatic
-class DockerInspectNetwork extends DockerExistingNetwork {
+public class DockerInspectNetwork extends DockerExistingNetwork {
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Inspecting network '${networkId.get()}'."
-        Network network = dockerClient.inspectNetworkCmd().withNetworkId(networkId.get()).exec()
+    public void runRemoteCommand() {
+        getLogger().quiet("Inspecting network '" + getNetworkId().get() + "'.");
+        Network network = getDockerClient().inspectNetworkCmd().withNetworkId(getNetworkId().get()).exec();
 
-        if (nextHandler) {
-            nextHandler.execute(network)
+        if (getNextHandler() != null) {
+            getNextHandler().execute(network);
         }
     }
 }

@@ -1,20 +1,23 @@
-package com.bmuschko.gradle.docker.tasks.network
+package com.bmuschko.gradle.docker.tasks.network;
 
-import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask
-import groovy.transform.CompileStatic
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Input
+import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Input;
 
-import java.util.concurrent.Callable
+import java.util.concurrent.Callable;
 
-@CompileStatic
-abstract class DockerExistingNetwork extends AbstractDockerRemoteApiTask {
+public abstract class DockerExistingNetwork extends AbstractDockerRemoteApiTask {
+
     /**
      * The ID or name of the network to perform the operation on. The network for the provided ID has to be created first.
      */
     @Input
-    final Property<String> networkId = project.objects.property(String)
+    public final Property<String> getNetworkId() {
+        return networkId;
+    }
+
+    private final Property<String> networkId = getProject().getObjects().property(String.class);
 
     /**
      * Sets the target network ID or name.
@@ -23,8 +26,8 @@ abstract class DockerExistingNetwork extends AbstractDockerRemoteApiTask {
      * @see #targetNetworkId(Callable)
      * @see #targetNetworkId(Provider)
      */
-    void targetNetworkId(String networkId) {
-        this.networkId.set(networkId)
+    public void targetNetworkId(String networkId) {
+        this.networkId.set(networkId);
     }
 
     /**
@@ -34,8 +37,8 @@ abstract class DockerExistingNetwork extends AbstractDockerRemoteApiTask {
      * @see #targetNetworkId(String)
      * @see #targetNetworkId(Provider)
      */
-    void targetNetworkId(Callable<String> networkId) {
-        targetNetworkId(project.provider(networkId))
+    public void targetNetworkId(Callable<String> networkId) {
+        targetNetworkId(getProject().provider(networkId));
     }
 
     /**
@@ -45,7 +48,7 @@ abstract class DockerExistingNetwork extends AbstractDockerRemoteApiTask {
      * @see #targetNetworkId(String)
      * @see #targetNetworkId(Callable)
      */
-    void targetNetworkId(Provider<String> networkId) {
-        this.networkId.set(networkId)
+    public void targetNetworkId(Provider<String> networkId) {
+        this.networkId.set(networkId);
     }
 }
