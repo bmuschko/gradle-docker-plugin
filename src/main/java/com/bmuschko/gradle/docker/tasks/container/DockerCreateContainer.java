@@ -757,7 +757,7 @@ public class DockerCreateContainer extends DockerExistingImage {
          * <ol>
          * <li>{@code none} - Own private IPC namespace, with /dev/shm not mounted.</li>
          * <li>{@code private} - Own private IPC namespace.</li>
-         * <li>{@code shareable" - Own private IPC namespace, with a possibility to share it with other containers.</li>
+         * <li>{@code shareable"} - Own private IPC namespace, with a possibility to share it with other containers.</li>
          * <li>{@code container <_name-or-ID_>} - Join another ("shareable") container’s IPC namespace.</li>
          * <li>{@code host} - Use the host system’s IPC namespace.</li>
          * </ol>

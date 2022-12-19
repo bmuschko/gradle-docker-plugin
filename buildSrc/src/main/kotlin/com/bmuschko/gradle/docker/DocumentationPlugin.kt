@@ -32,17 +32,11 @@ class DocumentationPlugin : Plugin<Project> {
         tasks.withType<Javadoc>().configureEach {
             (options as StandardJavadocDocletOptions).links(javaApiUrl, groovyApiUrl, gradleApiUrl)
         }
-
-        tasks.withType<Groovydoc>().configureEach {
-            link(javaApiUrl, "java", "org.xml", "javax", "org.xml")
-            link(groovyApiUrl, "groovy", "org.codehaus.groovy")
-            link(gradleApiUrl, "org.gradle")
-        }
     }
 
     private
     fun Project.configureGitPublishExtension() {
-        val groovydoc: Groovydoc by tasks
+        val javadoc: Javadoc by tasks
         val asciidoctorUserGuide = tasks.named<AsciidoctorTask>("asciidoctorUserGuide").get()
         val asciidoctorDevGuide = tasks.named<AsciidoctorTask>("asciidoctorDevGuide").get()
 
@@ -54,10 +48,10 @@ class DocumentationPlugin : Plugin<Project> {
                 preserve {
                     include("**/*")
                 }
-                from(groovydoc) {
+                from(javadoc) {
                     into("current/api")
                 }
-                from(groovydoc) {
+                from(javadoc) {
                     into(KotlinClosure0({ "${project.version}/api" }))
                 }
                 from(asciidoctorUserGuide.outputDir) {
@@ -78,8 +72,8 @@ class DocumentationPlugin : Plugin<Project> {
 
     private
     fun Project.configureTaskDependencies() {
-        val groovydoc: Groovydoc by tasks
+        val javadoc: Javadoc by tasks
         val asciidoctor: AsciidoctorTask by tasks
-        tasks["gitPublishCopy"].dependsOn(groovydoc, asciidoctor)
+        tasks["gitPublishCopy"].dependsOn(javadoc, asciidoctor)
     }
 }
