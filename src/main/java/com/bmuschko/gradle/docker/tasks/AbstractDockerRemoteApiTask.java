@@ -154,7 +154,7 @@ public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      */
     @Internal
     public DockerClient getDockerClient() {
-        return dockerClientService.get().getDockerClient(createDockerClientConfig());
+        return dockerClientService.get().getDockerClient(url, certPath, apiVersion);
     }
 
     /**
@@ -167,14 +167,6 @@ public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
     @Internal
     protected RegistryAuthLocator getRegistryAuthLocator() {
         return new RegistryAuthLocator();
-    }
-
-    private DockerClientConfiguration createDockerClientConfig() {
-        DockerClientConfiguration dockerClientConfig = new DockerClientConfiguration();
-        dockerClientConfig.setUrl(url.getOrNull());
-        dockerClientConfig.setCertPath(certPath.getOrNull());
-        dockerClientConfig.setApiVersion(apiVersion.getOrNull());
-        return dockerClientConfig;
     }
 
     public abstract void runRemoteCommand() throws Exception;
