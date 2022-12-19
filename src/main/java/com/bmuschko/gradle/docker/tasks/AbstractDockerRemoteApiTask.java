@@ -166,8 +166,10 @@ public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      */
     @Internal
     protected RegistryAuthLocator getRegistryAuthLocator() {
-        return new RegistryAuthLocator();
+        return factory.withDefaults();
     }
+
+    private final RegistryAuthLocator.Factory factory = getProject().getObjects().newInstance(RegistryAuthLocator.Factory.class);
 
     public abstract void runRemoteCommand() throws Exception;
 }

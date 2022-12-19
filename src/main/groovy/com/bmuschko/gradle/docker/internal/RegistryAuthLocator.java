@@ -1,19 +1,20 @@
-package com.bmuschko.gradle.docker.internal
+package com.bmuschko.gradle.docker.internal;
 
-import com.bmuschko.gradle.docker.DockerRegistryCredentials
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.github.dockerjava.api.model.AuthConfig
-import com.github.dockerjava.api.model.AuthConfigurations
-import com.github.dockerjava.core.NameParser
-import groovy.transform.CompileStatic
-import groovy.transform.PackageScope
-import org.apache.commons.codec.binary.Base64
-import org.gradle.api.Action
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
+import com.bmuschko.gradle.docker.DockerRegistryCredentials;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.dockerjava.api.model.AuthConfig;
+import com.github.dockerjava.api.model.AuthConfigurations;
+import com.github.dockerjava.core.NameParser;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+import org.gradle.process.ExecOperations;
 
-import java.nio.charset.StandardCharsets
+import javax.inject.Inject;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * Utility class to get credentials information from extension of type {@see DockerRegistryCredentials} or from {@code $DOCKER_CONFIG/.docker/config.json} file.
@@ -22,55 +23,56 @@ import java.nio.charset.StandardCharsets
  * <p>
  * The class is ported from the <a href="https://github.com/testcontainers/testcontainers-java">testcontainers-java</a> project (PR <a href="https://github.com/testcontainers/testcontainers-java/pull/729">729</a>).
  */
-@CompileStatic
-class RegistryAuthLocator {
+public class RegistryAuthLocator {
 
-    private static final String DOCKER_CONFIG = 'DOCKER_CONFIG'
-    private static final String USER_HOME = 'user.home'
-    private static final String DOCKER_DIR = '.docker'
-    private static final String CONFIG_JSON = 'config.json'
-    private static final String AUTH_SECTION = 'auths'
-    private static final String HELPERS_SECTION = 'credHelpers'
-    private static final String CREDS_STORE_SECTION = 'credsStore'
+    private static final String DOCKER_CONFIG = "DOCKER_CONFIG";
+    private static final String USER_HOME = "user.home";
+    private static final String DOCKER_DIR = ".docker";
+    private static final String CONFIG_JSON = "config.json";
+    private static final String AUTH_SECTION = "auths";
+    private static final String HELPERS_SECTION = "credHelpers";
+    private static final String CREDS_STORE_SECTION = "credsStore";
 
-    private static final String DEFAULT_HELPER_PREFIX = 'docker-credential-'
+    private static final String DEFAULT_HELPER_PREFIX = "docker-credential-";
 
-    private Logger logger = Logging.getLogger(RegistryAuthLocator)
+    private Logger logger = Logging.getLogger(RegistryAuthLocator.class);
     private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
-    private final File configFile
-    private final String commandPathPrefix
+    private final File configFile;
+    private final String commandPathPrefix;
+    private final String helperSuffix;
 
-    RegistryAuthLocator(File configFile, String commandPathPrefix) {
-        this.configFile = configFile
-        this.commandPathPrefix = commandPathPrefix
+    private final ExecOperations execOperations;
+
+    private RegistryAuthLocator(ExecOperations execOperations, File configFile, String commandPathPrefix, String helperSuffix) {
+        this.execOperations = execOperations;
+        this.configFile = configFile;
+        this.commandPathPrefix = commandPathPrefix;
+        this.helperSuffix = helperSuffix;
     }
 
-    RegistryAuthLocator(File configFile) {
-        this(configFile, DEFAULT_HELPER_PREFIX)
+    private RegistryAuthLocator(ExecOperations execOperations, File configFile) {
+        this(execOperations, configFile, DEFAULT_HELPER_PREFIX, "");
     }
 
     /**
      * Creates new instance
-     * @param defaultAuthConfig the auth config object to return
-     * in case not credentials found
      */
-    RegistryAuthLocator() {
-        this(new File(configLocation()), DEFAULT_HELPER_PREFIX)
+    private RegistryAuthLocator(ExecOperations execOperations) {
+        this(execOperations, new File(configLocation()), DEFAULT_HELPER_PREFIX, "");
     }
 
     /**
      * Gets authorization information
      * using $DOCKER_CONFIG/.docker/config.json file
      * If missing, returns empty AuthConfig object
-     * @param registryCredentials extension of type registryCredentials
+     *
      * @param image the name of docker image the action to be authorized for
      * @return AuthConfig object with a credentials info or empty object if
      * no credentials found
      */
-    @PackageScope
     AuthConfig lookupAuthConfigWithDefaultAuthConfig(String image) {
-        lookupAuthConfigWithAuthConfig(image, new AuthConfig())
+        return lookupAuthConfigWithAuthConfig(image, new AuthConfig());
     }
 
     /**
@@ -78,20 +80,20 @@ class RegistryAuthLocator {
      * using $DOCKER_CONFIG/.docker/config.json file
      * If missing, gets the information from
      * the registryCredentials object
+     *
      * @param registryCredentials extension of type registryCredentials
-     * @param image the name of docker image the action to be authorized for
+     * @param image               the name of docker image the action to be authorized for
      * @return AuthConfig object with a credentials info or default object if
      * no credentials found
      */
-    AuthConfig lookupAuthConfig(String image,
-                                DockerRegistryCredentials registryCredentials) {
-        AuthConfig defaultConfig = createAuthConfig(registryCredentials)
+    public AuthConfig lookupAuthConfig(String image, DockerRegistryCredentials registryCredentials) {
+        AuthConfig defaultConfig = createAuthConfig(registryCredentials);
 
         if (isProvidedByBuild(defaultConfig)) {
-            return defaultConfig
+            return defaultConfig;
         }
 
-        return lookupAuthConfigWithAuthConfig(image, defaultConfig)
+        return lookupAuthConfigWithAuthConfig(image, defaultConfig);
     }
 
     /**
@@ -105,345 +107,381 @@ class RegistryAuthLocator {
      * @return Flag
      */
     private boolean isProvidedByBuild(AuthConfig defaultConfig) {
-        defaultConfig.registryAddress && defaultConfig.username && defaultConfig.password
+        return defaultConfig.getRegistryAddress() != null && defaultConfig.getUsername() != null && defaultConfig.getPassword() != null;
     }
 
     /**
      * Gets authorization information using $DOCKER_CONFIG/.docker/config.json file
+     *
      * @param image the name of docker image the action to be authorized for
      * @return AuthConfig object with a credentials info or default object if
      * no credentials found
      */
     private AuthConfig lookupAuthConfigWithAuthConfig(String image, AuthConfig defaultAuthConfig) {
-        AuthConfig authConfigForRegistry = lookupAuthConfigForRegistry(getRegistry(image))
+        AuthConfig authConfigForRegistry = lookupAuthConfigForRegistry(getRegistry(image));
         if (authConfigForRegistry != null) {
-            return authConfigForRegistry
+            return authConfigForRegistry;
         }
-        return defaultAuthConfig
+        return defaultAuthConfig;
     }
 
     private AuthConfig lookupAuthConfigForRegistry(String registry) {
-        logger.debug("Looking up auth config for registry: $registry")
-        logger.debug("RegistryAuthLocator has configFile: $configFile.absolutePath (${configFile.exists() ? 'exists' : 'does not exist'}) and commandPathPrefix: $commandPathPrefix")
+        logger.debug("Looking up auth config for registry: " + registry);
+        logger.debug("RegistryAuthLocator has configFile: " + configFile.getAbsolutePath() + " (" + (configFile.exists() ? "exists" : "does not exist") + ") and commandPathPrefix: " + commandPathPrefix);
 
         if (!configFile.isFile()) {
-            return null
+            return null;
         }
 
         try {
-            Map<String, Object> config = objectMapper.readValue(configFile, Map<String, Object>)
+            Map<String, Object> config = objectMapper.readValue(configFile, Map.class);
 
-            AuthConfig existingAuthConfig = findExistingAuthConfig(config, registry)
+            AuthConfig existingAuthConfig = findExistingAuthConfig(config, registry);
             if (existingAuthConfig != null) {
-                return decodeAuth(existingAuthConfig)
+                return decodeAuth(existingAuthConfig);
             }
 
             // auths is empty, using helper:
-            AuthConfig helperAuthConfig = authConfigUsingHelper(config, registry)
+            AuthConfig helperAuthConfig = authConfigUsingHelper(config, registry);
             if (helperAuthConfig != null) {
-                return decodeAuth(helperAuthConfig)
+                return decodeAuth(helperAuthConfig);
             }
 
             // no credsHelper to use, using credsStore:
-            final AuthConfig storeAuthConfig = authConfigUsingStore(config, registry)
+            final AuthConfig storeAuthConfig = authConfigUsingStore(config, registry);
             if (storeAuthConfig != null) {
-                return decodeAuth(storeAuthConfig)
+                return decodeAuth(storeAuthConfig);
             }
 
-        } catch(Exception ex) {
-            logger.error('Failure when attempting to lookup auth config ' +
-                    '(docker registry: {}, configFile: {}). ' +
-                    'Falling back to docker-java default behaviour',
+        } catch (Exception ex) {
+            logger.error("Failure when attempting to lookup auth config " +
+                         "(docker registry: {}, configFile: {}). " +
+                         "Falling back to docker-java default behaviour",
                     registry,
                     configFile,
-                    ex)
+                    ex);
         }
-        return null
+        return null;
     }
 
     /**
      * Gets all authorization information
      * using $DOCKER_CONFIG/.docker/config.json file
      * If missing, an empty AuthConfigurations object is returned
+     *
      * @return AuthConfigurations object containing all authorization information,
      * or an empty object if not available
      */
-    AuthConfigurations lookupAllAuthConfigs() {
-        AuthConfigurations authConfigurations = new AuthConfigurations()
+    public AuthConfigurations lookupAllAuthConfigs() {
+        AuthConfigurations authConfigurations = new AuthConfigurations();
 
-        logger.debug("RegistryAuthLocator has configFile: $configFile.absolutePath (${configFile.exists() ? 'exists' : 'does not exist'}) and commandPathPrefix: $commandPathPrefix")
+        logger.debug("RegistryAuthLocator has configFile: " + configFile.getAbsolutePath() + " (" + (configFile.exists() ? "exists" : "does not exist") + ") and commandPathPrefix: " + commandPathPrefix);
 
         if (!configFile.isFile()) {
-            return authConfigurations
+            return authConfigurations;
         }
 
         try {
-            Set<String> registryAddresses = new HashSet<>()
-            Map<String, Object> config = objectMapper.readValue(configFile, Map<String, Object>)
+            Set<String> registryAddresses = new HashSet<String>();
+            Map<String, Object> config = objectMapper.readValue(configFile, Map.class);
 
             // Discover registry addresses from `auths` section
-            Map<String, Object> authSectionRegistries = config.getOrDefault(AUTH_SECTION, new HashMap()) as Map<String, Object>
-            logger.debug("Found registries in docker auths section: {}", authSectionRegistries.keySet())
-            registryAddresses.addAll(authSectionRegistries.keySet())
+            Map<String, Object> authSectionRegistries = (Map<String, Object>) config.getOrDefault(AUTH_SECTION, new HashMap<>());
+            logger.debug("Found registries in docker auths section: {}", authSectionRegistries.keySet());
+            registryAddresses.addAll(authSectionRegistries.keySet());
 
             // Discover registry addresses from `credHelpers` section
-            Map<String, Object> credHelperSectionRegistries = config.getOrDefault(HELPERS_SECTION, new HashMap()) as Map<String, Object>
-            logger.debug("Found registries in docker credHelpers section: {}", credHelperSectionRegistries.keySet())
-            registryAddresses.addAll(credHelperSectionRegistries.keySet())
+            Map<String, Object> credHelperSectionRegistries = (Map<String, Object>) config.getOrDefault(HELPERS_SECTION, new HashMap<>());
+            logger.debug("Found registries in docker credHelpers section: {}", credHelperSectionRegistries.keySet());
+            registryAddresses.addAll(credHelperSectionRegistries.keySet());
 
             // Discover registry addresses from credentials helper
-            Object credStoreSection = config.get(CREDS_STORE_SECTION)
-            if (credStoreSection != null && credStoreSection instanceof String) {
-                String credStoreCommand = commandPathPrefix + credStoreSection
+            Object credStoreSection = config.get(CREDS_STORE_SECTION);
+            if (credStoreSection instanceof String) {
+                String credStoreCommand = commandPathPrefix + credStoreSection + helperSuffix;
 
-                logger.debug('Executing docker credential helper: {} to locate auth configs', credStoreCommand)
-                String credStoreResponse = runCommand("$credStoreCommand list")
-                logger.debug('Credential helper response: {}', credStoreResponse)
-                Map<String, String> helperResponse = parseText(credStoreResponse, Map<String, String>)
+                logger.debug("Executing docker credential helper: {} to locate auth configs", credStoreCommand);
+                String credStoreResponse = runCommand(List.of(credStoreCommand, "list"));
+                logger.debug("Credential helper response: {}", credStoreResponse);
+                Map<String, String> helperResponse = parseText(credStoreResponse, Map.class);
                 if (helperResponse != null) {
-                    logger.debug("Found registries in docker credential helper: {}", helperResponse.keySet())
-                    registryAddresses.addAll(helperResponse.keySet())
+                    logger.debug("Found registries in docker credential helper: {}", helperResponse.keySet());
+                    registryAddresses.addAll(helperResponse.keySet());
                 }
             }
 
             // Lookup authentication information for all discovered registry addresses
             for (String registryAddress : registryAddresses) {
-                AuthConfig registryAuthConfig = lookupAuthConfigForRegistry(registryAddress)
+                AuthConfig registryAuthConfig = lookupAuthConfigForRegistry(registryAddress);
                 if (registryAuthConfig != null) {
-                    authConfigurations.addConfig(registryAuthConfig)
+                    authConfigurations.addConfig(registryAuthConfig);
                 }
             }
         } catch (Exception ex) {
-            logger.error('Failure when attempting to lookup auth config ' +
-                    '(configFile: {}). ' +
-                    'Falling back to docker-java default behaviour',
-                    configFile,
-                    ex)
+            logger.error("Failure when attempting to lookup auth config " + "(configFile: {}). " + "Falling back to docker-java default behaviour", configFile, ex);
         }
-        return authConfigurations
+        return authConfigurations;
     }
 
     /**
      * Gets all authorization information
      * using $DOCKER_CONFIG/.docker/config.json file
      * If missing, an AuthConfigurations object containing only the passed registryCredentials is returned
+     *
      * @param registryCredentials extension of type registryCredentials
      * @return AuthConfigurations object containing all authorization information (if available), and the registryCredentials
      */
-    AuthConfigurations lookupAllAuthConfigs(DockerRegistryCredentials registryCredentials) {
-        return lookupAllAuthConfigs(createAuthConfig(registryCredentials))
+    public AuthConfigurations lookupAllAuthConfigs(DockerRegistryCredentials registryCredentials) {
+        return lookupAllAuthConfigs(createAuthConfig(registryCredentials));
     }
 
     /**
      * Gets all authorization information
      * using $DOCKER_CONFIG/.docker/config.json file
      * If missing, an AuthConfigurations object containing only the passed additionalAuthConfig is returned
+     *
      * @param additionalAuthConfig An additional AuthConfig object to add to the discovered authorization information.
      * @return AuthConfigurations object containing all authorization information (if available), and the additionalAuthConfig
      */
-    AuthConfigurations lookupAllAuthConfigs(AuthConfig additionalAuthConfig) {
-        AuthConfigurations allAuthConfigs = lookupAllAuthConfigs()
-        if (allAuthConfigs.configs.isEmpty()) {
-            allAuthConfigs.addConfig(additionalAuthConfig)
+    public AuthConfigurations lookupAllAuthConfigs(AuthConfig additionalAuthConfig) {
+        AuthConfigurations allAuthConfigs = lookupAllAuthConfigs();
+        if (allAuthConfigs.getConfigs().isEmpty()) {
+            allAuthConfigs.addConfig(additionalAuthConfig);
         }
-        return allAuthConfigs
+        return allAuthConfigs;
     }
 
     private AuthConfig createAuthConfig(DockerRegistryCredentials registryCredentials) {
-        AuthConfig authConfig = new AuthConfig()
-        authConfig.withRegistryAddress(registryCredentials.url.get())
+        AuthConfig authConfig = new AuthConfig();
+        authConfig.withRegistryAddress(registryCredentials.getUrl().get());
 
-        if (registryCredentials.username.isPresent()) {
-            authConfig.withUsername(registryCredentials.username.get())
+        if (registryCredentials.getUsername().isPresent()) {
+            authConfig.withUsername(registryCredentials.getUsername().get());
         }
 
-        if (registryCredentials.password.isPresent()) {
-            authConfig.withPassword(registryCredentials.password.get())
+        if (registryCredentials.getPassword().isPresent()) {
+            authConfig.withPassword(registryCredentials.getPassword().get());
         }
 
-        if (registryCredentials.email.isPresent()) {
-            authConfig.withEmail(registryCredentials.email.get())
+        if (registryCredentials.getEmail().isPresent()) {
+            authConfig.withEmail(registryCredentials.getEmail().get());
         }
-        authConfig
+        return authConfig;
     }
 
     /**
      * @return default location of the docker credentials config file
      */
     private static String configLocation() {
-        String defaultDir = System.getProperty(USER_HOME) + File.separator + DOCKER_DIR
-        String dir = System.getenv().getOrDefault(DOCKER_CONFIG, defaultDir)
-        dir + File.separator + CONFIG_JSON
+        String defaultDir = System.getProperty(USER_HOME) + File.separator + DOCKER_DIR;
+        String dir = System.getenv().getOrDefault(DOCKER_CONFIG, defaultDir);
+        return dir + File.separator + CONFIG_JSON;
     }
 
     /**
      * Extract registry name from the image name
+     *
      * @param image the name of the docker image
      * @return docker registry name
      */
-    String getRegistry(String image) {
-        final NameParser.ReposTag tag = NameParser.parseRepositoryTag(image)
-        final NameParser.HostnameReposName repository = NameParser.resolveRepositoryName(tag.repos)
-        return repository.hostname
+    public String getRegistry(String image) {
+        final NameParser.ReposTag tag = NameParser.parseRepositoryTag(image);
+        final NameParser.HostnameReposName repository = NameParser.resolveRepositoryName(tag.repos);
+        return repository.hostname;
     }
 
     /**
      * Finds 'auth' section in the config json matching the given repository
-     * @param config config json object
+     *
+     * @param config     config json object
      * @param repository the name of the docker repository
      * @return auth object with a token if present or null otherwise
      */
     private AuthConfig findExistingAuthConfig(Map<String, Object> config, String repository) {
-        Map.Entry<String, Object> entry = findAuthNode(config, repository)
+        Map.Entry<String, Object> entry = findAuthNode(config, repository);
         if (entry != null && entry.getValue() != null && entry.getValue() instanceof Map) {
-            Map authMap = entry.getValue() as Map
+            Map authMap = (Map) entry.getValue();
             if (authMap.size() > 0) {
-                String authJson = objectMapper.writeValueAsString(entry.getValue())
-                AuthConfig authCfg = parseText(authJson, AuthConfig)
-                if (authCfg == null) {
-                    return null
+                String authJson;
+                try {
+                    authJson = objectMapper.writeValueAsString(entry.getValue());
+                } catch (JsonProcessingException e) {
+                    throw new UncheckedIOException(e);
                 }
-                return authCfg.withRegistryAddress(entry.getKey())
+                AuthConfig authCfg = parseText(authJson, AuthConfig.class);
+                if (authCfg == null) {
+                    return null;
+                }
+                return authCfg.withRegistryAddress(entry.getKey());
             }
         }
-        logger.debug('No existing AuthConfig found')
-        return null
+        logger.debug("No existing AuthConfig found");
+        return null;
     }
 
     /**
      * Finds 'auth' node in the config json matching the given repository
-     * @param config config json object
+     *
+     * @param config     config json object
      * @param repository the name of the docker repository
      * @return auth json node if present or null otherwise
      */
-    private static Map.Entry<String, Object> findAuthNode(Map<String, Object> config,
-                                                          String repository) {
-        Map<String, Object> auths = config.get(AUTH_SECTION) as Map<String, Object>
+    private static Map.Entry<String, Object> findAuthNode(Map<String, Object> config, String repository) {
+        Map<String, Object> auths = (Map<String, Object>) config.get(AUTH_SECTION);
         if (auths != null && auths.size() > 0) {
-            for (Map.Entry<String, Object> entry: auths.entrySet() ) {
-                if (entry.getKey().endsWith('://' + repository) || entry.getKey() == repository) {
-                    return entry
+            for (Map.Entry<String, Object> entry : auths.entrySet()) {
+                if (entry.getKey().endsWith("://" + repository) || entry.getKey().equals(repository)) {
+                    return entry;
                 }
             }
         }
-        return null
+        return null;
     }
 
     /**
      * Checks 'credHelpers' section in the config json matching the given repository
-     * @param config config json object
+     *
+     * @param config     config json object
      * @param repository the name of the docker repository
      * @return auth object if present or null otherwise
      */
-    private AuthConfig authConfigUsingHelper(Map<String, Object> config, String repository)  {
-        Map<String, Object> credHelpers = config.get(HELPERS_SECTION) as Map<String, Object>
+    private AuthConfig authConfigUsingHelper(Map<String, Object> config, String repository) {
+        Map<String, Object> credHelpers = (Map<String, Object>) config.get(HELPERS_SECTION);
         if (credHelpers != null && credHelpers.size() > 0) {
-            Object helperNode = credHelpers.get(repository)
-            if (helperNode != null && helperNode instanceof String) {
-                String helper = helperNode as String
-                return runCredentialProvider(repository, helper)
+            Object helperNode = credHelpers.get(repository);
+            if (helperNode instanceof String) {
+                String helper = (String) helperNode;
+                return runCredentialProvider(repository, helper);
             }
         }
-        logger.debug('No helper found in the {} section', HELPERS_SECTION)
-        return null
+        logger.debug("No helper found in the {} section", HELPERS_SECTION);
+        return null;
     }
 
     /**
      * Runs external credentials provider tool (e.g. docker-credential-gcloud)
-     * @param hostName the name of the docker repository to get auth for
+     *
+     * @param hostName   the name of the docker repository to get auth for
      * @param credHelper the suffix of the docker credential helper (e.g. gcloud)
      * @return auth object if present or null otherwise
      */
-    private AuthConfig runCredentialProvider(String hostName, String credHelper) {
-        String credentialHelperName = commandPathPrefix + credHelper
+    private AuthConfig runCredentialProvider(final String hostName, String credHelper) {
+        String credentialHelperName = commandPathPrefix + credHelper + helperSuffix;
 
-        logger.debug('Executing docker credential helper: {} to locate auth config for: {}',
-                credentialHelperName, hostName)
-        String data = runCommand("$credentialHelperName get", { Writer writer -> writer << hostName })
-        logger.debug('Credential helper response: {}', data)
-        Map<String, String> helperResponse = parseText(data, Map<String, String>)
+        logger.debug("Executing docker credential helper: {} to locate auth config for: {}", credentialHelperName, hostName);
+        String data = runCommand(List.of(credentialHelperName, "get"), hostName);
+        logger.debug("Credential helper response: {}", data);
+        Map<String, String> helperResponse = parseText(data, Map.class);
         if (helperResponse == null) {
-            return null
+            return null;
         }
-        logger.debug('Credential helper provided auth config for: {}', hostName)
+
+        logger.debug("Credential helper provided auth config for: {}", hostName);
 
         // If the ServerURL field is not returned by the helper, fall back to the provided hostname
-        String registryAddress = helperResponse.ServerURL ?: hostName
+        String registryAddress = helperResponse.get("ServerURL") != null ? helperResponse.get("ServerURL") : hostName;
 
-        return new AuthConfig()
-                .withRegistryAddress(registryAddress)
-                .withUsername(helperResponse.Username)
-                .withPassword(helperResponse.Secret)
+        return new AuthConfig().withRegistryAddress(registryAddress).withUsername(helperResponse.get("Username")).withPassword(helperResponse.get("Secret"));
     }
 
     /**
      * Checks 'credsStore' section in the config json matching the given repository
-     * @param config config json object
+     *
+     * @param config     config json object
      * @param repository the name of the docker repository
      * @return auth object if present or null otherwise
      */
     private AuthConfig authConfigUsingStore(Map<String, Object> config, String repository) {
-        Object credsStoreNode = config.get(CREDS_STORE_SECTION)
-        if (credsStoreNode != null && credsStoreNode instanceof String) {
-            String credsStore = credsStoreNode as String
-            return runCredentialProvider(repository, credsStore)
+        Object credsStoreNode = config.get(CREDS_STORE_SECTION);
+        if (credsStoreNode instanceof String) {
+            String credsStore = (String) credsStoreNode;
+            return runCredentialProvider(repository, credsStore);
         }
-        logger.debug('No helper found in the {} section', CREDS_STORE_SECTION)
-        return null
+        logger.debug("No helper found in the {} section", CREDS_STORE_SECTION);
+        return null;
     }
 
-    private String runCommand(String command) {
-        runCommand(command, null);
+    private String runCommand(List<String> command) {
+        return runCommand(command, null);
     }
 
-    private String runCommand(String command, Action<Writer> writerAction) {
+    private String runCommand(List<String> command, String input) {
         try {
-            StringBuilder sOut = new StringBuilder()
-            StringBuilder sErr = new StringBuilder()
-            Process proc = "$command".execute()
-            if (writerAction != null) {
-                proc.withWriter { Writer writer -> writerAction.execute(writer) }
+            ByteArrayOutputStream sOut = new ByteArrayOutputStream();
+            ByteArrayOutputStream eOut = new ByteArrayOutputStream();
+
+            execOperations.exec(execSpec -> {
+                execSpec.setCommandLine(command);
+                execSpec.setStandardOutput(sOut);
+                execSpec.setErrorOutput(eOut);
+                execSpec.setIgnoreExitValue(true);
+                if (input != null) {
+                    execSpec.setStandardInput(new ByteArrayInputStream(input.getBytes()));
+                }
+            });
+
+            if (eOut.size() > 0) {
+                logger.error("{}: {}", command, eOut.toString());
             }
-            proc.waitFor()
-            proc.waitForProcessOutput(sOut, sErr)
-            if (sErr.length() > 0) {
-                logger.error("{}: {}", command, sErr.toString())
-            }
-            return sOut.toString()
+
+            return sOut.toString();
         } catch (Exception e) {
-            logger.error('Failure running command ({})', command)
-            throw e
+            logger.error("Failure running command ({})", command);
+            throw e;
         }
 
     }
 
     private static AuthConfig decodeAuth(AuthConfig config) {
         if (config.getAuth() == null) {
-            return config
+            return config;
         }
 
-        String str = new String(Base64.decodeBase64(config.getAuth()), StandardCharsets.UTF_8)
-        String[] parts = str.split(":", 2)
+        String str = new String(Base64.getDecoder().decode(config.getAuth()), StandardCharsets.UTF_8);
+        String[] parts = str.split(":", 2);
         if (parts.length != 2) {
-            throw new IOException("Invalid auth configuration file")
+            throw new RuntimeException("Invalid auth configuration file");
         }
-        config.withUsername(parts[0])
-        config.withPassword(parts[1])
-        config.withAuth(null)
-        return config
+
+        config.withUsername(parts[0]);
+        config.withPassword(parts[1]);
+        config.withAuth(null);
+        return config;
     }
 
     private <T> T parseText(String data, Class<T> valueType) {
         try {
-            return objectMapper.readValue(data, valueType)
+            return objectMapper.readValue(data, valueType);
         } catch (Exception e) {
-            logger.debug('Failure parsing the json response {}', data, e)
-            return null
+            logger.debug("Failure parsing the json response {}", data, e);
+            return null;
         }
     }
 
-    @PackageScope
     void setLogger(Logger logger) {
-        this.logger = logger
+        this.logger = logger;
+    }
+
+    public static class Factory {
+        private final ExecOperations execOperations;
+        @Inject
+        public Factory(ExecOperations execOperations) {
+            this.execOperations = execOperations;
+        }
+
+        RegistryAuthLocator withConfigAndCommandPathPrefix(File configFile, String commandPathPrefix, String helperSuffix) {
+            return new RegistryAuthLocator(execOperations, configFile, commandPathPrefix, helperSuffix);
+        }
+
+        RegistryAuthLocator withConfig(File configFile) {
+            return new RegistryAuthLocator(execOperations, configFile);
+        }
+
+        /**
+         * Creates new instance
+         */
+        public RegistryAuthLocator withDefaults() {
+            return new RegistryAuthLocator(execOperations);
+        }
     }
 }

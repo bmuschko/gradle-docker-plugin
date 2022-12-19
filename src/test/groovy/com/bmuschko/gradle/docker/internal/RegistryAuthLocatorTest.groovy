@@ -1,11 +1,12 @@
 package com.bmuschko.gradle.docker.internal
 
+import org.gradle.testfixtures.ProjectBuilder
+
 import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows;
 
 import com.github.dockerjava.api.model.AuthConfig
 import com.github.dockerjava.api.model.AuthConfigurations
 import org.gradle.api.logging.Logger
-import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Specification
 
@@ -13,6 +14,7 @@ class RegistryAuthLocatorTest extends Specification {
 
     private static final String CONFIG_LOCATION = '/auth-config/'
     private static final AuthConfig DEFAULT_AUTH_CONFIG = new AuthConfig()
+    private final RegistryAuthLocator.Factory factory = ProjectBuilder.builder().build().objects.newInstance(RegistryAuthLocator.Factory)
     private Logger logger = Mock(Logger)
 
     def "AuthLocator works with empty config"() {
@@ -157,7 +159,7 @@ class RegistryAuthLocatorTest extends Specification {
         String image = 'ubuntu'
 
         when:
-        String registry = new RegistryAuthLocator().getRegistry(image)
+        String registry = factory.withDefaults().getRegistry(image)
 
         then:
         registry == 'https://index.docker.io/v1/'
@@ -169,7 +171,7 @@ class RegistryAuthLocatorTest extends Specification {
         String image = 'gcr.io/distroless/java17'
 
         when:
-        String registry = new RegistryAuthLocator().getRegistry(image)
+        String registry = factory.withDefaults().getRegistry(image)
 
         then:
         registry == 'gcr.io'
@@ -235,11 +237,7 @@ class RegistryAuthLocatorTest extends Specification {
         then:
         config == DEFAULT_AUTH_CONFIG
         allConfigs.configs.isEmpty()
-        if(isWindows()) {
-            2 * logger.error(*_)
-        } else {
-            4 * logger.error(*_)
-        }
+        4 * logger.error(*_)
     }
 
     def "AuthLocator uses default config then store does not contain the credentials"() {
@@ -279,25 +277,23 @@ class RegistryAuthLocatorTest extends Specification {
         File configFile = new File(getClass().getResource(CONFIG_LOCATION + configName).toURI())
         RegistryAuthLocator locator
         if (mockHelper) {
-            String command = null
+            String command = new File(configFile.getParentFile(), 'docker-credential-').getAbsolutePath()
+            String helperSuffix
             if (isWindows()) {
-                def matcher = configFile.getParentFile().getAbsolutePath() =~ /(?<drive>[A-Z]):.*/
-                matcher.matches()
-                def driveLetter = matcher.group('drive')
-                command = 'C:\\msys64\\usr\\bin\\bash /' + (configFile.getParentFile().getAbsolutePath().replace(driveLetter + ':', driveLetter.toLowerCase()).replace('\\', '/')) + '/docker-credential-'
+                helperSuffix = '.bat'
             } else {
-                command = new File(configFile.getParentFile(), 'docker-credential-').getAbsolutePath()
+                helperSuffix = ''
             }
-            locator = new RegistryAuthLocator(configFile, command)
+            locator = factory.withConfigAndCommandPathPrefix(configFile, command, helperSuffix)
         } else {
-            locator = new RegistryAuthLocator(configFile)
+            locator = factory.withConfig(configFile)
         }
         locator.setLogger(logger)
         locator
     }
 
     private RegistryAuthLocator createAuthLocatorForMissingConfigFile(String configName) {
-        RegistryAuthLocator locator = new RegistryAuthLocator(new File(configName))
+        RegistryAuthLocator locator = factory.withConfig(new File(configName))
         locator.setLogger(logger)
         locator
     }
