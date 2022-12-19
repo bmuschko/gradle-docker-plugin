@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Utility class to get credentials information from extension of type {@see DockerRegistryCredentials} or from {@code $DOCKER_CONFIG/.docker/config.json} file.
+ * Utility class to get credentials information from extension of type {@link DockerRegistryCredentials} or from {@code $DOCKER_CONFIG/.docker/config.json} file.
  * <p>
  * Supports auth token, credentials store and credentials helpers. Only Linux OS is supported at the moment. Returns default auth object if called on Windows.
  * <p>
