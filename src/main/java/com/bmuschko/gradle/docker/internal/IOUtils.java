@@ -4,23 +4,11 @@ import org.gradle.internal.logging.progress.ProgressLogger;
 import org.gradle.internal.logging.progress.ProgressLoggerFactory;
 import org.gradle.internal.service.ServiceRegistry;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Objects;
 
 public final class IOUtils {
 
     private IOUtils() { }
-
-    public static void closeQuietly(Closeable toClose) {
-        try {
-            if (toClose != null) {
-                toClose.close();
-            }
-        } catch (IOException ignored) {
-            // ignore
-        }
-    }
 
     /**
      * Create a progress logger for an arbitrary project and class.
