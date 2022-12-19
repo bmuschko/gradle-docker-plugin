@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.github.dockerjava.api.command.StartContainerCmd
-import groovy.transform.CompileStatic
-
-@CompileStatic
-class DockerStartContainer extends DockerExistingContainer {
+public class DockerKillContainer extends DockerExistingContainer {
     @Override
-    void runRemoteCommand() {
-        logger.quiet "Starting container with ID '${containerId.get()}'."
-        StartContainerCmd containerCommand = dockerClient.startContainerCmd(containerId.get())
-        containerCommand.exec()
+    public void runRemoteCommand() {
+        getLogger().quiet("Killing container with ID '" + getContainerId().get() + "'.");
+        getDockerClient().killContainerCmd(getContainerId().get()).exec();
     }
 }
-
