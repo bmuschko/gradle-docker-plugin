@@ -33,6 +33,7 @@ class ShadedArtifactsPlugin: Plugin<Project> {
     private
     fun Project.configureShadowJarTask(shaded: Configuration): TaskProvider<ShadowJar> {
         val packagesToRelocate = listOf(
+                "com.github.dockerjava",
                 "javassist",
                 "org.glassfish",
                 "org.jvnet",

@@ -23,6 +23,10 @@ repositories {
     mavenCentral()
 }
 
+configurations.shaded {
+    exclude("org.slf4j")
+}
+
 dependencies {
     shaded(libs.bundles.docker.java)
     shaded(libs.activation)
