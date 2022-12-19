@@ -1,6 +1,5 @@
 package com.bmuschko.gradle.docker.internal.services;
 
-import com.bmuschko.gradle.docker.tasks.DockerClientConfiguration;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
@@ -68,13 +67,15 @@ public abstract class DockerClientService implements BuildService<DockerClientSe
     /**
      * Returns the Docker client.
      *
-     * @param dockerClientConfiguration The Docker client configuration
+     * @param urlProvider Docker client url
+     * @param certPathProvider Docker client certificate path
+     * @param apiVersionProvider Docker client api version
      * @return Docker client
      */
-    public DockerClient getDockerClient(DockerClientConfiguration dockerClientConfiguration) {
-        String dockerUrl = getDockerHostUrl(dockerClientConfiguration);
-        File dockerCertPath = thingOrProperty(objects.directoryProperty(), dockerClientConfiguration.getCertPath(), getParameters().getCertPath()).map(Directory::getAsFile).getOrNull();
-        String apiVersion = thingOrProperty(objects.property(String.class), dockerClientConfiguration.getApiVersion(), getParameters().getApiVersion()).getOrNull();
+    public DockerClient getDockerClient(Provider<String> urlProvider, Provider<Directory> certPathProvider, Provider<String> apiVersionProvider) {
+        String dockerUrl = getDockerHostUrl(urlProvider);
+        File dockerCertPath = certPathProvider.orElse(getParameters().getCertPath()).map(Directory::getAsFile).getOrNull();
+        String apiVersion = apiVersionProvider.orElse(getParameters().getApiVersion()).getOrNull();
 
         // Create configuration
         DefaultDockerClientConfig.Builder dockerClientConfigBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder();
@@ -118,17 +119,12 @@ public abstract class DockerClientService implements BuildService<DockerClientSe
      * Checks if Docker host URL starts with http(s) and if so, converts it to tcp
      * which is accepted by docker-java library.
      *
-     * @param dockerClientConfiguration docker client configuration
+     * @param urlProvider Docker client url
      * @return Docker host URL as string
      */
-    private String getDockerHostUrl(DockerClientConfiguration dockerClientConfiguration) {
-        String url = thingOrProperty(objects.property(String.class), dockerClientConfiguration.getUrl(), getParameters().getUrl()).map(String::toLowerCase).get();
+    private String getDockerHostUrl(Provider<String> urlProvider) {
+        String url = urlProvider.orElse(getParameters().getUrl()).map(String::toLowerCase).get();
         return url.startsWith("http") ? "tcp" + url.substring(url.indexOf(':')) : url;
-    }
-
-    private <T> Provider<T> thingOrProperty(Property<T> prop, T t, Property<T> tp) {
-        prop.set(t);
-        return prop.orElse(tp);
     }
 
     @Override
