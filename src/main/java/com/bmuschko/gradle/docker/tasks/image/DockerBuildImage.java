@@ -147,9 +147,9 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
      * import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
      *
      * class CustomDockerBuildImage extends DockerBuildImage {
-     *     @Override
-     *     @Internal
-     *     MapProperty<String, String> getLabels() {
+     *    {@literal @}Override
+     *    {@literal @}Internal
+     *     MapProperty&lt;String, String&gt; getLabels() {
      *         super.getLabels()
      *     }
      * }

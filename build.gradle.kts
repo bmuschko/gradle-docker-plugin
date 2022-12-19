@@ -85,23 +85,6 @@ pluginBundle {
     }
 }
 
-sourceSets {
-    main {
-        // required until all main source is rewritten in java (or we can compile java before groovy)
-        java {
-            setSrcDirs(emptyList<Any>())
-        }
-        groovy {
-            srcDir("src/main/java")
-        }
-    }
-}
-
-tasks.javadoc {
-    // required until all main source is rewritten in java (or we can compile java before groovy)
-    enabled = false
-}
-
 buildScan {
     termsOfServiceUrl = "https://gradle.com/terms-of-service"
     termsOfServiceAgree = "yes"
