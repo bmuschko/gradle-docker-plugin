@@ -19,7 +19,6 @@ import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd
 import groovy.io.FileType
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
-import org.gradle.api.GradleException
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileSystemOperations
@@ -32,8 +31,9 @@ import javax.inject.Inject
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.stream.Collectors
-import java.util.stream.Stream
+
+import static com.bmuschko.gradle.docker.internal.CopyUtils.copyMultipleFiles
+import static com.bmuschko.gradle.docker.internal.CopyUtils.copySingleFile
 
 @CompileStatic
 class DockerCopyFileFromContainer extends DockerExistingContainer {
@@ -192,89 +192,5 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
             }
         })
         return outputDirectory
-    }
-
-    /**
-     * Copy regular file inside tempDestination to, or into, hostDestination
-     */
-    private void copySingleFile(Path hostDestination, Path tempDestination) {
-
-        // ensure regular file does not exist as we don't want clobbering
-        if (Files.exists(hostDestination) && !Files.isDirectory(hostDestination)) {
-            Files.delete(hostDestination)
-        }
-
-        // create parent files of hostPath should they not exist
-        if (!Files.exists(hostDestination) && !Files.exists(hostDestination.parent)) {
-            Files.createDirectories(hostDestination.parent)
-        }
-
-        def parentDirectory = Files.isDirectory(hostDestination) ? hostDestination : hostDestination.parent
-        List<Path> files
-        try (def stream = Files.list(tempDestination)) {
-            files = stream.collect(Collectors.toList());
-        }
-        def fileName = Files.isDirectory(hostDestination) ?
-            files.last().fileName : hostDestination.fileName
-
-        Path destination = parentDirectory.resolve(fileName)
-        Files.move(files.last(), destination)
-    }
-
-    /**
-     * Copy files inside tempDestination into hostDestination
-     */
-    private void copyMultipleFiles(Path hostDestination, Path tempDestination) {
-
-        // Flatten single top-level directory to behave more like docker. Basically
-        // we are turning this:
-        //
-        //     /<requested-host-dir>/base-directory/actual-files-start-here
-        //
-        // into this:
-        //
-        //     /<requested-host-dir>/actual-files-start-here
-        //
-        // gradle does not currently offer any mechanism to do this which
-        // is why we have to do the following gymnastics
-        def files = Files.list(tempDestination).withCloseable { it.collect(Collectors.toList()) }
-        if (files.size() == 1) {
-            Path dirToFlatten = files.last()
-            Path dirToFlattenParent = dirToFlatten.parent
-            Path flatDir = dirToFlattenParent.resolve(UUID.randomUUID().toString())
-
-            // rename origin to escape potential clobbering
-            Files.move(dirToFlatten, flatDir)
-
-            // rename files 1 level higher
-            for (Path it : flatDir) {
-                def movedFile = dirToFlattenParent.resolve(it.fileName)
-                Files.move(it, movedFile)
-            }
-
-            if (!flatDir.deleteDir()) {
-                throw new GradleException("Failed deleting directory at ${flatDir}")
-            }
-        }
-
-        // delete regular file should it exist
-        if (Files.exists(hostDestination) && !Files.isDirectory(hostDestination)) {
-            Files.delete(hostDestination)
-        }
-
-        // If directory already exists, rename each file into
-        // said directory, otherwise rename entire directory.
-        if (Files.exists(hostDestination)) {
-            def parentName = tempDestination.fileName.toString()
-            tempDestination.each {
-                def originPath = it.toAbsolutePath()
-                def index = originPath.toString().lastIndexOf(parentName) + parentName.length()
-                def relativePath = originPath.toString().substring(index, originPath.toString().length())
-                def destFile = Paths.get("${hostDestination}/${relativePath}")
-                Files.move(it, destFile)
-            }
-        } else {
-            Files.move(tempDestination, hostDestination)
-        }
     }
 }
