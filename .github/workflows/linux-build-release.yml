@@ -44,7 +44,7 @@ jobs:
       - name: Assemble artifacts
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: assemble groovydoc asciidoctorAllGuides
+          arguments: assemble javadoc asciidoctorAllGuides
       - name: Store artifact
         uses: actions/upload-artifact@v2
         with:
