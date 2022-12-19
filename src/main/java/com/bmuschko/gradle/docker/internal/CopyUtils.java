@@ -99,24 +99,15 @@ public final class CopyUtils {
         // If directory already exists, rename each file into
         // said directory, otherwise rename entire directory.
         if (Files.exists(hostDestination)) {
-            //String parentName = tempDestination.getFileName().toString();
             List<Path> tempDestFiles;
             try (Stream<Path> stream = Files.list(tempDestination)) {
                 tempDestFiles = stream.collect(Collectors.toList());
             }
             for (Path it : tempDestFiles) {
-                //Path originPath = it.toAbsolutePath();
                 Path relativePath = tempDestination.relativize(it);
                 Path destFile = hostDestination.resolve(relativePath);
                 Files.move(it, destFile);
             }
-            //tempDestination.each {
-            //    def originPath = it.toAbsolutePath()
-            //    def index = originPath.toString().lastIndexOf(parentName) + parentName.length()
-            //    def relativePath = originPath.toString().substring(index, originPath.toString().length())
-            //    def destFile = Paths.get("${hostDestination}/${relativePath}")
-            //    Files.move(it, destFile)
-            //}
         } else {
             Files.move(tempDestination, hostDestination);
         }
