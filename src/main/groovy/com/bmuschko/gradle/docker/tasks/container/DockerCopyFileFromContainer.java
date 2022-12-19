@@ -13,49 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bmuschko.gradle.docker.tasks.container
+package com.bmuschko.gradle.docker.tasks.container;
 
-import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd
-import groovy.io.FileType
-import groovy.transform.CompileStatic
-import org.gradle.api.Action
-import org.gradle.api.file.ArchiveOperations
-import org.gradle.api.file.CopySpec
-import org.gradle.api.file.FileSystemOperations
-import org.gradle.api.file.FileTree
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd;
+import org.gradle.api.Action;
+import org.gradle.api.file.ArchiveOperations;
+import org.gradle.api.file.CopySpec;
+import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.file.FileTree;
+import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
-import javax.inject.Inject
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+import java.util.stream.Stream;
 
-import static com.bmuschko.gradle.docker.internal.CopyUtils.copyMultipleFiles
-import static com.bmuschko.gradle.docker.internal.CopyUtils.copySingleFile
+import static com.bmuschko.gradle.docker.internal.CopyUtils.copyMultipleFiles;
+import static com.bmuschko.gradle.docker.internal.CopyUtils.copySingleFile;
 
-@CompileStatic
-class DockerCopyFileFromContainer extends DockerExistingContainer {
+public class DockerCopyFileFromContainer extends DockerExistingContainer {
     /**
      * Path inside container
      */
     @Input
-    final Property<String> remotePath = project.objects.property(String)
+    public final Property<String> getRemotePath() {
+        return remotePath;
+    }
 
     /**
      * Path on host to write remotePath to or into.
-     *
+     * <p>
      * If hostPath does not exist it will be created relative to
      * what we need it to be (e.g. regular file or directory).
      * This is consistent with how 'docker cp' behaves.
      */
     @Input
-    final Property<String> hostPath = project.objects.property(String)
+    public final Property<String> getHostPath() {
+        return hostPath;
+    }
 
     /**
      * Whether to leave file in its compressed state or not.
-     *
+     * <p>
      * Docker CP command hands back a tar stream regardless if we asked
      * for a regular file or directory. Thus, we can give the caller
      * back the tar file as-is or explode it to some destination like
@@ -63,88 +71,91 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
      */
     @Input
     @Optional
-    final Property<Boolean> compressed = project.objects.property(Boolean)
+    public final Property<Boolean> getCompressed() {
+        return compressed;
+    }
 
-    private final FileSystemOperations fileSystemOperations
-
-    private final ArchiveOperations archiveOperations
+    private final Property<String> remotePath;
+    private final Property<String> hostPath;
+    private final Property<Boolean> compressed;
+    private final FileSystemOperations fileSystemOperations;
+    private final ArchiveOperations archiveOperations;
 
     @Inject
-    DockerCopyFileFromContainer(FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations) {
-        hostPath.convention(project.projectDir.path)
-        compressed.convention(false)
-        this.fileSystemOperations = fileSystemOperations
-        this.archiveOperations = archiveOperations
+    public DockerCopyFileFromContainer(ObjectFactory objects, ProjectLayout layout, FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations) {
+        this.remotePath = objects.property(String.class);
+        this.hostPath = objects.property(String.class)
+                .convention(layout.getProjectDirectory().getAsFile().getPath());
+        this.compressed = objects.property(Boolean.class)
+                .convention(false);
+        this.fileSystemOperations = fileSystemOperations;
+        this.archiveOperations = archiveOperations;
     }
 
     @Override
-    void runRemoteCommand() {
+    public void runRemoteCommand() throws IOException {
 
-        CopyArchiveFromContainerCmd containerCommand = dockerClient.copyArchiveFromContainerCmd(containerId.get(), remotePath.get())
-        logger.quiet "Copying '${remotePath.get()}' from container with ID '${containerId.get()}' to '${hostPath.get()}'."
+        CopyArchiveFromContainerCmd containerCommand = getDockerClient().copyArchiveFromContainerCmd(getContainerId().get(), remotePath.get());
+        getLogger().quiet("Copying '" + getRemotePath().get() + "' from container with ID '" + getContainerId().get() + "' to '" + getHostPath().get() + "'.");
 
-        InputStream tarStream
-        try {
-            tarStream = containerCommand.exec()
+        try (InputStream tarStream = containerCommand.exec()) {
 
-            if(nextHandler) {
-                nextHandler.execute(tarStream)
+            if (getNextHandler() != null) {
+                getNextHandler().execute(tarStream);
             } else {
-                def hostDestination = Paths.get(hostPath.get())
+                Path hostDestination = Paths.get(hostPath.get());
 
                 // if compressed leave file as is otherwise untar
-                if (compressed.getOrNull()) {
-                    copyFileCompressed(tarStream, hostDestination)
+                if (Boolean.TRUE.equals(compressed.getOrNull())) {
+                    copyFileCompressed(tarStream, hostDestination);
                 } else {
-                    copyFile(tarStream, hostDestination)
+                    copyFile(tarStream, hostDestination);
                 }
             }
-        } finally {
-            tarStream?.close()
         }
     }
 
     /**
      * Copy tar-stream from container to host
      */
-    private void copyFileCompressed(InputStream tarStream, Path hostDestination) {
+    private void copyFileCompressed(InputStream tarStream, Path hostDestination) throws IOException {
 
         // If user supplied an existing directory then we are responsible for naming and so
         // will ensure file ends with '.tar'. If user supplied a regular file then use
         // whichever name was passed in.
-        def fileName = remotePath.get()
-        def compressedFileName = (Files.exists(hostDestination) && Files.isDirectory(hostDestination)) ?
+        String fileName = remotePath.get();
+        String compressedFileName = (Files.exists(hostDestination) && Files.isDirectory(hostDestination)) ?
                 (fileName.endsWith(".tar") ? fileName : fileName + ".tar") :
-                hostDestination.fileName.toString()
+                hostDestination.getFileName().toString();
 
-        def compressedFileLocation = (Files.exists(hostDestination) && Files.isDirectory(hostDestination)) ?
+        Path compressedFileLocation = (Files.exists(hostDestination) && Files.isDirectory(hostDestination)) ?
                 hostDestination :
-                hostDestination.parent
+                hostDestination.getParent();
 
         // If user supplied regular file ensure its parent location exists and if
         // the regular file itself exists, delete to avoid clobbering.
         if (Files.exists(hostDestination)) {
             if (!Files.isDirectory(hostDestination)) {
-                Files.delete(hostDestination)
+                Files.delete(hostDestination);
             }
         } else {
-            if (!Files.exists(hostDestination.parent)) {
-                Files.createDirectories(hostDestination.parent);
+            if (!Files.exists(hostDestination.getParent())) {
+                Files.createDirectories(hostDestination.getParent());
             }
         }
 
-        Path tarFile = compressedFileLocation.resolve(compressedFileName)
-        try (OutputStream it = Files.newOutputStream(tarFile)) {
-            it << tarStream
+        Path tarFile = compressedFileLocation.resolve(compressedFileName);
+        try (OutputStream out = Files.newOutputStream(tarFile)) {
+            tarStream.transferTo(out);
         }
     }
 
     /**
      * Copy regular file or directory from container to host
      */
-    private void copyFile(InputStream tarStream, Path hostDestination) {
+    private void copyFile(InputStream tarStream, Path hostDestination) throws IOException {
 
-        def tempDestination = untarStream(tarStream)
+        Path tempDestination = untarStream(tarStream);
 
         /*
             At this juncture we have 3 possibilities:
@@ -155,42 +166,45 @@ class DockerCopyFileFromContainer extends DockerExistingContainer {
 
                 3.) N regular files (and possibly directories) were found
         */
-        def fileCount = 0
-        tempDestination.eachFileRecurse(FileType.FILES) { fileCount++ }
+        long fileCount;
+        try (Stream<Path> stream = Files.walk(tempDestination)) {
+            fileCount = stream.filter(Files::isDirectory).count();
+        }
         if (fileCount == 0) {
-            logger.quiet "Nothing to copy."
+            getLogger().quiet("Nothing to copy.");
         } else if (fileCount == 1) {
-            copySingleFile(hostDestination, tempDestination)
+            copySingleFile(hostDestination, tempDestination);
         } else {
-            copyMultipleFiles(hostDestination, tempDestination)
+            copyMultipleFiles(hostDestination, tempDestination);
         }
     }
 
     /**
      * Unpack tar stream into generated directory relative to $buildDir
      */
-    private Path untarStream(InputStream tarStream) {
+    private Path untarStream(InputStream tarStream) throws IOException {
 
         // Write tar to temp location since we are exploding it anyway
-        Path tempFile = temporaryDir.toPath().resolve(UUID.randomUUID().toString() + ".tar")
-        try (OutputStream it = Files.newOutputStream(tempFile)) {
-            it << tarStream
+        Path tempFile = getTemporaryDir().toPath().resolve(UUID.randomUUID().toString() + ".tar");
+        try (OutputStream out = Files.newOutputStream(tempFile)) {
+            tarStream.transferTo(out);
         }
 
         // We are not allowed to rename tempDir's created in OS temp directory (as
         // we do further downstream) which is why we are creating via our task's
         // temporaryDir
-        def outputDirectory = temporaryDir.toPath().resolve(UUID.randomUUID().toString())
-        Files.createDirectories(outputDirectory)
+        final Path outputDirectory = getTemporaryDir().toPath().resolve(UUID.randomUUID().toString());
+        Files.createDirectories(outputDirectory);
 
-        FileTree tarTree = archiveOperations.tarTree(tempFile)
+        final FileTree tarTree = archiveOperations.tarTree(tempFile);
         fileSystemOperations.copy(new Action<CopySpec>() {
             @Override
-            void execute(CopySpec copySpec) {
-                copySpec.into(outputDirectory)
-                copySpec.from(tarTree)
+            public void execute(CopySpec copySpec) {
+                copySpec.into(outputDirectory);
+                copySpec.from(tarTree);
             }
-        })
-        return outputDirectory
+
+        });
+        return outputDirectory;
     }
 }
