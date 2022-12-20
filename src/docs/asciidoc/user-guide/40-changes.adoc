@@ -1,6 +1,14 @@
 == Change Log
 
 [discrete]
+=== v9.1.0 (December 20, 2022)
+
+* Fix shading of Docker Java and its transitive dependencies - {uri-github}/pull/1144[PR 1144]
+* Upgrade to Docker Java to 3.2.14 - {uri-github}/pull/1142[PR 1142]
+* Don't use `set` method to define task default property values - {uri-github}/pull/1124[PR 1124]
+* Convert production source code from Groovy to Java - {uri-github}/pull/1117[PR 1117]
+
+[discrete]
 === v9.0.1 (November 16, 2022)
 
 * Correct links in user guide that point to outdated API docs - {uri-github}/pull/1122[PR 1122]
