@@ -4,9 +4,12 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.CopySpec;
+import org.gradle.api.plugins.JavaPlatformExtension;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.SourceSetOutput;
 
 public final class ConventionPluginHelper {
@@ -15,8 +18,18 @@ public final class ConventionPluginHelper {
     }
 
     public static SourceSetOutput getMainJavaSourceSetOutput(Project project) {
-        JavaPluginExtension javaPluginExtension = project.getExtensions().getByType(JavaPluginExtension.class);
-        return javaPluginExtension.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).getOutput();
+        SourceSetContainer sourceSets = getMainJavaSourceSetContainer(project);
+        return sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).getOutput();
+    }
+
+    private static SourceSetContainer getMainJavaSourceSetContainer(Project project) {
+        try {
+            JavaPluginExtension javaPluginExtension = project.getExtensions().getByType(JavaPluginExtension.class);
+            return javaPluginExtension.getSourceSets();
+        } catch (NoSuchMethodError e) {
+            JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+            return javaConvention.getSourceSets();
+        }
     }
 
     public static CopySpec createAppFilesCopySpec(final Project project) {
