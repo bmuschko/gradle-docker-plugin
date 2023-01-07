@@ -27,7 +27,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         assertGeneratedDockerfile()
         assertBuildContextLibs()
         assertBuildContextClasses()
-        result.output.contains("0 problems were found storing the configuration cache.")
+        result.output.contains(configurationCacheStorageSuccess)
 
         when:
         result = build('buildAndCleanResources')

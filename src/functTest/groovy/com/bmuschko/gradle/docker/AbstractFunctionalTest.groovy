@@ -2,6 +2,7 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.util.GradleVersion
 import spock.lang.Specification
 import spock.lang.TempDir
 
@@ -30,6 +31,12 @@ abstract class AbstractFunctionalTest extends Specification {
 
         if (isWindows()) {
             envVars.put("PATH", System.getenv("PATH"))
+        }
+
+        if (GradleVersion.version("7.0") >= GradleVersion.version(System.getenv("GRADLE_VERSION") ?: System.getenv("CURRENT_GRADLE_VERSION"))) {
+            configurationCacheStorageSuccess = "0 problems were found storing the configuration cache."
+        } else {
+            configurationCacheStorageSuccess = "Configuration cache entry stored."
         }
     }
 
@@ -67,4 +74,6 @@ abstract class AbstractFunctionalTest extends Specification {
 
     abstract String getBuildFileName()
     abstract String getSettingsFileName()
+
+    protected String configurationCacheStorageSuccess
 }

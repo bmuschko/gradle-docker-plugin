@@ -30,7 +30,7 @@ class DockerCommitImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         then:
         result.output.contains("Committing image 'myimage:latest' for container")
-        result.output.contains("0 problems were found storing the configuration cache.")
+        result.output.contains(configurationCacheStorageSuccess)
 
         when:
         result = build(COMMIT_TASK_NAME)
