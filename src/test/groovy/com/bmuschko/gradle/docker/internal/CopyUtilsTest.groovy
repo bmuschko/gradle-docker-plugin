@@ -27,8 +27,11 @@ class CopyUtilsTest extends Specification {
         CopyUtils.copyMultipleFiles(hostDir, tempDir)
 
         then:
-        [Path.of("file1.txt"), Path.of("file2.txt")] == listFiles(hostDir)
-        [] == listFiles(tempDir)
+        List<Path> copiedFiles = listFiles(hostDir)
+        copiedFiles.size() == 2
+        copiedFiles.contains(Path.of("file1.txt"))
+        copiedFiles.contains(Path.of("file2.txt"))
+        listFiles(tempDir).isEmpty()
     }
 
     def "test copyMultipleFiles with multiple files and non-existent hostDir"() {
@@ -41,8 +44,11 @@ class CopyUtilsTest extends Specification {
         CopyUtils.copyMultipleFiles(hostDir, tempDir)
 
         then:
-        [Path.of("file1.txt"), Path.of("file2.txt")] == listFiles(hostDir)
-        [] == listFiles(tempDir)
+        List<Path> copiedFiles = listFiles(hostDir)
+        copiedFiles.size() == 2
+        copiedFiles.contains(Path.of("file1.txt"))
+        copiedFiles.contains(Path.of("file2.txt"))
+        listFiles(tempDir).isEmpty()
     }
 
     def "test copyMultipleFiles with nested files"() {
@@ -58,8 +64,11 @@ class CopyUtilsTest extends Specification {
         CopyUtils.copyMultipleFiles(hostDir, tempDir)
 
         then:
-        [Path.of("file1.txt"), Path.of("nested/file2.txt")] == listFiles(hostDir)
-        [] == listFiles(tempDir)
+        List<Path> copiedFiles = listFiles(hostDir)
+        copiedFiles.size() == 2
+        copiedFiles.contains(Path.of("file1.txt"))
+        copiedFiles.contains(Path.of("nested/file2.txt"))
+        listFiles(tempDir).isEmpty()
     }
 
     def "test copyMultipleFiles with nested dir"() {
@@ -75,8 +84,11 @@ class CopyUtilsTest extends Specification {
         CopyUtils.copyMultipleFiles(hostDir, tempDir)
 
         then:
-        [Path.of("file1.txt"), Path.of("file2.txt")] == listFiles(hostDir)
-        [] == listFiles(tempDir)
+        List<Path> copiedFiles = listFiles(hostDir)
+        copiedFiles.size() == 2
+        copiedFiles.contains(Path.of("file1.txt"))
+        copiedFiles.contains(Path.of("file2.txt"))
+        listFiles(tempDir).isEmpty()
     }
 
     def "test copyMultipleFiles with bad hostDir"() {
@@ -92,8 +104,11 @@ class CopyUtilsTest extends Specification {
         CopyUtils.copyMultipleFiles(hostDir, tempDir)
 
         then:
-        [Path.of("file1.txt"), Path.of("file2.txt")] == listFiles(hostDir)
-        [] == listFiles(tempDir)
+        List<Path> copiedFiles = listFiles(hostDir)
+        copiedFiles.size() == 2
+        copiedFiles.contains(Path.of("file1.txt"))
+        copiedFiles.contains(Path.of("file2.txt"))
+        listFiles(tempDir).isEmpty()
     }
 
     def "test copySingleFile with single file"() {
