@@ -1,0 +1,52 @@
+name: Build and Release [MacOS]
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Set up Docker private registry
+        run: |
+          docker run -d -p 5000:5000 --restart=always --name registry registry:2
+          docker run -d -p 5001:5000 --restart=always --name secure_registry -v "$(pwd)"/src/functTest/resources/auth:/auth:rw -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" registry:2
+      - name: Compilation
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: classes
+      - name: Unit tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test
+      - name: Integration tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: integrationTest
+      - name: Functional tests
+        uses: gradle/gradle-build-action@v2
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+          HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+        with:
+          arguments: functionalTest
+      - name: Documentation tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: docTest
+      - name: Assemble artifacts
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assemble javadoc asciidoctorAllGuides
+      - name: Store artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: gradle-docker-plugin.jar
+          path: build/libs/*.jar
