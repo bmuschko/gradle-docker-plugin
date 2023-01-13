@@ -48,9 +48,7 @@ class ShadedArtifactsPlugin: Plugin<Project> {
                 "javax.annotation",
                 "javax.ws",
                 "net.sf",
-                "org.objectweb",
-                "javax.activation",
-                "com.sun.activation"
+                "org.objectweb"
         )
         return tasks.named<ShadowJar>("shadowJar") {
             archiveClassifier.set(null)
