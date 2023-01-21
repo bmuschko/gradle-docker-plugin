@@ -22,14 +22,17 @@ import com.github.dockerjava.api.model.Frame;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.InvalidUserDataException;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Date;
 
 /**
@@ -113,20 +116,10 @@ public class DockerLogsContainer extends DockerExistingContainer {
     /**
      * Sink to write log output into.
      */
-    @Input
+    @OutputFile
     @Optional
-    public Writer getSink() {
+    public RegularFileProperty getSink() {
         return sink;
-    }
-
-    public Writer setSink(Writer sink) {
-        if (sink != null) {
-            notCompatibleWithConfigurationCache("Setting sink is not compatible with configuration cache");
-            return this.sink = sink;
-        } else {
-            isCompatibleWithConfigurationCache();
-            return this.sink = null;
-        }
     }
 
     @Internal
@@ -141,7 +134,7 @@ public class DockerLogsContainer extends DockerExistingContainer {
     private final Property<Boolean> stdErr = getProject().getObjects().property(Boolean.class);
     private final Property<Boolean> showTimestamps = getProject().getObjects().property(Boolean.class);
     private final Property<Date> since = getProject().getObjects().property(Date.class);
-    private Writer sink;
+    private RegularFileProperty sink = getProject().getObjects().fileProperty();
 
     public DockerLogsContainer() {
         stdOut.convention(true);
@@ -164,10 +157,10 @@ public class DockerLogsContainer extends DockerExistingContainer {
     }
 
     private ResultCallback.Adapter<Frame> createCallback(final Action nextHandler) {
-        if (sink != null && nextHandler != null) {
+        if (sink.isPresent() && nextHandler != null) {
             throw new GradleException("Define either sink or onNext");
         }
-        if (sink != null) {
+        if (sink.isPresent()) {
             return new ResultCallback.Adapter<Frame>() {
                 @Override
                 public void onNext(Frame frame) {
@@ -176,8 +169,7 @@ public class DockerLogsContainer extends DockerExistingContainer {
                         case RAW:
                         case STDERR:
                             try {
-                                getSink().append(new String(frame.getPayload()));
-                                getSink().flush();
+                                Files.write(sink.get().getAsFile().toPath(), frame.getPayload(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
                             } catch (IOException e) {
                                 throw new UncheckedIOException(e);
                             }

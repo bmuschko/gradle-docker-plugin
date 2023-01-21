@@ -19,16 +19,14 @@ import com.bmuschko.gradle.docker.domain.CopyFileToContainer;
 import com.github.dockerjava.api.command.CopyArchiveToContainerCmd;
 import groovy.lang.Closure;
 import org.gradle.api.GradleException;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,7 +55,7 @@ public class DockerCopyFileToContainer extends DockerExistingContainer {
     /**
      * Tar file we will copy into container
      */
-    @Input
+    @InputFile
     @Optional
     public final RegularFileProperty getTarFile() {
         return tarFile;
