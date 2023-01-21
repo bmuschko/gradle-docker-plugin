@@ -33,7 +33,6 @@ class ShadedArtifactsPlugin: Plugin<Project> {
     private
     fun Project.configureShadowJarTask(shaded: Configuration): TaskProvider<ShadowJar> {
         val packagesToRelocate = listOf(
-                "com.github.dockerjava",
                 "javassist",
                 "org.glassfish",
                 "org.jvnet",
@@ -48,9 +47,7 @@ class ShadedArtifactsPlugin: Plugin<Project> {
                 "javax.annotation",
                 "javax.ws",
                 "net.sf",
-                "org.objectweb",
-                "javax.activation",
-                "com.sun.activation"
+                "org.objectweb"
         )
         return tasks.named<ShadowJar>("shadowJar") {
             archiveClassifier.set(null)

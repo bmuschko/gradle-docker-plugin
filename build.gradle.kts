@@ -25,7 +25,6 @@ repositories {
 
 configurations.shaded {
     exclude("org.slf4j")
-    exclude("net.java.dev.jna")
 }
 
 dependencies {
