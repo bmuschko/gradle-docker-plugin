@@ -149,7 +149,7 @@ class DockerLogsContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         String logContainerTask = """
             task logContainer(type: DockerLogsContainer) {
                 targetContainerId startContainer.getContainerId()
-                sink = project.file("log-sink.txt").newWriter()
+                sink = project.file("log-sink.txt")
                 tailAll = true
             }
         """
