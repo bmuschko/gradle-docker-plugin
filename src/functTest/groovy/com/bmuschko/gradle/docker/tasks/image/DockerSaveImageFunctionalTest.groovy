@@ -231,6 +231,7 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task deleteImage(type: DockerRemoveImage) {
                 dependsOn saveImage
+                force = true
                 imageId = saveImage.images.get().first()
             }
         """
