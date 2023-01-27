@@ -121,72 +121,72 @@ public class DockerExecContainer extends DockerExistingContainer {
     @Override
     public void runRemoteCommand() throws InterruptedException {
         getLogger().quiet("Executing on container with ID '" + getContainerId().get() + "'.");
-        doRunRemoteCommand(getDockerClient());
+
+        DockerClient dockerClient = getDockerClient();
+        List<String[]> localCommands = commands.get();
+        for (int i = 0; i < localCommands.size(); i++) {
+            doRunRemoteCommand(getDockerClient(), localCommands.get(i));
+        }
     }
 
-    protected void doRunRemoteCommand(DockerClient dockerClient) throws InterruptedException {
+    protected void doRunRemoteCommand(DockerClient dockerClient, final String[] singleCommand) throws InterruptedException {
         ResultCallback.Adapter<Frame> execCallback = createCallback(getNextHandler());
 
-        List<String[]> localCommands = commands.get();
-        for (int i = 0; i < commands.get().size(); i++) {
-
-            final String[] singleCommand = localCommands.get(i);
-            ExecCreateCmd execCmd = dockerClient.execCreateCmd(getContainerId().get());
-            setContainerCommandConfig(execCmd, singleCommand);
-            String localExecId = execCmd.exec().getId();
-            dockerClient.execStartCmd(localExecId).withDetach(false).exec(execCallback).awaitCompletion();
+        ExecCreateCmd execCmd = dockerClient.execCreateCmd(getContainerId().get());
+        setContainerCommandConfig(execCmd, singleCommand);
+        String localExecId = execCmd.exec().getId();
+        dockerClient.execStartCmd(localExecId).withDetach(false).exec(execCallback).awaitCompletion();
 
 
-            // create progressLogger for pretty printing of terminal log progression.
-            final ProgressLogger progressLogger = getProgressLogger(getServices(), DockerExecContainer.class);
-            progressLogger.started();
+        // create progressLogger for pretty printing of terminal log progression.
+        final ProgressLogger progressLogger = getProgressLogger(getServices(), DockerExecContainer.class);
+        progressLogger.started();
 
-            // if no livenessProbe defined then create a default
-            final ExecProbe localProbe = execProbe != null ? execProbe : new ExecProbe(60000, 2000);
+        // if no livenessProbe defined then create a default
+        final ExecProbe localProbe = execProbe != null ? execProbe : new ExecProbe(60000, 2000);
 
-            long localPollTime = localProbe.getPollTime();
-            int pollTimes = 0;
-            boolean isRunning = true;
+        long localPollTime = localProbe.getPollTime();
+        int pollTimes = 0;
+        boolean isRunning = true;
 
-            // 3.) poll for some amount of time until container is in a non-running state.
-            InspectExecResponse lastExecResponse = null;
-            while (isRunning && localPollTime > 0) {
-                pollTimes += 1;
+        // 3.) poll for some amount of time until container is in a non-running state.
+        InspectExecResponse lastExecResponse = null;
+        while (isRunning && localPollTime > 0) {
+            pollTimes += 1;
 
-                lastExecResponse = dockerClient.inspectExecCmd(localExecId).exec();
-                isRunning = lastExecResponse.isRunning();
-                if (isRunning) {
-
-                    long totalMillis = pollTimes * localProbe.getPollInterval();
-                    final long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis);
-                    progressLogger.progress("Executing for " + totalMinutes + "m...");
-                    try {
-
-                        localPollTime -= localProbe.getPollInterval();
-                        Thread.sleep(localProbe.getPollInterval());
-                    } catch (Exception e) {
-                        throw e;
-                    }
-                } else {
-                    break;
-                }
-            }
-            progressLogger.completed();
-
-            // if still running then throw an exception otherwise check the exitCode
+            lastExecResponse = dockerClient.inspectExecCmd(localExecId).exec();
+            isRunning = lastExecResponse.isRunning();
             if (isRunning) {
-                throw new GradleException("Exec '" + Arrays.toString(singleCommand) + "' did not finish in a timely fashion: " + localProbe);
+
+                long totalMillis = pollTimes * localProbe.getPollInterval();
+                final long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalMillis);
+                progressLogger.progress("Executing for " + totalMinutes + "m...");
+                try {
+
+                    localPollTime -= localProbe.getPollInterval();
+                    Thread.sleep(localProbe.getPollInterval());
+                } catch (Exception e) {
+                    throw e;
+                }
             } else {
-                if (successOnExitCodes.getOrNull() != null && !successOnExitCodes.get().isEmpty()) {
-                    int exitCode = lastExecResponse.getExitCode() != null ? lastExecResponse.getExitCode().intValue() : 0;
-                    if (!successOnExitCodes.get().contains(exitCode)) {
-                        throw new GradleException(exitCode + " is not a successful exit code. Valid values are " + getSuccessOnExitCodes().get() + ", response=" + lastExecResponse);
-                    }
+                break;
+            }
+        }
+        progressLogger.completed();
+
+        // if still running then throw an exception otherwise check the exitCode
+        if (isRunning) {
+            throw new GradleException("Exec '" + Arrays.toString(singleCommand) + "' did not finish in a timely fashion: " + localProbe);
+        } else {
+            if (successOnExitCodes.getOrNull() != null && !successOnExitCodes.get().isEmpty()) {
+                int exitCode = lastExecResponse.getExitCode() != null ? lastExecResponse.getExitCode().intValue() : 0;
+                if (!successOnExitCodes.get().contains(exitCode)) {
+                    throw new GradleException(exitCode + " is not a successful exit code. Valid values are " + getSuccessOnExitCodes().get() + ", response=" + lastExecResponse);
                 }
             }
-
-            execIds.add(localExecId);
         }
+
+        execIds.add(localExecId);
     }
 
     public void withCommand(List<String> commandsToExecute) {
