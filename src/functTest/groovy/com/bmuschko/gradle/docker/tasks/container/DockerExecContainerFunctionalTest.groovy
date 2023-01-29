@@ -28,7 +28,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['echo', 'Hello World'])
+                commands.add(['echo', 'Hello World'] as String[])
             }
         """
         buildFile << containerUsage(containerExecutionTask)
@@ -47,9 +47,9 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['echo', 'Hello World One'])
-                withCommand(['echo', 'Hello World Two'])
-                withCommand(['echo', 'Hello World Three'])
+                commands.add(['echo', 'Hello World One'] as String[])
+                commands.add(['echo', 'Hello World Two'] as String[])
+                commands.add(['echo', 'Hello World Three'] as String[])
                 doLast {
                     logger.quiet "FOUND EXEC-IDS: " + execIds.get().size()
                 }
@@ -74,7 +74,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn createContainer
                 finalizedBy removeContainer
                 targetContainerId createContainer.getContainerId()
-                withCommand(['echo', 'Hello World'])
+                commands.add(['echo', 'Hello World'] as String[])
             }
         """
         buildFile << containerUsage(containerExecutionTask)
@@ -94,7 +94,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn startContainer
                 finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['sh', '-c', 'id -u && id -g'])
+                commands.add(['sh', '-c', 'id -u && id -g'] as String[])
                 user = '10000:10001'
             }
         """
@@ -114,7 +114,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn startContainer
                 finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['pwd'])
+                commands.add(['pwd'] as String[])
                 workingDir = '/usr/local/bin/'
             }
         """
@@ -134,7 +134,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 dependsOn startContainer
                 finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['test', '-e', '/not_existing_file'])
+                commands.add(['test', '-e', '/not_existing_file'] as String[])
                 successOnExitCodes = [0]
             }
         """
@@ -154,7 +154,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['sleep', '10'])
+                commands.add(['sleep', '10'] as String[])
                 successOnExitCodes = [0]
                 execProbe(15000, 1000)
                 onComplete {
@@ -177,7 +177,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['echo', 'Hello World'])
+                commands.add(['echo', 'Hello World'] as String[])
             }
         """
         buildFile << containerUsage(containerExecutionTask)
