@@ -40,6 +40,34 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
         result.output.contains('Hello World')
     }
 
+    def "Executes overriden commands within running container"() {
+        given:
+        String containerExecutionTask = """
+            import com.github.dockerjava.api.DockerClient
+            abstract class OverridenExecTask extends DockerExecContainer {
+                @Override
+                public void runRemoteCommand() throws InterruptedException {
+                    DockerClient dockerClient = getDockerClient()
+                    doRunRemoteCommand(dockerClient, ['echo', 'Hello World'] as String[])
+                }
+            }
+            task execContainer(type: OverridenExecTask) {
+                dependsOn startContainer
+                targetContainerId startContainer.getContainerId()
+                commands.add(['echo', 'Goodbye World'] as String[])
+            }
+        """
+        buildFile << containerUsage(containerExecutionTask)
+
+        when:
+        BuildResult result = build('logContainer')
+
+        then:
+        // ran the overriden method, not the regular one w/ normal commands
+        result.output.contains('Hello World')
+        !result.output.contains('Goodbye World')
+    }
+
     @Ignore("Flaky test that fails with org.apache.hc.core5.http.StreamClosedException: Stream already closed")
     def "Execute multiple commands within running container"() {
         given:
