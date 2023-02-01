@@ -179,6 +179,7 @@ public class DockerSaveImage extends AbstractDockerRemoteApiTask {
                 .listImagesCmd()
                 .exec()
                 .stream()
+                .filter(listedImage -> listedImage.getRepoTags() != null)
                 .flatMap(listedImage -> Arrays.stream(listedImage.getRepoTags()).map(it -> Map.entry(it, listedImage.getId())))
                 .filter(i -> i.getKey().startsWith(image))
                 .sorted(Map.Entry.comparingByKey())

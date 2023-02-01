@@ -111,7 +111,9 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
         then:
         def repoTags = getRepoTags(IMAGE_FILE)
         repoTags.containsAll(IMAGE_3_2, IMAGE_3_3, IMAGE_3_4)
-        repoTags.every { it.startsWith("${IMAGE_BASE}:") }
+        repoTags.every {
+            it.startsWith("${IMAGE_BASE}:")
+        }
     }
 
     def "only saves specific Docker images"() {
@@ -291,7 +293,7 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
                     new JsonSlurper().parse(contentStream)
                 }
             }
-        }.RepoTags.flatten().sort()
+        }.RepoTags.flatten().findAll {it != null}.sort()
     }
 
     static String pullImageTask(taskName, image) {
