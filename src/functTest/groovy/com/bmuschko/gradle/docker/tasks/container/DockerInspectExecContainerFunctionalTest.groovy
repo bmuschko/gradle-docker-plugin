@@ -14,7 +14,7 @@ class DockerInspectExecContainerFunctionalTest extends AbstractGroovyDslFunction
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['touch', '/tmp/test.txt'])
+                commands.add(['touch', '/tmp/test.txt'] as String[])
             }
             
             task inspectExec(type: DockerInspectExecContainer) {
@@ -38,7 +38,7 @@ class DockerInspectExecContainerFunctionalTest extends AbstractGroovyDslFunction
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['test', '-e', '/not_existing_file'])
+                commands.add(['test', '-e', '/not_existing_file'] as String[])
             }
 
             task inspectExec(type: DockerInspectExecContainer) {

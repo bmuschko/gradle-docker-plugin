@@ -1,6 +1,14 @@
 == Change Log
 
 [discrete]
+=== v9.2.0 (January 31, 2023)
+
+* Revert shading of Docker Java - {uri-github}/pull/1154[PR 1154]
+* Writer type is not compatible with configuration cache - {uri-github}/pull/1155[PR 1155]
+* Assign correct annotation for DockerCopyFileToContainer property - {uri-github}/pull/1156[PR 1156]
+* Deprecate `withCommand` methods for DockerExecContainer task - {uri-github}/pull/1161[PR 1161]
+
+[discrete]
 === v9.1.0 (December 20, 2022)
 
 * Fix shading of Docker Java and its transitive dependencies - {uri-github}/pull/1144[PR 1144]
