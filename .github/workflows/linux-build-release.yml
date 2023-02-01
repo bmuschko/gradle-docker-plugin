@@ -20,6 +20,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: classes
+      - name: Validate plugins
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: validatePlugins
       - name: Unit tests
         uses: gradle/gradle-build-action@v2
         with:
