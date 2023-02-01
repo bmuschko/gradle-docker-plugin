@@ -2,14 +2,14 @@ package com.bmuschko.gradle.docker.tasks.image;
 
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 
 public class DockerLoadImage extends AbstractDockerRemoteApiTask {
 
-    @Input
+    @InputFile
     public final RegularFileProperty getImageFile() {
         return imageFile;
     }
