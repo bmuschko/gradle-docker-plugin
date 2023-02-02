@@ -10,14 +10,14 @@ repositories {
 
 dependencies {
     implementation(kotlin("gradle-plugin"))
-    implementation(buildsrclibs.asciidoctor.jvm.plugin)
-    runtimeOnly(buildsrclibs.asciidoctorj.tabbed.code.extension)
-    implementation(buildsrclibs.grgit) {
+    implementation(buildsrcLibs.asciidoctor.jvm.plugin)
+    runtimeOnly(buildsrcLibs.asciidoctorj.tabbed.code.extension)
+    implementation(buildsrcLibs.grgit) {
         setForce(true)
     }
-    implementation(buildsrclibs.gradle.git)
-    implementation(buildsrclibs.gradle.git.publish)
-    implementation(buildsrclibs.shadow)
+    implementation(buildsrcLibs.gradle.git)
+    implementation(buildsrcLibs.gradle.git.publish)
+    implementation(buildsrcLibs.shadow)
 }
 
 gradlePlugin {
