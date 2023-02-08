@@ -1,6 +1,12 @@
 == Change Log
 
 [discrete]
+=== v9.2.1 (February 7, 2023)
+
+* Correct input annotation for `imageFile` property of DockerLoadImage task - {uri-github}/pull/1164[PR 1164]
+* Fix NullPointer on docker hosts with <none> tags in DockerSaveImage task - {uri-github}/pull/1163[PR 1163]
+
+[discrete]
 === v9.2.0 (January 31, 2023)
 
 * Revert shading of Docker Java - {uri-github}/pull/1154[PR 1154]
