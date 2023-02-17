@@ -8,8 +8,9 @@ The following properties can be configured:
 [options="header"]
 |=======
 |Property name   |Type                    |Default value                                                 |Description
-|`baseImage`     |`Property<String>`      |`openjdk:11.0.15-jre-slim`                                          |The Docker base image used for the Spring Boot application.
+|`baseImage`     |`Property<String>`      |`openjdk:11.0.15-jre-slim`                                    |The Docker base image used for the Spring Boot application.
 |`maintainer`    |`Property<String>`      |Value of system property `user.name`                          |The maintainer of the image.
+|`user`          |`Property<String>`      |None                                                          |The user name (or UID) and optionally the user group (or GID) to use as the default user and group to run the container.
 |`ports`         |`ListProperty<Integer>` |`[8080]`                                                      |The Docker image exposed ports.
 |`images`        |`SetProperty<String>`   |`[<project.group>/<applicationName>:<project.version>]`       |The images used for the build and push operation.
 |`jvmArgs`       |`ListProperty<String>`  |`[]`                                                          |The JVM arguments passed to the `java` command.
