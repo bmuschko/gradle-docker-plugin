@@ -37,6 +37,19 @@ public class DockerConventionJvmApplicationExtension {
     private final Property<String> maintainer;
 
     /**
+     * The username (or UID) and optionally the user group (or GID) to use as the default user and group for the container, e.g. {@code johndoe:30000}.
+     * <p>
+     * Defaults to not setting a user. Usually that means running with the {@code root} user.
+     *
+     * @since 9.3.0
+     */
+    public final Property<String> getUser() {
+        return user;
+    }
+
+    private final Property<String> user;
+
+    /**
      * The Docker image exposed ports.
      * <p>
      * Defaults to {@code [8080]}.
@@ -105,6 +118,7 @@ public class DockerConventionJvmApplicationExtension {
         baseImage.convention("openjdk:11.0.15-jre-slim");
         maintainer = objectFactory.property(String.class);
         maintainer.convention(System.getProperty("user.name"));
+        user = objectFactory.property(String.class);
         ports = objectFactory.listProperty(Integer.class);
         ports.convention(List.of(8080));
         images = objectFactory.setProperty(String.class);
