@@ -27,9 +27,7 @@ import com.github.dockerjava.api.model.AuthConfigurations;
 import com.github.dockerjava.api.model.BuildResponseItem;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
-import org.gradle.api.Transformer;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
@@ -298,21 +296,6 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
     }
 
     private final Property<String> imageId = getProject().getObjects().property(String.class);
-
-    private final Transformer<String, RegularFile> sike = new Transformer<String, RegularFile>() {
-        @Override
-        public String transform(RegularFile it) {
-            File file = it.getAsFile();
-            if (file.exists()) {
-                try {
-                    return Files.readString(file.toPath());
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            }
-            return null;
-        }
-    };
 
     public DockerBuildImage() {
         inputDir.convention(getProject().getLayout().getBuildDirectory().dir("docker"));
