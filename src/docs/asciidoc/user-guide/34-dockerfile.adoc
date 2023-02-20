@@ -10,7 +10,7 @@ LABEL maintainer=bmuschko
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT exec java -cp /app/resources:/app/classes:/app/libs/* com.bmuschko.gradle.docker.springboot.Application
+ENTRYPOINT exec java $JAVA_OPTS -cp /app/resources:/app/classes:/app/libs/* com.bmuschko.gradle.docker.springboot.Application
 EXPOSE 8080
 ----
 
