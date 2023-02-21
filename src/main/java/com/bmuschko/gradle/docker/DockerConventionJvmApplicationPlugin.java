@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.createAppFilesCopySpec;
 
@@ -84,8 +85,8 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
                 return null;
             }));
             dockerfile.copyFile(new Dockerfile.CopyFile("classes", "classes/"));
-            dockerfile.entryPoint(project.provider(() -> {
-                List<String> entrypoint = new ArrayList<>(List.of("java"));
+            dockerfile.instruction(project.provider(() -> {
+                List<String> entrypoint = new ArrayList<>(List.of(Dockerfile.EntryPointInstruction.KEYWORD, "exec", "java", "$JAVA_OPTS"));
                 List<String> jvmArgs = extension.getJvmArgs().get();
 
                 if (!jvmArgs.isEmpty()) {
@@ -100,8 +101,7 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
                     entrypoint.addAll(args);
                 }
 
-
-                return entrypoint;
+                return entrypoint.stream().collect(Collectors.joining(" "));
             }));
             dockerfile.exposePort(extension.getPorts());
         });

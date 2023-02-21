@@ -1,6 +1,5 @@
 package com.bmuschko.gradle.docker.internal;
 
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.CopySpec;
@@ -20,32 +19,10 @@ public final class ConventionPluginHelper {
     }
 
     public static CopySpec createAppFilesCopySpec(final Project project) {
-        return project.copySpec(new Action<CopySpec>() {
-            @Override
-            public void execute(CopySpec rootSpec) {
-                rootSpec.into("libs", new Action<CopySpec>() {
-                    @Override
-                    public void execute(CopySpec copySpec) {
-                        copySpec.from(getRuntimeClasspathConfiguration(project));
-                    }
-
-                });
-                rootSpec.into("resources", new Action<CopySpec>() {
-                    @Override
-                    public void execute(CopySpec copySpec) {
-                        copySpec.from(getMainJavaSourceSetOutput(project).getResourcesDir());
-                    }
-
-                });
-                rootSpec.into("classes", new Action<CopySpec>() {
-                    @Override
-                    public void execute(CopySpec copySpec) {
-                        copySpec.from(getMainJavaSourceSetOutput(project).getClassesDirs());
-                    }
-
-                });
-            }
-
+        return project.copySpec(rootSpec -> {
+            rootSpec.into("libs", copySpec -> copySpec.from(getRuntimeClasspathConfiguration(project)));
+            rootSpec.into("resources", copySpec -> copySpec.from(getMainJavaSourceSetOutput(project).getResourcesDir()));
+            rootSpec.into("classes", copySpec -> copySpec.from(getMainJavaSourceSetOutput(project).getClassesDirs()));
         });
     }
 
