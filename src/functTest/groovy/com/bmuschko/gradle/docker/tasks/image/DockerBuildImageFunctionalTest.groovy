@@ -95,11 +95,42 @@ USER \$user"""
     }
 
     def "can build image for a specific platform"() {
-        buildFile << imageCreationTask()
-        buildFile << "buildImage.platform = 'linux/s390x'"
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.From
+
+            ext.platform = 'linux/s390x'
+
+            task dockerfile(type: Dockerfile) {
+                from(new From('$TEST_IMAGE_WITH_TAG').withPlatform(project.ext.platform))
+                runCommand("echo ${UUID.randomUUID()}")
+            }
+            
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                platform = project.ext.platform
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                imageId = buildImage.imageId
+            }
+
+            task inspectImage(type: DockerInspectImage) {
+                finalizedBy removeImage
+                imageId = buildImage.imageId
+                onNext { image ->
+                    assert image.os == 'linux'
+                    assert image.arch == 's390x'
+                }
+            }
+        """
 
         when:
-        BuildResult result = build('buildImage')
+        BuildResult result = build('inspectImage')
 
         then:
         result.output.contains("Created image with ID")

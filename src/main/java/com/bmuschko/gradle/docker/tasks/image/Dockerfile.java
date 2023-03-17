@@ -1380,7 +1380,13 @@ public class Dockerfile extends DefaultTask {
 
         private String buildTextInstruction(From from) {
             if (from != null) {
-                String result = getKeyword() + " " + from.getImage();
+                String result = getKeyword();
+
+                if (from.getPlatform() != null) {
+                    result += " --platform=" + from.getPlatform();
+                }
+
+                result += " " + from.getImage();
 
                 if (from.getStage() != null) {
                     result += " AS " + from.getStage();
@@ -1852,6 +1858,9 @@ public class Dockerfile extends DefaultTask {
         @Nullable
         private String stage;
 
+        @Nullable
+        private String platform;
+
         public From(String image) {
             this.image = image;
         }
@@ -1864,6 +1873,17 @@ public class Dockerfile extends DefaultTask {
          */
         public From withStage(String stage) {
             this.stage = stage;
+            return this;
+        }
+
+        /**
+         * Sets the platform by adding {@code --platform} to the {@code FROM} instruction.
+         *
+         * @param platform The platform
+         * @return This instruction
+         */
+        public From withPlatform(String platform) {
+            this.platform = platform;
             return this;
         }
 
@@ -1884,6 +1904,16 @@ public class Dockerfile extends DefaultTask {
         @Nullable
         public String getStage() {
             return stage;
+        }
+
+        /**
+         * Returns the platform.
+         *
+         * @return The platform
+         */
+        @Nullable
+        public String getPlatform() {
+            return platform;
         }
     }
 }
