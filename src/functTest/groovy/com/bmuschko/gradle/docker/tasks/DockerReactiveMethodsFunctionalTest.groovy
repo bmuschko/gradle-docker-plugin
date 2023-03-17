@@ -168,11 +168,10 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             task listImages(type: DockerListImages) {
                 dependsOn pullImage
                 onNext { images ->
-                    images.find { it.size < 5 * 1024 * 1024 }
-                          .each { image ->
-                              logger.quiet "Tags : " + image.repoTags?.join(', ')
-                              logger.quiet "Size : " + new java.text.DecimalFormat("#.##").format(image.size / (1024 * 1024)) + "MB"
-                          }
+                    images.each { image ->
+                        logger.quiet "Tags : " + image.repoTags?.join(', ')
+                        logger.quiet "Size : " + new java.text.DecimalFormat("#.##").format(image.size / (1024 * 1024)) + "MB"
+                    }
                 }
             }
         """
@@ -221,7 +220,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
         BuildResult result = build('printOsRelease')
 
         then:
-        result.output.contains('PRETTY_NAME="Alpine Linux v3.4"')
+        result.output.contains('PRETTY_NAME="Alpine Linux v3.17"')
     }
 
     def "should call onNext when creating container"() {

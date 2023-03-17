@@ -24,8 +24,12 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DockerListImages extends AbstractDockerRemoteApiTask {
 
@@ -95,16 +99,12 @@ public class DockerListImages extends AbstractDockerRemoteApiTask {
     }
 
     private void defaultResponseHandling() {
-        Action<Image> action = new Action<Image>() {
-            @Override
-            public void execute(final Image image) {
-                getLogger().quiet("Repository Tags : " + String.join(", ",image.getRepoTags()));
-                getLogger().quiet("Image ID        : " + image.getId());
-                getLogger().quiet("Created         : " + new Date(image.getCreated() * 1000));
-                getLogger().quiet("Virtual Size    : " + image.getVirtualSize());
-                getLogger().quiet("-----------------------------------------------");
-            }
-
+        Action<Image> action = image -> {
+            getLogger().quiet("Repository Tags : " + Arrays.stream(image.getRepoTags()).filter(Objects::nonNull).collect(Collectors.joining(", ")));
+            getLogger().quiet("Image ID        : " + image.getId());
+            getLogger().quiet("Created         : " + new Date(image.getCreated() * 1000));
+            getLogger().quiet("Virtual Size    : " + image.getVirtualSize());
+            getLogger().quiet("-----------------------------------------------");
         };
 
         onNext(action);
