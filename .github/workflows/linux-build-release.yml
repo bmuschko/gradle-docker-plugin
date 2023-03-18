@@ -12,17 +12,13 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
       - name: Set up Docker private registry
         run: |
           docker run -d -p 5000:5000 --restart=always --name registry registry:2
           docker run -d -p 5001:5000 --restart=always --name secure_registry -v "$(pwd)"/src/functTest/resources/auth:/auth:rw -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" registry:2
       - name: Configure Docker Daemon
         run: |
-          echo $'{\n  "experimental": true,\n  "features": { "buildkit": true }\n}' | sudo tee /etc/docker/daemon.json
+          sudo echo '{ "exec-opts": ["native.cgroupdriver=cgroupfs"], "cgroup-parent": "/actions_job", "experimental": true, "features": { "buildkit": true } }' > /etc/docker/daemon.json
           sudo service docker restart
           sudo cat /etc/docker/daemon.json
           sudo docker version -f '{{.Server.Experimental}}'
