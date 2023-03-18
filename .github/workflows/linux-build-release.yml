@@ -18,7 +18,7 @@ jobs:
           docker run -d -p 5001:5000 --restart=always --name secure_registry -v "$(pwd)"/src/functTest/resources/auth:/auth:rw -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" registry:2
       - name: Configure Docker Daemon
         run: |
-          echo $'{\n  "experimental": true,\n  "features": { "buildkit": true }\n}' | sudo tee /etc/docker/daemon.json
+          echo $'{ "exec-opts": ["native.cgroupdriver=cgroupfs"], "cgroup-parent": "/actions_job", "experimental": true, "features": { "buildkit": true } }' | sudo tee /etc/docker/daemon.json
           sudo service docker restart
           sudo cat /etc/docker/daemon.json
           sudo docker version -f '{{.Server.Experimental}}'
