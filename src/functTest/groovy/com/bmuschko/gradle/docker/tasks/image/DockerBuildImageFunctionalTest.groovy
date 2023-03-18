@@ -102,21 +102,15 @@ USER \$user"""
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
             import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.From
 
-            ext {
-                os = 'linux'
-                arch = 'arm64'
-                platform = "\$os/\$arch"
-            }
-
             task dockerfile(type: Dockerfile) {
                 instruction('# syntax=docker/dockerfile:1.2')
-                from(new From('$TEST_IMAGE_WITH_TAG').withPlatform(project.ext.platform))
+                from(new From('$TEST_IMAGE_WITH_TAG').withPlatform('linux/arm64'))
                 runCommand("echo ${UUID.randomUUID()}")
             }
             
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                platform = project.ext.platform
+                platform = 'linux/arm64'
             }
 
             task removeImage(type: DockerRemoveImage) {
@@ -128,8 +122,8 @@ USER \$user"""
                 finalizedBy removeImage
                 imageId = buildImage.imageId
                 onNext { image ->
-                    assert image.os == project.ext.os
-                    assert image.arch == project.ext.arch
+                    assert image.os == 'linux'
+                    assert image.arch == 'arm64'
                 }
             }
         """
