@@ -78,7 +78,7 @@ abstract class AbstractGroovyDslFunctionalTest extends AbstractFunctionalTest {
     }
 
     protected static String createUniqueImageId() {
-        "gradle/${generateRandomUUID()}:0.0.1"
+        "gradle/${generateRandomUUID()}"
     }
 
     protected static String createUniqueContainerName() {
