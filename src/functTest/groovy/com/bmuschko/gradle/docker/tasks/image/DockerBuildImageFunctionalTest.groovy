@@ -25,6 +25,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
             }
         """
 
@@ -58,6 +59,7 @@ USER \$user"""
                 inputDir = projectDir
                 dockerFile = file('Dockerfile')
                 buildArgs = ['user': 'what_user']
+                images.add("${createUniqueImageId()}")
             }
 
             task inspectImage(type: DockerInspectImageUser) {
@@ -111,6 +113,7 @@ USER \$user"""
             
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
                 platform = 'linux/arm64'
             }
 
@@ -559,6 +562,7 @@ USER \$user"""
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
             }
 
             ${imageIdValidation()}
@@ -578,7 +582,7 @@ USER \$user"""
 
     private static String imageCreationWithBuildArgsTask() {
         """
-            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.`i`mage.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
@@ -617,6 +621,7 @@ USER \$user"""
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
                 labels = ['label1':'test1', 'label2':'test2', 'label3':"\$project.name"]
             }
 
@@ -698,7 +703,7 @@ USER \$user"""
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 cacheFrom.add('$TEST_IMAGE_WITH_TAG') // no effect
-                images.add('$uniqueTag')
+                images.add("$uniqueTag")
             }
 
             task pushImage(type: DockerPushImage) {
@@ -739,6 +744,7 @@ USER \$user"""
             task buildWithHostNetwork(type: DockerBuildImage) {
                 dependsOn dockerfile
                 network = 'host'
+                images.add("${createUniqueImageId()}")
             }
 
             ${imageIdValidation()}
@@ -764,6 +770,7 @@ USER \$user"""
 
             task buildTarget(type: DockerBuildImage) {
                 dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
                 target = "stage2"
             }
 
