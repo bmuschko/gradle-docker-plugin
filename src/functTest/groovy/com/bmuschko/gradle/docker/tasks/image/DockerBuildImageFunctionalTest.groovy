@@ -102,7 +102,11 @@ USER \$user"""
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
             import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.From
 
-            ext.platform = 'linux/s390x'
+            ext {
+                os = 'linux'
+                arch = 'arm64'
+                platform = "\$os/\$arch"
+            }
 
             task dockerfile(type: Dockerfile) {
                 from(new From('$TEST_IMAGE_WITH_TAG').withPlatform(project.ext.platform))
@@ -123,8 +127,8 @@ USER \$user"""
                 finalizedBy removeImage
                 imageId = buildImage.imageId
                 onNext { image ->
-                    assert image.os == 'linux'
-                    assert image.arch == 's390x'
+                    assert image.os == project.ext.os
+                    assert image.arch == project.ext.arch
                 }
             }
         """
