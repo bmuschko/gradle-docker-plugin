@@ -584,7 +584,7 @@ USER \$user"""
 
     private static String imageCreationWithBuildArgsTask() {
         """
-            import com.bmuschko.gradle.docker.tasks.`i`mage.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
 
