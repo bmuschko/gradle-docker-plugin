@@ -109,6 +109,7 @@ USER \$user"""
             }
 
             task dockerfile(type: Dockerfile) {
+                instruction('# syntax=docker/dockerfile:1.2')
                 from(new From('$TEST_IMAGE_WITH_TAG').withPlatform(project.ext.platform))
                 runCommand("echo ${UUID.randomUUID()}")
             }
