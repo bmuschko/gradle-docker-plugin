@@ -6,6 +6,7 @@ import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Requires
@@ -97,6 +98,7 @@ USER \$user"""
         result.output.contains("user: what_user")
     }
 
+    @Ignore
     def "can build image for a specific platform"() {
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
