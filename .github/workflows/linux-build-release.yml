@@ -22,10 +22,10 @@ jobs:
           docker run -d -p 5001:5000 --restart=always --name secure_registry -v "$(pwd)"/src/functTest/resources/auth:/auth:rw -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" registry:2
       - name: Configure Docker Daemon
         run: |
-          echo $'{"experimental": true}' | sudo dd status=none of=/etc/docker/daemon.json
+          echo $'{\n  "experimental": true,\n  "features": { "buildkit": true }\n}' | sudo tee /etc/docker/daemon.json
           sudo service docker restart
-          cat /etc/docker/daemon.json
-          docker version -f '{{.Server.Experimental}}'
+          sudo cat /etc/docker/daemon.json
+          sudo docker version -f '{{.Server.Experimental}}'
       - name: Compilation
         uses: gradle/gradle-build-action@v2
         with:
