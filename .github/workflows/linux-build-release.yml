@@ -24,7 +24,7 @@ jobs:
         run: |
           echo $'{"experimental": true}' | sudo dd status=none of=/etc/docker/daemon.json
           sudo service docker restart
-          cat /etc/docker/daemon.json'
+          cat /etc/docker/daemon.json
           docker version -f '{{.Server.Experimental}}'
       - name: Compilation
         uses: gradle/gradle-build-action@v2
