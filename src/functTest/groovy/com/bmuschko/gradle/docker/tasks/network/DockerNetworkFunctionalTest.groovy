@@ -1,11 +1,12 @@
 package com.bmuschko.gradle.docker.tasks.network
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import org.gradle.testkit.runner.BuildResult
 
 class DockerNetworkFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
-    private static final String IMAGE = 'alpine:3.4'
+    private static final String IMAGE = AbstractFunctionalTest.TEST_IMAGE_WITH_TAG
     private static final String TEST_SUBNET = '10.11.12.0/30'
 
     def "can create and tear down a network"() {

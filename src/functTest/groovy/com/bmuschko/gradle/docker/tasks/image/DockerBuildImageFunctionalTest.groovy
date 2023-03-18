@@ -1,5 +1,6 @@
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
@@ -528,7 +529,7 @@ USER \$user"""
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
             }
 
             task buildWithShmSize(type: DockerBuildImage) {
