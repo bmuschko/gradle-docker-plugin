@@ -564,7 +564,6 @@ USER \$user"""
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
-                images.add("${createUniqueImageId()}")
             }
 
             ${imageIdValidation()}
