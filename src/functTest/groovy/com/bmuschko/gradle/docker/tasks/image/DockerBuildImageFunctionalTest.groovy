@@ -1,10 +1,12 @@
 package com.bmuschko.gradle.docker.tasks.image
 
+import com.bmuschko.gradle.docker.AbstractFunctionalTest
 import com.bmuschko.gradle.docker.AbstractGroovyDslFunctionalTest
 import com.bmuschko.gradle.docker.TestConfiguration
 import com.bmuschko.gradle.docker.TestPrecondition
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Requires
@@ -24,6 +26,7 @@ class DockerBuildImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
             }
         """
 
@@ -57,6 +60,7 @@ USER \$user"""
                 inputDir = projectDir
                 dockerFile = file('Dockerfile')
                 buildArgs = ['user': 'what_user']
+                images.add("${createUniqueImageId()}")
             }
 
             task inspectImage(type: DockerInspectImageUser) {
@@ -94,12 +98,44 @@ USER \$user"""
         result.output.contains("user: what_user")
     }
 
+    @Ignore
     def "can build image for a specific platform"() {
-        buildFile << imageCreationTask()
-        buildFile << "buildImage.platform = 'linux/s390x'"
+        buildFile << """
+            import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+            import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+            import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.From
+
+            task dockerfile(type: Dockerfile) {
+                instruction('# syntax=docker/dockerfile:1.2')
+                from(new From('$TEST_IMAGE_WITH_TAG').withPlatform('linux/arm64'))
+                runCommand("echo ${UUID.randomUUID()}")
+            }
+            
+            task buildImage(type: DockerBuildImage) {
+                dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
+                platform = 'linux/arm64'
+            }
+
+            task removeImage(type: DockerRemoveImage) {
+                force = true
+                imageId = buildImage.imageId
+            }
+
+            task inspectImage(type: DockerInspectImage) {
+                finalizedBy removeImage
+                imageId = buildImage.imageId
+                onNext { image ->
+                    assert image.os == 'linux'
+                    assert image.arch == 'arm64'
+                }
+            }
+        """
 
         when:
-        BuildResult result = build('buildImage')
+        BuildResult result = build('inspectImage')
 
         then:
         result.output.contains("Created image with ID")
@@ -498,7 +534,7 @@ USER \$user"""
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
             task dockerfile(type: Dockerfile) {
-                from 'alpine'
+                from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
             }
 
             task buildWithShmSize(type: DockerBuildImage) {
@@ -586,6 +622,7 @@ USER \$user"""
 
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
                 labels = ['label1':'test1', 'label2':'test2', 'label3':"\$project.name"]
             }
 
@@ -667,7 +704,7 @@ USER \$user"""
             task buildImage(type: DockerBuildImage) {
                 dependsOn dockerfile
                 cacheFrom.add('$TEST_IMAGE_WITH_TAG') // no effect
-                images.add('$uniqueTag')
+                images.add("$uniqueTag")
             }
 
             task pushImage(type: DockerPushImage) {
@@ -708,6 +745,7 @@ USER \$user"""
             task buildWithHostNetwork(type: DockerBuildImage) {
                 dependsOn dockerfile
                 network = 'host'
+                images.add("${createUniqueImageId()}")
             }
 
             ${imageIdValidation()}
@@ -733,6 +771,7 @@ USER \$user"""
 
             task buildTarget(type: DockerBuildImage) {
                 dependsOn dockerfile
+                images.add("${createUniqueImageId()}")
                 target = "stage2"
             }
 

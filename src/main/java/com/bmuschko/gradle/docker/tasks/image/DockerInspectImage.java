@@ -35,20 +35,17 @@ public class DockerInspectImage extends DockerExistingImage {
     }
 
     private void defaultResponseHandling() {
-        Action<InspectImageResponse> action = new Action<InspectImageResponse>() {
-            @Override
-            public void execute(InspectImageResponse image) {
-                getLogger().quiet("ID               : " + image.getId());
-                getLogger().quiet("Author           : " + image.getAuthor());
-                getLogger().quiet("Created          : " + image.getCreated());
-                getLogger().quiet("Comment          : " + image.getComment());
-                getLogger().quiet("Architecture     : " + image.getArch());
-                getLogger().quiet("Operating System : " + image.getOs());
-                getLogger().quiet("Parent           : " + image.getParent());
-                getLogger().quiet("Size             : " + image.getSize());
-                getLogger().quiet("Docker Version   : " + image.getDockerVersion());
-                getLogger().quiet("Labels           : " + image.getConfig().getLabels());
-            }
+        Action<InspectImageResponse> action = image -> {
+            getLogger().quiet("ID               : " + image.getId());
+            getLogger().quiet("Author           : " + image.getAuthor());
+            getLogger().quiet("Created          : " + image.getCreated());
+            getLogger().quiet("Comment          : " + image.getComment());
+            getLogger().quiet("Architecture     : " + image.getArch());
+            getLogger().quiet("Operating System : " + image.getOs());
+            getLogger().quiet("Parent           : " + image.getParent());
+            getLogger().quiet("Size             : " + image.getSize());
+            getLogger().quiet("Docker Version   : " + image.getDockerVersion());
+            getLogger().quiet("Labels           : " + image.getConfig().getLabels());
         };
 
         onNext(action);

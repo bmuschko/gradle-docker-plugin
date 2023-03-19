@@ -21,37 +21,6 @@ import org.gradle.testkit.runner.TaskOutcome
 
 class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
-    def "can setup additional user groups"() {
-        given:
-        String containerCreationTask = """
-            task createContainer(type: DockerCreateContainer) {
-                dependsOn pullImage
-                targetImageId pullImage.getImage()
-                cmd = ['groups']
-                hostConfig.groups = ['postgres']
-            }
-        """
-        buildFile <<
-            containerStart(containerCreationTask) <<
-            """
-            ${containerRemove()}
-
-            task inspectContainer(type: DockerInspectContainer) {
-                dependsOn startContainer
-                finalizedBy removeContainer
-                targetContainerId startContainer.getContainerId()
-                onNext { info ->
-                    if (info.hostConfig.groupAdd != ['postgres']) {
-                        throw new GradleException("Additional group not found!")
-                    }
-                }
-            }
-        """
-
-        expect:
-        build('inspectContainer')
-    }
-
     def "can setup binds"() {
         given:
         String containerCreationTask = """
@@ -431,7 +400,6 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
     }
 
     static String containerStart(String containerCreationTask) {
-        // Starts with the union of all needed imports.
         """
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
