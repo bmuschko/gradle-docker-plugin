@@ -1,7 +1,7 @@
 == Change Log
 
 [discrete]
-=== v9.3.0 (March 19, 2023)
+=== v9.3.0 (March 20, 2023)
 
 * Introduce property for setting a USER instruction in convention plugin extension - {uri-github}/pull/1166[PR 1166]
 * Add JAVA_OPTS to entrypoint instruction - {uri-github}/pull/1167[PR 1167]
