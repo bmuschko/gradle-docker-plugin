@@ -1,6 +1,14 @@
 == Change Log
 
 [discrete]
+=== v9.3.0 (March 19, 2023)
+
+* Introduce property for setting a USER instruction in convention plugin extension - {uri-github}/pull/1166[PR 1166]
+* Add JAVA_OPTS to entrypoint instruction - {uri-github}/pull/1167[PR 1167]
+* Allow for setting platform for Dockerfile task - {uri-github}/pull/1170[PR 1170]
+* Upgrade Docker Java to 3.3.0 - {uri-github}/pull/1171[PR 1171]
+
+[discrete]
 === v9.2.1 (February 7, 2023)
 
 * Correct input annotation for `imageFile` property of DockerLoadImage task - {uri-github}/pull/1164[PR 1164]
