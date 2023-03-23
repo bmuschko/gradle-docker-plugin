@@ -81,12 +81,6 @@ pluginBundle {
     website = "https://github.com/bmuschko/gradle-docker-plugin"
     vcsUrl = "https://github.com/bmuschko/gradle-docker-plugin"
     tags = listOf("gradle", "docker", "container", "image", "lightweight", "vm", "linux")
-
-    mavenCoordinates {
-        groupId = project.group.toString()
-        artifactId = project.name
-        version = project.version.toString()
-    }
 }
 
 buildScan {
