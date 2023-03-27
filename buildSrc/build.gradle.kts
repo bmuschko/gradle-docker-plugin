@@ -8,13 +8,21 @@ repositories {
     gradlePluginPortal()
 }
 
+val versionCatalog = extensions.getByType<VersionCatalogsExtension>().named("buildsrcLibs")
+val grgitModule = versionCatalog.findLibrary("grgit").get().get().module
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == grgitModule.group && requested.name == grgitModule.name) {
+            useVersion(buildsrcLibs.versions.grgit.get())
+        }
+    }
+}
+
 dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation(buildsrcLibs.asciidoctor.jvm.plugin)
     runtimeOnly(buildsrcLibs.asciidoctorj.tabbed.code.extension)
-    implementation(buildsrcLibs.grgit) {
-        setForce(true)
-    }
     implementation(buildsrcLibs.gradle.git)
     implementation(buildsrcLibs.gradle.git.publish)
     implementation(buildsrcLibs.shadow)
