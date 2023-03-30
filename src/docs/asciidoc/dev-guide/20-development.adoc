@@ -8,10 +8,3 @@ The following usage examples demonstrates running functional tests against the D
 ----
 $ ./gradlew functionalTest
 ----
-
-OR
-
-[source,shell]
-----
-$ export DOCKER_HOST=unix:///var/run/docker.sock && ./gradlew functionalTest
-----
