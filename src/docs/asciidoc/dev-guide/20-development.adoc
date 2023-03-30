@@ -1,16 +1,8 @@
 == Development
 
-It is required to https://docs.docker.com/install/[install and run Docker Community Edition (CE)] on the machine running tests. Please refer to the installation manual for more information. The default setup can be configured with the help of the properties shown in the table below:
+It is required to https://docs.docker.com/install/[install and run Docker Community Edition (CE)] on the machine running tests. Please refer to the installation manual for more information.
 
-[options="header"]
-|=======
-|Description                 |System/Project Property |Environment Variable |Default Value
-|Docker server URL           |`dockerServerUrl` | `DOCKER_HOST`          |`unix:///var/run/docker.sock`
-|Docker cert path            |`dockerCertPath` | `DOCKER_CERT_PATH`           |`null`
-|Docker private registry URL |`dockerPrivateRegistryUrl`| `DOCKER_REGISTRY_HOST` |`http://localhost:5000`
-|=======
-
-The following usage examples demonstrates running functional tests against the a Docker instance:
+The following usage examples demonstrates running functional tests against the Docker instance:
 
 [source,shell]
 ----
@@ -21,26 +13,5 @@ OR
 
 [source,shell]
 ----
-$ ./gradlew functionalTest -PdockerServerUrl=unix:///var/run/docker.sock
-----
-
-OR
-
-[source,shell]
-----
-$ ./gradlew functionalTest -DdockerServerUrl=unix:///var/run/docker.sock
-----
-
-OR
-
-[source,shell]
-----
 $ export DOCKER_HOST=unix:///var/run/docker.sock && ./gradlew functionalTest
-----
-
-OR
-
-[source,shell]
-----
-$ ./gradlew functionalTest -PdockerServerUrl=http://192.168.59.103:2376
 ----
