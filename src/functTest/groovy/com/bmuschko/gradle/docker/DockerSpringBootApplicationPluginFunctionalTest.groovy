@@ -282,7 +282,7 @@ LABEL maintainer=$expectedDockerfile.maintainer
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.mainClassName, expectedDockerfile.args)}
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.mainClassName, expectedDockerfile.args).collect { '"' + it + '"'} }
 """
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
@@ -293,8 +293,8 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.main
         dockerFileContent
     }
 
-    private static String buildEntrypoint(List<String> jvmArgs, String mainClassName, List<String> args) {
-        List<String> entrypoint = ["exec", "java", "\$JAVA_OPTS"]
+    private static List<String> buildEntrypoint(List<String> jvmArgs, String mainClassName, List<String> args) {
+        List<String> entrypoint = ["java"]
 
         if (!jvmArgs.empty) {
             entrypoint.addAll(jvmArgs)
@@ -306,7 +306,7 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jvmArgs, expectedDockerfile.main
             entrypoint.addAll(args)
         }
 
-        entrypoint.join(" ")
+        entrypoint
     }
 
     private static class ExpectedDockerfile {
