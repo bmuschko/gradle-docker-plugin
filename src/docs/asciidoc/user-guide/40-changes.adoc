@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v9.3.1 (April 8, 2023)
+
+* Revert automatically setting JAVA_OPTS environment variable - {uri-github}/pull/1176[PR 1176]
+
+[discrete]
 === v9.3.0 (March 20, 2023)
 
 * Introduce property for setting a USER instruction in convention plugin extension - {uri-github}/pull/1166[PR 1166]
