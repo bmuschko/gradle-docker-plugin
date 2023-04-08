@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.bmuschko.gradle.docker.internal.ConventionPluginHelper.createAppFilesCopySpec;
 
@@ -85,8 +84,8 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
                 return null;
             }));
             dockerfile.copyFile(new Dockerfile.CopyFile("classes", "classes/"));
-            dockerfile.instruction(project.provider(() -> {
-                List<String> entrypoint = new ArrayList<>(List.of(Dockerfile.EntryPointInstruction.KEYWORD, "exec", "java", "$JAVA_OPTS"));
+            dockerfile.entryPoint(project.provider(() -> {
+                List<String> entrypoint = new ArrayList<>(List.of("java"));
                 List<String> jvmArgs = extension.getJvmArgs().get();
 
                 if (!jvmArgs.isEmpty()) {
@@ -101,7 +100,7 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
                     entrypoint.addAll(args);
                 }
 
-                return entrypoint.stream().collect(Collectors.joining(" "));
+                return entrypoint;
             }));
             dockerfile.exposePort(extension.getPorts());
         });
@@ -138,8 +137,8 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
         });
     }
 
-    private static TaskProvider<DockerPushImage> registerPushImageTask(Project project, final TaskProvider<DockerBuildImage> dockerBuildImageTask) {
-        return project.getTasks().register(PUSH_IMAGE_TASK_NAME, DockerPushImage.class, pushImage -> {
+    private static void registerPushImageTask(Project project, final TaskProvider<DockerBuildImage> dockerBuildImageTask) {
+        project.getTasks().register(PUSH_IMAGE_TASK_NAME, DockerPushImage.class, pushImage -> {
             pushImage.setGroup(DockerRemoteApiPlugin.DEFAULT_TASK_GROUP);
             pushImage.setDescription("Pushes created Docker image to the repository.");
             pushImage.dependsOn(dockerBuildImageTask);

@@ -183,7 +183,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
 WORKDIR /app
 COPY libs libs/
 COPY classes classes/
-ENTRYPOINT exec java \$JAVA_OPTS -cp /app/resources:/app/classes:/app/libs/* com.bmuschko.gradle.docker.application.JettyMain
+ENTRYPOINT ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.bmuschko.gradle.docker.application.JettyMain"]
 EXPOSE 9090
 ADD file1.txt /some/dir/file1.txt
 ADD file2.txt /other/dir/file2.txt
@@ -418,7 +418,7 @@ WORKDIR /app
         }
 
         dockerfileContent += """COPY classes classes/
-ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.mainClassName, expectedDockerfile.args)}
+ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.mainClassName, expectedDockerfile.args).collect { '"' + it + '"'}}
 """
 
         if (!expectedDockerfile.exposedPorts.isEmpty()) {
@@ -429,8 +429,8 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.main
         dockerfileContent
     }
 
-    private static String buildEntrypoint(List<String> jvmArgs, String mainClassName, List<String> args) {
-        List<String> entrypoint = ["exec", "java", "\$JAVA_OPTS"]
+    private static List<String> buildEntrypoint(List<String> jvmArgs, String mainClassName, List<String> args) {
+        List<String> entrypoint = ["java"]
 
         if (!jvmArgs.empty) {
             entrypoint.addAll(jvmArgs)
@@ -442,7 +442,7 @@ ENTRYPOINT ${buildEntrypoint(expectedDockerfile.jmvArgs, expectedDockerfile.main
             entrypoint.addAll(args)
         }
 
-        entrypoint.join(" ")
+        entrypoint
     }
 
     private void assertBuildContextLibs() {
