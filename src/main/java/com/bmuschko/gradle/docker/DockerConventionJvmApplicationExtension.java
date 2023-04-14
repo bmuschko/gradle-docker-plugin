@@ -17,7 +17,7 @@ public class DockerConventionJvmApplicationExtension {
     /**
      * The Docker base image used for Java application.
      * <p>
-     * Defaults to {@code openjdk:11.0.15-jre-slim}.
+     * Defaults to {@code openjdk:11.0.16-jre-slim}.
      */
     public final Property<String> getBaseImage() {
         return baseImage;
@@ -115,7 +115,7 @@ public class DockerConventionJvmApplicationExtension {
 
     public DockerConventionJvmApplicationExtension(ObjectFactory objectFactory) {
         baseImage = objectFactory.property(String.class);
-        baseImage.convention("openjdk:11.0.15-jre-slim");
+        baseImage.convention("openjdk:11.0.16-jre-slim");
         maintainer = objectFactory.property(String.class);
         maintainer.convention(System.getProperty("user.name"));
         user = objectFactory.property(String.class);
