@@ -3,7 +3,7 @@ package com.bmuschko.gradle.docker.fixtures
 final class DockerConventionPluginFixture {
 
     public static final String PROJECT_NAME = 'powered-by-docker'
-    public static final String DEFAULT_BASE_IMAGE = 'openjdk:11.0.15-jre-slim'
+    public static final String DEFAULT_BASE_IMAGE = 'openjdk:11.0.16-jre-slim'
     public static final String CUSTOM_BASE_IMAGE = 'openjdk:8u171-jre-alpine'
 
     private DockerConventionPluginFixture() {}
