@@ -20,12 +20,15 @@ import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.PushImageCmd;
+import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.PushResponseItem;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
+
+import javax.annotation.Nullable;
 
 public class DockerPushImage extends AbstractDockerRemoteApiTask implements RegistryCredentialsAware {
 
@@ -80,14 +83,30 @@ public class DockerPushImage extends AbstractDockerRemoteApiTask implements Regi
     }
 
     private ResultCallback.Adapter<PushResponseItem> createCallback(final Action nextHandler) {
+        // Workaround to manually handle error logic - see https://github.com/docker-java/docker-java/issues/2140
         return new ResultCallback.Adapter<PushResponseItem>() {
+            @Nullable
+            private PushResponseItem latestItem = null;
+
             @Override
             public void onNext(PushResponseItem item) {
+                this.latestItem = item;
+
                 if (nextHandler != null) {
                     nextHandler.execute(item);
                 }
             }
 
+            @Override
+            protected void throwFirstError() {
+                super.throwFirstError();
+
+                if (latestItem == null) {
+                    throw new DockerClientException("Could not push image");
+                } else if (latestItem.isErrorIndicated()) {
+                    throw new DockerClientException("Could not push image: " + latestItem.getError());
+                }
+            }
         };
     }
 }
