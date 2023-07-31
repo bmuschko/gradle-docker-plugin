@@ -1,6 +1,13 @@
 == Change Log
 
 [discrete]
+=== v9.3.2 (July 31, 2023)
+
+* Fail build upon error with push operation - {uri-github}/pull/1183[PR 1183]
+* Upgrade Docker Java to 3.3.2 - {uri-github}/pull/1187[PR 1187]
+* Upgrade ASM to 9.5 - {uri-github}/pull/1188[PR 1188]
+
+[discrete]
 === v9.3.1 (April 8, 2023)
 
 * Revert automatically setting JAVA_OPTS environment variable - {uri-github}/pull/1176[PR 1176]
