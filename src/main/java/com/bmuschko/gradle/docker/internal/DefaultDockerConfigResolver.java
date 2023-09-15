@@ -19,8 +19,10 @@ public class DefaultDockerConfigResolver implements DockerConfigResolver {
                     dockerUrl = "npipe:////./pipe/docker_engine";
                 }
             } else {
+                //Added for possibility to run integration tests, also makes it possible to override use of /var/run/
+                boolean skipVarRun = Boolean.valueOf(System.getProperty("com.bmuschko.gradle.docker.internal.DefaultDockerUrlValueSource.skipCheckOfVarRun", "false"));
                 // macOS or Linux
-                if (isFileExists("/var/run/docker.sock")) {
+                if (isFileExists("/var/run/docker.sock") && !skipVarRun) {
                     dockerUrl = "unix:///var/run/docker.sock";
                 } else if (isFileExists(System.getProperty("user.home") + "/.docker/run/docker.sock")) {
                     dockerUrl = "unix://" + System.getProperty("user.home") + "/.docker/run/docker.sock";
