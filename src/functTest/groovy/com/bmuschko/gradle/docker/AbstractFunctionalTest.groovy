@@ -20,6 +20,7 @@ abstract class AbstractFunctionalTest extends Specification {
     File buildFile
     File settingsFile
     Map<String, String> envVars = new HashMap<>()
+    String version = null
 
     def setup() {
         projectDir = temporaryFolder
@@ -42,6 +43,14 @@ abstract class AbstractFunctionalTest extends Specification {
         envVars.put(variable, value)
     }
 
+    /**
+     * Set a specific Gradle version for gradle runner
+     * @param version version string
+     */
+    protected void useGradleVersion(String version) {
+        this.version = version
+    }
+
     protected BuildResult build(String... arguments) {
         createAndConfigureGradleRunner(arguments).build()
     }
@@ -51,11 +60,15 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     private GradleRunner createAndConfigureGradleRunner(String... arguments) {
-        GradleRunner.create()
+        def gradleRunner = GradleRunner.create()
             .withProjectDir(projectDir)
             .withArguments(arguments + '-s' + '--configuration-cache' as List<String>)
             .withPluginClasspath()
             .withEnvironment(envVars)
+        if (version) {
+            gradleRunner.withGradleVersion(version)
+        }
+        return gradleRunner
     }
 
     protected File file(String relativePath) {
