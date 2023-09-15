@@ -261,6 +261,38 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('convert')
     }
 
+
+    def "configuration cache compatible when docker state changes on disk for OS #osName"() {
+        given:
+        useGradleVersion("8.3")
+
+        and:
+        // Force use of user.home and define a variable holding the file
+        def home = new File(temporaryFolder, "home").tap{it.mkdirs()}
+        def dockerSockDirectory = new File(home, "/.docker/run/").tap{it.mkdirs()}
+        String[] arguments = [
+            "-Dcom.bmuschko.gradle.docker.internal.DefaultDockerUrlValueSource.skipCheckOfVarRun=true",
+            "-Duser.home=${home.absolutePath}",
+            "-Dos.name=$osName",
+            "help"
+        ].toArray()
+
+        when: "First run will save configuration cache state, including traversed files. Create a file to be checked by plugin."
+        def dockerSockFile = new File(dockerSockDirectory,  "docker.sock")
+        dockerSockFile.createNewFile()
+        build(arguments)
+
+        and: "Second run is investigating cache input, including traversed files, in order to determine if configuration cache is reused"
+        dockerSockFile.delete()
+        def output = build(arguments).output
+
+        then:
+        output.contains("Configuration cache entry reused")
+
+        where:
+        osName << ['Mac OS X', 'Linux']
+    }
+
     @Ignore
     @Requires({ TestPrecondition.HARBOR_CREDENTIALS_AVAILABLE })
     def "can push image to Harbor"() {
