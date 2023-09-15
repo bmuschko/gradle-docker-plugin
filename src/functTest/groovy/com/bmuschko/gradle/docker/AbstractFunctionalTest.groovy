@@ -20,7 +20,7 @@ abstract class AbstractFunctionalTest extends Specification {
     File buildFile
     File settingsFile
     Map<String, String> envVars = new HashMap<>()
-    String version = null
+    String version
 
     def setup() {
         projectDir = temporaryFolder
