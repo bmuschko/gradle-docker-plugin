@@ -1,7 +1,6 @@
 package com.bmuschko.gradle.docker.internal
 
 import org.gradle.testfixtures.ProjectBuilder
-import spock.lang.Ignore
 
 import static com.bmuschko.gradle.docker.internal.OsUtils.isWindows;
 
@@ -122,7 +121,6 @@ class RegistryAuthLocatorTest extends Specification {
         0 * logger.error(*_)
     }
 
-    @Ignore("I get 0 invocations of 'logger.error(*_)'")
     def "AuthLocator returns default config for Docker Desktop config without existing credentials"() {
         given:
         RegistryAuthLocator locator =

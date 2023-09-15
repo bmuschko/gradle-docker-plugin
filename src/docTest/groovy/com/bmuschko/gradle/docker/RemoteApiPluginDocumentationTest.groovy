@@ -1,7 +1,6 @@
 package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 import static com.bmuschko.gradle.docker.TextUtils.containsIgnoreLineEndings
@@ -118,7 +117,6 @@ HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:8080/actuator/h
         dsl << ALL_DSLS
     }
 
-    @Ignore("Getting error: Task :pullImage FAILED")
     @Unroll
     def "can implement custom task type [#dsl.language]"() {
         given:
