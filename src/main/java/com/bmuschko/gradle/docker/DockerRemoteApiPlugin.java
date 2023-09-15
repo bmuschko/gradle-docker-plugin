@@ -27,7 +27,7 @@ public class DockerRemoteApiPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        final DockerExtension dockerExtension = project.getExtensions().create(EXTENSION_NAME, DockerExtension.class, project.getObjects());
+        final DockerExtension dockerExtension = project.getExtensions().create(EXTENSION_NAME, DockerExtension.class, project.getObjects(), project.getProviders());
         configureRegistryCredentialsAwareTasks(project, dockerExtension.getRegistryCredentials());
 
         final Provider<DockerClientService> serviceProvider = project.getGradle().getSharedServices().registerIfAbsent("docker", DockerClientService.class, new Action<BuildServiceSpec<DockerClientService.Params>>() {
