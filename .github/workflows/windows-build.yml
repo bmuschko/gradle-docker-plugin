@@ -7,11 +7,15 @@ jobs:
     runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
-      - name: Set up Java
-        uses: actions/setup-java@v1
+        uses: actions/checkout@v4
         with:
-          java-version: 11
+          fetch-depth: 0
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'gradle'
       - name: Compilation
         uses: gradle/gradle-build-action@v2
         with:
