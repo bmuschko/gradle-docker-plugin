@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v9.3.3 (September 20, 2023)
+
+* Make DockerRemoteApi plugin configuration cache compatible for Gradle 8.1+ - {uri-github}/pull/1193[PR 1193]
+
+[discrete]
 === v9.3.2 (July 31, 2023)
 
 * Fail build upon error with push operation - {uri-github}/pull/1183[PR 1183]
