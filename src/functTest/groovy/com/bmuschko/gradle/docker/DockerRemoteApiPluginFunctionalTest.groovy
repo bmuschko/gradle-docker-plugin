@@ -2,6 +2,7 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.groovySettingsFile
@@ -114,7 +115,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
                 runCommand("echo ${UUID.randomUUID()}")
@@ -261,6 +262,38 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('convert')
     }
 
+    @IgnoreIf({ os.windows })
+    def "configuration cache compatible when docker state changes on disk for OS #osName"() {
+        given:
+        useGradleVersion("8.3")
+
+        and:
+        // Force use of user.home and define a variable holding the file
+        def home = new File(temporaryFolder, "home").tap{it.mkdirs()}
+        def dockerSockDirectory = new File(home, "/.docker/run/").tap{it.mkdirs()}
+        String[] arguments = [
+            "-Dcom.bmuschko.gradle.docker.internal.DefaultDockerUrlValueSource.skipCheckOfVarRun=true",
+            "-Duser.home=${home.absolutePath}",
+            "-Dos.name=$osName",
+            "help"
+        ].toArray()
+
+        when: "First run will save configuration cache state, including traversed files. Create a file to be checked by plugin."
+        def dockerSockFile = new File(dockerSockDirectory,  "docker.sock")
+        dockerSockFile.createNewFile()
+        build(arguments)
+
+        and: "Second run is investigating cache input, including traversed files, in order to determine if configuration cache is reused"
+        dockerSockFile.delete()
+        def output = build(arguments).output
+
+        then:
+        output.contains("Configuration cache entry reused")
+
+        where:
+        osName << ['Mac OS X', 'Linux']
+    }
+
     @Ignore
     @Requires({ TestPrecondition.HARBOR_CREDENTIALS_AVAILABLE })
     def "can push image to Harbor"() {
@@ -272,11 +305,11 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
-            
+
             task pullImage(type: DockerPullImage) {
                 image = '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
             }
-            
+
             task dockerfile(type: Dockerfile) {
                 dependsOn pullImage
                 from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
@@ -286,7 +319,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn dockerfile
                 images = ['demo.goharbor.io/gradle-docker-plugin/$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG']
             }
-            
+
             task removeImage(type: DockerRemoveImage) {
                 targetImageId buildImage.imageId
                 force = true
@@ -296,7 +329,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn buildImage
                 finalizedBy removeImage
                 images = buildImage.images
-                
+
                 registryCredentials {
                     url = 'https://demo.goharbor.io/v2/'
                     username = '$credentials.username'
