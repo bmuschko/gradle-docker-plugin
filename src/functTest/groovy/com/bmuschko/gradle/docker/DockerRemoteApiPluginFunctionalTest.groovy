@@ -2,6 +2,7 @@ package com.bmuschko.gradle.docker
 
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static com.bmuschko.gradle.docker.fixtures.DockerConventionPluginFixture.groovySettingsFile
@@ -114,7 +115,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
             import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-            
+
             task dockerfile(type: Dockerfile) {
                 from '$TEST_IMAGE_WITH_TAG'
                 runCommand("echo ${UUID.randomUUID()}")
@@ -261,7 +262,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         build('convert')
     }
 
-
+    @IgnoreIf({ os.windows })
     def "configuration cache compatible when docker state changes on disk for OS #osName"() {
         given:
         useGradleVersion("8.3")
@@ -304,11 +305,11 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
-            
+
             task pullImage(type: DockerPullImage) {
                 image = '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
             }
-            
+
             task dockerfile(type: Dockerfile) {
                 dependsOn pullImage
                 from '$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG'
@@ -318,7 +319,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn dockerfile
                 images = ['demo.goharbor.io/gradle-docker-plugin/$AbstractFunctionalTest.TEST_IMAGE_WITH_TAG']
             }
-            
+
             task removeImage(type: DockerRemoveImage) {
                 targetImageId buildImage.imageId
                 force = true
@@ -328,7 +329,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn buildImage
                 finalizedBy removeImage
                 images = buildImage.images
-                
+
                 registryCredentials {
                     url = 'https://demo.goharbor.io/v2/'
                     username = '$credentials.username'
