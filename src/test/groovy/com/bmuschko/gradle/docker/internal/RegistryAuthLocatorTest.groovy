@@ -137,7 +137,7 @@ class RegistryAuthLocatorTest extends Specification {
     }
 
     @Issue('https://github.com/bmuschko/gradle-docker-plugin/issues/985')
-    def "AuthLocator returns auth from file over default"() {
+    def "AuthLocator returns empty auth from file over default"() {
         given:
         RegistryAuthLocator locator =
             createAuthLocatorForExistingConfigFile('config-docker-hub-user-pass.json', false)
@@ -151,6 +151,33 @@ class RegistryAuthLocatorTest extends Specification {
             .withPassword('secret')
         allConfigs.configs.size() == 1
         allConfigs.configs.get(config.registryAddress) == config
+        0 * logger.error(*_)
+    }
+
+    @Issue('https://github.com/bmuschko/gradle-docker-plugin/issues/1179')
+    def "AuthLocator returns valid auth from file and default"() {
+        given:
+        RegistryAuthLocator locator =
+            createAuthLocatorForExistingConfigFile('config-docker-hub-user-pass.json', false)
+
+        when:
+        AuthConfigurations allConfigs = locator.lookupAllAuthConfigs(new AuthConfig()
+            .withRegistryAddress("https://index.docker.io/v2/")
+            .withUsername("username2")
+            .withPassword("secret2"))
+
+        then:
+        AuthConfig config = new AuthConfig()
+            .withUsername('username')
+            .withPassword('secret')
+        AuthConfig configAddon = new AuthConfig()
+            .withRegistryAddress("https://index.docker.io/v2/")
+            .withUsername('username2')
+            .withPassword('secret2')
+        allConfigs.configs.size() == 2
+        allConfigs.configs.get(config.registryAddress) == config
+        allConfigs.configs.get(configAddon.registryAddress) == configAddon
+
         0 * logger.error(*_)
     }
 
