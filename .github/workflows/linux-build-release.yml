@@ -1,5 +1,7 @@
 name: Build and Release [Linux]
 on: [push, pull_request]
+permissions:
+  pages: write
 
 jobs:
   build:
@@ -65,4 +67,4 @@ jobs:
           PLUGIN_PORTAL_KEY: ${{ secrets.PLUGIN_PORTAL_KEY }}
           PLUGIN_PORTAL_SECRET: ${{ secrets.PLUGIN_PORTAL_SECRET }}
         with:
-          arguments: publishPlugins gitPublishPush -Pgradle.publish.key=${{ secrets.PLUGIN_PORTAL_KEY }} -Pgradle.publish.secret=${{ secrets.PLUGIN_PORTAL_SECRET }} -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GH_TOKEN }} -is
+          arguments: publishPlugins gitPublishPush -Pgradle.publish.key=${{ secrets.PLUGIN_PORTAL_KEY }} -Pgradle.publish.secret=${{ secrets.PLUGIN_PORTAL_SECRET }} -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }} -is
