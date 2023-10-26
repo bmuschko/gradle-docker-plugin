@@ -1,6 +1,7 @@
 name: Build and Release [Linux]
 on: [push, pull_request]
 permissions:
+  contents: write
   pages: write
 
 jobs:
