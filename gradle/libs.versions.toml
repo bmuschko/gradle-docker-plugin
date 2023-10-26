@@ -1,6 +1,6 @@
 [versions]
 plugin-publish = "1.1.0"
-docker-java = "3.3.2"
+docker-java = "3.3.3"
 activation = "1.1.1"
 asm = "9.5"
 spock = "2.0-groovy-3.0"
