@@ -2,7 +2,7 @@
 plugin-publish = "1.1.0"
 docker-java = "3.3.3"
 activation = "1.1.1"
-asm = "9.5"
+asm = "9.6"
 spock = "2.0-groovy-3.0"
 zt-zip = "1.13"
 commons-vfs2 = "2.9.0"
