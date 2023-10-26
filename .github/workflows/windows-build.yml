@@ -32,8 +32,3 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: assemble javadoc asciidoctorAllGuides
-      - name: Store artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: gradle-docker-plugin
-          path: build/libs/*.jar

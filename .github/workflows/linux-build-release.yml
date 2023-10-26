@@ -56,11 +56,23 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: assemble javadoc asciidoctorAllGuides
-      - name: Store artifact
+      - name: Upload binaries
         uses: actions/upload-artifact@v3
         with:
-          name: gradle-docker-plugin
+          name: gradle-docker-plugin-bin
           path: build/libs/*.jar
+      - name: Upload Javadoc
+        uses: actions/upload-artifact@v3
+        with:
+          name: gradle-docker-plugin-javadoc
+          path: build/docs/javadoc/
+      - name: Upload Guides
+        uses: actions/upload-artifact@v3
+        with:
+          name: gradle-docker-plugin-guides
+          path: |
+            build/docs/asciidocDevGuide/
+            build/docs/asciidocUserGuide/
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: gradle/gradle-build-action@v2
