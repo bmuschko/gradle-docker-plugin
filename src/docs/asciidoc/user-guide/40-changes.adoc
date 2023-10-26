@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v9.3.5 (October 26, 2023)
+
+* Upgrade Docker Java to 3.3.3 - {uri-github}/pull/1199[PR 1199]
+
+[discrete]
 === v9.3.4 (October 1, 2023)
 
 * Credentials provided by extension need to override credentials in store - {uri-github}/pull/1196[PR 1196]
