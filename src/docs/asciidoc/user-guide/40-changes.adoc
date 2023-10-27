@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v9.3.6 (October 27, 2023)
+
+* Upgrade ASM to 9.6 - {uri-github}/pull/1200[PR 1200]
+
+[discrete]
 === v9.3.5 (October 26, 2023)
 
 * Upgrade Docker Java to 3.3.3 - {uri-github}/pull/1199[PR 1199]
