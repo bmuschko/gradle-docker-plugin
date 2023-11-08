@@ -1,8 +1,5 @@
 name: Build and Release [Linux]
 on: [push, pull_request]
-permissions:
-  contents: write
-  pages: write
 
 jobs:
   build:
@@ -62,4 +59,4 @@ jobs:
             build/docs/asciidocUserGuide/
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
-        run: ./gradlew publishPlugins gitPublishPush -Pgradle.publish.key=${{ secrets.PLUGIN_PORTAL_KEY }} -Pgradle.publish.secret=${{ secrets.PLUGIN_PORTAL_SECRET }} -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }} -is
+        run: ./gradlew publishPlugins gitPublishPush -Pgradle.publish.key=${{ secrets.PLUGIN_PORTAL_KEY }} -Pgradle.publish.secret=${{ secrets.PLUGIN_PORTAL_SECRET }} -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GH_TOKEN }} -is
