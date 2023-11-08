@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v9.3.7 (November 8, 2023)
+
+* Add note on applying plugin in multi-project builds to user guide - {uri-github}/pull/1202[PR 1202]
+
+[discrete]
 === v9.3.6 (October 27, 2023)
 
 * Upgrade ASM to 9.6 - {uri-github}/pull/1200[PR 1200]
