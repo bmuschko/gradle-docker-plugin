@@ -15,19 +15,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
       - name: Compilation
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: classes
+        run: ./gradlew classes
       - name: Unit tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: test
+        run: ./gradlew test
       - name: Integration tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: integrationTest
+        run: ./gradlew integrationTest
       - name: Assemble artifacts
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assemble javadoc asciidoctorAllGuides
+        run: ./gradlew assemble javadoc asciidoctorAllGuides
