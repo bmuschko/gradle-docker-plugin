@@ -2,7 +2,7 @@
 
 The plugin can be applied with the `buildscript` syntax or the plugin DSL.
 Let's say you'd want to go with the plugin that provides the plain Docker operations for managing Docker images and containers.
-See the https://docs.gradle.org/current/userguide/plugins.html[Gradle user guide] for more information on applying plugins.
+See the {uri-gradle-docs}/userguide/plugins.html[Gradle user guide] for more information on applying plugins.
 
 ==== Applying the Plugin Using the buildscript Syntax
 
@@ -31,6 +31,9 @@ include::{samplesCodeDir}/remote-api-plugin/apply-plugin-dsl/groovy/build.gradle
 ----
 include::{samplesCodeDir}/remote-api-plugin/apply-plugin-dsl/kotlin/build.gradle.kts[]
 ----
+
+[IMPORTANT]
+Using the `plugins {}` block to apply the plugin requires special handling in a multi-project build. For more information, see the Gradle documentation section named {uri-gradle-docs}/userguide/plugins.html#sec:subprojects_plugins_dsl["Applying external plugins with same version to subprojects"].
 
 ==== Applying the Plugin From a Script Plugin
 
