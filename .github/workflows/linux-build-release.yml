@@ -22,39 +22,27 @@ jobs:
         run: |
           docker run -d -p 5000:5000 --restart=always --name registry registry:2
           docker run -d -p 5001:5000 --restart=always --name secure_registry -v "$(pwd)"/src/functTest/resources/auth:/auth:rw -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" registry:2
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
       - name: Compilation
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: classes
+        run: ./gradlew classes
       - name: Validate plugins
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: validatePlugins
+        run: ./gradlew validatePlugins
       - name: Unit tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: test
+        run: ./gradlew test
       - name: Integration tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: integrationTest
+        run: ./gradlew integrationTest
       - name: Functional tests
-        uses: gradle/gradle-build-action@v2
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
           HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
           HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
-        with:
-          arguments: functionalTest
+        run: ./gradlew functionalTest
       - name: Documentation tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: docTest
+        run: ./gradlew docTest
       - name: Assemble artifacts
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assemble javadoc asciidoctorAllGuides
+        run: ./gradlew assemble javadoc asciidoctorAllGuides
       - name: Upload binaries
         uses: actions/upload-artifact@v3
         with:
@@ -74,6 +62,4 @@ jobs:
             build/docs/asciidocUserGuide/
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: publishPlugins gitPublishPush -Pgradle.publish.key=${{ secrets.PLUGIN_PORTAL_KEY }} -Pgradle.publish.secret=${{ secrets.PLUGIN_PORTAL_SECRET }} -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }} -is
+        run: ./gradlew publishPlugins gitPublishPush -Pgradle.publish.key=${{ secrets.PLUGIN_PORTAL_KEY }} -Pgradle.publish.secret=${{ secrets.PLUGIN_PORTAL_SECRET }} -Dorg.ajoberstar.grgit.auth.username=${{ secrets.GITHUB_TOKEN }} -is
