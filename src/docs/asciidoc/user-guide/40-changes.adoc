@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== v9.4.0 (November 29, 2023)
+
+* Expose HEALTHCHECK method to `Dockerfile` task - {uri-github}/pull/1205[PR 1205]
+
+[discrete]
 === v9.3.7 (November 8, 2023)
 
 * Add note on applying plugin in multi-project builds to user guide - {uri-github}/pull/1202[PR 1202]
