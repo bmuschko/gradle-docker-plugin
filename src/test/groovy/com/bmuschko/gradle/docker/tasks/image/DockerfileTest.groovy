@@ -56,11 +56,11 @@ class DockerfileTest extends Specification {
         new EnvironmentVariableInstruction(' ', 'Linux')                                              | 'ENV'           | IllegalArgumentException.class
         new EnvironmentVariableInstruction('OS', '"Linux"')                                           | 'ENV'           | 'ENV OS="Linux"'
         new EnvironmentVariableInstruction('OS', 'Linux or Windows')                                  | 'ENV'           | 'ENV OS="Linux or Windows"'
-        new EnvironmentVariableInstruction('long', '''Multiple line env
+        new EnvironmentVariableInstruction('long', '''Multiple line env 
 with linebreaks in between''')                                                                        | 'ENV'           | "ENV long=\"Multiple line env \\\n\
 with linebreaks in between\""
         new EnvironmentVariableInstruction(['OS': 'Linux'])                                           | 'ENV'           | 'ENV OS=Linux'
-        new EnvironmentVariableInstruction(['long': '''Multiple line env
+        new EnvironmentVariableInstruction(['long': '''Multiple line env 
 with linebreaks in between'''])                                                                       | 'ENV'           | "ENV long=\"Multiple line env \\\n\
 with linebreaks in between\""
         new EnvironmentVariableInstruction(['OS': 'Linux', 'TZ': 'UTC'])                              | 'ENV'           | 'ENV OS=Linux TZ=UTC'
