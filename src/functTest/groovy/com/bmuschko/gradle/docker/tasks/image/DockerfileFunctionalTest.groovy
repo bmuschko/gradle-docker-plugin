@@ -155,6 +155,7 @@ LABEL maintainer=benjamin.muschko@gmail.com
                 workingDir('/tmp')
                 onBuild('RUN echo "Hello World"')
                 instruction('LABEL env=prod')
+                healthcheck(new Dockerfile.Healthcheck('/bin/check-running'))
             }
         """
 
@@ -180,6 +181,7 @@ USER root
 WORKDIR /tmp
 ONBUILD RUN echo "Hello World"
 LABEL env=prod
+HEALTHCHECK CMD /bin/check-running
 """)
     }
 
@@ -202,6 +204,7 @@ LABEL env=prod
                 workingDir(project.provider { '/path/to/workdir' })
                 onBuild(project.provider { 'ADD . /app/src' })
                 instruction(project.provider { 'LABEL env=prod' })
+                healthcheck(project.provider { new Dockerfile.Healthcheck('/bin/check-running') })
             }
         """
 
@@ -224,6 +227,7 @@ USER patrick
 WORKDIR /path/to/workdir
 ONBUILD ADD . /app/src
 LABEL env=prod
+HEALTHCHECK CMD /bin/check-running
 """)
     }
 
@@ -233,6 +237,7 @@ LABEL env=prod
             task ${DOCKERFILE_TASK_NAME}(type: Dockerfile) {
                 instructions.add(new Dockerfile.FromInstruction(new Dockerfile.From('$TEST_IMAGE_WITH_TAG')))
                 instructions.add(new Dockerfile.LabelInstruction(['maintainer': 'benjamin.muschko@gmail.com']))
+                instructions.add(new Dockerfile.HealthcheckInstruction(new Dockerfile.Healthcheck('/bin/check-running')))
             }
         """
 
@@ -242,6 +247,7 @@ LABEL env=prod
         then:
         assertDockerfileContent("""FROM $TEST_IMAGE_WITH_TAG
 LABEL maintainer=benjamin.muschko@gmail.com
+HEALTHCHECK CMD /bin/check-running
 """)
     }
 

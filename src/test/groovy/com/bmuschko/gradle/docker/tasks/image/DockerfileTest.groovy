@@ -7,6 +7,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 import static com.bmuschko.gradle.docker.tasks.image.Dockerfile.*
+import static java.time.Duration.ofSeconds
 
 class DockerfileTest extends Specification {
     private static final Logger LOG = Logger.getLogger(DockerfileTest.class.getCanonicalName())
@@ -55,11 +56,11 @@ class DockerfileTest extends Specification {
         new EnvironmentVariableInstruction(' ', 'Linux')                                              | 'ENV'           | IllegalArgumentException.class
         new EnvironmentVariableInstruction('OS', '"Linux"')                                           | 'ENV'           | 'ENV OS="Linux"'
         new EnvironmentVariableInstruction('OS', 'Linux or Windows')                                  | 'ENV'           | 'ENV OS="Linux or Windows"'
-        new EnvironmentVariableInstruction('long', '''Multiple line env 
+        new EnvironmentVariableInstruction('long', '''Multiple line env
 with linebreaks in between''')                                                                        | 'ENV'           | "ENV long=\"Multiple line env \\\n\
 with linebreaks in between\""
         new EnvironmentVariableInstruction(['OS': 'Linux'])                                           | 'ENV'           | 'ENV OS=Linux'
-        new EnvironmentVariableInstruction(['long': '''Multiple line env 
+        new EnvironmentVariableInstruction(['long': '''Multiple line env
 with linebreaks in between'''])                                                                       | 'ENV'           | "ENV long=\"Multiple line env \\\n\
 with linebreaks in between\""
         new EnvironmentVariableInstruction(['OS': 'Linux', 'TZ': 'UTC'])                              | 'ENV'           | 'ENV OS=Linux TZ=UTC'
@@ -74,5 +75,13 @@ with linebreaks in between\""
         new LabelInstruction(['description': 'Single label' ])                                        | 'LABEL'         | 'LABEL description="Single label"'
         new LabelInstruction(['"un subscribe"': 'true' ])                                             | 'LABEL'         | 'LABEL "un subscribe"=true'
         new LabelInstruction(['description': 'Multiple labels', 'version': '1.0' ])                   | 'LABEL'         | 'LABEL description="Multiple labels" version=1.0'
+        new HealthcheckInstruction(new Healthcheck("/bin/check-running"))                             | 'HEALTHCHECK'   | 'HEALTHCHECK CMD /bin/check-running'
+        new HealthcheckInstruction(new Healthcheck("/bin/check-running").withInterval(ofSeconds(10))) | 'HEALTHCHECK'   | 'HEALTHCHECK --interval=10s CMD /bin/check-running'
+        new HealthcheckInstruction(new Healthcheck("/bin/check-running").withTimeout(ofSeconds(20)))  | 'HEALTHCHECK'   | 'HEALTHCHECK --timeout=20s CMD /bin/check-running'
+        new HealthcheckInstruction(new Healthcheck("/bin/check-running")
+            .withStartInterval(ofSeconds(30)))                                                        | 'HEALTHCHECK'   | 'HEALTHCHECK --start-interval=30s CMD /bin/check-running'
+        new HealthcheckInstruction(new Healthcheck("/bin/check-running")
+            .withStartPeriod(ofSeconds(40)))                                                          | 'HEALTHCHECK'   | 'HEALTHCHECK --start-period=40s CMD /bin/check-running'
+        new HealthcheckInstruction(new Healthcheck("/bin/check-running").withRetries(5))              | 'HEALTHCHECK'   | 'HEALTHCHECK --retries=5 CMD /bin/check-running'
     }
 }
