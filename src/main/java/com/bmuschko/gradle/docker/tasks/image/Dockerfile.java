@@ -33,11 +33,13 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -296,7 +298,7 @@ public class Dockerfile extends DefaultTask {
      * FROM ubuntu:14.04
      * </pre>
      *
-     * @param from      From definition
+     * @param from From definition
      * @see #from(String)
      * @see #from(Provider)
      */
@@ -1105,6 +1107,62 @@ public class Dockerfile extends DefaultTask {
     }
 
     /**
+     * The <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">HEALTHCHECK instruction</a> tells
+     * Docker how to test a container to check that it is still working.
+     *
+     * <p>
+     * Example in Groovy DSL:
+     * <p>
+     * <pre>
+     * task createDockerfile(type: Dockerfile) {
+     *     healthcheck(new Healthcheck("curl -f http://localhost/ || exit 1").withRetries(5))
+     * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * HEALTHCHECK --retries=5 CMD curl -f http://localhost/ || exit 1
+     * </pre>
+     *
+     * @param healthcheck the healthcheck configuration
+     * @see #healthcheck(Provider)
+     * @see Healthcheck
+     */
+    public void healthcheck(Healthcheck healthcheck) {
+        instructions.add(new HealthcheckInstruction(healthcheck));
+    }
+
+    /**
+     * The <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">HEALTHCHECK instruction</a> tells
+     * Docker how to test a container to check that it is still working.
+     *
+     * <p>
+     * Example in Groovy DSL:
+     * <p>
+     * <pre>
+     * task createDockerfile(type: Dockerfile) {
+     *     from(project.provider(new Callable&#60;Dockerfile.Healthcheck&#62;() {
+     *         {@literal @}Override
+     *         Dockerfile.Healthcheck call() throws Exception {
+     *             new Dockerfile.Healthcheck("curl -f http://localhost/ || exit 1")
+     *         }
+     *     }))
+     * }
+     * </pre>
+     * The produced instruction looks as follows:
+     * <p>
+     * <pre>
+     * HEALTHCHECK CMD curl -f http://localhost/ || exit 1
+     * </pre>
+     *
+     * @param provider Healthcheck information as Provider
+     * @see #healthcheck(Healthcheck)
+     */
+    public void healthcheck(Provider<Healthcheck> provider) {
+        instructions.add(new HealthcheckInstruction(provider));
+    }
+
+    /**
      * A representation of an instruction in a Dockerfile.
      */
     public interface Instruction {
@@ -1243,7 +1301,7 @@ public class Dockerfile extends DefaultTask {
     private static class MultiItemJoiner implements ItemJoiner {
         @Override
         public String join(Map<String, String> map) {
-            return map.entrySet().stream().map( entry -> {
+            return map.entrySet().stream().map(entry -> {
                 String key = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.getKey()) ? ItemJoinerUtil.toQuotedString(entry.getKey()) : entry.getKey();
                 String value = ItemJoinerUtil.isUnquotedStringWithWhitespaces(entry.getValue()) ? ItemJoinerUtil.toQuotedString(entry.getValue()) : entry.getValue();
                 value = value.replaceAll("(\r)*\n", "\\\\\n");
@@ -1296,7 +1354,7 @@ public class Dockerfile extends DefaultTask {
 
         private void validateKeysAreNotBlank(Map<String, String> command) throws IllegalArgumentException {
             command.entrySet().forEach(entry -> {
-                if (entry.getKey().trim().length() == 0) {
+                if (entry.getKey().trim().isEmpty()) {
                     throw new IllegalArgumentException("blank keys for a key=value pair are not allowed: please check instruction " + getKeyword() + " and given pair `" + String.valueOf(entry) + "`");
                 }
             });
@@ -1756,6 +1814,59 @@ public class Dockerfile extends DefaultTask {
         }
     }
 
+    public static class HealthcheckInstruction implements Instruction {
+
+        public static final String KEYWORD = "HEALTHCHECK";
+
+        private final Provider<Healthcheck> provider;
+
+        public HealthcheckInstruction(Healthcheck healthcheck) {
+            this.provider = Providers.ofNullable(healthcheck);
+        }
+
+        public HealthcheckInstruction(Provider<Healthcheck> provider) {
+            this.provider = provider;
+        }
+
+        @Nullable
+        @Override
+        public String getKeyword() {
+            return KEYWORD;
+        }
+
+        @Nullable
+        @Override
+        public String getText() {
+            return buildTextInstruction(provider.getOrNull());
+        }
+
+        private String buildTextInstruction(Healthcheck healthcheck) {
+            if (healthcheck != null) {
+                StringBuilder result = new StringBuilder(getKeyword());
+                if (healthcheck.getInterval() != null) {
+                    result.append(" --interval=").append(healthcheck.getInterval().toSeconds()).append("s");
+                }
+                if (healthcheck.getTimeout() != null) {
+                    result.append(" --timeout=").append(healthcheck.getTimeout().toSeconds()).append("s");
+                }
+                if (healthcheck.getStartPeriod() != null) {
+                    result.append(" --start-period=").append(healthcheck.getStartPeriod().toSeconds()).append("s");
+                }
+                if (healthcheck.getStartInterval() != null) {
+                    result.append(" --start-interval=").append(healthcheck.getStartInterval().toSeconds()).append("s");
+                }
+
+                if (healthcheck.getRetries() != null) {
+                    result.append(" --retries=").append(healthcheck.getRetries());
+                }
+
+                result.append(" CMD ").append(healthcheck.getCmd());
+                return result.toString();
+            }
+            return null;
+        }
+    }
+
     /**
      * Input data for a {@link AddFileInstruction} or {@link CopyFileInstruction}.
      *
@@ -1914,6 +2025,116 @@ public class Dockerfile extends DefaultTask {
         @Nullable
         public String getPlatform() {
             return platform;
+        }
+    }
+
+    /**
+     * Input data for a {@link HealthcheckInstruction}.
+     *
+     * @see <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">Dockerfile reference / HEALTHCHECK</a>.
+     * @since ???
+     */
+    public static class Healthcheck {
+        @Nullable
+        private Duration interval;
+        @Nullable
+        private Duration timeout;
+        @Nullable
+        private Duration startPeriod;
+        @Nullable
+        private Duration startInterval = null;
+        @Nullable
+        private Integer retries;
+        @Nonnull
+        private final String cmd;
+
+        public Healthcheck(@Nonnull String cmd) {
+            this.cmd = cmd;
+        }
+
+        /**
+         * Sets the healthcheck interval by adding {@code --interval} to Healthcheck instruction.
+         *
+         * @param interval a {@link Duration} in seconds.
+         * @return this healthcheck.
+         */
+        public Healthcheck withInterval(Duration interval) {
+            this.interval = interval;
+            return this;
+        }
+
+        /**
+         * Sets the healthcheck timeout by adding {@code --timeout} to Healthcheck instruction.
+         *
+         * @param timeout a {@link Duration} in seconds.
+         * @return this healthcheck.
+         */
+        public Healthcheck withTimeout(Duration timeout) {
+            this.timeout = timeout;
+            return this;
+        }
+
+        /**
+         * Sets the healthcheck startPeriod by adding {@code --start-period} to Healthcheck instruction.
+         *
+         * @param startPeriod a {@link Duration} in seconds.
+         * @return this healthcheck.
+         */
+        public Healthcheck withStartPeriod(Duration startPeriod) {
+            this.startPeriod = startPeriod;
+            return this;
+        }
+
+        /**
+         * This option requires Docker Engine version 25.0 or later.
+         * Sets the healthcheck startInterval by adding {@code --start-interval} to Healthcheck instruction.
+         *
+         * @param startInterval a {@link Duration} in seconds.
+         * @return this healthcheck.
+         */
+        public Healthcheck withStartInterval(@Nullable Duration startInterval) {
+            this.startInterval = startInterval;
+            return this;
+        }
+
+        /**
+         * Sets the healthcheck number of retries by adding {@code --retries} to Healthcheck instruction.
+         *
+         * @param retries the number of retries. Must be greater than 0, or it will fallback to the default (3).
+         * @return this healthcheck.
+         */
+        public Healthcheck withRetries(int retries) {
+            this.retries = retries;
+            return this;
+        }
+
+        @Nullable
+        public Duration getInterval() {
+            return interval;
+        }
+
+        @Nullable
+        public Duration getTimeout() {
+            return timeout;
+        }
+
+        @Nullable
+        public Duration getStartPeriod() {
+            return startPeriod;
+        }
+
+        @Nullable
+        public Duration getStartInterval() {
+            return startInterval;
+        }
+
+        @Nullable
+        public Integer getRetries() {
+            return retries;
+        }
+
+        public String getCmd() {
+            return cmd;
         }
     }
 }
