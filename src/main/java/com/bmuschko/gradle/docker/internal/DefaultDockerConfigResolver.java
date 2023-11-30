@@ -1,8 +1,5 @@
 package com.bmuschko.gradle.docker.internal;
 
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
-
 import javax.annotation.Nullable;
 import java.io.File;
 
