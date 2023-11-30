@@ -36,13 +36,14 @@ jobs:
           HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
           HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
         run: ./gradlew functionalTest
-      - name: Store build reports for functionalTest
-        uses: actions/upload-artifact@v3
-        with:
-          name: functionalTest-reports
-          path: build/reports/tests/functionalTest/
       - name: Documentation tests
         run: ./gradlew docTest
+      - name: Store Test Reports
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: build/reports/tests
       - name: Assemble artifacts
         run: ./gradlew assemble javadoc asciidoctorAllGuides
       - name: Upload binaries
