@@ -167,6 +167,6 @@ public class DockerRemoveImage extends DockerExistingImage {
     }
 
     private boolean mixesBothProperties() {
-        return this.images.isPresent() && this.getImageId().isPresent();
+        return !this.images.get().isEmpty() && java.util.Optional.ofNullable(this.getImageId().getOrNull()).isPresent();
     }
 }
