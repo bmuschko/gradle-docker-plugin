@@ -2032,7 +2032,7 @@ public class Dockerfile extends DefaultTask {
      * Input data for a {@link HealthcheckInstruction}.
      *
      * @see <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">Dockerfile reference / HEALTHCHECK</a>.
-     * @since ???
+     * @since 9.4.0
      */
     public static class Healthcheck {
         @Nullable
