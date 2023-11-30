@@ -22,13 +22,26 @@ import org.gradle.api.tasks.Optional;
 
 public class DockerRemoveImage extends DockerExistingImage {
 
+    /**
+     * Configures `--force` option when removing the images.
+     */
     @Input
     @Optional
     public final Property<Boolean> getForce() {
         return force;
     }
 
+    /**
+     * Configures `--no-prune` option when removing the images.
+     */
+    @Input
+    @Optional
+    public final Property<Boolean> getNoPrune() {
+        return noPrune;
+    }
+
     private final Property<Boolean> force = getProject().getObjects().property(Boolean.class);
+    private final Property<Boolean> noPrune = getProject().getObjects().property(Boolean.class);
 
     @Override
     public void runRemoteCommand() {
