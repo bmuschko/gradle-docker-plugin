@@ -134,26 +134,24 @@ public class DockerRemoveImage extends DockerExistingImage {
     }
 
     private void logWarning() {
-        getLogger().warn("Use property 'images' instead of 'targetImageId' when removing images");
+        getLogger().warn("Use property 'images' instead of 'targetImageId' when listing images to remove");
     }
 
     @Override
     public void runRemoteCommand() {
-        if (mixesBothProperties()) {
-            throw new IllegalStateException("Project sets both properties 'images' and 'targetImageId', but only one is allowed.");
+        java.util.Optional<String> imageId = java.util.Optional.ofNullable(this.getImageId().getOrNull());
+        List<String> imagesIds = this.images.get();
+
+        if (imageId.isPresent() && !imagesIds.isEmpty()) {
+            throw new IllegalStateException("Project sets both properties 'images' and 'targetImageId', but only one is allowed. Please use 'images'.");
         }
 
-        if (this.getImageId().isPresent()) {
-            removeImage(this.getImageId().get());
-        }
-
-        if (this.images.isPresent()) {
-            this.images.get().forEach(this::removeImage);
-        }
+        imageId.ifPresent(this::removeImage);
+        imagesIds.forEach(this::removeImage);
     }
 
     private void removeImage(String imageId) {
-        getLogger().quiet("Removing image with ID \'" + imageId + "\'.");
+        getLogger().quiet("Removing image with ID '{}'.", imageId);
         try (RemoveImageCmd removeImageCmd = getDockerClient().removeImageCmd(imageId)) {
             if (Boolean.TRUE.equals(force.getOrNull())) {
                 removeImageCmd.withForce(force.get());
@@ -164,9 +162,5 @@ public class DockerRemoveImage extends DockerExistingImage {
             }
             removeImageCmd.exec();
         }
-    }
-
-    private boolean mixesBothProperties() {
-        return !this.images.get().isEmpty() && java.util.Optional.ofNullable(this.getImageId().getOrNull()).isPresent();
     }
 }
