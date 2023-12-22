@@ -3,7 +3,6 @@ image:https://github.com/bmuschko/gradle-docker-plugin/workflows/Build%20%5BWind
 image:https://img.shields.io/badge/user%20guide-latest-red["User Guide", link="https://bmuschko.github.io/gradle-docker-plugin/current/user-guide/"]
 image:https://img.shields.io/badge/dev%20guide-latest-orange["Developer Guide", link="https://bmuschko.github.io/gradle-docker-plugin/current/dev-guide/"]
 image:https://img.shields.io/badge/api%20doc-latest-blue["API Doc", link="https://bmuschko.github.io/gradle-docker-plugin/current/api/"]
-image:https://badges.gitter.im/Join%20Chat.svg["Gitter", link="https://gitter.im/gradle-docker-plugin/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge"]
 
 = Gradle Docker plugin
 
