@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -13,8 +13,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: 17
+          distribution: 'zulu'
+          java-version: 21
       - name: Set up Docker private registry
         run: |
           docker run -d -p 5000:5000 --restart=always --name registry registry:2
