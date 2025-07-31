@@ -34,6 +34,7 @@ dependencies {
     testImplementation(libs.spock.core) {
         exclude(group = "org.codehaus.groovy")
     }
+    testRuntimeOnly(libs.cglib.nodep)
     testImplementation(libs.zt.zip)
     functionalTestImplementation(libs.commons.vfs2)
 }

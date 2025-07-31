@@ -4,6 +4,7 @@ docker-java = "3.5.3"
 activation = "1.1.1"
 asm = "9.8"
 spock = "2.3-groovy-3.0"
+cglib-nodep = "3.3.0"
 zt-zip = "1.13"
 commons-vfs2 = "2.9.0"
 
@@ -17,6 +18,7 @@ docker-java-transport-httpclient5 = { module = "com.github.docker-java:docker-ja
 activation = { module = "javax.activation:activation", version.ref = "activation" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 spock-core = { module = "org.spockframework:spock-core", version.ref = "spock" }
+cglib-nodep = { module = "cglib:cglib-nodep", version.ref = "cglib-nodep" }
 zt-zip = { module = "org.zeroturnaround:zt-zip", version.ref = "zt-zip" }
 commons-vfs2 = { module = "org.apache.commons:commons-vfs2", version.ref = "commons-vfs2" }
 
