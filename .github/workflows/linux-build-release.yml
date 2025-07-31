@@ -20,7 +20,7 @@ jobs:
           docker run -d -p 5000:5000 --restart=always --name registry registry:2
           docker run -d -p 5001:5000 --restart=always --name secure_registry -v "$(pwd)"/src/functTest/resources/auth:/auth:rw -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" registry:2
       - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v3
       - name: Compilation
         run: ./gradlew classes
       - name: Validate plugins
@@ -41,17 +41,17 @@ jobs:
       - name: Assemble artifacts
         run: ./gradlew assemble javadoc asciidoctorAllGuides
       - name: Upload binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gradle-docker-plugin-bin
           path: build/libs/*.jar
       - name: Upload Javadoc
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gradle-docker-plugin-javadoc
           path: build/docs/javadoc/
       - name: Upload Guides
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gradle-docker-plugin-guides
           path: |
