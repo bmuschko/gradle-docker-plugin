@@ -326,7 +326,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
     @IgnoreIf({ os.windows })
     def "configuration cache compatible when docker state changes on disk for OS #osName"() {
         given:
-        useGradleVersion("8.3")
+        useGradleVersion("8.4")
 
         and:
         // Force use of user.home and define a variable holding the file
