@@ -3,7 +3,7 @@ package com.bmuschko.gradle.docker
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Unroll
 
-import static com.bmuschko.gradle.docker.TextUtils.containsIgnoreLineEndings
+import static com.bmuschko.gradle.docker.TextUtils.equalsIgnoreLineEndings
 
 class RemoteApiPluginDocumentationTest extends AbstractDocumentationTest {
 
@@ -105,7 +105,7 @@ class RemoteApiPluginDocumentationTest extends AbstractDocumentationTest {
         BuildResult result = build('printDockerfileInstructions')
 
         then:
-        containsIgnoreLineEndings(result.output, """FROM openjdk:8-alpine
+        equalsIgnoreLineEndings(result.output, """FROM openjdk:8-alpine
 COPY my-app-1.0.jar /app/my-app-1.0.jar
 ENTRYPOINT ["java"]
 CMD ["-jar", "/app/my-app-1.0.jar"]
