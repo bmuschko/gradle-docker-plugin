@@ -28,42 +28,57 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         given:
         buildFile << registryCredentials()
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
-            task buildImage(type: DockerBuildImage)
-            task pullImage(type: DockerPullImage)
-            task pushImage(type: DockerPushImage)
+            def buildImage = tasks.register('buildImage', DockerBuildImage)
+            def pullImage = tasks.register('pullImage', DockerPullImage)
+            def pushImage = tasks.register('pushImage', DockerPushImage)
 
-            task verify {
-                doLast {
-                    def registryCredentialsAwareTasks = tasks.withType(RegistryCredentialsAware)
-                    assert registryCredentialsAwareTasks.size() == 3
+            tasks.register('verifyBuildImage', VerifyRegistryAware) {
+                username = buildImage.get().registryCredentials.username
+                password = buildImage.get().registryCredentials.password
+            }
 
-                    registryCredentialsAwareTasks.each { task ->
-                        assert task.registryCredentials.username.get() == '$DEFAULT_USERNAME'
-                        assert task.registryCredentials.password.get() == '$DEFAULT_PASSWORD'
-                    }
+            tasks.register('verifyPullImage', VerifyRegistryAware) {
+                username = pullImage.get().registryCredentials.username
+                password = pullImage.get().registryCredentials.password
+            }
+
+            tasks.register('verifyPushImage', VerifyRegistryAware) {
+                username = pushImage.get().registryCredentials.username
+                password = pushImage.get().registryCredentials.password
+            }
+
+            abstract class VerifyRegistryAware extends DefaultTask {
+                @Input
+                abstract Property<String> getUsername()
+
+                @Input
+                abstract Property<String> getPassword()
+
+                @TaskAction
+                void verify() {
+                    assert username.get() == '$DEFAULT_USERNAME'
+                    assert password.get() == '$DEFAULT_PASSWORD'
                 }
             }
         """
 
         expect:
-        build('verify')
+        build('verifyBuildImage', 'verifyPullImage', 'verifyPushImage')
     }
 
     def "can overwrite default credentials for custom tasks with action"() {
         given:
         buildFile << registryCredentials()
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
-            task buildImage(type: DockerBuildImage) {
+            def buildImage = tasks.register('buildImage', DockerBuildImage) {
                 registryCredentials {
                     url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
@@ -71,7 +86,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 }
             }
 
-            task pullImage(type: DockerPullImage) {
+            def pullImage = tasks.register('pullImage', DockerPullImage) {
                 registryCredentials {
                     url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
@@ -79,7 +94,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 }
             }
 
-            task pushImage(type: DockerPushImage) {
+            def pushImage = tasks.register('pushImage', DockerPushImage) {
                 registryCredentials {
                     url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
@@ -87,22 +102,45 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 }
             }
 
-            task verify {
-                doLast {
-                    def registryCredentialsAwareTasks = tasks.withType(RegistryCredentialsAware)
-                    assert registryCredentialsAwareTasks.size() == 3
+            tasks.register('verifyBuildImage', VerifyRegistryAware) {
+                url = buildImage.get().registryCredentials.url
+                username = buildImage.get().registryCredentials.username
+                password = buildImage.get().registryCredentials.password
+            }
 
-                    registryCredentialsAwareTasks.each { task ->
-                        assert task.registryCredentials.url.get() == '$CUSTOM_URL'
-                        assert task.registryCredentials.username.get() == '$CUSTOM_USERNAME'
-                        assert task.registryCredentials.password.get() == '$CUSTOM_PASSWORD'
-                    }
+            tasks.register('verifyPullImage', VerifyRegistryAware) {
+                url = pullImage.get().registryCredentials.url
+                username = pullImage.get().registryCredentials.username
+                password = pullImage.get().registryCredentials.password
+            }
+
+            tasks.register('verifyPushImage', VerifyRegistryAware) {
+                url = pushImage.get().registryCredentials.url
+                username = pushImage.get().registryCredentials.username
+                password = pushImage.get().registryCredentials.password
+            }
+
+            abstract class VerifyRegistryAware extends DefaultTask {
+                @Input
+                abstract Property<String> getUrl()
+                
+                @Input
+                abstract Property<String> getUsername()
+
+                @Input
+                abstract Property<String> getPassword()
+
+                @TaskAction
+                void verify() {
+                    assert url.get() == '$CUSTOM_URL'
+                    assert username.get() == '$CUSTOM_USERNAME'
+                    assert password.get() == '$CUSTOM_PASSWORD'
                 }
             }
         """
 
         expect:
-        build('verify')
+        build('verifyBuildImage', 'verifyPullImage', 'verifyPushImage')
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE })
