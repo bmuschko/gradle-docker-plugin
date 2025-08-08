@@ -208,7 +208,6 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
     def "can push and pull images overriding wrong registryCredentials with docker extension"() {
         given:
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
@@ -264,12 +263,25 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         given:
         buildFile << registryCredentials()
         buildFile << """
-            task convert {
-                doLast {
-                    def passwordCredentials = docker.registryCredentials.asPasswordCredentials()
-                    assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
-                    assert passwordCredentials.username == '$DEFAULT_USERNAME'
-                    assert passwordCredentials.password == '$DEFAULT_PASSWORD'
+            def passwordCredentials = extensions.getByName('docker').registryCredentials.asPasswordCredentials()
+            assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
+
+            tasks.register('convert', VerifyPasswordCredentials) {
+                username = passwordCredentials.username
+                password = passwordCredentials.password
+            }
+            
+            abstract class VerifyPasswordCredentials extends DefaultTask {
+                @Input
+                abstract Property<String> getUsername()
+
+                @Input
+                abstract Property<String> getPassword()
+
+                @TaskAction
+                void verify() {
+                    assert username.get() == '$DEFAULT_USERNAME'
+                    assert password.get() == '$DEFAULT_PASSWORD'
                 }
             }
         """
@@ -282,16 +294,27 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         given:
         buildFile << registryCredentials()
         buildFile << """
-            task convert {
-                doLast {
-                    def passwordCredentials = docker.registryCredentials.asPasswordCredentials()
-                    assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
-                    passwordCredentials.username = '$CUSTOM_USERNAME'
-                    passwordCredentials.password = '$CUSTOM_PASSWORD'
-                    assert passwordCredentials.username == '$CUSTOM_USERNAME'
-                    assert passwordCredentials.password == '$CUSTOM_PASSWORD'
-                    assert docker.registryCredentials.username.get() == '$CUSTOM_USERNAME'
-                    assert docker.registryCredentials.password.get() == '$CUSTOM_PASSWORD'
+            def passwordCredentials = extensions.getByName('docker').registryCredentials.asPasswordCredentials()
+            assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
+            passwordCredentials.username = '$CUSTOM_USERNAME'
+            passwordCredentials.password = '$CUSTOM_PASSWORD'
+
+            tasks.register('convert', VerifyPasswordCredentials) {
+                username = passwordCredentials.username
+                password = passwordCredentials.password
+            }
+            
+            abstract class VerifyPasswordCredentials extends DefaultTask {
+                @Input
+                abstract Property<String> getUsername()
+
+                @Input
+                abstract Property<String> getPassword()
+
+                @TaskAction
+                void verify() {
+                    assert username.get() == '$CUSTOM_USERNAME'
+                    assert password.get() == '$CUSTOM_PASSWORD'
                 }
             }
         """
