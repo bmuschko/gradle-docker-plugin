@@ -31,6 +31,10 @@ dependencies {
     shaded(libs.bundles.docker.java)
     shaded(libs.activation)
     shaded(libs.asm)
+    dependencies {
+        testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    }
     testImplementation(libs.spock.core) {
         exclude(group = "org.codehaus.groovy")
     }
