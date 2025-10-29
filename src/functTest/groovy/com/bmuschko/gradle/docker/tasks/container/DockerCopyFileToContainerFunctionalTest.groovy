@@ -184,9 +184,9 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
         """
             task createTarFile(type: Tar) {
                 from "${escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}"
-                baseName = 'HelloWorld'
-                destinationDir = projectDir
-                extension = 'tgz'
+                archiveBaseName = 'HelloWorld'
+                destinationDirectory = projectDir
+                archiveExtension = 'tgz'
                 compression = Compression.GZIP
             }
         """
