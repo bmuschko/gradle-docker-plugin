@@ -132,11 +132,18 @@ class RegistryAuthLocatorTest extends Specification {
 
         then:
         // When using real credential helper (mockHelper = false), credentials may be found if they exist
-        // So we accept either default config OR actual credentials
+        // So we accept either:
+        // 1. default config with empty allConfigs (no credentials found)
+        // 2. actual credentials with populated allConfigs (credentials found)
         config.getRegistryAddress() == 'https://index.docker.io/v1/'
-        (config == DEFAULT_AUTH_CONFIG || config.getUsername() != null)
-        // allConfigs may be empty (no credentials) or contain credentials (if helper returns them)
-        (allConfigs.configs.isEmpty() || allConfigs.configs.size() >= 1)
+        if (config == DEFAULT_AUTH_CONFIG) {
+            // No credentials found
+            allConfigs.configs.isEmpty()
+        } else {
+            // Credentials found
+            config.getUsername() != null
+            allConfigs.configs.size() >= 1
+        }
         0 * logger.error(*_)
     }
 
