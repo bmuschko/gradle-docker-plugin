@@ -27,9 +27,9 @@ class DockerOperationFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task dockerClient(type: DockerOperation) {
                 onNext { client ->
                     if (client != null) {
-                        logger.quiet "Found Version: " + client.versionCmd().exec().version
+                        println "Found Version: " + client.versionCmd().exec().version
                     } else {
-                        logger.quiet 'Client is NULL'
+                        println 'Client is NULL'
                     }
                 }
             }

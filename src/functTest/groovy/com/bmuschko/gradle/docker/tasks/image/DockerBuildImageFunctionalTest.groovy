@@ -78,7 +78,7 @@ USER \$user"""
             class DockerInspectImageUser extends DockerExistingImage {
                 DockerInspectImageUser() {
                     onNext({ image ->
-                        logger.quiet "user: \$image.containerConfig.user"
+                        println "user: \$image.containerConfig.user"
                     })
                 }
 

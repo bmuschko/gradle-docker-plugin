@@ -244,7 +244,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
                 onNext { container ->
                     container.networkSettings.ports.bindings.forEach { exposedPort, bindings ->
-                        logger.quiet "$exposedPort.port -> ${bindings.first().hostPortSpec}"
+                        println "$exposedPort.port -> ${bindings.first().hostPortSpec}"
                     }
                 }
             }

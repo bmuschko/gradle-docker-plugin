@@ -51,7 +51,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 commands.add(['echo', 'Hello World Two'] as String[])
                 commands.add(['echo', 'Hello World Three'] as String[])
                 doLast {
-                    logger.quiet "FOUND EXEC-IDS: " + execIds.get().size()
+                    println "FOUND EXEC-IDS: " + execIds.get().size()
                 }
             }
         """
