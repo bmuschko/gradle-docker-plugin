@@ -196,9 +196,11 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
             }
 
             task verify {
+                def dockerBuildImageImages = tasks.named('dockerBuildImage').flatMap { it.images }
+                def dockerPushImageImages = tasks.named('dockerPushImage').flatMap { it.images }
                 doLast {
-                    assert dockerBuildImage.images.get() == expectedImages
-                    assert dockerPushImage.images.get() == expectedImages
+                    assert dockerBuildImageImages.get() == expectedImages
+                    assert dockerPushImageImages.get() == expectedImages
                 }
             }
         """

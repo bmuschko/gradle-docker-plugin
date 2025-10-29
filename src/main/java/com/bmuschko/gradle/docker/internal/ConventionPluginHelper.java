@@ -26,7 +26,7 @@ public final class ConventionPluginHelper {
         });
     }
 
-    private static Configuration getRuntimeClasspathConfiguration(Project project) {
+    public static Configuration getRuntimeClasspathConfiguration(Project project) {
         return project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
     }
 }

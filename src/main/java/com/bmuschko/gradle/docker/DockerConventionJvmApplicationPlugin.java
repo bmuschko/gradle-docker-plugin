@@ -8,7 +8,9 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -69,18 +71,31 @@ public abstract class DockerConventionJvmApplicationPlugin<EXT extends DockerCon
             dockerfile.label(project.provider(() -> new HashMap<>(Map.ofEntries(Map.entry("maintainer", extension.getMaintainer().get())))));
             dockerfile.user(extension.getUser());
             dockerfile.workingDir("/app");
+
             dockerfile.copyFile(project.provider(() -> {
-                if (new File(dockerfile.getDestDir().get().getAsFile(), "libs").isDirectory()) {
+                // Check if there are runtime dependencies to copy
+                if (!ConventionPluginHelper.getRuntimeClasspathConfiguration(project).isEmpty()) {
                     return new Dockerfile.CopyFile("libs", "libs/");
                 }
-
                 return null;
             }));
             dockerfile.copyFile(project.provider(() -> {
-                if (ConventionPluginHelper.getMainJavaSourceSetOutput(project).getResourcesDir().isDirectory()) {
-                    return new Dockerfile.CopyFile("resources", "resources/");
+                // Check if there are resources to copy by checking source directories
+                JavaPluginExtension javaPluginExtension = project.getExtensions().findByType(JavaPluginExtension.class);
+                if (javaPluginExtension != null) {
+                    SourceSet mainSourceSet = javaPluginExtension.getSourceSets().findByName(SourceSet.MAIN_SOURCE_SET_NAME);
+                    if (mainSourceSet != null) {
+                        // Check if there are any resource source directories with files
+                        for (File srcDir : mainSourceSet.getResources().getSrcDirs()) {
+                            if (srcDir.exists() && srcDir.isDirectory()) {
+                                File[] files = srcDir.listFiles();
+                                if (files != null && files.length > 0) {
+                                    return new Dockerfile.CopyFile("resources", "resources/");
+                                }
+                            }
+                        }
+                    }
                 }
-
                 return null;
             }));
             dockerfile.copyFile(new Dockerfile.CopyFile("classes", "classes/"));
