@@ -33,6 +33,7 @@ import org.gradle.internal.logging.progress.ProgressLogger;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -100,7 +101,7 @@ public class DockerExecContainer extends DockerExistingContainer {
     }
 
     @Internal
-    public final ListProperty<String> getExecIds() {
+    public final List<String> getExecIds() {
         return execIds;
     }
 
@@ -111,7 +112,7 @@ public class DockerExecContainer extends DockerExistingContainer {
     private final Property<String> workingDir = getProject().getObjects().property(String.class);
     private final ListProperty<Integer> successOnExitCodes = getProject().getObjects().listProperty(Integer.class);
     private ExecProbe execProbe;
-    private final ListProperty<String> execIds = getProject().getObjects().listProperty(String.class);
+    private final List<String> execIds = new ArrayList<>();
 
     public DockerExecContainer() {
         attachStdout.convention(true);
@@ -127,6 +128,7 @@ public class DockerExecContainer extends DockerExistingContainer {
     protected void doRunRemoteCommand(DockerClient dockerClient) throws InterruptedException {
         ResultCallback.Adapter<Frame> execCallback = createCallback(getNextHandler());
 
+        execIds.clear();
         List<String[]> localCommands = commands.get();
         for (int i = 0; i < commands.get().size(); i++) {
 

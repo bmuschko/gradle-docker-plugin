@@ -110,7 +110,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         then:
         result.output.contains("HWaddr 02:03:04:05:06:07")
-        result.output.contains("0 problems were found storing the configuration cache.")
+        result.output.contains("Configuration cache entry stored.")
 
         when:
         result = build('logContainer')
@@ -390,7 +390,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
 
         then:
         result.output.contains("Hello, world!")
-        result.output.contains("0 problems were found storing the configuration cache.")
+        result.output.contains("Configuration cache entry stored.")
 
         when:
         result = build('logContainer')

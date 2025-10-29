@@ -90,7 +90,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 finalizedBy removeImage
                 onNext {
                     if (it.stream) {
-                        logger.quiet "docker: " + it.stream.trim()
+                        println "docker: " + it.stream.trim()
                     }
                 }
             }
@@ -144,7 +144,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 tailAll = true
                 
                 onNext { l ->
-                    logger.quiet l.toString()
+                    println l.toString()
                 }
             }
         """
@@ -169,8 +169,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 dependsOn pullImage
                 onNext { images ->
                     images.each { image ->
-                        logger.quiet "Tags : " + image.repoTags?.join(', ')
-                        logger.quiet "Size : " + new java.text.DecimalFormat("#.##").format(image.size / (1024 * 1024)) + "MB"
+                        println "Tags : " + image.repoTags?.join(', ')
+                        println "Size : " + new java.text.DecimalFormat("#.##").format(image.size / (1024 * 1024)) + "MB"
                     }
                 }
             }
@@ -211,7 +211,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 remotePath = "/etc/os-release"
                 
                 onNext { f ->
-                    f.eachLine { l -> logger.quiet l }
+                    f.eachLine { l -> println l }
                 }
             }
         """
@@ -290,7 +290,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 commands.add(['echo', 'Hello World'] as String[])
                 
                 onNext { f ->
-                    logger.quiet f.toString()
+                    println f.toString()
                 }
             }
         """
@@ -326,7 +326,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 
                 onNext { c ->
                     if(!c.state.running) {
-                        logger.error "Container should be running!"
+                        System.err.println "Container should be running!"
                     }
                 }
             }
@@ -344,26 +344,26 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
             import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
             import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
-            import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+            import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 
             task createContainer(type: DockerCreateContainer) {
                 targetImageId '$TEST_IMAGE_WITH_TAG'
                 cmd = ['sh', '-c', 'exit 1']
-                hostConfig.autoRemove = true
             }
 
             task startContainer(type: DockerStartContainer) {
                 dependsOn createContainer
                 targetContainerId createContainer.getContainerId()
             }
-            
-            task stopContainer(type: DockerStartContainer) {
+
+            task removeContainer(type: DockerRemoveContainer) {
                 targetContainerId createContainer.getContainerId()
+                force = true
             }
 
             task runContainers(type: DockerWaitContainer) {
                 dependsOn startContainer
-                finalizedBy stopContainer
+                finalizedBy removeContainer
                 targetContainerId startContainer.getContainerId()
                 onNext { r ->
                     if(r.statusCode) {
@@ -394,8 +394,8 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 targetImageId pullImage.getImage()
                 
                 onNext { image ->
-                    logger.quiet 'Cmd:        ' + image.config.cmd
-                    logger.quiet 'Entrypoint: ' + image.config.entrypoint
+                    println 'Cmd:        ' + image.config.cmd
+                    println 'Entrypoint: ' + image.config.entrypoint
                 }
             }
         """
@@ -425,7 +425,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 image = 'busybox:musl'
                 
                 onNext { p ->
-                    logger.quiet p.status + ' ' + (p.progress ?: '')
+                    println p.status + ' ' + (p.progress ?: '')
                 }
             }
 
@@ -470,7 +470,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
                 images.set(buildImage.images)
                 
                 onNext { p ->
-                    logger.quiet p.status + ' ' + (p.progress ?: '')
+                    println p.status + ' ' + (p.progress ?: '')
                 }
             }
         """
@@ -488,7 +488,7 @@ class DockerReactiveMethodsFunctionalTest extends AbstractGroovyDslFunctionalTes
 
             task listImages(type: DockerListImages) {
                 onComplete {
-                    logger.quiet "-- END OF IMAGES --"
+                    println "-- END OF IMAGES --"
                 }
             }
         """

@@ -158,7 +158,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
                 successOnExitCodes = [0]
                 execProbe(15000, 1000)
                 onComplete {
-                    logger.quiet 'Finished Probing Exec'
+                    println 'Finished Probing Exec'
                 }
             }
         """
@@ -187,7 +187,7 @@ class DockerExecContainerFunctionalTest extends AbstractGroovyDslFunctionalTest 
 
         then:
         result.output.contains('Hello World')
-        result.output.contains("0 problems were found storing the configuration cache.")
+        result.output.contains("Configuration cache entry stored.")
     }
 
     static String containerUsage(String containerExecutionTask, int sleep = 30) {
