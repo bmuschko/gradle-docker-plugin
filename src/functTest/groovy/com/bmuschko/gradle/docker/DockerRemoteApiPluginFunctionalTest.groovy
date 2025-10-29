@@ -36,30 +36,28 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             def pullImage = tasks.register('pullImage', DockerPullImage)
             def pushImage = tasks.register('pushImage', DockerPushImage)
 
-            tasks.register('verifyBuildImage', VerifyRegistryAware) {
-                username = buildImage.get().registryCredentials.username
-                password = buildImage.get().registryCredentials.password
+            tasks.register('verifyBuildImage') {
+                def username = buildImage.flatMap { it.registryCredentials.username }
+                def password = buildImage.flatMap { it.registryCredentials.password }
+                doLast {
+                    assert username.get() == '$DEFAULT_USERNAME'
+                    assert password.get() == '$DEFAULT_PASSWORD'
+                }
             }
 
-            tasks.register('verifyPullImage', VerifyRegistryAware) {
-                username = pullImage.get().registryCredentials.username
-                password = pullImage.get().registryCredentials.password
+            tasks.register('verifyPullImage') {
+                def username = pullImage.flatMap { it.registryCredentials.username }
+                def password = pullImage.flatMap { it.registryCredentials.password }
+                doLast {
+                    assert username.get() == '$DEFAULT_USERNAME'
+                    assert password.get() == '$DEFAULT_PASSWORD'
+                }
             }
 
-            tasks.register('verifyPushImage', VerifyRegistryAware) {
-                username = pushImage.get().registryCredentials.username
-                password = pushImage.get().registryCredentials.password
-            }
-
-            abstract class VerifyRegistryAware extends DefaultTask {
-                @Input
-                abstract Property<String> getUsername()
-
-                @Input
-                abstract Property<String> getPassword()
-
-                @TaskAction
-                void verify() {
+            tasks.register('verifyPushImage') {
+                def username = pushImage.flatMap { it.registryCredentials.username }
+                def password = pushImage.flatMap { it.registryCredentials.password }
+                doLast {
                     assert username.get() == '$DEFAULT_USERNAME'
                     assert password.get() == '$DEFAULT_PASSWORD'
                 }
@@ -102,36 +100,33 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 }
             }
 
-            tasks.register('verifyBuildImage', VerifyRegistryAware) {
-                url = buildImage.get().registryCredentials.url
-                username = buildImage.get().registryCredentials.username
-                password = buildImage.get().registryCredentials.password
+            tasks.register('verifyBuildImage') {
+                def url = buildImage.flatMap { it.registryCredentials.url }
+                def username = buildImage.flatMap { it.registryCredentials.username }
+                def password = buildImage.flatMap { it.registryCredentials.password }
+                doLast {
+                    assert url.get() == '$CUSTOM_URL'
+                    assert username.get() == '$CUSTOM_USERNAME'
+                    assert password.get() == '$CUSTOM_PASSWORD'
+                }
             }
 
-            tasks.register('verifyPullImage', VerifyRegistryAware) {
-                url = pullImage.get().registryCredentials.url
-                username = pullImage.get().registryCredentials.username
-                password = pullImage.get().registryCredentials.password
+            tasks.register('verifyPullImage') {
+                def url = pullImage.flatMap { it.registryCredentials.url }
+                def username = pullImage.flatMap { it.registryCredentials.username }
+                def password = pullImage.flatMap { it.registryCredentials.password }
+                doLast {
+                    assert url.get() == '$CUSTOM_URL'
+                    assert username.get() == '$CUSTOM_USERNAME'
+                    assert password.get() == '$CUSTOM_PASSWORD'
+                }
             }
 
-            tasks.register('verifyPushImage', VerifyRegistryAware) {
-                url = pushImage.get().registryCredentials.url
-                username = pushImage.get().registryCredentials.username
-                password = pushImage.get().registryCredentials.password
-            }
-
-            abstract class VerifyRegistryAware extends DefaultTask {
-                @Input
-                abstract Property<String> getUrl()
-                
-                @Input
-                abstract Property<String> getUsername()
-
-                @Input
-                abstract Property<String> getPassword()
-
-                @TaskAction
-                void verify() {
+            tasks.register('verifyPushImage') {
+                def url = pushImage.flatMap { it.registryCredentials.url }
+                def username = pushImage.flatMap { it.registryCredentials.username }
+                def password = pushImage.flatMap { it.registryCredentials.password }
+                doLast {
                     assert url.get() == '$CUSTOM_URL'
                     assert username.get() == '$CUSTOM_USERNAME'
                     assert password.get() == '$CUSTOM_PASSWORD'
@@ -266,20 +261,10 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             def passwordCredentials = extensions.getByName('docker').registryCredentials.asPasswordCredentials()
             assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
 
-            tasks.register('convert', VerifyPasswordCredentials) {
-                username = passwordCredentials.username
-                password = passwordCredentials.password
-            }
-            
-            abstract class VerifyPasswordCredentials extends DefaultTask {
-                @Input
-                abstract Property<String> getUsername()
-
-                @Input
-                abstract Property<String> getPassword()
-
-                @TaskAction
-                void verify() {
+            tasks.register('convert') {
+                def username = providers.provider { passwordCredentials.username }
+                def password = providers.provider { passwordCredentials.password }
+                doLast {
                     assert username.get() == '$DEFAULT_USERNAME'
                     assert password.get() == '$DEFAULT_PASSWORD'
                 }
@@ -299,20 +284,10 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
             passwordCredentials.username = '$CUSTOM_USERNAME'
             passwordCredentials.password = '$CUSTOM_PASSWORD'
 
-            tasks.register('convert', VerifyPasswordCredentials) {
-                username = passwordCredentials.username
-                password = passwordCredentials.password
-            }
-            
-            abstract class VerifyPasswordCredentials extends DefaultTask {
-                @Input
-                abstract Property<String> getUsername()
-
-                @Input
-                abstract Property<String> getPassword()
-
-                @TaskAction
-                void verify() {
+            tasks.register('convert') {
+                def username = providers.provider { passwordCredentials.username }
+                def password = providers.provider { passwordCredentials.password }
+                doLast {
                     assert username.get() == '$CUSTOM_USERNAME'
                     assert password.get() == '$CUSTOM_PASSWORD'
                 }

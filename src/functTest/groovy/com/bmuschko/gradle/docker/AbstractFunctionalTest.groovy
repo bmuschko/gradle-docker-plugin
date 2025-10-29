@@ -65,7 +65,6 @@ abstract class AbstractFunctionalTest extends Specification {
             .withArguments(arguments + '-s' + '--configuration-cache' as List<String>)
             .withPluginClasspath()
             .withEnvironment(envVars)
-            .forwardOutput()
         if (version) {
             gradleRunner.withGradleVersion(version)
         }
