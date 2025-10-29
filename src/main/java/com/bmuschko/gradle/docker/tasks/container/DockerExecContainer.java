@@ -23,20 +23,27 @@ import com.github.dockerjava.api.command.InspectExecResponse;
 import com.github.dockerjava.api.model.Frame;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.internal.logging.progress.ProgressLogger;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.bmuschko.gradle.docker.internal.IOUtils.getProgressLogger;
 
@@ -100,6 +107,16 @@ public class DockerExecContainer extends DockerExistingContainer {
         this.execProbe = execProbe;
     }
 
+    @OutputFile
+    public final RegularFileProperty getExecIdsFile() {
+        return execIdsFile;
+    }
+
+    @Internal
+    public final Provider<List<String>> getExecIdsProvider() {
+        return execIdsProvider;
+    }
+
     @Internal
     public final List<String> getExecIds() {
         return execIds;
@@ -113,10 +130,28 @@ public class DockerExecContainer extends DockerExistingContainer {
     private final ListProperty<Integer> successOnExitCodes = getProject().getObjects().listProperty(Integer.class);
     private ExecProbe execProbe;
     private final List<String> execIds = new ArrayList<>();
+    private final RegularFileProperty execIdsFile;
+    private final Provider<List<String>> execIdsProvider;
 
-    public DockerExecContainer() {
+    @Inject
+    public DockerExecContainer(ObjectFactory objects) {
         attachStdout.convention(true);
         attachStderr.convention(true);
+
+        execIdsFile = objects.fileProperty();
+        final String safeTaskPath = getPath().replaceFirst("^:", "").replaceAll(":", "_");
+        execIdsFile.convention(getProject().getLayout().getBuildDirectory().file(".docker/" + safeTaskPath + "-execIds.txt"));
+
+        execIdsProvider = execIdsFile.map(file -> {
+            try {
+                if (!file.getAsFile().exists()) {
+                    return new ArrayList<String>();
+                }
+                return Files.readAllLines(file.getAsFile().toPath());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 
     @Override
@@ -188,6 +223,15 @@ public class DockerExecContainer extends DockerExistingContainer {
             }
 
             execIds.add(localExecId);
+        }
+
+        // Write exec IDs to file for configuration cache compatibility
+        java.io.File execIdsFile = getExecIdsFile().get().getAsFile();
+        execIdsFile.getParentFile().mkdirs();
+        try {
+            Files.write(execIdsFile.toPath(), execIds);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to write exec IDs to file", e);
         }
     }
 

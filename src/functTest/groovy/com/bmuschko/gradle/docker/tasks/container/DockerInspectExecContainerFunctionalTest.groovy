@@ -20,7 +20,7 @@ class DockerInspectExecContainerFunctionalTest extends AbstractGroovyDslFunction
             task inspectExec(type: DockerInspectExecContainer) {
                 dependsOn execContainer
                 finalizedBy removeContainer
-                targetExecId { execContainer.execIds.get()[0] }
+                targetExecId execContainer.execIdsProvider.map { it[0] }
             }
         """
         buildFile << containerUsage(containerInspectExecutionTask)
@@ -44,7 +44,7 @@ class DockerInspectExecContainerFunctionalTest extends AbstractGroovyDslFunction
             task inspectExec(type: DockerInspectExecContainer) {
                 dependsOn execContainer
                 finalizedBy removeContainer
-                targetExecId { execContainer.execIds.get()[0] }
+                targetExecId execContainer.execIdsProvider.map { it[0] }
                 onNext { r ->
                     if(r.exitCode) {
                         throw new GradleException("Docker container exec failed with exit code: " + r.exitCode)
