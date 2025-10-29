@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
 import com.github.dockerjava.api.command.CreateNetworkCmd;
 import com.github.dockerjava.api.command.CreateNetworkResponse;
 import com.github.dockerjava.api.model.Network;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -11,8 +12,12 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +47,19 @@ public class DockerCreateNetwork extends AbstractDockerRemoteApiTask {
     private final Ipam ipam;
 
     /**
-     * The id of the created network.
+     * The file that contains the network ID created by this task.
+     * Defaults to "$buildDir/.docker/$taskpath-networkId.txt".
+     * If path contains ':' it will be replaced by '_'.
+     */
+    @OutputFile
+    public final RegularFileProperty getNetworkIdFile() {
+        return networkIdFile;
+    }
+
+    private final RegularFileProperty networkIdFile;
+
+    /**
+     * The ID of the network created. The value of this property requires the task action to be executed.
      */
     @Internal
     public final Property<String> getNetworkId() {
@@ -56,7 +73,19 @@ public class DockerCreateNetwork extends AbstractDockerRemoteApiTask {
     public DockerCreateNetwork(ObjectFactory objects) {
         networkName = objects.property(String.class);
         networkId = objects.property(String.class);
+        networkIdFile = objects.fileProperty();
         ipam = objects.newInstance(Ipam.class);
+
+        final String safeTaskPath = getPath().replaceFirst("^:", "").replaceAll(":", "_");
+        networkIdFile.convention(getProject().getLayout().getBuildDirectory().file(".docker/" + safeTaskPath + "-networkId.txt"));
+
+        networkId.convention(networkIdFile.map(file -> {
+            try {
+                return Files.readString(file.getAsFile().toPath()).trim();
+            } catch (IOException e) {
+                return null;
+            }
+        }));
     }
 
     @Override
@@ -84,7 +113,13 @@ public class DockerCreateNetwork extends AbstractDockerRemoteApiTask {
         }
 
         String createdNetworkId = network.getId();
-        networkId.set(createdNetworkId);
+        File networkIdFile = getNetworkIdFile().get().getAsFile();
+        networkIdFile.getParentFile().mkdirs();
+        try {
+            Files.writeString(networkIdFile.toPath(), createdNetworkId);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write network ID to file", e);
+        }
         getLogger().quiet("Created network with ID '" + createdNetworkId + "'.");
     }
 
