@@ -52,17 +52,26 @@ abstract class AbstractFunctionalTest extends Specification {
     }
 
     protected BuildResult build(String... arguments) {
-        createAndConfigureGradleRunner(arguments).build()
+        createAndConfigureGradleRunner(true, arguments).build()
     }
 
     protected BuildResult buildAndFail(String... arguments) {
-        createAndConfigureGradleRunner(arguments).buildAndFail()
+        createAndConfigureGradleRunner(true, arguments).buildAndFail()
     }
 
-    private GradleRunner createAndConfigureGradleRunner(String... arguments) {
+    protected BuildResult buildWithoutConfigCache(String... arguments) {
+        createAndConfigureGradleRunner(false, arguments).build()
+    }
+
+    private GradleRunner createAndConfigureGradleRunner(boolean withConfigCache, String... arguments) {
+        List<String> allArguments = [*arguments, '-s']
+        if (withConfigCache) {
+            allArguments << '--configuration-cache'
+        }
+
         def gradleRunner = GradleRunner.create()
             .withProjectDir(projectDir)
-            .withArguments(arguments + '-s' + '--configuration-cache' as List<String>)
+            .withArguments(allArguments)
             .withPluginClasspath()
             .withEnvironment(envVars)
         if (version) {

@@ -40,7 +40,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
         """
 
         when:
-        build('customDocker')
+        buildWithoutConfigCache('customDocker')
 
         then:
         noExceptionThrown()
@@ -81,7 +81,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
         """
 
         when:
-        build('customDocker')
+        buildWithoutConfigCache('customDocker')
 
         then:
         noExceptionThrown()
@@ -92,7 +92,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
         buildFile << dockerClientUsageInCustomTaskConstructor()
 
         when:
-        BuildResult result = build('customDocker')
+        BuildResult result = buildWithoutConfigCache('customDocker')
 
         then:
         result.task(':customDocker').outcome == TaskOutcome.SUCCESS
@@ -103,7 +103,7 @@ class AbstractDockerRemoteApiTaskFunctionalTest extends AbstractGroovyDslFunctio
         buildFile << dockerExtensionWithCustomUrl()
 
         when:
-        BuildResult result = build('customDocker')
+        BuildResult result = buildWithoutConfigCache('customDocker')
 
         then:
         result.task(':customDocker').outcome == TaskOutcome.SUCCESS
