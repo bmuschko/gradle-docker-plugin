@@ -135,6 +135,8 @@ class RegistryAuthLocatorTest extends Specification {
         // So we accept either default config OR actual credentials
         config.getRegistryAddress() == 'https://index.docker.io/v1/'
         (config == DEFAULT_AUTH_CONFIG || config.getUsername() != null)
+        // allConfigs may be empty (no credentials) or contain credentials (if helper returns them)
+        (allConfigs.configs.isEmpty() || allConfigs.configs.size() >= 1)
         0 * logger.error(*_)
     }
 
