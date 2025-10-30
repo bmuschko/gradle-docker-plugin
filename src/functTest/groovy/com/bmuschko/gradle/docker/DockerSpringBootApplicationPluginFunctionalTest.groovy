@@ -223,8 +223,8 @@ class DockerSpringBootApplicationPluginFunctionalTest extends AbstractGroovyDslF
     private void writeSpringBootBuildFile(String reactedPluginIdentifier) {
         buildFile << """
             plugins {
-                id 'org.springframework.boot' version '3.2.0'
-                id 'io.spring.dependency-management' version '1.1.4'
+                id 'org.springframework.boot' version '3.4.1'
+                id 'io.spring.dependency-management' version '1.1.7'
                 id '$reactedPluginIdentifier'
                 id 'com.bmuschko.docker-spring-boot-application'
             }
