@@ -39,11 +39,15 @@ tasks {
 // end::add-instruction[]
 
 tasks.create("printDockerfileInstructions") {
+    val createDockerfile: Dockerfile by tasks
+    dependsOn(createDockerfile)
+    val outputFile = project.layout.buildDirectory.file("dockerfile-instructions.txt")
+    outputs.file(outputFile)
+
     doLast {
-        val createDockerfile: Dockerfile by tasks
         val instructions = createDockerfile.instructions.get()
         val joinedInstructions = instructions.map { it.text }
                 .joinToString(separator = System.getProperty("line.separator"))
-        println(joinedInstructions)
+        outputFile.get().asFile.writeText(joinedInstructions)
     }
 }

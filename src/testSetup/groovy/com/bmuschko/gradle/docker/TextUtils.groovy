@@ -15,12 +15,12 @@ final class TextUtils {
     }
 
     /**
-     * Compares two strings while ignoring differences in line endings.
+     * Compares two strings while ignoring differences in line endings and trailing whitespace.
      * Treats \r\n (Windows), \n (Unix), and \r (old Mac) as equivalent.
      *
      * @param str1 First string to compare
      * @param str2 Second string to compare
-     * @return true if strings are equal (ignoring line ending differences), false otherwise
+     * @return true if strings are equal (ignoring line ending differences and trailing whitespace), false otherwise
      */
     static boolean equalsIgnoreLineEndings(String str1, String str2) {
         if (str1 == null && str2 == null) {
@@ -30,9 +30,9 @@ final class TextUtils {
             return false
         }
 
-        // Normalize line endings by replacing all variations with \n
-        String normalized1 = normalizeLineEndings(str1)
-        String normalized2 = normalizeLineEndings(str2)
+        // Normalize line endings and trim
+        String normalized1 = normalizeLineEndings(str1).trim()
+        String normalized2 = normalizeLineEndings(str2).trim()
         return normalized1.equals(normalized2)
     }
 

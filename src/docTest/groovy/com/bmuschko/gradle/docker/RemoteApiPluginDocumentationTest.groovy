@@ -102,10 +102,12 @@ class RemoteApiPluginDocumentationTest extends AbstractDocumentationTest {
         copySampleCode("remote-api-plugin/dockerfile-instructions/$dsl.language")
 
         when:
-        BuildResult result = build('printDockerfileInstructions')
+        build('printDockerfileInstructions')
 
         then:
-        equalsIgnoreLineEndings(result.output, """FROM openjdk:8-alpine
+        def outputFile = new File(projectDir, 'build/dockerfile-instructions.txt')
+        outputFile.exists()
+        equalsIgnoreLineEndings(outputFile.text, """FROM openjdk:8-alpine
 COPY my-app-1.0.jar /app/my-app-1.0.jar
 ENTRYPOINT ["java"]
 CMD ["-jar", "/app/my-app-1.0.jar"]
