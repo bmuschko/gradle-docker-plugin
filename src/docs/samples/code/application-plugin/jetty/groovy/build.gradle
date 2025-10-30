@@ -4,7 +4,11 @@ plugins {
 }
 
 version = '1.0'
-sourceCompatibility = 1.7
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
 
 repositories {
     mavenCentral()
