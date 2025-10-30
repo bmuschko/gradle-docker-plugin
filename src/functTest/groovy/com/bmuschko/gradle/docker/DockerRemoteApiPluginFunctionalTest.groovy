@@ -28,42 +28,55 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         given:
         buildFile << registryCredentials()
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
-            task buildImage(type: DockerBuildImage)
-            task pullImage(type: DockerPullImage)
-            task pushImage(type: DockerPushImage)
+            def buildImage = tasks.register('buildImage', DockerBuildImage)
+            def pullImage = tasks.register('pullImage', DockerPullImage)
+            def pushImage = tasks.register('pushImage', DockerPushImage)
 
-            task verify {
+            tasks.register('verifyBuildImage') {
+                def username = buildImage.flatMap { it.registryCredentials.username }
+                def password = buildImage.flatMap { it.registryCredentials.password }
                 doLast {
-                    def registryCredentialsAwareTasks = tasks.withType(RegistryCredentialsAware)
-                    assert registryCredentialsAwareTasks.size() == 3
+                    assert username.get() == '$DEFAULT_USERNAME'
+                    assert password.get() == '$DEFAULT_PASSWORD'
+                }
+            }
 
-                    registryCredentialsAwareTasks.each { task ->
-                        assert task.registryCredentials.username.get() == '$DEFAULT_USERNAME'
-                        assert task.registryCredentials.password.get() == '$DEFAULT_PASSWORD'
-                    }
+            tasks.register('verifyPullImage') {
+                def username = pullImage.flatMap { it.registryCredentials.username }
+                def password = pullImage.flatMap { it.registryCredentials.password }
+                doLast {
+                    assert username.get() == '$DEFAULT_USERNAME'
+                    assert password.get() == '$DEFAULT_PASSWORD'
+                }
+            }
+
+            tasks.register('verifyPushImage') {
+                def username = pushImage.flatMap { it.registryCredentials.username }
+                def password = pushImage.flatMap { it.registryCredentials.password }
+                doLast {
+                    assert username.get() == '$DEFAULT_USERNAME'
+                    assert password.get() == '$DEFAULT_PASSWORD'
                 }
             }
         """
 
         expect:
-        build('verify')
+        build('verifyBuildImage', 'verifyPullImage', 'verifyPushImage')
     }
 
     def "can overwrite default credentials for custom tasks with action"() {
         given:
         buildFile << registryCredentials()
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
-            task buildImage(type: DockerBuildImage) {
+            def buildImage = tasks.register('buildImage', DockerBuildImage) {
                 registryCredentials {
                     url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
@@ -71,7 +84,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 }
             }
 
-            task pullImage(type: DockerPullImage) {
+            def pullImage = tasks.register('pullImage', DockerPullImage) {
                 registryCredentials {
                     url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
@@ -79,7 +92,7 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 }
             }
 
-            task pushImage(type: DockerPushImage) {
+            def pushImage = tasks.register('pushImage', DockerPushImage) {
                 registryCredentials {
                     url = '$CUSTOM_URL'
                     username = '$CUSTOM_USERNAME'
@@ -87,22 +100,42 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
                 }
             }
 
-            task verify {
+            tasks.register('verifyBuildImage') {
+                def url = buildImage.flatMap { it.registryCredentials.url }
+                def username = buildImage.flatMap { it.registryCredentials.username }
+                def password = buildImage.flatMap { it.registryCredentials.password }
                 doLast {
-                    def registryCredentialsAwareTasks = tasks.withType(RegistryCredentialsAware)
-                    assert registryCredentialsAwareTasks.size() == 3
+                    assert url.get() == '$CUSTOM_URL'
+                    assert username.get() == '$CUSTOM_USERNAME'
+                    assert password.get() == '$CUSTOM_PASSWORD'
+                }
+            }
 
-                    registryCredentialsAwareTasks.each { task ->
-                        assert task.registryCredentials.url.get() == '$CUSTOM_URL'
-                        assert task.registryCredentials.username.get() == '$CUSTOM_USERNAME'
-                        assert task.registryCredentials.password.get() == '$CUSTOM_PASSWORD'
-                    }
+            tasks.register('verifyPullImage') {
+                def url = pullImage.flatMap { it.registryCredentials.url }
+                def username = pullImage.flatMap { it.registryCredentials.username }
+                def password = pullImage.flatMap { it.registryCredentials.password }
+                doLast {
+                    assert url.get() == '$CUSTOM_URL'
+                    assert username.get() == '$CUSTOM_USERNAME'
+                    assert password.get() == '$CUSTOM_PASSWORD'
+                }
+            }
+
+            tasks.register('verifyPushImage') {
+                def url = pushImage.flatMap { it.registryCredentials.url }
+                def username = pushImage.flatMap { it.registryCredentials.username }
+                def password = pushImage.flatMap { it.registryCredentials.password }
+                doLast {
+                    assert url.get() == '$CUSTOM_URL'
+                    assert username.get() == '$CUSTOM_USERNAME'
+                    assert password.get() == '$CUSTOM_PASSWORD'
                 }
             }
         """
 
         expect:
-        build('verify')
+        build('verifyBuildImage', 'verifyPullImage', 'verifyPushImage')
     }
 
     @Requires({ TestPrecondition.DOCKER_PRIVATE_SECURE_REGISTRY_REACHABLE })
@@ -170,7 +203,6 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
     def "can push and pull images overriding wrong registryCredentials with docker extension"() {
         given:
         buildFile << """
-            import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
             import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
@@ -226,12 +258,15 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         given:
         buildFile << registryCredentials()
         buildFile << """
-            task convert {
+            def passwordCredentials = extensions.getByName('docker').registryCredentials.asPasswordCredentials()
+            assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
+
+            tasks.register('convert') {
+                def username = providers.provider { passwordCredentials.username }
+                def password = providers.provider { passwordCredentials.password }
                 doLast {
-                    def passwordCredentials = docker.registryCredentials.asPasswordCredentials()
-                    assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
-                    assert passwordCredentials.username == '$DEFAULT_USERNAME'
-                    assert passwordCredentials.password == '$DEFAULT_PASSWORD'
+                    assert username.get() == '$DEFAULT_USERNAME'
+                    assert password.get() == '$DEFAULT_PASSWORD'
                 }
             }
         """
@@ -244,16 +279,17 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
         given:
         buildFile << registryCredentials()
         buildFile << """
-            task convert {
+            def passwordCredentials = extensions.getByName('docker').registryCredentials.asPasswordCredentials()
+            assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
+            passwordCredentials.username = '$CUSTOM_USERNAME'
+            passwordCredentials.password = '$CUSTOM_PASSWORD'
+
+            tasks.register('convert') {
+                def username = providers.provider { passwordCredentials.username }
+                def password = providers.provider { passwordCredentials.password }
                 doLast {
-                    def passwordCredentials = docker.registryCredentials.asPasswordCredentials()
-                    assert passwordCredentials instanceof org.gradle.api.credentials.PasswordCredentials
-                    passwordCredentials.username = '$CUSTOM_USERNAME'
-                    passwordCredentials.password = '$CUSTOM_PASSWORD'
-                    assert passwordCredentials.username == '$CUSTOM_USERNAME'
-                    assert passwordCredentials.password == '$CUSTOM_PASSWORD'
-                    assert docker.registryCredentials.username.get() == '$CUSTOM_USERNAME'
-                    assert docker.registryCredentials.password.get() == '$CUSTOM_PASSWORD'
+                    assert username.get() == '$CUSTOM_USERNAME'
+                    assert password.get() == '$CUSTOM_PASSWORD'
                 }
             }
         """
@@ -265,9 +301,6 @@ class DockerRemoteApiPluginFunctionalTest extends AbstractGroovyDslFunctionalTes
     @IgnoreIf({ os.windows })
     def "configuration cache compatible when docker state changes on disk for OS #osName"() {
         given:
-        useGradleVersion("8.3")
-
-        and:
         // Force use of user.home and define a variable holding the file
         def home = new File(temporaryFolder, "home").tap{it.mkdirs()}
         def dockerSockDirectory = new File(home, "/.docker/run/").tap{it.mkdirs()}

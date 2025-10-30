@@ -26,7 +26,7 @@ class DockerJavaApplicationPluginFunctionalTest extends AbstractGroovyDslFunctio
         assertGeneratedDockerfile()
         assertBuildContextLibs()
         assertBuildContextClasses()
-        result.output.contains("0 problems were found storing the configuration cache.")
+        result.output.contains("Configuration cache entry stored.")
 
         when:
         result = build('buildAndCleanResources')
@@ -304,9 +304,11 @@ ADD file2.txt /other/dir/file2.txt
             }
 
             task verify {
+                def dockerBuildImageImages = tasks.named('dockerBuildImage').flatMap { it.images }
+                def dockerPushImageImages = tasks.named('dockerPushImage').flatMap { it.images }
                 doLast {
-                    assert dockerBuildImage.images.get() == expectedImages
-                    assert dockerPushImage.images.get() == expectedImages
+                    assert dockerBuildImageImages.get() == expectedImages
+                    assert dockerPushImageImages.get() == expectedImages
                 }
             }
         """

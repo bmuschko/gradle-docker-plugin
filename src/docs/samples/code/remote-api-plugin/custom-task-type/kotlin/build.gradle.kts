@@ -8,7 +8,7 @@ import com.github.dockerjava.api.model.Image
 
 // tag::task-type-usage[]
 val imageIdForName by tasks.creating(DockerImageIdForName::class) {
-    filteredImageName.set("alpine:3.4")
+    filteredImageName.set("alpine:3.19")
 }
 
 val printImageId by tasks.creating {
@@ -20,7 +20,7 @@ val printImageId by tasks.creating {
 // end::task-type-usage[]
 
 val pullImage by tasks.creating(DockerPullImage::class) {
-    image.set("alpine:3.4")
+    image.set("alpine:3.19")
 }
 
 imageIdForName.dependsOn(pullImage)

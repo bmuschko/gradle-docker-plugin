@@ -14,9 +14,9 @@ import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
     private static final String IMAGE_BASE = 'alpine'
-    private static final String IMAGE_3_2 = "$IMAGE_BASE:3.2"
-    private static final String IMAGE_3_3 = "$IMAGE_BASE:3.3"
-    private static final String IMAGE_3_4 = "$IMAGE_BASE:3.4"
+    private static final String IMAGE_3_2 = "$IMAGE_BASE:3.17"
+    private static final String IMAGE_3_3 = "$IMAGE_BASE:3.18"
+    private static final String IMAGE_3_4 = "$IMAGE_BASE:3.19"
     private static final String BUILD_DIR = 'build/docker'
     private static final String CONTROL_SAVED_IMAGE = "$BUILD_DIR/alpine-docker-image-control.tar"
     private static final String IMAGE_FILE = "$BUILD_DIR/alpine-docker-image.tar"
@@ -323,7 +323,7 @@ class DockerSaveImageFunctionalTest extends AbstractGroovyDslFunctionalTest {
 
         then:
         file(IMAGE_FILE).size() > 0
-        result.output.contains("0 problems were found storing the configuration cache.")
+        result.output.contains("Configuration cache entry stored.")
 
         when:
         result = build('saveImage')

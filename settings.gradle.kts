@@ -1,5 +1,5 @@
 plugins {
-    id("com.gradle.enterprise") version("3.10.2")
+    id("com.gradle.develocity") version("4.1")
 }
 
 rootProject.name = "gradle-docker-plugin"

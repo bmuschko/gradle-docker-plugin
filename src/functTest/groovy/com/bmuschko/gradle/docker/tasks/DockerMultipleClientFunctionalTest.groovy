@@ -11,7 +11,7 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
             task dockerClient1(type: DockerOperation) {
                 onNext { client ->
                     if (client != null) {
-                        logger.quiet "dockerHost: " + client.dockerClientConfig.dockerHost
+                        println "dockerHost: " + client.dockerClientConfig.dockerHost
                     }
                 }
             }
@@ -19,7 +19,7 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
                 url = 'tcp://docker.corp.com:2375'
                 onNext { client ->
                     if (client != null) {
-                        logger.quiet "dockerHost: " + client.dockerClientConfig.dockerHost
+                        println "dockerHost: " + client.dockerClientConfig.dockerHost
                     }
                 }
             }
@@ -28,7 +28,7 @@ class DockerMultipleClientFunctionalTest extends AbstractGroovyDslFunctionalTest
                 certPath = new File('/tmp')
                 onNext { client ->
                     if (client != null) {
-                        logger.quiet "dockerHost: " + client.dockerClientConfig.dockerHost
+                        println "dockerHost: " + client.dockerClientConfig.dockerHost
                     }
                 }
             }

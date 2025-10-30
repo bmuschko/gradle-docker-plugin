@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -13,14 +13,14 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: 17
+          distribution: 'zulu'
+          java-version: 21
       - name: Set up Docker private registry
         run: |
           docker run -d -p 5000:5000 --restart=always --name registry registry:2
           docker run -d -p 5001:5000 --restart=always --name secure_registry -v "$(pwd)"/src/functTest/resources/auth:/auth:rw -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" registry:2
       - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v3
       - name: Compilation
         run: ./gradlew classes
       - name: Validate plugins
@@ -29,6 +29,9 @@ jobs:
         run: ./gradlew test
       - name: Integration tests
         run: ./gradlew integrationTest
+      - name: Clean Docker cache
+        run: docker builder prune -af --filter "until=24h"
+        continue-on-error: true
       - name: Functional tests
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -41,17 +44,17 @@ jobs:
       - name: Assemble artifacts
         run: ./gradlew assemble javadoc asciidoctorAllGuides
       - name: Upload binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gradle-docker-plugin-bin
           path: build/libs/*.jar
       - name: Upload Javadoc
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gradle-docker-plugin-javadoc
           path: build/docs/javadoc/
       - name: Upload Guides
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gradle-docker-plugin-guides
           path: |

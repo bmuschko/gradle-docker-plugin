@@ -139,7 +139,7 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
         BuildResult result = build('copyFileIntoContainer')
 
         then:
-        result.output.contains("0 problems were found storing the configuration cache.")
+        result.output.contains("Configuration cache entry stored.")
 
         when:
         result = build('copyFileIntoContainer')
@@ -184,9 +184,9 @@ class DockerCopyFileToContainerFunctionalTest extends AbstractGroovyDslFunctiona
         """
             task createTarFile(type: Tar) {
                 from "${escapeFilePath(new File(projectDir, 'HelloWorld.txt'))}"
-                baseName = 'HelloWorld'
-                destinationDir = projectDir
-                extension = 'tgz'
+                archiveBaseName = 'HelloWorld'
+                destinationDirectory = projectDir
+                archiveExtension = 'tgz'
                 compression = Compression.GZIP
             }
         """

@@ -36,10 +36,14 @@ createDockerfile {
 // end::add-instruction[]
 
 task printDockerfileInstructions {
+    dependsOn createDockerfile
+    def outputFile = project.layout.buildDirectory.file('dockerfile-instructions.txt')
+    outputs.file(outputFile)
+
     doLast {
         def instructions = createDockerfile.instructions.get()
         def joinedInstructions = instructions.collect { it.text }
                 .join(System.properties['line.separator'])
-        println joinedInstructions
+        outputFile.get().asFile.text = joinedInstructions
     }
 }

@@ -28,7 +28,7 @@ class DockerInfoFunctionalTest extends AbstractGroovyDslFunctionalTest {
             task dockerInfo(type: DockerInfo) {
                 onNext { m ->
                     if (m.architecture) {  // Because I implemented and I care
-                        logger.quiet "Architecture found"
+                        println "Architecture found"
                     }
                 }
             }

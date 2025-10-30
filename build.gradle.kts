@@ -31,9 +31,12 @@ dependencies {
     shaded(libs.bundles.docker.java)
     shaded(libs.activation)
     shaded(libs.asm)
+    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.spock.core) {
         exclude(group = "org.codehaus.groovy")
     }
+    testRuntimeOnly(libs.cglib.nodep)
     testImplementation(libs.zt.zip)
     functionalTestImplementation(libs.commons.vfs2)
 }
@@ -61,34 +64,38 @@ gradlePlugin {
             displayName = "Gradle Docker Remote API Plugin"
             description = "Plugin that provides tasks for interacting with Docker via its remote API."
             implementationClass = "com.bmuschko.gradle.docker.DockerRemoteApiPlugin"
+            tags.set(listOf("docker", "container", "image", "lightweight", "vm", "linux"))
         }
         create("docker-java-application") {
             id = "com.bmuschko.docker-java-application"
             displayName = "Gradle Docker Java Application Plugin"
             description = "Plugin that provides conventions for building and publishing Docker images for Java applications."
             implementationClass = "com.bmuschko.gradle.docker.DockerJavaApplicationPlugin"
+            tags.set(listOf("docker", "container", "image", "lightweight", "vm", "linux"))
         }
         create("docker-spring-boot-application") {
             id = "com.bmuschko.docker-spring-boot-application"
             displayName = "Gradle Docker Spring Boot Application Plugin"
             description = "Plugin that provides conventions for building and publishing Docker images for Spring Boot applications."
             implementationClass = "com.bmuschko.gradle.docker.DockerSpringBootApplicationPlugin"
+            tags.set(listOf("docker", "container", "image", "lightweight", "vm", "linux"))
         }
     }
 }
 
-pluginBundle {
-    website = "https://github.com/bmuschko/gradle-docker-plugin"
-    vcsUrl = "https://github.com/bmuschko/gradle-docker-plugin"
-    tags = listOf("docker", "container", "image", "lightweight", "vm", "linux")
+gradlePlugin {
+    website.set("https://github.com/bmuschko/gradle-docker-plugin")
+    vcsUrl.set("https://github.com/bmuschko/gradle-docker-plugin")
 }
 
-buildScan {
-    termsOfServiceUrl = "https://gradle.com/terms-of-service"
-    termsOfServiceAgree = "yes"
+develocity {
+    buildScan {
+        termsOfUseUrl.set("https://gradle.com/help/legal-terms-of-use")
+        termsOfUseAgree.set("yes")
 
-    if (!System.getenv("CI").isNullOrEmpty()) {
-        publishAlways()
-        tag("CI")
+        if (!System.getenv("CI").isNullOrEmpty()) {
+            publishing.onlyIf { true }
+            tag("CI")
+        }
     }
 }
