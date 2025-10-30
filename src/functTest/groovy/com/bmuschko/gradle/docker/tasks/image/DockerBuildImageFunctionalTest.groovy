@@ -53,7 +53,7 @@ ARG user
 USER \$user"""
         buildFile << """
             import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-            import com.bmuschko.gradle.docker.tasks.image.DockerExistingImage
+            import com.bmuschko.gradle.docker.tasks.image.DockerInspectImage
             import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
 
             task buildImage(type: DockerBuildImage) {
@@ -63,31 +63,21 @@ USER \$user"""
                 images.add("${createUniqueImageId()}")
             }
 
-            task inspectImage(type: DockerInspectImageUser) {
+            task inspectImage(type: DockerInspectImage) {
                 dependsOn buildImage
-                imageId = buildImage.imageId
+                targetImageId buildImage.imageId
+                onNext { image ->
+                    def user = image.config?.user ?: (image.containerConfig?.user ?: 'not set')
+                    println "user: \$user"
+                }
             }
 
             task removeImage(type: DockerRemoveImage) {
                 force = true
-                imageId = buildImage.imageId
+                targetImageId buildImage.imageId
             }
 
             inspectImage.finalizedBy tasks.removeImage
-
-            class DockerInspectImageUser extends DockerExistingImage {
-                DockerInspectImageUser() {
-                    onNext({ image ->
-                        println "user: \$image.containerConfig.user"
-                    })
-                }
-
-                @Override
-                void runRemoteCommand() {
-                    def image = dockerClient.inspectImageCmd(imageId.get()).exec()
-                    nextHandler.execute(image)
-                }
-            }
         """
 
         when:
@@ -467,8 +457,10 @@ USER \$user"""
 
             task verifyTagsMissing(type: DockerOperation) {
                 dependsOn deleteOriginalTag
+                def imageIdValue = buildImageWithTag.imageId
+                def imagesValue = buildImageWithTag.images
                 onNext {
-                    if (inspectImageCmd(buildImageWithTag.imageId.get()).exec().repoTags.containsAll(buildImageWithTag.images.get())) {
+                    if (inspectImageCmd(imageIdValue.get()).exec().repoTags.containsAll(imagesValue.get())) {
                         throw new GradleException("There should be configured tags missing now")
                     }
                 }
@@ -476,8 +468,10 @@ USER \$user"""
 
             task verifyTagsPresent(type: DockerOperation) {
                 dependsOn buildImageWithTag
+                def imageIdValue = buildImageWithTag.imageId
+                def imagesValue = buildImageWithTag.images
                 onNext {
-                    if (!inspectImageCmd(buildImageWithTag.imageId.get()).exec().repoTags.containsAll(buildImageWithTag.images.get())) {
+                    if (!inspectImageCmd(imageIdValue.get()).exec().repoTags.containsAll(imagesValue.get())) {
                         throw new GradleException("All configured tags should be present now")
                     }
                 }
@@ -648,7 +642,7 @@ USER \$user"""
 
             task buildImageWithTags(type: DockerBuildImage) {
                 dependsOn dockerfile
-                images = ['test/image:123', "registry.com:5000/test/image:\$project.version"]
+                images = ['test/image:123', "registry.com:5000/test/image:\${project.version}".toString()]
             }
 
             task buildImageWithTag(type: DockerBuildImage) {
