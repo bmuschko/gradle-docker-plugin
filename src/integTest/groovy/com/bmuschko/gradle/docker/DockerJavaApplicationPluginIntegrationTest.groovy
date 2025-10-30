@@ -2,9 +2,9 @@ package com.bmuschko.gradle.docker
 
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import groovy.transform.CompileStatic
-import groovy.transform.TypeChecked
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.JavaApplication
 import org.gradle.testfixtures.ProjectBuilder
 
 class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest {
@@ -40,12 +40,13 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         when:
         project.apply(plugin: 'application')
         project.apply(plugin: DockerJavaApplicationPlugin)
+        def application = project.extensions.getByType(JavaApplication)
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
         Set<String> images = task.images.get()
         images.size() == 1
-        images.first() == "${project.applicationName}:latest"
+        images.first() == "${application.applicationName}:latest"
     }
 
     def "Configures image task without project group and but with version"() {
@@ -55,12 +56,13 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         when:
         project.version = projectVersion
         applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+        def application = project.extensions.getByType(JavaApplication)
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
         Set<String> images = task.images.get()
         images.size() == 1
-        images.first() == "${project.applicationName}:${projectVersion}"
+        images.first() == "${application.applicationName}:${projectVersion}"
     }
 
     def "Configures image task with project group and version"() {
@@ -72,12 +74,13 @@ class DockerJavaApplicationPluginIntegrationTest extends AbstractIntegrationTest
         project.group = projectGroup
         project.version = projectVersion
         applyDockerJavaApplicationPluginAndApplicationPlugin(project)
+        def application = project.extensions.getByType(JavaApplication)
 
         then:
         DockerBuildImage task = project.tasks.findByName(DockerJavaApplicationPlugin.BUILD_IMAGE_TASK_NAME)
         Set<String> images = task.images.get()
         images.size() == 1
-        images.first() == "${projectGroup}/${project.applicationName}:${projectVersion}"
+        images.first() == "${projectGroup}/${application.applicationName}:${projectVersion}"
     }
 
     def "Can access the dockerJava.javaApplication extension dynamically"() {
