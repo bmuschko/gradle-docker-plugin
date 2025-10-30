@@ -1,6 +1,16 @@
 == Change Log
 
 [discrete]
+=== v10.0.0 (October 30, 2025)
+
+* Upgrade the build environment and dependencies - {uri-github}/pull/1238[PR 1238]
+* Upgrade to Gradle 9 - {uri-github}/pull/1242[PR 1242]
+* Upgrade ASM for JDK 26 support
+* **Breaking Change!** Minimal supported version for plugin is Gradle 9.2
+* **Breaking Change!** Upgrade to Docker Java 3.6.0
+* **Breaking Change!** Removed deprecated methods from `DockerExecContainer` task
+
+[discrete]
 === v9.4.0 (November 29, 2023)
 
 * Expose HEALTHCHECK method to `Dockerfile` task - {uri-github}/pull/1205[PR 1205]
