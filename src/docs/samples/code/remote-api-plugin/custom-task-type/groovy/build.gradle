@@ -7,7 +7,7 @@ import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
 // tag::task-type-usage[]
 task imageIdForName(type: DockerImageIdForName) {
-    filteredImageName = 'alpine:3.4'
+    filteredImageName = 'alpine:3.19'
 }
 
 task printImageId {
@@ -19,7 +19,7 @@ task printImageId {
 // end::task-type-usage[]
 
 task pullImage(type: DockerPullImage) {
-    image = 'alpine:3.4'
+    image = 'alpine:3.19'
 }
 
 imageIdForName.dependsOn pullImage
