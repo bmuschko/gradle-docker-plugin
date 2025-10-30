@@ -29,6 +29,9 @@ jobs:
         run: ./gradlew test
       - name: Integration tests
         run: ./gradlew integrationTest
+      - name: Clean Docker cache
+        run: docker builder prune -af --filter "until=24h"
+        continue-on-error: true
       - name: Functional tests
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
