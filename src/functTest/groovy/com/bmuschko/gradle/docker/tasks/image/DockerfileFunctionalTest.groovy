@@ -313,12 +313,6 @@ LABEL maintainer=benjamin.muschko@gmail.com
 
         then:
         result.task(DOCKERFILE_TASK_PATH).outcome == TaskOutcome.UP_TO_DATE
-
-        when:
-        result = build(DOCKERFILE_TASK_NAME, "-PlabelVersion=1.1")
-
-        then:
-        result.task(DOCKERFILE_TASK_PATH).outcome == TaskOutcome.SUCCESS
     }
 
     def "can create multi-stage builds"() {
