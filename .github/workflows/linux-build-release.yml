@@ -30,7 +30,9 @@ jobs:
       - name: Integration tests
         run: ./gradlew integrationTest
       - name: Clean Docker cache
-        run: docker builder prune -af --filter "until=24h"
+        run: |
+          docker system prune -af
+          docker builder prune -af
         continue-on-error: true
       - name: Functional tests
         env:
