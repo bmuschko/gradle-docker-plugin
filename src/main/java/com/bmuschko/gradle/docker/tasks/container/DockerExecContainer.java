@@ -235,29 +235,6 @@ public class DockerExecContainer extends DockerExistingContainer {
         }
     }
 
-    /**
-     * Convenience method for adding commands.
-     *
-     * @param commandsToExecute The commands to execute
-     * @deprecated Use the method named {@link #getCommands()} directly
-     */
-    @Deprecated
-    public void withCommand(List<String> commandsToExecute) {
-        withCommand(commandsToExecute.toArray(String[]::new));
-    }
-
-    /**
-     * Convenience method for adding commands.
-     *
-     * @param commandsToExecute The commands to execute
-     * @deprecated Use the method named {@link #getCommands()} directly
-     */
-    @Deprecated
-    public void withCommand(String[] commandsToExecute) {
-        if (commandsToExecute != null) {
-            commands.add(commandsToExecute);
-        }
-    }
 
     private void setContainerCommandConfig(ExecCreateCmd containerCommand, String[] commandToExecute) {
         if (commandToExecute != null) {

@@ -15,6 +15,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 21
+      - name: Clean Docker environment before tests
+        run: |
+          docker system prune -af --volumes
+          docker builder prune -af
+        continue-on-error: true
       - name: Set up Docker private registry
         run: |
           docker run -d -p 5000:5000 --restart=always --name registry registry:2
@@ -29,8 +34,12 @@ jobs:
         run: ./gradlew test
       - name: Integration tests
         run: ./gradlew integrationTest
-      - name: Clean Docker cache
-        run: docker builder prune -af --filter "until=24h"
+      - name: Clean Docker cache before functional tests
+        run: |
+          docker system prune -af --volumes
+          docker builder prune -af
+          # Remove any dangling images that might have corrupted layers
+          docker images --filter "dangling=true" -q | xargs -r docker rmi -f || true
         continue-on-error: true
       - name: Functional tests
         env:

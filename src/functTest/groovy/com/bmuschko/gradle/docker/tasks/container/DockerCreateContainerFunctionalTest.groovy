@@ -67,7 +67,7 @@ class DockerCreateContainerFunctionalTest extends AbstractGroovyDslFunctionalTes
             task execContainer(type: DockerExecContainer) {
                 dependsOn startContainer
                 targetContainerId startContainer.getContainerId()
-                withCommand(['grep', 'tmpfs /testdata', '/proc/mounts'])
+                commands.add(['grep', 'tmpfs /testdata', '/proc/mounts'] as String[])
                 successOnExitCodes=[0]
             }
 

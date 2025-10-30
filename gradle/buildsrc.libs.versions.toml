@@ -1,5 +1,5 @@
 [versions]
-asciidoctor-jvm-plugin = "3.3.2"
+asciidoctor-jvm-plugin = "5.0.0-alpha.1"
 asciidoctorj-tabbed-code-extension = "0.3"
 grgit = "1.9.1"
 gradle-git = "1.7.1"
