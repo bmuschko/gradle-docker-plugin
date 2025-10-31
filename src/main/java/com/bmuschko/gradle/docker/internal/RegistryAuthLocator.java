@@ -44,21 +44,21 @@ public class RegistryAuthLocator {
 
     private final ExecOperations execOperations;
 
-    private RegistryAuthLocator(ExecOperations execOperations, File configFile, String commandPathPrefix, String helperSuffix) {
+    protected RegistryAuthLocator(ExecOperations execOperations, File configFile, String commandPathPrefix, String helperSuffix) {
         this.execOperations = execOperations;
         this.configFile = configFile;
         this.commandPathPrefix = commandPathPrefix;
         this.helperSuffix = helperSuffix;
     }
 
-    private RegistryAuthLocator(ExecOperations execOperations, File configFile) {
+    protected RegistryAuthLocator(ExecOperations execOperations, File configFile) {
         this(execOperations, configFile, DEFAULT_HELPER_PREFIX, "");
     }
 
     /**
      * Creates new instance
      */
-    private RegistryAuthLocator(ExecOperations execOperations) {
+    protected RegistryAuthLocator(ExecOperations execOperations) {
         this(execOperations, new File(configLocation()), DEFAULT_HELPER_PREFIX, "");
     }
 
