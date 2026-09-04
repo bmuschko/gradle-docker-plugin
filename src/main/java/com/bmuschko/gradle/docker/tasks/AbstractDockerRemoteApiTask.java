@@ -66,6 +66,19 @@ public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
 
     private final Property<String> apiVersion = getProject().getObjects().property(String.class);
 
+    /**
+     * Whether image builds performed by this task are routed to BuildKit.
+     *
+     * @return Whether BuildKit is used
+     * @since 10.1.0
+     */
+    @Internal
+    protected final Property<Boolean> getBuildKitPreference() {
+        return buildKit;
+    }
+
+    private final Property<Boolean> buildKit = getProject().getObjects().property(Boolean.class);
+
     @Internal
     public final Property<DockerClientService> getDockerClientService() {
         return dockerClientService;
@@ -154,7 +167,7 @@ public abstract class AbstractDockerRemoteApiTask extends DefaultTask {
      */
     @Internal
     public DockerClient getDockerClient() {
-        return dockerClientService.get().getDockerClient(url, certPath, apiVersion);
+        return dockerClientService.get().getDockerClient(url, certPath, apiVersion, buildKit);
     }
 
     /**

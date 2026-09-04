@@ -59,6 +59,22 @@ public class DockerExtension {
     private final Property<String> apiVersion;
 
     /**
+     * Whether image builds are routed to BuildKit instead of the Docker Engine API's classic builder.
+     * <p>
+     * Individual tasks can override this with their own {@code buildKit} property.
+     * <p>
+     * Defaults to {@code false}.
+     *
+     * @return Whether BuildKit is used
+     * @since 10.1.0
+     */
+    public final Property<Boolean> getBuildKit() {
+        return buildKit;
+    }
+
+    private final Property<Boolean> buildKit;
+
+    /**
      * The target Docker registry credentials.
      */
     public final DockerRegistryCredentials getRegistryCredentials() {
@@ -81,6 +97,7 @@ public class DockerExtension {
         }
 
         apiVersion = objectFactory.property(String.class);
+        buildKit = objectFactory.property(Boolean.class).convention(Boolean.FALSE);
         registryCredentials = objectFactory.newInstance(DockerRegistryCredentials.class, objectFactory);
     }
 

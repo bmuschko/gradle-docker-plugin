@@ -1,0 +1,68 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.bmuschko.gradle.docker.internal.services;
+
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+
+import java.util.Objects;
+
+/**
+ * Identifies a cached Docker client. Two clients that share a configuration are still different clients when one
+ * routes image builds to BuildKit and the other does not.
+ */
+final class DockerClientKey {
+
+    private final DefaultDockerClientConfig configuration;
+
+    private final boolean buildKit;
+
+    DockerClientKey(DefaultDockerClientConfig configuration, boolean buildKit) {
+        this.configuration = configuration;
+        this.buildKit = buildKit;
+    }
+
+    DefaultDockerClientConfig getConfiguration() {
+        return configuration;
+    }
+
+    boolean isBuildKit() {
+        return buildKit;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        DockerClientKey that = (DockerClientKey) other;
+        return buildKit == that.buildKit && Objects.equals(configuration, that.configuration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configuration, buildKit);
+    }
+
+    @Override
+    public String toString() {
+        return "DockerClientKey{dockerHost=" + configuration.getDockerHost() + ", buildKit=" + buildKit + '}';
+    }
+}

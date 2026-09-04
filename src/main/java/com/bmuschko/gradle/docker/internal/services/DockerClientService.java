@@ -1,9 +1,11 @@
 package com.bmuschko.gradle.docker.internal.services;
 
+import com.bmuschko.gradle.docker.internal.BuildKitDockerHttpClient;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.transport.DockerHttpClient;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -23,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Build service for Docker client.
  */
 public abstract class DockerClientService implements BuildService<DockerClientService.Params>, AutoCloseable {
-    private final Map<DefaultDockerClientConfig, DockerClient> dockerClients;
+    private final Map<DockerClientKey, DockerClient> dockerClients;
 
     private final ObjectFactory objects;
 
@@ -51,6 +53,14 @@ public abstract class DockerClientService implements BuildService<DockerClientSe
          * @return The remote API
          */
         Property<String> getApiVersion();
+
+        /**
+         * Whether image builds are routed to BuildKit.
+         *
+         * @return Whether BuildKit is used
+         * @since 10.1.0
+         */
+        Property<Boolean> getBuildKit();
     }
 
     /**
@@ -70,12 +80,15 @@ public abstract class DockerClientService implements BuildService<DockerClientSe
      * @param urlProvider Docker client url
      * @param certPathProvider Docker client certificate path
      * @param apiVersionProvider Docker client api version
+     * @param buildKitProvider Whether image builds are routed to BuildKit
      * @return Docker client
+     * @since 10.1.0
      */
-    public DockerClient getDockerClient(Provider<String> urlProvider, Provider<Directory> certPathProvider, Provider<String> apiVersionProvider) {
+    public DockerClient getDockerClient(Provider<String> urlProvider, Provider<Directory> certPathProvider, Provider<String> apiVersionProvider, Provider<Boolean> buildKitProvider) {
         String dockerUrl = getDockerHostUrl(urlProvider);
         File dockerCertPath = certPathProvider.orElse(getParameters().getCertPath()).map(Directory::getAsFile).getOrNull();
         String apiVersion = apiVersionProvider.orElse(getParameters().getApiVersion()).getOrNull();
+        boolean buildKit = buildKitProvider.orElse(getParameters().getBuildKit()).getOrElse(Boolean.FALSE);
 
         // Create configuration
         DefaultDockerClientConfig.Builder dockerClientConfigBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder();
@@ -99,18 +112,24 @@ public abstract class DockerClientService implements BuildService<DockerClientSe
         }
 
         DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build();
-        return createDefaultDockerClient(dockerClientConfig);
+        return createDefaultDockerClient(new DockerClientKey(dockerClientConfig, buildKit));
     }
 
-    private DockerClient createDefaultDockerClient(DefaultDockerClientConfig config) {
-        return dockerClients.computeIfAbsent(config, i -> {
-            ApacheDockerHttpClient dockerClient = new ApacheDockerHttpClient.Builder()
+    private DockerClient createDefaultDockerClient(DockerClientKey key) {
+        return dockerClients.computeIfAbsent(key, i -> {
+            DefaultDockerClientConfig config = i.getConfiguration();
+            DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
                     .dockerHost(config.getDockerHost())
                     .sslConfig(config.getSSLConfig())
                     .build();
+
+            if (i.isBuildKit()) {
+                httpClient = new BuildKitDockerHttpClient(httpClient);
+            }
+
             return DockerClientImpl.getInstance(
                     config,
-                    dockerClient
+                    httpClient
             );
         });
     }

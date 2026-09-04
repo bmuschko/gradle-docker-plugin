@@ -3,6 +3,7 @@ package com.bmuschko.gradle.docker;
 import com.bmuschko.gradle.docker.internal.services.DockerClientService;
 import com.bmuschko.gradle.docker.tasks.AbstractDockerRemoteApiTask;
 import com.bmuschko.gradle.docker.tasks.RegistryCredentialsAware;
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -37,6 +38,7 @@ public class DockerRemoteApiPlugin implements Plugin<Project> {
                     parameters.getUrl().set(dockerExtension.getUrl());
                     parameters.getCertPath().set(dockerExtension.getCertPath());
                     parameters.getApiVersion().set(dockerExtension.getApiVersion());
+                    parameters.getBuildKit().set(dockerExtension.getBuildKit());
                 });
             }
         });
@@ -45,6 +47,13 @@ public class DockerRemoteApiPlugin implements Plugin<Project> {
             @Override
             public void execute(AbstractDockerRemoteApiTask task) {
                 task.getDockerClientService().set(serviceProvider);
+            }
+        });
+
+        project.getTasks().withType(DockerBuildImage.class).configureEach(new Action<DockerBuildImage>() {
+            @Override
+            public void execute(DockerBuildImage task) {
+                task.getBuildKit().convention(dockerExtension.getBuildKit());
             }
         });
     }

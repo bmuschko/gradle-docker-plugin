@@ -1,6 +1,11 @@
 == Change Log
 
 [discrete]
+=== Unreleased
+
+* Add `buildKit` to `DockerBuildImage` and the `docker` extension, routing image builds to BuildKit instead of the classic builder
+
+[discrete]
 === v10.0.0 (October 30, 2025)
 
 * Upgrade the build environment and dependencies - {uri-github}/pull/1238[PR 1238]

@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -265,6 +266,28 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
     private final Property<String> platform = getProject().getObjects().property(String.class);
 
     /**
+     * Routes this image build to BuildKit instead of the Docker Engine API's classic builder.
+     * <p>
+     * BuildKit understands Dockerfile instructions the classic builder rejects, such as {@code RUN --mount}, and
+     * every build it runs is recorded in BuildKit's build history, which {@code docker buildx history} lists and
+     * which build-analysis tooling subscribes to. Builds performed by the classic builder are absent from it.
+     * <p>
+     * BuildKit ignores {@link #getMemory()}, {@link #getShmSize()} and {@link #getRemove()}; setting any of them
+     * together with this property logs a warning naming the ones that have no effect.
+     * <p>
+     * Defaults to the value of the {@code docker.buildKit} extension property, which itself defaults to
+     * {@code false}.
+     *
+     * @return Whether this build is routed to BuildKit
+     * @since 10.1.0
+     */
+    @Input
+    @Optional
+    public final Property<Boolean> getBuildKit() {
+        return getBuildKitPreference();
+    }
+
+    /**
      * {@inheritDoc}
      */
     public final DockerRegistryCredentials getRegistryCredentials() {
@@ -296,6 +319,28 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
     }
 
     private final Property<String> imageId = getProject().getObjects().property(String.class);
+
+    /**
+     * Returns the names of the configured options that BuildKit does not act on, so the build can say so rather
+     * than silently doing something different from what was asked.
+     */
+    static List<String> optionsIgnoredByBuildKit(Long memory, Long shmSize, Boolean remove) {
+        List<String> ignored = new ArrayList<>();
+
+        if (memory != null) {
+            ignored.add("memory");
+        }
+
+        if (shmSize != null) {
+            ignored.add("shmSize");
+        }
+
+        if (remove != null) {
+            ignored.add("remove");
+        }
+
+        return ignored;
+    }
 
     public DockerBuildImage() {
         inputDir.convention(getProject().getLayout().getBuildDirectory().dir("docker"));
@@ -340,6 +385,15 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
     public void runRemoteCommand() throws Exception {
         getLogger().quiet("Building image using context '" + getInputDir().get().getAsFile() + "'.");
         BuildImageCmd buildImageCmd;
+
+        if (Boolean.TRUE.equals(getBuildKit().getOrNull())) {
+            List<String> ignored = optionsIgnoredByBuildKit(memory.getOrNull(), shmSize.getOrNull(), remove.getOrNull());
+
+            if (!ignored.isEmpty()) {
+                getLogger().warn("BuildKit does not act on the following configured options, they will have no "
+                        + "effect on this build: " + String.join(", ", ignored) + ".");
+            }
+        }
 
         if (dockerFile.getOrNull() != null) {
             getLogger().quiet("Using Dockerfile '" + getDockerFile().get().getAsFile() + "'");

@@ -1,0 +1,96 @@
+[[remote-api-plugin-buildkit]]
+=== Building Images With BuildKit
+
+The {uri-ghpages}/api/com/bmuschko/gradle/docker/tasks/image/DockerBuildImage.html[DockerBuildImage] task builds
+images through the Docker Engine API, which by default reaches the classic builder.
+That builder does not understand BuildKit's Dockerfile syntax, so a `RUN --mount` instruction fails with
+`the --mount option requires BuildKit`.
+
+Setting `buildKit` asks the daemon for the BuildKit builder instead.
+The task is configured by the same properties, credentials still come from `docker.registryCredentials`, `imageId`
+is still set from the image the build produced, and build output still arrives line by line while the build runs, so
+`onNext`, `onError` and `onComplete` behave as they always have.
+
+What the output looks like does change, because BuildKit describes a build as a graph of steps rather than a
+sequence of Dockerfile instructions:
+
+----
+#1 [internal] load metadata for docker.io/library/alpine:3.17.2
+#2 [1/2] FROM docker.io/library/alpine:3.17.2@sha256:ff6bdca1701f...
+#2 CACHED
+#3 [2/2] RUN echo hello
+#3 hello
+#4 exporting to image
+----
+
+Each step is given a number so that output from steps running at the same time can be told apart, and a step's own
+output carries the same number as the step.
+The numbers follow the order BuildKit reports the steps in, which is not the order they appear in the Dockerfile;
+the `[1/2]` and `[2/2]` in the step names give that.
+A step served from cache is marked `CACHED`, and a step that fails is marked `ERROR:` followed by the reason, which
+is also what fails the task.
+
+Two smaller differences are worth knowing.
+`imageId` holds the image's full 64-character digest rather than the 12-character short id the classic builder
+reports, though every task that accepts an image id, such as `DockerTagImage` and `DockerInspectImage`, accepts both
+forms.
+And the fine-grained transfer progress BuildKit reports while pulling layers has no equivalent in the classic output
+format, so it is not shown.
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+task buildImage(type: DockerBuildImage) {
+    inputDir = file('src/main/docker')
+    images.add('example/my-app:latest')
+    buildKit = true
+}
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+tasks.register<DockerBuildImage>("buildImage") {
+    inputDir.set(file("src/main/docker"))
+    images.add("example/my-app:latest")
+    buildKit.set(true)
+}
+----
+
+Set it on the extension to make it the default for every image build, and override it on individual tasks where
+needed:
+
+[source,groovy,indent=0,subs="verbatim,attributes"]
+----
+docker {
+    buildKit = true
+}
+
+task legacyImage(type: DockerBuildImage) {
+    buildKit = false
+}
+----
+
+==== Build Observability
+
+BuildKit records every build it runs, which `docker buildx history` lists and which build-analysis tooling
+subscribes to.
+The record carries per-step timing and cache status, the base images the build resolved, and an SLSA provenance
+attestation.
+Builds performed by the classic builder produce no such record, so turning `buildKit` on is what makes an image
+build visible to that tooling.
+
+==== Limitations
+
+The Engine API reaches BuildKit through the daemon's own builder, which offers a narrower set of features than
+`docker buildx build` does.
+Cache export, build secrets, SSH forwarding, multi-platform images and alternative exporters are not reachable this
+way, because the Engine API has no parameters for them.
+The Docker maintainers point to BuildKit's gRPC API for those, which the Docker Java library this plugin builds on
+does not support yet.
+
+`memory`, `shmSize` and `remove` have no effect on a BuildKit build.
+Configuring any of them together with `buildKit` logs a warning naming the ones that will be ignored.
+
+Because the build context is uploaded rather than synchronised through a BuildKit session, a build appears in
+`docker buildx history` under a generated context name rather than the name of the directory it was built from.
