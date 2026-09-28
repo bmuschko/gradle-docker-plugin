@@ -96,7 +96,7 @@ public class DockerCopyFileFromContainer extends DockerExistingContainer {
     public void runRemoteCommand() throws IOException {
 
         CopyArchiveFromContainerCmd containerCommand = getDockerClient().copyArchiveFromContainerCmd(getContainerId().get(), remotePath.get());
-        getLogger().quiet("Copying '" + getRemotePath().get() + "' from container with ID '" + getContainerId().get() + "' to '" + getHostPath().get() + "'.");
+        getLogger().lifecycle("Copying '" + getRemotePath().get() + "' from container with ID '" + getContainerId().get() + "' to '" + getHostPath().get() + "'.");
 
         try (InputStream tarStream = containerCommand.exec()) {
 
@@ -171,7 +171,7 @@ public class DockerCopyFileFromContainer extends DockerExistingContainer {
             fileCount = stream.filter(Files::isDirectory).count();
         }
         if (fileCount == 0) {
-            getLogger().quiet("Nothing to copy.");
+            getLogger().lifecycle("Nothing to copy.");
         } else if (fileCount == 1) {
             copySingleFile(hostDestination, tempDestination);
         } else {

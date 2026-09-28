@@ -132,7 +132,7 @@ public class DockerCommitImage extends DockerExistingContainer {
 
     @Override
     public void runRemoteCommand() throws IOException {
-        getLogger().quiet("Committing image '" + getRepository().get() + ":" + getTag().get() + "' for container '" + getContainerId().get() + "'.");
+        getLogger().lifecycle("Committing image '" + getRepository().get() + ":" + getTag().get() + "' for container '" + getContainerId().get() + "'.");
         CommitCmd commitCmd = getDockerClient().commitCmd(getContainerId().get());
         commitCmd.withRepository(repository.get());
         commitCmd.withTag(tag.get());
@@ -159,7 +159,7 @@ public class DockerCommitImage extends DockerExistingContainer {
 
         String createdImageId = commitCmd.exec();
         Files.write(imageIdFile.get().getAsFile().toPath(), createdImageId.getBytes());
-        getLogger().quiet("Created image with ID '" + createdImageId + "'.");
+        getLogger().lifecycle("Created image with ID '" + createdImageId + "'.");
         if (getNextHandler() != null) {
             getNextHandler().execute(createdImageId);
         }

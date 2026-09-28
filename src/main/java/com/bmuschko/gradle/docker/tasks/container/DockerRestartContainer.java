@@ -34,7 +34,7 @@ public class DockerRestartContainer extends DockerExistingContainer {
 
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Restarting container with ID '" + getContainerId().get() + "'.");
+        getLogger().lifecycle("Restarting container with ID '" + getContainerId().get() + "'.");
         RestartContainerCmd restartContainerCmd = getDockerClient().restartContainerCmd(getContainerId().get());
 
         if (waitTime.getOrNull() != null) {

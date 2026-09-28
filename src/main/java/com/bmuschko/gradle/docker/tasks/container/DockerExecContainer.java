@@ -156,7 +156,7 @@ public class DockerExecContainer extends DockerExistingContainer {
 
     @Override
     public void runRemoteCommand() throws InterruptedException {
-        getLogger().quiet("Executing on container with ID '" + getContainerId().get() + "'.");
+        getLogger().lifecycle("Executing on container with ID '" + getContainerId().get() + "'.");
         doRunRemoteCommand(getDockerClient());
     }
 

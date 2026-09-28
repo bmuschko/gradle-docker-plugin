@@ -338,11 +338,11 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
 
     @Override
     public void runRemoteCommand() throws Exception {
-        getLogger().quiet("Building image using context '" + getInputDir().get().getAsFile() + "'.");
+        getLogger().lifecycle("Building image using context '" + getInputDir().get().getAsFile() + "'.");
         BuildImageCmd buildImageCmd;
 
         if (dockerFile.getOrNull() != null) {
-            getLogger().quiet("Using Dockerfile '" + getDockerFile().get().getAsFile() + "'");
+            getLogger().lifecycle("Using Dockerfile '" + getDockerFile().get().getAsFile() + "'");
             buildImageCmd = getDockerClient().buildImageCmd()
                     .withBaseDirectory(inputDir.get().getAsFile())
                     .withDockerfile(dockerFile.get().getAsFile());
@@ -352,7 +352,7 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
 
         if (images.getOrNull() != null && !images.get().isEmpty()) {
             final String tagListString = images.get().stream().map(it -> "'" + it + "'").collect(Collectors.joining(", "));
-            getLogger().quiet("Using images " + tagListString + ".");
+            getLogger().lifecycle("Using images " + tagListString + ".");
             buildImageCmd.withTags(images.get());
         }
 
@@ -416,7 +416,7 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
         String createdImageId = buildImageCmd.exec(createCallback(getNextHandler())).awaitImageId();
         imageIdFile.get().getAsFile().getParentFile().mkdirs();
         Files.writeString(imageIdFile.get().getAsFile().toPath(), createdImageId);
-        getLogger().quiet("Created image with ID '" + createdImageId + "'.");
+        getLogger().lifecycle("Created image with ID '" + createdImageId + "'.");
     }
 
     private BuildImageResultCallback createCallback(final Action<BuildResponseItem> nextHandler) {
@@ -439,7 +439,7 @@ public class DockerBuildImage extends AbstractDockerRemoteApiTask implements Reg
             private final OutputCollector collector = new OutputCollector(new Consumer<String>() {
                 @Override
                 public void accept(String s) {
-                    getLogger().quiet(s);
+                    getLogger().lifecycle(s);
                 }
             });
 

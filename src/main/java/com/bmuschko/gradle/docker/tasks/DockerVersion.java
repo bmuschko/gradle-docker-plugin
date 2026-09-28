@@ -20,7 +20,7 @@ import com.github.dockerjava.api.model.Version;
 public class DockerVersion extends AbstractDockerRemoteApiTask {
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Retrieving Docker version.");
+        getLogger().lifecycle("Retrieving Docker version.");
         Version version = getDockerClient().versionCmd().exec();
         getLogger().quiet("Version          : " + version.getVersion());
         getLogger().quiet("Git Commit       : " + version.getGitCommit());

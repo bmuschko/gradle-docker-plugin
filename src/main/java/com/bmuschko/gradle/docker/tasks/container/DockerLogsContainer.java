@@ -143,7 +143,7 @@ public class DockerLogsContainer extends DockerExistingContainer {
 
     @Override
     public void runRemoteCommand() throws InterruptedException {
-        getLogger().quiet("Logs for container with ID '" + getContainerId().get() + "'.");
+        getLogger().lifecycle("Logs for container with ID '" + getContainerId().get() + "'.");
         logAndProcessResponse(getDockerClient());
     }
 

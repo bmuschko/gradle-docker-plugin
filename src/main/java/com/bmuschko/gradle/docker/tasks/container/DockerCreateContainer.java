@@ -286,7 +286,7 @@ public class DockerCreateContainer extends DockerExistingImage {
         CreateContainerResponse container = containerCommand.exec();
         final String orNull = containerName.getOrNull();
         final String localContainerName = orNull != null ? orNull : container.getId();
-        getLogger().quiet("Created container with ID '" + localContainerName + "'.");
+        getLogger().lifecycle("Created container with ID '" + localContainerName + "'.");
         Files.writeString(containerIdFile.get().getAsFile().toPath(), container.getId());
         if (getNextHandler() != null) {
             getNextHandler().execute(container);

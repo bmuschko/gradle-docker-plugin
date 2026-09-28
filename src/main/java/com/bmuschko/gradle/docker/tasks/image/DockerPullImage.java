@@ -71,7 +71,7 @@ public class DockerPullImage extends AbstractDockerRemoteApiTask implements Regi
     @Override
     public void runRemoteCommand() throws InterruptedException {
         AuthConfig authConfig = getRegistryAuthLocator().lookupAuthConfig(image.get(), registryCredentials);
-        getLogger().quiet("Pulling image '" + getImage().get() + "' from " + getRegistryAuthLocator().getRegistry(getImage().get()) + ".");
+        getLogger().lifecycle("Pulling image '" + getImage().get() + "' from " + getRegistryAuthLocator().getRegistry(getImage().get()) + ".");
 
         PullImageCmd pullImageCmd = getDockerClient().pullImageCmd(image.get());
 

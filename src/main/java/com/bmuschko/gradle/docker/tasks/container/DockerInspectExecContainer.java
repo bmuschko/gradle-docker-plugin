@@ -60,7 +60,7 @@ public class DockerInspectExecContainer extends AbstractDockerRemoteApiTask {
 
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Inspecting exec with ID '" + getExecId().get() + "'.");
+        getLogger().lifecycle("Inspecting exec with ID '" + getExecId().get() + "'.");
         InspectExecResponse result = getDockerClient().inspectExecCmd(execId.get()).exec();
         if (getNextHandler() != null) {
             getNextHandler().execute(result);
