@@ -36,7 +36,7 @@ public class DockerStopContainer extends DockerExistingContainer {
 
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Stopping container with ID '" + getContainerId().get() + "'.");
+        getLogger().lifecycle("Stopping container with ID '" + getContainerId().get() + "'.");
         _runRemoteCommand(getDockerClient(), getContainerId().get(), waitTime.getOrNull());
     }
 

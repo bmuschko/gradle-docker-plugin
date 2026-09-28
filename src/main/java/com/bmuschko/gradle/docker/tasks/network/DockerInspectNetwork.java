@@ -5,7 +5,7 @@ import com.github.dockerjava.api.model.Network;
 public class DockerInspectNetwork extends DockerExistingNetwork {
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Inspecting network '" + getNetworkId().get() + "'.");
+        getLogger().lifecycle("Inspecting network '" + getNetworkId().get() + "'.");
         Network network = getDockerClient().inspectNetworkCmd().withNetworkId(getNetworkId().get()).exec();
 
         if (getNextHandler() != null) {

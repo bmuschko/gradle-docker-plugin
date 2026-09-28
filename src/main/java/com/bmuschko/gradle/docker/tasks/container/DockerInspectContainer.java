@@ -35,7 +35,7 @@ public class DockerInspectContainer extends DockerExistingContainer {
 
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Inspecting container with ID '" + getContainerId().get() + "'.");
+        getLogger().lifecycle("Inspecting container with ID '" + getContainerId().get() + "'.");
         InspectContainerResponse container = getDockerClient().inspectContainerCmd(getContainerId().get()).exec();
 
         if (getNextHandler() != null) {

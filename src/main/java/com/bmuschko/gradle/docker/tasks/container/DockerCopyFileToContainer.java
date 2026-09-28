@@ -89,7 +89,7 @@ public class DockerCopyFileToContainer extends DockerExistingContainer {
 
         for (int i = 0; i < copyFiles.size(); i++) {
             final CopyFileToContainer fileToCopy = copyFiles.get(i);
-            getLogger().quiet("Copying file to container with ID '" + getContainerId().get() + "' at '" + String.valueOf(fileToCopy.getRemotePath()) + "'.");
+            getLogger().lifecycle("Copying file to container with ID '" + getContainerId().get() + "' at '" + String.valueOf(fileToCopy.getRemotePath()) + "'.");
             CopyArchiveToContainerCmd containerCommand = getDockerClient().copyArchiveToContainerCmd(getContainerId().get());
             setContainerCommandConfig(containerCommand, fileToCopy);
             containerCommand.exec();

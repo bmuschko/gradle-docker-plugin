@@ -14,7 +14,7 @@ val imageIdForName by tasks.creating(DockerImageIdForName::class) {
 val printImageId by tasks.creating {
     dependsOn(imageIdForName)
     doLast {
-        logger.quiet("Resolved image ID ${imageIdForName.imageId.get()} for name ${imageIdForName.filteredImageName.get()}")
+        logger.lifecycle("Resolved image ID ${imageIdForName.imageId.get()} for name ${imageIdForName.filteredImageName.get()}")
     }
 }
 // end::task-type-usage[]

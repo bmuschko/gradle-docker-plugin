@@ -23,7 +23,7 @@ public class DockerInfo extends AbstractDockerRemoteApiTask {
 
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Retrieving Docker info.");
+        getLogger().lifecycle("Retrieving Docker info.");
         Info info = getDockerClient().infoCmd().exec();
 
         if (getNextHandler() != null) {

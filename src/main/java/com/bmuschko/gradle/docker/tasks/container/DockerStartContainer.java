@@ -20,7 +20,7 @@ import com.github.dockerjava.api.command.StartContainerCmd;
 public class DockerStartContainer extends DockerExistingContainer {
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Starting container with ID '" + getContainerId().get() + "'.");
+        getLogger().lifecycle("Starting container with ID '" + getContainerId().get() + "'.");
         StartContainerCmd containerCommand = getDockerClient().startContainerCmd(getContainerId().get());
         containerCommand.exec();
     }

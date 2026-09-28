@@ -28,7 +28,7 @@ public class DockerRenameContainer extends DockerExistingContainer {
 
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Renaming container with ID '" + getContainerId().get() + "' to '" + getRenameTo().get() + "'.");
+        getLogger().lifecycle("Renaming container with ID '" + getContainerId().get() + "' to '" + getRenameTo().get() + "'.");
         getDockerClient().renameContainerCmd(getContainerId().get()).withName(renameTo.get()).exec();
     }
 }

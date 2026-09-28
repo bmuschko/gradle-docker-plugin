@@ -44,11 +44,11 @@ public class DockerWaitContainer extends DockerExistingContainer {
     @Override
     public void runRemoteCommand() {
         final String possibleTimeout = awaitStatusTimeout.getOrNull() != null ? " for " + getAwaitStatusTimeout().get() + " seconds" : "";
-        getLogger().quiet("Waiting for container with ID '" + getContainerId().get() + "'" + possibleTimeout + ".");
+        getLogger().lifecycle("Waiting for container with ID '" + getContainerId().get() + "'" + possibleTimeout + ".");
         WaitContainerCmd containerCommand = getDockerClient().waitContainerCmd(getContainerId().get());
         WaitContainerResultCallback callback = containerCommand.exec(createCallback(getNextHandler()));
         exitCode = awaitStatusTimeout.getOrNull() != null ? callback.awaitStatusCode(awaitStatusTimeout.get(), TimeUnit.SECONDS) : callback.awaitStatusCode();
-        getLogger().quiet("Container exited with code " + getExitCode());
+        getLogger().lifecycle("Container exited with code " + getExitCode());
     }
 
     @Internal

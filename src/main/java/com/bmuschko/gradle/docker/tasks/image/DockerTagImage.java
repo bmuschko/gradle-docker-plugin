@@ -54,7 +54,7 @@ public class DockerTagImage extends DockerExistingImage {
 
     @Override
     public void runRemoteCommand() {
-        getLogger().quiet("Tagging image with ID \'" + getImageId().get() + "\'.");
+        getLogger().lifecycle("Tagging image with ID \'" + getImageId().get() + "\'.");
         TagImageCmd tagImageCmd = getDockerClient().tagImageCmd(getImageId().get(), repository.get(), tag.get());
 
         if (Boolean.TRUE.equals(force.getOrNull())) {

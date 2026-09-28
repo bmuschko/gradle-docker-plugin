@@ -24,7 +24,7 @@ public class DockerOperation extends AbstractDockerRemoteApiTask {
         if (getNextHandler() != null) {
             getNextHandler().execute(getDockerClient());
         } else {
-            getLogger().quiet("Execution amounts to a no-op if the onNext closure/reactive-stream is not defined.");
+            getLogger().lifecycle("Execution amounts to a no-op if the onNext closure/reactive-stream is not defined.");
         }
     }
 }
